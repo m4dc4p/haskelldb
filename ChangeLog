@@ -1,3 +1,23 @@
+2004-03-31 21:56  forester
+
+	* NEWS: Added news for version 0.7
+
+2004-03-31 21:55  forester
+
+	* ANNOUNCE: Updated to version 0.7
+
+2004-03-31 21:52  d00bring
+
+	* INSTALL: added HSQL-MySQL windows problem
+
+2004-03-31 21:27  d00bring
+
+	* ChangeLog: Updated ChangeLog
+
+2004-03-31 21:26  forester
+
+	* ANNOUNCE, NEWS: Changed NEWS and ANNOUNCE to 0.7
+
 2004-03-31 21:16  d00bring
 
 	* test/: Makefile, big-test-create-tables.hs, big-test.hs, lazy.hs,
