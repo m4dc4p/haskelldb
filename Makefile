@@ -4,7 +4,7 @@ SUBDIRS = src doc
 
 include $(TOP_DIR)/rules.mk
 
-DIST_DIR = haskelldb-$(shell date +%Y%m%d)
+DIST_DIR = haskelldb-$(PACKAGE_VERSION)
 
 .PHONY: dist distclean maintainer-clean
 

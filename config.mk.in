@@ -1,6 +1,8 @@
 # HaskellDB configuration file. configure will produce config.mk from this file
 # @configure_input@
 
+PACKAGE_VERSION = @PACKAGE_VERSION@
+
 # FIXME: this should probably be set by configure in the future
 DRIVERS = hsql
 
