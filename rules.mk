@@ -22,7 +22,7 @@ ghciload-%: %.hs
 	$(GHC) $(GHCFLAGS) -c $<
 
 %.hs: %.pphs
-	$(TOP_DIR)/preprocess $< > $@
+	$(TOP_DIR)/preprocess $(HSPP_FLAGS) $^ > $@
 
 %.hi: %.o
 	@:

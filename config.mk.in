@@ -48,19 +48,28 @@ WITH_HSQL_POSTGRESQL = @WITH_HSQL_POSTGRESQL@
 
 ifeq "$(WITH_HSQL_ODBC)" "yes"
 HSQL_DRIVERS += ODBC
+HSPP_FLAGS += -DWITH_HSQL_ODBC
 endif
 
 ifeq "$(WITH_HSQL_MYSQL)" "yes"
 HSQL_DRIVERS += MySQL
+HSPP_FLAGS += -DWITH_HSQL_MYSQL
 endif
 
 ifeq "$(WITH_HSQL_POSTGRESQL)" "yes"
 HSQL_DRIVERS += PostgreSQL
+HSPP_FLAGS += -DWITH_HSQL_POSTGRESQL
 endif
 
 ifneq ($(strip $(HSQL_DRIVERS)),)
 DRIVERS += HSQL
 endif
+
+#
+# Preprocessing
+#
+
+HSPP = $(TOP_DIR)/preprocess $(HSPP_FLAGS)
 
 #
 # Include local HaskellDB dirs
