@@ -10,7 +10,7 @@
 -- 
 -- This is a replacement for some of TREX.
 --
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec 
     (
@@ -53,7 +53,7 @@ type Record r = RecNil -> r
 _ .=. x = RecCons x
 
 -- | Adds an entry to a record.
-( # ) :: (b -> c) -> Record b -> Record c
+( # ) :: (b -> c) -> (a -> b) -> (a -> c)
 ( # ) = (.)
 
 -- * Class definitions.
