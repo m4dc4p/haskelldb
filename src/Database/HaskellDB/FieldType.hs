@@ -39,7 +39,7 @@ data FieldType =
     | DoubleT
     | BoolT
     | CalendarTimeT
-    | StrT Int
+    | BStrT Int
     deriving (Eq)
 
 instance Show FieldType where
@@ -49,7 +49,7 @@ instance Show FieldType where
     show DoubleT = "Double"
     show BoolT = "Bool"
     show CalendarTimeT = "CalendarTime"
-    show (StrT a) = "Str" ++ show a
+    show (BStrT a) = "BStr" ++ show a
 
 -- | Creates a CalendarTime from a ClockTime
 -- | This loses the time zone and assumes UTC. :(

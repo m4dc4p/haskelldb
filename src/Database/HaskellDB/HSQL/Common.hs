@@ -141,7 +141,7 @@ toFieldType SqlDate          = CalendarTimeT
 toFieldType SqlTime          = CalendarTimeT
 toFieldType SqlTimeStamp     = CalendarTimeT
 toFieldType SqlDateTime      = CalendarTimeT
-toFieldType (SqlVarChar a)   = StrT a
+toFieldType (SqlVarChar a)   = BStrT a
 toFieldType _                = StringT
 
 
