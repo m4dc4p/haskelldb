@@ -6,11 +6,15 @@ DRIVER_SRC = $(addsuffix .hs, $(HSQL_DRIVERS))
 SRC = HSQL_driver.hs $(DRIVER_SRC)
 OBJS = $(patsubst %.hs,%.o, $(SRC))
 
-.PHONY: drivers
+ALL_COMPILERS = $(addprefix all-,$(COMPILERS))
 
-all: drivers
+.PHONY: $(ALL_COMPILERS)
 
-drivers: $(OBJS)
+all: $(ALL_COMPILERS)
+
+all-ghc: $(OBJS)
+
+all-hugs:
 
 .depend: $(SRC)
 

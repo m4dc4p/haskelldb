@@ -21,8 +21,7 @@ ghciload-%: %.hs
 %.o: %.hs
 	$(GHC) $(GHCFLAGS) -c $<
 
-%.hi: %.o
-	@\:
+%.hi: %.o ;
 
 .depend: 
 	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^

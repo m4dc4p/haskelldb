@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.5],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.5 $)
+AC_REVISION($Revision: 1.6 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -17,7 +17,7 @@ dnl ***********************************************
 
 GHCFLAGS="$GHCFLAGS -fglasgow-exts -fallow-overlapping-instances"
 
-HUGSFLAGS="-98 +o"
+HUGSFLAGS="$HUGSFLAGS -98 +o"
 
 AC_SUBST(GHCFLAGS)
 AC_SUBST(HUGSFLAGS)
@@ -85,6 +85,20 @@ AC_HELP_STRING([--enable-hugs],
 [ENABLE_HUGS="$enableval"],
 [ENABLE_HUGS=yes]
 )
+AC_SUBST(ENABLE_HUGS)
+
+dnl ***********************************************
+dnl Enable/Disable building GHC libraries
+dnl ***********************************************
+
+AC_ARG_ENABLE(ghc,
+AC_HELP_STRING([--enable-ghc],
+	       [Enable builing GHC libraries. 
+	        (default = yes)]),
+[ENABLE_GHC="$enableval"],
+[ENABLE_GHC=yes]
+)
+AC_SUBST(ENABLE_GHC)
 
 dnl ***********************************************
 dnl GHC
@@ -120,7 +134,7 @@ AC_HELP_STRING([--with-ghc-dir=DIR],
  fi]
 )
 
-if test "$GHC" != ""; then
+if test "$ENABLE_GHC" = "yes" && test "$GHC" != ""; then
 	if test "$GHC_DIR" = "" || test ! -d $GHC_DIR; then
 	   AC_MSG_ERROR([GHC_DIR $GHC_DIR does not exist])
 	fi
@@ -138,7 +152,7 @@ AC_HELP_STRING([--with-ghc-pkg=<ghc-pkg command>],
 [AC_PATH_PROG(GHC_PKG,ghc-pkg)]
 )
 
-if test "$GHC" != ""; then
+if test "$ENABLE_GHC" = "yes" && test "$GHC" != ""; then
 	if test "$GHC_PKG" = "" || test ! -f $GHC_PKG; then
 	   AC_MSG_ERROR([ghc-pkg is required for GHC support])
 	fi
@@ -327,31 +341,27 @@ AC_ARG_WITH(odbc-libs,
   ]
 )
 
-if test $WITH_HSQL_ODBC = yes; then
+if test "$WITH_HSQL_ODBC" = "yes"; then
   AC_HS_MODULE_IFELSE([Database.HSQL.ODBC],[connect],,
     [AC_MSG_WARN([ODBC module not found, skipping ODBC])
     WITH_HSQL_ODBC=no])
 fi
 
-if test $WITH_HSQL_ODBC = yes; then
-
-  case $ac_cv_target_alias in
-    i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
-	libodbc=odbc32
-        ;;
-    *)  
-	libodbc=odbc
-        ;;
-  esac
+if test "$WITH_HSQL_ODBC" = "yes"; then
 
   if test "$ODBC_LIB_DIR" != ""; then
     LDFLAGS="$LDFLAGS -L$ODBC_LIB_DIR"
   fi
 
-  AC_CHECK_LIB($libodbc,SQLAllocEnv,,
-    [AC_MSG_WARN([libodbc required to build ODBC programs, 
-                  not building ODBC support])
-     WITH_HSQL_ODBC=no])
+  case $ac_cv_target_alias in
+    i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
+	# FIXME: not checking for libodbc on win32
+        LIBS="$LIBS -lodbc32"
+        ;;
+    *)  AC_CHECK_LIB(odbc,SQLAllocEnv,,AC_MSG_ERROR(
+	[libodbc required to build ODBC programs. Skipping ODBC support.]))
+        ;;
+  esac
 
 fi
 

@@ -3,13 +3,6 @@
 
 PACKAGE_VERSION = @PACKAGE_VERSION@
 
-# FIXME: this should probably be set by configure in the future
-DRIVERS = hsql
-
-WITH_HSQL_ODBC = @WITH_HSQL_ODBC@
-WITH_HSQL_MYSQL = @WITH_HSQL_MYSQL@
-WITH_HSQL_POSTGRESQL = @WITH_HSQL_POSTGRESQL@
-
 GHC = @GHC@
 GHCI = @GHCI@
 GHC_PKG = @GHC_PKG@
@@ -31,8 +24,30 @@ INSTALL = @INSTALL@
 LDFLAGS = @LDFLAGS@
 
 #
+# Which compilers to build libraries for
+#
+
+ENABLE_GHC = @ENABLE_GHC@
+ENABLE_HUGS = @ENABLE_HUGS@
+
+ifeq "$(ENABLE_GHC)" "yes"
+COMPILERS += ghc
+endif
+
+ifeq "$(ENABLE_HUGS)" "yes"
+COMPILERS += hugs
+endif
+
+#
 # HSQL, unixODBC, MySQL, PostgreSQL stuff
 #
+
+# FIXME: this should probably be set by configure in the future
+DRIVERS = hsql
+
+WITH_HSQL_ODBC = @WITH_HSQL_ODBC@
+WITH_HSQL_MYSQL = @WITH_HSQL_MYSQL@
+WITH_HSQL_POSTGRESQL = @WITH_HSQL_POSTGRESQL@
 
 ifeq "$(WITH_HSQL_ODBC)" "yes"
 HSQL_DRIVERS += HSQL_ODBC

@@ -6,7 +6,9 @@ include $(TOP_DIR)/rules.mk
 
 DIST_DIR = haskelldb-$(PACKAGE_VERSION)
 
-.PHONY: dist distclean maintainer-clean
+INSTALL_COMPILERS = $(addprefix install-,$(COMPILERS))
+
+.PHONY: install $(INSTALL_COMPILERS) dist distclean maintainer-clean
 
 all: src
 
@@ -21,6 +23,12 @@ config.mk: config.mk.in config.status
 
 haskelldb.pkg: haskelldb.pkg.in config.status
 	./config.status
+
+install: $(INSTALL_COMPILERS)
+
+install-ghc:
+
+install-hugs:
 
 dist:
 	mkdir $(DIST_DIR)

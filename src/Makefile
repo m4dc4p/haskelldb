@@ -11,16 +11,20 @@ DRIVERS_TEST = $(addsuffix -test, $(DRIVER_DIRS))
 DRIVERS_CLEAN = $(addsuffix -clean, $(DRIVER_DIRS))
 DRIVERS_OBJS = $(addsuffix /*.o, $(DRIVER_DIRS))
 
+ALL_COMPILERS = $(addprefix all-,$(COMPILERS))
+
 .PHONY: drivers $(DRIVER_DIRS) $(DRIVERS_OBJS) \
 	dbdirect dbdirect-clean test $(DRIVERS_TEST) \
-	$(DRIVERS_CLEAN)
+	$(DRIVERS_CLEAN) $(ALL_COMPILERS)
 
-all: $(OBJS) drivers libHShdb.a dbdirect
+all: $(OBJS) drivers $(ALL_COMPILERS) dbdirect
 
-warn-all: all
+all-ghc: libHShdb.a
 
 libHShdb.a: $(OBJS) $(DRIVERS_OBJS)
 	$(AR) -rc $@ $^
+
+all-hugs:
 
 drivers: $(DRIVER_DIRS)
 
