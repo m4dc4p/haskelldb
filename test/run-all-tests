@@ -26,11 +26,11 @@ for p in $PROG; do
 	echo "GHC compiling $p"
 	make $p || exit 1
 	echo "GHC running: $p"
-	./$p "$@"
+	./$p "$@" || exit 1
 done
 
 # run tests with hugs
 for p in $PROG; do
 	echo "Hugs running: $p"
-	runhugs -98 +o $p.hs "$@"
+	runhugs -98 +o $p.hs "$@" || exit 1
 done
