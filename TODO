@@ -11,9 +11,6 @@ Things that need to be done, in no particular order:
   * switch ad-hoc assert to Control.Expcetion.assert
   * change insert to work like insertNew and remove insertNew 
     (is this a good idea?)
-  * fix showing of ConstExpr. Now everything is quoted, but 
-    that only works for strings in general. PostegreSQL does
-    not like quoted integer for example.
 
 - DbDirect 
   (* add optional command line argument for selecting which

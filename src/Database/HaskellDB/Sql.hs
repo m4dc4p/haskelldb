@@ -185,7 +185,7 @@ toInsertNew :: TableName -> Assoc -> SqlInsert
 toInsertNew table assoc
 	= SqlInsertNew table (map showExpr assoc)
 	where
-	  showExpr (attr,expr)	= (attr,show expr)
+	  showExpr (attr,expr)	= (attr,show (ppPrimExpr expr))
 
 ppInsert (SqlInsert table select)
 	= text "INSERT INTO" <+> text table
