@@ -4,7 +4,7 @@ import Dp037.Test_tb1
 --import Database.HaskellDB.HSQL.PostgreSQL
 import Database.HaskellDB.HSQL.ODBC
 
-opts = ODBCOptions { dsn = "mysql-dp037", uid = "dp037", pwd = "teent333" }
+opts = ODBCOptions { dsn = "", uid = "", pwd = "" }
 withDB = odbcConnect opts
 
 

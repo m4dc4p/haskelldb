@@ -4,7 +4,7 @@ import Database.HaskellDB.HSQL.ODBC
 import Dp037
 import Dp037.D3proj_users
 
-opts = ODBCOptions { dsn = "mysql-dp037", uid = "dp037", pwd = "teent333" }
+opts = ODBCOptions { dsn = "", uid = "", pwd = "" }
 withDB = odbcConnect opts
 
 getUsers = 

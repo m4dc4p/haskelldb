@@ -58,7 +58,7 @@ c12 = mkAttr C12
 --
 
 opts :: ODBCOptions
-opts = ODBCOptions{dsn="mysql-dp037", uid="dp037", pwd="teent333"}
+opts = ODBCOptions{dsn="", uid="", pwd=""}
 
 -- run a test function
 runTest f = odbcConnect opts f

@@ -35,10 +35,10 @@ CREATE TABLE d3proj_users (
 
 
 
-opts = ODBCOptions{dsn="mysql-dp037", uid="dp037", pwd="teent333"}
+opts = ODBCOptions{dsn="", uid="", pwd=""}
 withDB f = odbcConnect opts f
 
---opts = PostgreSQLOptions{server="localhost", db="dp037", uid="dp037", pwd="teent333"}
+--opts = PostgreSQLOptions{server="localhost", db="", uid="", pwd=""}
 --withDB f = postgresqlConnect opts f
 
 reports user
