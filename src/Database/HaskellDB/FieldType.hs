@@ -13,7 +13,7 @@
 --
 -----------------------------------------------------------
 module Database.HaskellDB.FieldType 
-    (FieldDesc, FieldType(..), mkCalendarTime) where
+    (FieldDesc, FieldType(..), PrimShow(..), mkCalendarTime) where
 
 import Data.Dynamic
 import System.Time
@@ -32,16 +32,21 @@ data FieldType =
     | BoolT
     | CalendarTimeT
     | BStrT Int
-    deriving (Eq)
+    deriving (Eq,Show)
 
-instance Show FieldType where
-    show StringT = "String"
-    show IntT = "Int"
-    show IntegerT = "Integer"
-    show DoubleT = "Double"
-    show BoolT = "Bool"
-    show CalendarTimeT = "CalendarTime"
-    show (BStrT a) = "BStr" ++ show a
+-- | defines a primitive show, that gives us the Haskell correct types from a
+-- FieldType
+class PrimShow a where
+    pshow :: a -> String
+
+instance PrimShow FieldType where
+    pshow StringT = "String"
+    pshow IntT = "Int"
+    pshow IntegerT = "Integer"
+    pshow DoubleT = "Double"
+    pshow BoolT = "Bool"
+    pshow CalendarTimeT = "CalendarTime"
+    pshow (BStrT a) = "BStr" ++ show a
 
 -- | Creates a CalendarTime from a ClockTime
 --   This loses the time zone and assumes UTC. :(

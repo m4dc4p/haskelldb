@@ -1,8 +1,10 @@
 TOP_DIR = ..
 
 DRIVER_DIRS = drivers/hsql
+SPEC_DIRS = DBSpec
+DBDIRECT_DIRS = DBDirect
 
-SUBDIRS = DBSpec $(DRIVER_DIRS) DBDirect
+SUBDIRS = $(SPEC_DIRS) $(DRIVER_DIRS) $(DBDIRECT_DIRS)
 
 include $(TOP_DIR)/rules.mk
 
@@ -18,7 +20,8 @@ HASKELLDB_MODULES = \
 	  Database.HaskellDB.Optimize \
 	  Database.HaskellDB.Database \
 	  Database.HaskellDB.BoundedString \
-	  Database.HaskellDB.BoundedList
+	  Database.HaskellDB.BoundedList \
+	  Database.HaskellDB.DBSpec
 
 DATABASE_MODULES = Database.HaskellDB
 
@@ -36,6 +39,8 @@ OBJS = $(patsubst %.hs, %.o, $(SRC))
 
 DRIVERS_OBJS = $(patsubst %, $(BUILD_DIR)/Database/HaskellDB/%/*.o, $(DRIVERS))
 
+SPEC_OBJS = $(BUILD_DIR)/Database/HaskellDB/DBSpec/*.o
+
 ALL_COMPILERS = $(addprefix all-,$(COMPILERS))
 
 .PHONY: $(ALL_COMPILERS)
@@ -46,8 +51,8 @@ all-ghc: $(BUILD_DIR)/libHShdb.a
 
 all-hugs: $(SRC) 
 
-$(BUILD_DIR)/libHShdb.a: $(OBJS) $(DRIVER_DIRS)
-	$(AR) -rc $@ $(filter %.o, $^) $(DRIVERS_OBJS)
+$(BUILD_DIR)/libHShdb.a: $(OBJS) $(SPEC_DIRS) $(DRIVER_DIRS)
+	$(AR) -rc $@ $(filter %.o, $^) $(DRIVERS_OBJS) $(SPEC_OBJS)
 
 $(BUILD_DIR)/Database/%: %
 	mkdir -p $(sort $(dir $@))
