@@ -11,41 +11,6 @@ Things that need to be done, in no particular order:
   * switch ad-hoc assert to Control.Expcetion.assert
   * change insert to work like insertNew and remove insertNew 
     (is this a good idea?)
-  * It seems like the optimization step propagates
-    field values throughout the query instead of field names. 
-    For example, this code:
-
-     avgWorkChunks
-	= do
-	      reports <- table d3proj_time_reports
-	      users <- table d3proj_users
-	      restrict (reports!user .==. users!xid)
-	      r <- project (first_name << users!first_name 
-			    # last_name << users!last_name
-		            # hours << avg reports hours)
-	      order [asc r hours]
-	      return r
-
-    Generates this query:
-
-    SELECT DISTINCT first_name2 as first_name,
-                    last_name2 as last_name,
-                    AVG(hours1) as hours
-    FROM (SELECT DISTINCT id as id2,
-                          first_name as first_name2,
-                          last_name as last_name2
-          FROM  d3proj_users as T1) as T1,
-         (SELECT DISTINCT user as user1,
-                          hours as hours1
-          FROM  d3proj_time_reports as T1) as T2
-    WHERE (user1 = id2)
-    GROUP BY first_name2,
-             last_name2
-    ORDER BY AVG(hours1) ASC
-
-    But the last line should be "ORDER BY hours ASC", since we do not
-    want that recalculated, and at least MySQL does not support 
-    aggregate functions in the "ORDER BY" clause. 
   * ppPrimExpr seems to print a newline character after every binary
     operator.
   * Result columns may contain NULL values even if the corresponding

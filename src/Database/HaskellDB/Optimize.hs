@@ -181,12 +181,17 @@ pushRestrict (Special op (Project assoc query))
 	  subst op		= op
 -}
 
--- We take the safe route and do not push orderings at all
-pushRestrict (Special op (Project assoc query))
-	| safe op = Project assoc (pushRestrict (Special op query))
+-- Order is only pushed if it does not cause it to
+-- end up with aggregate expressions in one of its expressions
+pushRestrict (Special (Order xs) (Project assoc query))
+    | safe = Project assoc (pushRestrict (Special (Order xs') query))
 	where
-	  safe (Order _)	= False
-	  safe _		= True
+	  xs' = map (substAttr assoc) xs
+	  safe = not (any isAggregate xs')
+
+-- Top is always pushed through Project
+pushRestrict (Special top@(Top _ _) (Project assoc query))
+    = Project assoc (pushRestrict (Special top query))
 
 pushRestrict (Special op (query@(Special _ _)))
 	= case (pushed) of
