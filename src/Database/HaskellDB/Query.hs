@@ -43,23 +43,6 @@ infixr  2 .||.
 (!) :: (ShowRecRow r) => Rel r -> Attr f r a -> Expr a
 rel ! attr      = select attr rel
 
-(.==.) x y      = eq x y
-(.<>.) x y      = neq x y
-(.<.) x y       = lt x y
-(.<=.) x y      = lte x y
-(.>.) x y       = gt x y
-(.>=.) x y      = gte x y
-(.&&.) x y	= _and x y
-(.||.) x y	= _or x y
-
-(.+.) x y       = add x y
-(.-.) x y       = sub x y
-(.*.) x y       = mul x y
-(./.) x y       = _div x y
-(.%.) x y       = _mod x y
-
-(.++.) x y	= cat x y
-
 ----------------------------------------------------------
 -- Data definitions. The ...Kind constructors are only
 --		used to inform Hugs that the parameter is
@@ -194,44 +177,44 @@ binop op (Expr primExpr1) (Expr primExpr2)
                 = Expr (BinExpr op primExpr1 primExpr2)
 
 
-eq,neq :: Eq a => Expr a -> Expr a -> Expr Bool
-eq              = binop OpEq
-neq             = binop OpNotEq
+(.==.),(.<>.) :: Eq a => Expr a -> Expr a -> Expr Bool
+(.==.) = binop OpEq
+(.<>.) = binop OpNotEq
 
-gt,gte,lt,lte :: Ord a => Expr a -> Expr a -> Expr Bool
-gt              = binop OpGt
-gte             = binop OpGtEq
-lt              = binop OpLt
-lte             = binop OpLtEq
+(.<.),(.<=.),(.>.),(.>=.) :: Ord a => Expr a -> Expr a -> Expr Bool
+(.<.)  = binop OpLt
+(.<=.) = binop OpLtEq
+(.>.)  = binop OpGt
+(.>=.) = binop OpGtEq
 
 _not :: Expr Bool -> Expr Bool
-_not x          = unop OpNot x
+_not   = unop OpNot
 
-_and,_or :: Expr Bool -> Expr Bool -> Expr Bool
-_and            = binop OpAnd
-_or             = binop OpOr
+(.&&.),(.||.) :: Expr Bool -> Expr Bool -> Expr Bool
+(.&&.) = binop OpAnd
+(.||.) = binop OpOr
 
 
 like :: Expr String -> Expr String -> Expr Bool
-like            = binop OpLike
+like   = binop OpLike
 
-cat :: Expr String -> Expr String -> Expr String
-cat		= binop OpCat
-
+cat,(.++.) :: Expr String -> Expr String -> Expr String
+cat    = binop OpCat
+(.++.) = cat
 
 numop :: Num a => BinOp -> Expr a -> Expr a -> Expr a
 numop   = binop
 
-add x y         = numop OpPlus x y
-sub x y         = numop OpMinus x y
-mul x y         = numop OpMul x y
-_div x y        = numop OpDiv x y
-_mod x y        = numop OpMod x y
-
+(.+.),(.-.),(.*.),(./.),(.%.) :: Num a => Expr a -> Expr a -> Expr a
+(.+.) = numop OpPlus
+(.-.) = numop OpMinus
+(.*.) = numop OpMul
+(./.) = numop OpDiv
+(.%.) = numop OpMod
 
 isNull,notNull :: Expr a -> Expr Bool
-isNull x        = unop OpIsNull x
-notNull x       = unop OpIsNotNull x
+isNull  = unop OpIsNull
+notNull = unop OpIsNotNull
 
 -----------------------------------------------------------
 -- Constants
@@ -271,10 +254,11 @@ count x		= aggregate AggrCount x
 numAggregate :: (ShowRecRow r,Num a) => AggrOp -> Rel r -> Attr f r a -> Expr a
 numAggregate	= aggregate
 
+_sum,_max,_min,avg,stddev,stddevP,variance,varianceP 
+    :: (ShowRecRow r,Num a) => Rel r -> Attr f r a -> Expr a
 _sum x          = numAggregate AggrSum x
 _max x          = numAggregate AggrMax x
 _min x          = numAggregate AggrMin x
-
 avg x           = numAggregate AggrAvg x
 stddev x        = numAggregate AggrStdDev x
 stddevP x       = numAggregate AggrStdDevP x
