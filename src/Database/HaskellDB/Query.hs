@@ -351,8 +351,6 @@ instance ShowConstant Integer where
 instance ShowConstant Double where
     showConstant x = show x
 instance ShowConstant Bool where
-    -- Bools probably correspond to some numeric type (like BIT),
-    -- so 0 and 1 seem reasonable to use.
     showConstant False = "FALSE"
     showConstant True = "TRUE"
 
