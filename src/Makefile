@@ -8,17 +8,17 @@ DRIVERS = hsql
 
 SRC = $(patsubst %.o,%.hs, $(OBJS))
 
-.PHONY: clean drivers
+.PHONY: all clean drivers $(DRIVERS)
 
 default all: libHDB.a drivers
 
 libHDB.a: $(OBJS)
 	$(AR) -rc $@ $^
 
-drivers: 
-	for d in $(addprefix drivers/, $(DRIVERS)); do \
-	   $(MAKE) -C $$d; \
-	done
+drivers: $(DRIVERS)
+
+$(DRIVERS):
+	   $(MAKE) -C $(addprefix drivers/, $@)
 
 .depend: $(SRC)
 	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^

@@ -1,7 +1,5 @@
-.SUFFIXES: .hs .hi .o
-
 %.o: %.hs
-	$(GHC) $(GHCFLAGS) -c $< -o $@
+	$(GHC) $(GHCFLAGS) -c $<
 
 %.hi: %.o
 	@\:

@@ -15,7 +15,7 @@ OBJS = HSQL_driver.o test.o
 
 SRC = $(patsubst %.o,%.hs, $(OBJS))
 
-.PHONY: clean
+.PHONY: clean HSQL
 
 default all: test
 
@@ -33,10 +33,12 @@ hugstest: $(HSQL_DIR)/Database/ODBC/HSQL.hs $(HSQL_DIR)/Database/ODBC/HSQL.so
 # GHC
 #
 
-$(HSQL_DIR)/Database/libHSsql.a: HSQL
+HSQL:
 	$(MAKE) -f Makefile.HSQL HSQL/libHSsql.a
 
-test: $(HSQL_DIR)/Database/libHSsql.a test.o HSQL_driver.o
+$(HSQL_DIR)/Database/libHSsql.a: HSQL
+
+test: $(HSQL_DIR)/Database/libHSsql.a $(OBJS)
 	$(GHC) $(GHCFLAGS) -o $@ $^ $(LDFLAGS) -L../.. -lHDB
 
 ghciload: $(HSQL_DIR)/Database/ODBC/HSQL.hs
@@ -46,8 +48,8 @@ ghciload: $(HSQL_DIR)/Database/ODBC/HSQL.hs
 # Generic
 #
 
-../../%: 
-	make -C ../..
+../../libHSsql.a: 
+	make -C ../.. libHSsql.a
 
 .depend: $(SRC) 
 	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
