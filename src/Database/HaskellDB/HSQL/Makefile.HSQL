@@ -1,10 +1,10 @@
 HTOOLKIT_CVS=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/htoolkit
 
-#UNIXODBC_DIR=/usr
-UNIXODBC_DIR=/usr/local/dp03-7/unixODBC-2.2.6
+UNIXODBC_DIR=/usr
+#UNIXODBC_DIR=/usr/local/dp03-7/unixODBC-2.2.6
 
-#HUGS_DIR=/usr/lib/hugs
-HUGS_DIR=/usr/local/dp03-7/hugs98-Nov2003/lib/hugs
+HUGS_DIR=/usr/lib/hugs
+#HUGS_DIR=/usr/local/dp03-7/hugs98-Nov2003/lib/hugs
 
 .PHONY: clean
 
@@ -12,9 +12,6 @@ default all: HSQL/libHSsql.a
 
 HSQL:
 	cvs -d $(HTOOLKIT_CVS) co HSQL
-
-HSQL/%: HSQL HSQL-hwt.patch
-	-patch -N -d HSQL -p0 < HSQL-hwt.patch
 
 HSQL/configure: HSQL/configure.ac
 	cd HSQL && autoconf

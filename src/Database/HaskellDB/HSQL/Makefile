@@ -46,17 +46,13 @@ ghciload: $(HSQL_DIR)/Database/ODBC/HSQL.hs
 # Generic
 #
 
-HSQL Database HSQL/% Database/%: HSQL-hwt.patch
-	$(MAKE) -f Makefile.HSQL HSQL Database
-
 ../../%: 
 	make -C ../..
 
-.depend: $(SRC)
+.depend: $(SRC) 
 	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
 
 clean:
 	-rm -f test *.so *.o *.hi .depend .depend.bak
-	$(MAKE) -f Makefile.HSQL clean
 
 include .depend
