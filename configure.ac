@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.7],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.36 $)
+AC_REVISION($Revision: 1.37 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -63,6 +63,17 @@ AC_HELP_STRING([--enable-ghc],
 AC_SUBST(ENABLE_GHC)
 
 dnl ***********************************************
+dnl Enable/Disable HSQL
+dnl ***********************************************
+
+AC_ARG_ENABLE(hsql,
+AC_HELP_STRING([--enable-hsql],
+	       [Enable use of HSQL. (default = yes)]),
+[WITH_HSQL="$enableval"],
+[WITH_HSQL=yes]
+)
+
+dnl ***********************************************
 dnl Enable/Disable HSQL for ghc
 dnl ***********************************************
 
@@ -70,7 +81,7 @@ AC_ARG_ENABLE(ghc-hsql,
 AC_HELP_STRING([--enable-ghc-hsql],
 	       [Enable use of HSQL with ghc. (default = yes)]),
 [WITH_GHC_HSQL="$enableval"],
-[WITH_GHC_HSQL=yes]
+[WITH_GHC_HSQL="$WITH_HSQL"]
 )
 AC_SUBST(WITH_GHC_HSQL)
 
@@ -82,7 +93,7 @@ AC_ARG_ENABLE(hugs-hsql,
 AC_HELP_STRING([--enable-hugs-hsql],
 	       [Enable use of HSQL for Hugs. (default = yes)]),
 [WITH_HUGS_HSQL="$enableval"],
-[WITH_HUGS_HSQL=yes]
+[WITH_HUGS_HSQL="$WITH_HSQL"]
 )
 AC_SUBST(WITH_HUGS_HSQL)
 
