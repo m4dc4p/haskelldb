@@ -13,7 +13,7 @@ PROG = hardcoded-layout-simple-query join-and-aggr html-users-list \
 all: $(PROG)
 
 %: %.hs TestConnect.hs
-	ghc --make -fcontext-stack30 -o $@ $<
+	ghc --make -fcontext-stack30 -package haskelldb -o $@ $<
 
 clean:
 	-rm -f $(PROG) *.o *.hi  

@@ -1,6 +1,6 @@
 Package
     {name = "haskelldb",
-     auto=True,
+     auto=False,
      import_dirs = ["@GHC_DIR@/imports"],
      source_dirs = [],
      library_dirs = [@LIB_DIRS@],
