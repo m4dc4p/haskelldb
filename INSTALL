@@ -36,3 +36,16 @@ Database software support:
 
   HaskellDB does not work with MySQL version < 4.1 because of the
   lack of support for nested subqueries. 
+
+  * MyODBC:  
+  tar -zxf MyODBC-3.51.06.tar.gz
+  cd MyODBC-3.51.06
+  ./configure --enable-shared --with-samples=no --with-debug=yes \
+  --with-unixODBC=/usr
+ 
+  * MyODBC on jackass:
+
+  ./configure --prefix=/usr/local/dp03-7/MyODBC-3.51.06 \
+  --with-unixODBC=/usr/local/dp03-7/unixODBC-2.2.6/ \
+  --enable-shared --with-mysql-libs=/usr/local/dp03-7/mysql/lib \
+  --with-mysql-includes=/usr/local/dp03-7/mysql/include/
