@@ -1,16 +1,15 @@
 -----------------------------------------------------------
 -- | 
--- Daan Leijen (c) 1999, daan@cs.uu.nl
+-- Daan Leijen (c) 1999, daan\@cs.uu.nl
 --
--- module OptPrimQuery:
 -- 	defines standard optimizations performed on PrimQuery's
 --	(relational expressions).
 --
--- "mergeProject" merges adjacent projections
--- "pushRestrict" pushes restrictions down the tree, ie.
+-- 'mergeProject' merges adjacent projections
+-- 'pushRestrict' pushes restrictions down the tree, ie.
 --		  perform restrictions as soon as possible.
--- "removeDead"   removes unused attributes from projections.
--- "removeEmpty"  removes unused branches of an expression.
+-- 'removeDead'   removes unused attributes from projections.
+-- 'removeEmpty'  removes unused branches of an expression.
 -----------------------------------------------------------
 module Optimize (optimize) where
 
