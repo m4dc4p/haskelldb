@@ -2,8 +2,6 @@ include $(TOP_DIR)/config.mk
 
 export GHCFLAGS_WARN
 
-LINK.o = $(GHC) $(GHCFLAGS) $(LDFLAGS)
-
 SUBDIRS_CLEAN = $(addsuffix -clean, $(SUBDIRS))
 
 .PHONY: default all $(SUBDIRS) clean $(SUBDIRS_CLEAN) \
@@ -21,6 +19,9 @@ hugstest:
 
 ghciload: 
 	$(GHCI) $(GHCFLAGS) $(LDFLAGS) $^
+
+%: %.o
+	$(GHC) $(GHCFLAGS) $^ $(LDFLAGS) -o $@
 
 %.o: %.hs
 	$(GHC) $(GHCFLAGS) -c $<
