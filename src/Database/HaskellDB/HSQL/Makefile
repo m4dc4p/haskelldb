@@ -2,7 +2,8 @@ TOP_DIR = ../../..
 
 include $(TOP_DIR)/rules.mk
 
-SRC = $(addsuffix .hs, $(HSQL_DRIVERS))
+DRIVER_SRC = $(addsuffix .hs, $(HSQL_DRIVERS))
+SRC = HSQL_driver.hs $(DRIVER_SRC)
 OBJS = $(patsubst %.hs,%.o, $(SRC))
 
 .PHONY: drivers
