@@ -22,10 +22,22 @@ module Database.HaskellDB.DBLayout
      hdbMakeEntry,mkAttr,( # ))
     where
 
-import Database.HaskellDB.HDBRec(HDBRecCons,HDBRecTail,FieldTag,fieldName)
-import Database.HaskellDB.HDBRecUtils(hdbMakeEntry,mkAttr,( # ))
+import Database.HaskellDB.HDBRec(HDBRecCons(..),HDBRecTail,FieldTag,fieldName)
 import Database.HaskellDB.BoundedString
 import System.Time (CalendarTime)
-import Database.HaskellDB.Query (Expr, Table, Attr, baseTable)
+import Database.HaskellDB.Query (Expr, Table, Attr(..), baseTable, attribute, ( # ))
 import Database.HaskellDB.DBSpec
 import Database.HaskellDB.FieldType
+
+-- | Constructs a table entry from a field tag
+hdbMakeEntry :: FieldTag f => 
+		f -- ^ Field tag
+	     -> b -- ^ Rest of the record
+	     -> HDBRecCons f (Expr a) b
+hdbMakeEntry f = HDBRecCons (attribute (fieldName f))
+
+-- | Make an 'Attr' for a field.
+mkAttr :: FieldTag f => 
+	  f -- ^ Field tag
+       -> Attr f a
+mkAttr = Attr . fieldName

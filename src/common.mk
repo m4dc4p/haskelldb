@@ -10,7 +10,6 @@ HASKELLDB_MODULES = \
 	  Database.HaskellDB.PrimQuery \
 	  Database.HaskellDB.Sql \
 	  Database.HaskellDB.Query \
-	  Database.HaskellDB.HDBRecUtils \
 	  Database.HaskellDB.Optimize \
 	  Database.HaskellDB.Database \
 	  Database.HaskellDB.BoundedString \

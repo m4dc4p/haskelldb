@@ -1,7 +1,5 @@
 import Database.HaskellDB
-import Database.HaskellDB.Query 
-import Database.HaskellDB.HDBRec
-import Database.HaskellDB.HDBRecUtils
+import Database.HaskellDB.DBLayout
 
 import TestConnect
 

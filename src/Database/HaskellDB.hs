@@ -62,7 +62,6 @@ import Database.HaskellDB.Sql       (toSql, ppSql)
 import Database.HaskellDB.Optimize  (optimize)
 import Database.HaskellDB.Query
 import Database.HaskellDB.Database
-import Database.HaskellDB.HDBRecUtils
 import Database.HaskellDB.GenericConnect
 
 -----------------------------------------------------------

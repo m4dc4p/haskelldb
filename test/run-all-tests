@@ -22,7 +22,7 @@ echo
 # run tests with ghc
 for p in $PROG; do
 	echo "GHC compiling $p"
-	make $p
+	make $p || exit 1
 	echo "GHC running: $p"
 	./$p "$@"
 done

@@ -47,6 +47,20 @@ instance HasField f (HDBRecCons f a r)
 instance HasField f r => HasField f (HDBRecCons g a r)
 instance HasField f r => HasField f (HDBRec r)
 
+
+class SelectField f r a where
+    -- | Gets the value of a field from a record.
+    selectField :: f -> r -> a
+
+instance SelectField f (HDBRecCons f a r) a where
+    selectField _ (HDBRecCons x _) = x
+
+instance SelectField f r a => SelectField f (HDBRecCons g b r) a where
+    selectField f (HDBRecCons _ r) = selectField f r
+
+instance SelectField f r a => SelectField f (HDBRec r) a where
+    selectField f r = selectField f (r HDBRecTail)
+
 --
 -- Showing rows 
 --

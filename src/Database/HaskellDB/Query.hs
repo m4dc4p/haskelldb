@@ -23,6 +23,7 @@ module Database.HaskellDB.Query (
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
 	     , (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
+             , (<<), ( # )
 	      -- * Function declarations
 	     , runQuery, runQueryRel
 	     , attribute, project, baseTable
@@ -56,7 +57,9 @@ import System.Locale
 infix   9 !
 infixl  7 .*., ./., .%.
 infixl  6 .+.,.-.
+infix   6 <<
 infixr  5 .++.
+infixr  5 #
 infix   4 .==., .<>., .<., .<=., .>., .>=.
 infixr  3 .&&.
 infixr  2 .||.
@@ -140,6 +143,20 @@ class ProjectRec r er | r -> er
 instance ProjectRec HDBRecTail HDBRecTail
 instance (ProjectExpr e, ProjectRec r er) => 
     ProjectRec (HDBRecCons f (e a) r) (HDBRecCons f (Expr a) er)
+
+-----------------------------------------------------------
+-- Record operators
+-----------------------------------------------------------
+
+-- | Adds an entry to a record.
+( << ) :: ExprC e => Attr f a        -- ^ Label
+       -> e a                        -- ^ Expression
+       -> (b -> HDBRecCons f (e a) b)
+_ << x = HDBRecCons x
+
+-- | Links two fields together.
+( # ) :: (b -> c) -> (a -> b) -> a -> c
+f1 # f2 = f1 . f2
 
 -----------------------------------------------------------
 -- Basic relational operators
