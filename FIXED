@@ -50,3 +50,7 @@ String. Chucky fixed this on 2004-02-08
 - Jeremy Shaw (stepcut), suggested on 2004-02-24 that there should
   be Show and Read instances for database records. This is useful 
   for saving state in for example WASH. Bjorn fixed that 2004-03-06.
+
+- Jeremy Shaw (stepcut), submitted patches on 2004-03-06 adding SQLite
+  support and fixing the distclean target. The were added to CVS
+  the same day.
