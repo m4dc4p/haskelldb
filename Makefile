@@ -1,20 +1,41 @@
 TOP_DIR = .
 
-SUBDIRS = src doc test
+SUBDIRS = doc test
 
 include $(TOP_DIR)/rules.mk
 
 DIST_DIR = haskelldb-$(PACKAGE_VERSION)
 
-INSTALL_COMPILERS = $(addprefix install-,$(COMPILERS))
+ALL_COMPILERS               = $(addprefix all-,$(COMPILERS))
+INSTALL_COMPILERS           = $(addprefix install-,$(COMPILERS))
 INSTALL_FILESONLY_COMPILERS = $(addprefix install-filesonly-,$(COMPILERS))
-UNINSTALL_COMPILERS = $(addprefix uninstall-,$(COMPILERS))
+UNINSTALL_COMPILERS         = $(addprefix uninstall-,$(COMPILERS))
+CLEAN_COMPILERS             = $(addprefix clean-,$(COMPILERS))
 
-.PHONY: install $(INSTALL_COMPILERS) $(INSTALL_FILESONLY_COMPILERS) \
-	uninstall $(UNINSTALL_COMPILERS) \
-	dist distclean maintainer-clean
+.PHONY: install uninstall \
+	dist distclean maintainer-clean \
+        $(ALL_COMPILERS) \
+        $(INSTALL_COMPILERS) \
+        $(INSTALL_FILESONLY_COMPILERS) \
+	$(UNINSTALL_COMPILERS) \
+        $(CLEAN_COMPILERS)
 
-all: src
+$(ALL_COMPILERS):
+	$(MAKE) -f $(subst all-,Makefile., $@) all
+
+$(INSTALL_COMPILERS):
+	$(MAKE) -f $(subst install-,Makefile., $@) install
+
+$(INSTALL_FILESONLY_COMPILERS):
+	$(MAKE) -f $(subst install-filesonly-,Makefile., $@) install-filesonly
+
+$(UNINSTALL_COMPILERS):
+	$(MAKE) -f $(subst uninstall-,Makefile., $@) uninstall
+
+$(CLEAN_COMPILERS):
+	$(MAKE) -f $(subst clean-,Makefile., $@) clean
+
+default all: $(ALL_COMPILERS)
 
 configure: configure.ac aclocal.m4
 	autoconf
@@ -26,37 +47,15 @@ config.status: configure
 #config.mk: config.mk.in config.status
 #	./config.status
 
+# Should be in Makefile.ghc
 haskelldb.pkg: haskelldb.pkg.in config.status
 	./config.status
 
 install: all $(INSTALL_COMPILERS)
 
-install-ghc: all haskelldb.pkg install-filesonly-ghc
-	-cd $(GHC_DIR); rm -f HShdb.o
-	$(GHC_PKG) -u --auto-ghci-libs -i haskelldb.pkg
-
-install-filesonly-ghc: all
-	cd build/ghc; tar -cf ghc-interfaces.tar `find Database -name '*.hi' -print`
-	cp build/ghc/ghc-interfaces.tar $(GHC_DIR)/imports
-	cd $(GHC_DIR)/imports; tar -xf ghc-interfaces.tar; rm -f ghc-interfaces.tar
-	cd build/ghc; cp libHShdb.a $(GHC_DIR)
-
-install-hugs: all
-	cd build/hugs; tar -cf hugs-libraries.tar `find Database -name '*.hs' -print`
-	cp build/hugs/hugs-libraries.tar $(HUGS_DIR)/libraries
-	cd $(HUGS_DIR)/libraries; tar -xf hugs-libraries.tar; rm -f hugs-libraries.tar
-
 uninstall: $(UNINSTALL_COMPILERS)
 
-uninstall-ghc:
-	-cd $(GHC_DIR)/imports; rm -rf Database/HaskellDB*
-	-cd $(GHC_DIR); rm -f libHShdb.a HShdb.o
-	-$(GHC_PKG) -r haskelldb
-
-uninstall-hugs:
-	-cd $(HUGS_DIR)/libraries; rm -rf Database/HaskellDB*
-
-clean:
+clean: $(CLEAN_COMPILERS)
 	-rm -rf $(BUILD_DIR)
 
 dist:

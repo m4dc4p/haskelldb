@@ -15,21 +15,6 @@ hugsrun-%: %.hs
 ghciload-%: %.hs
 	$(GHCI) $(GHCFLAGS) $(LDFLAGS) $^
 
-%: %.o
-	$(GHC) $(GHCFLAGS) $^ $(LDFLAGS) -o $@
-
-%.o: %.hs
-	$(GHC) $(GHCFLAGS) -c $<
-
-%.hs: %.pphs
-	$(HSPP) $(HSPP_FLAGS) $^ > $@
-
-%.hi: %.o
-	@:
-
-.depend: 
-	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
-
 $(SUBDIRS):
 	$(MAKE) -C $@
 

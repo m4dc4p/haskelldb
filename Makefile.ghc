@@ -22,6 +22,30 @@ $(COMPILER_DIR)/libHShdb.a: $(OBJS)
 
 $(COMPILER_DIR)/Database/HaskellDB/BoundedList.o: GHCFLAGS += -fallow-undecidable-instances
 
+%: %.o
+	$(GHC) $(GHCFLAGS) $^ $(LDFLAGS) -o $@
+
+%.o: %.hs
+	$(GHC) $(GHCFLAGS) -c $^ -o $@
+
+%.hi: %.o
+	@:
+
+install: all haskelldb.pkg install-filesonly
+	-cd $(GHC_DIR); rm -f HShdb.o
+	$(GHC_PKG) -u --auto-ghci-libs -i haskelldb.pkg
+
+install-filesonly: all
+	cd build/ghc; tar -cf ghc-interfaces.tar `find Database -name '*.hi' -print`
+	cp build/ghc/ghc-interfaces.tar $(GHC_DIR)/imports
+	cd $(GHC_DIR)/imports; tar -xf ghc-interfaces.tar; rm -f ghc-interfaces.tar
+	cd build/ghc; cp libHShdb.a $(GHC_DIR)
+
+uninstall:
+	-cd $(GHC_DIR)/imports; rm -rf Database/HaskellDB*
+	-cd $(GHC_DIR); rm -f libHShdb.a HShdb.o
+	-$(GHC_PKG) -r haskelldb
+
 # cleaning up
 
 clean: 
@@ -30,5 +54,6 @@ clean:
 # dependencies
 
 .depend: $(SRC) $(PROG_SRC)
+	 $(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
 
 include .depend

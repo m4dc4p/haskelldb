@@ -1,10 +1,8 @@
-TOP_DIR = ..
+TOP_DIR = .
 
 include $(TOP_DIR)/rules.mk
 
-DATABASE_MODULES = Database.HaskellDB
-
-HASKELLDB_MODULES = \
+MODULES = Database.HaskellDB \
 	  Database.HaskellDB.HDBRec \
 	  Database.HaskellDB.FieldType \
 	  Database.HaskellDB.PrimQuery \
@@ -16,17 +14,12 @@ HASKELLDB_MODULES = \
 	  Database.HaskellDB.BoundedList \
 	  Database.HaskellDB.GenericConnect \
 	  Database.HaskellDB.DBSpec \
-	  Database.HaskellDB.DBLayout
-
-DBSPEC_MODULES = \
+	  Database.HaskellDB.DBLayout \
 	  Database.HaskellDB.DBSpec.DBInfo \
 	  Database.HaskellDB.DBSpec.DBSpecToDatabase \
 	  Database.HaskellDB.DBSpec.DBSpecToDBDirect \
 	  Database.HaskellDB.DBSpec.DatabaseToDBSpec \
 	  Database.HaskellDB.DBSpec.PPHelpers
-
-MODULES = $(DATABASE_MODULES) $(HASKELLDB_MODULES) $(DBSPEC_MODULES)
-
 
 ifeq "$(WITH_HSQL)" "yes"
 MODULES += Database.HaskellDB.HSQL.Common
@@ -59,28 +52,17 @@ endif
 
 PROGRAM_MODULES = DBDirect
 
+SRC = $(patsubst %, $(COMPILER_DIR)/%.hs, $(subst .,/,$(MODULES)))
+
 PROGRAMS = $(addprefix $(COMPILER_DIR)/, $(PROGRAM_MODULES))
 
 PROG_SRC = $(patsubst %, $(COMPILER_DIR)/%.hs, $(PROGRAM_MODULES))
 
-SRC = $(patsubst %, $(COMPILER_DIR)/%.hs, $(subst .,/,$(MODULES)))
 
-$(COMPILER_DIR)/Database/%: %
-	mkdir -p $(sort $(dir $@))
-	cp -f $^ $(sort $(dir $@))
+$(COMPILER_DIR)/%.hs: src/%.hs
+	mkdir -p $(dir $@)
+	cp -f $< $@
 
-$(COMPILER_DIR)/Database/HaskellDB/%: %
-	mkdir -p $(sort $(dir $@))
-	cp -f $^ $(sort $(dir $@))
-
-$(COMPILER_DIR)/Database/HaskellDB/HSQL/%: drivers/hsql/%
-	mkdir -p $(sort $(dir $@))
-	cp -f $^ $(sort $(dir $@))
-
-$(COMPILER_DIR)/Database/HaskellDB/WX.hs: drivers/wxhaskell/WX.hs
-	mkdir -p $(sort $(dir $@))
-	cp -f $^ $(sort $(dir $@))
-
-$(COMPILER_DIR)/DBDirect.hs: DBDirect/DBDirect.hs
-	mkdir -p $(sort $(dir $@))
-	cp -f $^ $(sort $(dir $@))
+$(COMPILER_DIR)/%.hs: src/%.pphs
+	mkdir -p $(dir $@)
+	$(HSPP) $(HSPP_FLAGS) $^ > $@
