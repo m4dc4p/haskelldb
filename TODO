@@ -16,6 +16,9 @@ Things that need to be done, in no particular order:
   * Result columns may contain NULL values even if the corresponding
     database column doesn't. Consider for example the somewhat
     contrived query: "SELECT NULL AS first_name FROM d3proj_users"
+  * make {odbc,mysql,postgresql}Connect take a Database argument 
+    instead of a HSQL argument. This would allow more general type
+    signatures in user code. (Added by Bjorn)
 
 - DbDirect 
   (* add optional command line argument for selecting which
