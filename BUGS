@@ -13,3 +13,7 @@
 - When compiling DbDirect-generated code for tables with many columns,
   GHC may need the -fcontext-stackXX flag, where XX needs to be at
   least around the number of columns in the largest table.
+
+- When using lazyQuery with the MySQL driver and running a second
+  query without retrieving all data from the first, you get the 
+  error "Commands out of sync;  You can't run this command now".

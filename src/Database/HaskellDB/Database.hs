@@ -151,11 +151,9 @@ getNonNull fs s f =
 
 -- | performs a query on a database
 query :: GetRec er vr => Database -> Query (Rel er) -> IO [vr]
-query	= lazyQuery
+query	= strictQuery
 
 -- | lazy query performs a lazy query on a database
---   FIXME: this function is currently NOT lazy since
---   we have not implemented lazy queries in the HSQL driver
 lazyQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [vr]
 lazyQuery db q	
 	= (dbQuery db) (optimize primQuery) (rel)

@@ -2,7 +2,6 @@ Things that need to be done, in no particular order:
 
 - Code:
   * Support all SQL datatypes
-  * Make row retrieval lazy in HSQL driver
   * switch ad-hoc assert to Control.Expcetion.assert
   * make SQL generation tweakable by the DB driver, since different
     DBs have different SQL syntax, for example TOP / LIMIT.

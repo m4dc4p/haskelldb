@@ -16,8 +16,11 @@ module Database.HaskellDB.HSQL.Common (
 		   ) where
 
 import Data.Maybe
+import Control.Exception (catch, throwIO)
 import Control.Monad
+import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Time
+
 
 import Database.HaskellDB.Database
 import Database.HaskellDB.Sql
@@ -115,7 +118,25 @@ hsqlPrimQuery :: GetRec er vr =>
 hsqlPrimQuery connection sql scheme rel = 
     do
     stmt <- HSQL.query connection sql
-    collectRows (getRec hsqlGetInstances rel scheme) stmt
+    lazyRows (getRec hsqlGetInstances rel scheme) stmt
+
+-- | Retrive rows lazily.
+lazyRows :: (Statement -> IO a) -> Statement -> IO [a]
+lazyRows f stmt = unsafeInterleaveIO loop
+    where
+    loop = do
+	   success <- fetch stmt `onError` closeStatement stmt
+	   if success 
+	      then do
+		   x <- f stmt `onError` closeStatement stmt
+		   xs <- lazyRows f stmt
+		   return (x:xs)
+	      else do
+		   closeStatement stmt
+		   return []
+
+onError :: IO a -> IO b -> IO a
+onError a h = a `Control.Exception.catch` (\e -> h >> throwIO e)
 
 -- | Primitive execute
 hsqlPrimExecute :: Connection -- ^ Database connection.
