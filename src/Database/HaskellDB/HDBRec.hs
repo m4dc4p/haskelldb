@@ -17,11 +17,11 @@ import Data.List
 -- * Data declarations.
 
 -- | Last entry in each record.
-data HDBRecTail = HDBRecTail
+data HDBRecTail = HDBRecTail deriving (Eq)
 
 -- | Constructor that adds a field to a record
 -- f is the field tag, a is the field value and b is the rest of the record.
-data HDBRecCons f a b = HDBRecCons a b
+data HDBRecCons f a b = HDBRecCons a b deriving (Eq)
 
 -- | The type used for records throughout HaskellDB. This is a function
 --   that takes a 'HDBRecTail' so that the user does not have to 
