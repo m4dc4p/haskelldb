@@ -105,13 +105,13 @@ ppTable (TInfo tiName tiColumns) =
 -- | Pretty prints a list of ColumnInfo
 ppColumns :: [CInfo] -> Doc
 ppColumns []      = text ""
-ppColumns [c]     = parens (ppColumnType c <+> text "HDBRecTail")
+ppColumns [c]     = parens (ppColumnType c <+> text "RecNil")
 ppColumns (c:cs)  = parens (ppColumnType c $$ ppColumns cs)
 
 -- | Pretty prints the type field in a ColumnInfo	
 ppColumnType :: CInfo -> Doc 
 ppColumnType (CInfo ciName (ciType,ciAllowNull))
-	=   text "HDBRecCons" <+> 
+	=   text "RecCons" <+> 
 	    ((text $ toType ciName) <+> parens (text "Expr"
 	    <+> (if (ciAllowNull)
 	      then parens (text "Maybe" <+> text (pshow ciType))

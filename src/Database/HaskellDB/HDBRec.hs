@@ -9,6 +9,8 @@
 -- Portability :  non-portable
 -- 
 -- This is replacement for some of TREX.
+--
+-- $Revision: 1.22 $
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec where
 
@@ -17,16 +19,16 @@ import Data.List
 -- * Data declarations.
 
 -- | The empty record.
-data HDBRecTail = HDBRecTail deriving (Eq)
+data RecNil = RecNil deriving (Eq)
 
 -- | Constructor that adds a field to a record
 -- f is the field tag, a is the field value and b is the rest of the record.
-data HDBRecCons f a b = HDBRecCons a b deriving (Eq)
+data RecCons f a b = RecCons a b deriving (Eq)
 
 -- | The type used for records throughout HaskellDB. This is a function
---   that takes a 'HDBRecTail' so that the user does not have to 
---   put a 'HDBRecTail' at the end of every record.
-type HDBRec r = HDBRecTail -> r
+--   that takes a 'RecNil' so that the user does not have to 
+--   put a 'RecNil' at the end of every record.
+type Record r = RecNil -> r
 
 -- * Class definitions.
 
@@ -34,32 +36,42 @@ class FieldTag f where
     fieldName :: f -> String
 
 -- | Get the label name of a record entry.
-consFieldName :: FieldTag f => HDBRecCons f a r -> String
-consFieldName (_::HDBRecCons f a r) = fieldName (undefined::f)
+consFieldName :: FieldTag f => RecCons f a r -> String
+consFieldName (_::RecCons f a r) = fieldName (undefined::f)
 
 
 -- | The record @r@ has the field @f@ if there is an instance of
 --   @HasField f r@.
 class HasField f r
-instance HasField f (HDBRecCons f a r)
-instance HasField f r => HasField f (HDBRecCons g a r)
-instance HasField f r => HasField f (HDBRec r)
+instance HasField f (RecCons f a r)
+instance HasField f r => HasField f (RecCons g a r)
+instance HasField f r => HasField f (Record r)
 
 -- | Class for getting the value of a field from a record.
-class SelectField f r a | f r -> a where
+-- FIXME: would like the dependency f r -> a here, but
+-- that makes Hugs complain about conflicting instaces
+class SelectField f r a where
     -- | Gets the value of a field from a record.
     selectField :: f -- ^ Field label
 		-> r -- ^ Record 
 		-> a -- ^ Field value
+    -- | Sets the value of a field in a record.
+    setField :: f -- ^ Field label
+	     -> a -- ^ New field value
+	     -> r -- ^ Record
+	     -> r -- ^ New record
 
-instance SelectField f (HDBRecCons f a r) a where
-    selectField _ (HDBRecCons x _) = x
+instance SelectField f (RecCons f a r) a where
+    selectField _ (RecCons x _) = x
+    setField _ y (RecCons _ r) = RecCons y r
 
-instance SelectField f r a => SelectField f (HDBRecCons g b r) a where
-    selectField f (HDBRecCons _ r) = selectField f r
+instance SelectField f r a => SelectField f (RecCons g b r) a where
+    selectField f (RecCons _ r) = selectField f r
+    setField l y (RecCons f r) = RecCons f (setField l y r)
 
-instance SelectField f r a => SelectField f (HDBRec r) a where
-    selectField f r = selectField f (r HDBRecTail)
+instance SelectField f r a => SelectField f (Record r) a where
+    selectField f r = selectField f (r RecNil)
+    setField f y r = \e -> setField f y (r e)
 
 
 -- * Showing rows 
@@ -70,31 +82,31 @@ class ShowRecRow r where
     showRecRow :: r -> [(String,ShowS)]
 
 -- Last entry in each record will terminate the ShowrecRow recursion.
-instance ShowRecRow HDBRecTail where
+instance ShowRecRow RecNil where
     showRecRow _ = []
 
 -- Recurse a record and produce a showable tuple.
 instance (FieldTag a, 
 	  Show b, 
-	  ShowRecRow c) => ShowRecRow (HDBRecCons a b c) where
-    showRecRow r@(HDBRecCons x fs) = (consFieldName r, shows x) : showRecRow fs
+	  ShowRecRow c) => ShowRecRow (RecCons a b c) where
+    showRecRow r@(RecCons x fs) = (consFieldName r, shows x) : showRecRow fs
 
-instance ShowRecRow r => ShowRecRow (HDBRec r) where
-    showRecRow r = showRecRow (r HDBRecTail)
+instance ShowRecRow r => ShowRecRow (Record r) where
+    showRecRow r = showRecRow (r RecNil)
 
 
 
-instance Show r => Show (HDBRec r) where
-    showsPrec x r = showsPrec x (r HDBRecTail)
+instance Show r => Show (Record r) where
+    showsPrec x r = showsPrec x (r RecNil)
 
 -- probably not terribly efficient
 showsShowRecRow :: ShowRecRow r => r -> ShowS 
 showsShowRecRow r = shows $ [(f,v "") | (f,v) <- showRecRow r]
 
-instance Show HDBRecTail where
+instance Show RecNil where
     showsPrec _ r = showsShowRecRow r
 
-instance  (FieldTag a, Show b, ShowRecRow c) => Show (HDBRecCons a b c) where
+instance  (FieldTag a, Show b, ShowRecRow c) => Show (RecCons a b c) where
     showsPrec _ r = showsShowRecRow r
 
 
@@ -104,34 +116,34 @@ instance  (FieldTag a, Show b, ShowRecRow c) => Show (HDBRecCons a b c) where
 class ReadRecRow r where
     readRecRow :: [(String,String)] -> [(r,[(String,String)])]
 
-instance ReadRecRow HDBRecTail where
-    readRecRow xs = [(HDBRecTail,xs)]
+instance ReadRecRow RecNil where
+    readRecRow xs = [(RecNil,xs)]
 
 instance (FieldTag a, 
 	  Read b, 
-	  ReadRecRow c) => ReadRecRow (HDBRecCons a b c) where
+	  ReadRecRow c) => ReadRecRow (RecCons a b c) where
     readRecRow [] = []
     readRecRow xs = let res = readRecEntry xs (fst $ head res) in res
 
 readRecEntry :: (Read a, FieldTag f, ReadRecRow r) => 
 		[(String,String)] 
-	     -> HDBRecCons f a r   -- ^ Dummy to get return type right
-	     -> [(HDBRecCons f a r,[(String,String)])]
+	     -> RecCons f a r   -- ^ Dummy to get return type right
+	     -> [(RecCons f a r,[(String,String)])]
 readRecEntry ((f,v):xs) r | f == consFieldName r = res
 			  | otherwise = []
     where
-    res = [(HDBRecCons x r, xs') | (x,"") <- reads v, 
+    res = [(RecCons x r, xs') | (x,"") <- reads v, 
 	   (r,xs') <- readRecRow xs]
 
 
 readsReadRecRow :: ReadRecRow r => ReadS r
 readsReadRecRow s = [(r,"") | (l,"") <- reads s, (r,[]) <- readRecRow l]
 
-instance ReadRecRow r => Read (HDBRec r) where
+instance ReadRecRow r => Read (Record r) where
     readsPrec _ s = [(const r, rs) | (r,rs) <- readsReadRecRow s]
 
-instance Read HDBRecTail where
+instance Read RecNil where
    readsPrec _ = readsReadRecRow
 
-instance (FieldTag a, Read b, ReadRecRow c) => Read (HDBRecCons a b c) where
+instance (FieldTag a, Read b, ReadRecRow c) => Read (RecCons a b c) where
     readsPrec _ s = readsReadRecRow s

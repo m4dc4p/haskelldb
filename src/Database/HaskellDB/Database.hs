@@ -115,20 +115,20 @@ class GetRec er vr | er -> vr, vr -> er where
 	                   --   (for example a Statement object)
            -> IO vr        -- ^ Result record.
 
-instance GetRec HDBRecTail HDBRecTail where
-    getRec _ _ [] _ = return HDBRecTail
+instance GetRec RecNil RecNil where
+    getRec _ _ [] _ = return RecNil
     getRec _ _ fs _ = fail $ "Wanted empty record from scheme " ++ show fs
 
 
 instance (GetValue a, GetRec er vr) 
-    => GetRec (HDBRecCons f (Expr a) er) (HDBRecCons f a vr) where
+    => GetRec (RecCons f (Expr a) er) (RecCons f a vr) where
 
     getRec _ _ [] _ = fail $ "Wanted non-empty record, but scheme is empty"
-    getRec vfs (_::Rel (HDBRecCons ef (Expr ea) er)) (f:fs) stmt = 
+    getRec vfs (_::Rel (RecCons ef (Expr ea) er)) (f:fs) stmt = 
 	do
 	x <- getValue vfs stmt f
 	r <- getRec vfs (undefined :: Rel er) fs stmt
-	return (HDBRecCons x r)
+	return (RecCons x r)
 
 class GetValue a where
     getValue :: GetInstances s -> s -> String -> IO a
@@ -196,7 +196,7 @@ insertQuery db (Table name assoc) q
 	= dbInsertQuery db name (optimize (runQuery q))
 
 -- | Inserts a record into a table
-insert :: (ToPrimExprs r, ShowRecRow r, InsertRec r er) => Database -> Table er -> HDBRec r -> IO ()
+insert :: (ToPrimExprs r, ShowRecRow r, InsertRec r er) => Database -> Table er -> Record r -> IO ()
 insert db (Table name assoc) newrec	
 	= dbInsert db name (zip (attrs assoc) (exprs newrec))
 	where
@@ -219,7 +219,7 @@ update :: (ToPrimExprs s, ShowRecRow s,ShowRecRow r) =>
 	  Database             -- ^ The database
        -> Table r              -- ^ The table to update
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to update
-       -> (Rel r -> HDBRec s)  -- ^ Function used to modify selected records
+       -> (Rel r -> Record s)  -- ^ Function used to modify selected records
        -> IO ()
 update db (Table name assoc) criteria assignFun
 	= dbUpdate db name [substAttr assoc primExpr] newassoc

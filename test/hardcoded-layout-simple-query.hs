@@ -15,8 +15,8 @@ import Random
 -- Table test_tb1
 -------------------------------------
 test_tb1 :: Table
-    (HDBRecCons C11 (Expr Int)
-     (HDBRecCons C12 (Expr (Maybe Int)) HDBRecTail))
+    (RecCons C11 (Expr Int)
+     (RecCons C12 (Expr (Maybe Int)) RecNil))
 test_tb1 = baseTable "test_tb1" $
            hdbMakeEntry C11 #
            hdbMakeEntry C12 

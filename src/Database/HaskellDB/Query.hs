@@ -128,9 +128,9 @@ instance InsertExpr ExprDefault
 --   All all the values must be instances of 'InsertExpr' for the
 --   record to be an instance of 'InsertRec'.
 class InsertRec r er | r -> er
-instance InsertRec HDBRecTail HDBRecTail
+instance InsertRec RecNil RecNil
 instance (InsertExpr e, InsertRec r er) => 
-    InsertRec (HDBRecCons f (e a) r) (HDBRecCons f (Expr a) er)
+    InsertRec (RecCons f (e a) r) (RecCons f (Expr a) er)
 
 -- | Class of expressions that can be used with 'project'.
 class ExprC e => ProjectExpr e
@@ -141,9 +141,9 @@ instance ProjectExpr ExprAggr
 --   All all the values must be instances of 'ProjectExpr' for the
 --   record to be an instance of 'ProjectRec'.
 class ProjectRec r er | r -> er
-instance ProjectRec HDBRecTail HDBRecTail
+instance ProjectRec RecNil RecNil
 instance (ProjectExpr e, ProjectRec r er) => 
-    ProjectRec (HDBRecCons f (e a) r) (HDBRecCons f (Expr a) er)
+    ProjectRec (RecCons f (e a) r) (RecCons f (Expr a) er)
 
 -----------------------------------------------------------
 -- Record operators
@@ -152,8 +152,8 @@ instance (ProjectExpr e, ProjectRec r er) =>
 -- | Adds an entry to a record.
 ( << ) :: ExprC e => Attr f a        -- ^ Label
        -> e a                        -- ^ Expression
-       -> (b -> HDBRecCons f (e a) b)
-_ << x = HDBRecCons x
+       -> (b -> RecCons f (e a) b)
+_ << x = RecCons x
 
 -- | Links two fields together.
 ( # ) :: (b -> c) -> (a -> b) -> a -> c
@@ -180,7 +180,7 @@ select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
 
 -- | Specifies a subset of the columns in the table.
-project :: (ShowRecRow r, ToPrimExprs r, ProjectRec r er) => HDBRec r -> Query (Rel er)
+project :: (ShowRecRow r, ToPrimExprs r, ProjectRec r er) => Record r -> Query (Rel er)
 project r
         = do
 	  alias <- newAlias
@@ -254,7 +254,7 @@ table (Table name assoc)
 
 -- used in table definitions
 
-baseTable :: (ShowRecRow r, ToPrimExprs r) => TableName -> HDBRec r -> Table r
+baseTable :: (ShowRecRow r, ToPrimExprs r) => TableName -> Record r -> Table r
 baseTable t r   = Table t (zip (labels r) (exprs r))
 
 
@@ -607,27 +607,27 @@ fresh alias attribute   = (attribute ++ show alias)
 -- define fold-like functions over records.
 -----------------------------------------------------------
 
-labels :: ShowRecRow r => HDBRec r -> [String]
+labels :: ShowRecRow r => Record r -> [String]
 labels r        = map fst (showRecRow r)
 
 
 -- Type safe version of exprs. If we use this, we must add
 --  ToPrimExprs r to a lot of functions
-exprs :: ToPrimExprs r => HDBRec r -> [PrimExpr]
-exprs r = toPrimExprs (r HDBRecTail)
+exprs :: ToPrimExprs r => Record r -> [PrimExpr]
+exprs r = toPrimExprs (r RecNil)
 
 class ToPrimExprs r where
     toPrimExprs :: r -> [PrimExpr]
 
-instance ToPrimExprs HDBRecTail where
-    toPrimExprs HDBRecTail = []
+instance ToPrimExprs RecNil where
+    toPrimExprs RecNil = []
 
-instance (ExprC e, ToPrimExprs r) => ToPrimExprs (HDBRecCons l (e a) r) where
-    toPrimExprs (HDBRecCons e r) = primExpr e : toPrimExprs r
+instance (ExprC e, ToPrimExprs r) => ToPrimExprs (RecCons l (e a) r) where
+    toPrimExprs (RecCons e r) = primExpr e : toPrimExprs r
 
 {-
 
-exprs :: ShowRecRow r => HDBRec r -> [PrimExpr]
+exprs :: ShowRecRow r => Record r -> [PrimExpr]
 exprs r         = map (readPrimExpr . snd) (showRecRow r)
                 where
                   readPrimExpr s   = case (reads (s "")) of

@@ -18,11 +18,11 @@ module Database.HaskellDB.DBLayout
      module Database.HaskellDB.DBSpec,
      CalendarTime,
      Expr, Table, Attr, baseTable,
-     HDBRecCons,HDBRecTail,FieldTag,fieldName,
+     RecCons,RecNil,FieldTag,fieldName,
      hdbMakeEntry,mkAttr,( # ))
     where
 
-import Database.HaskellDB.HDBRec(HDBRecCons(..),HDBRecTail,FieldTag,fieldName)
+import Database.HaskellDB.HDBRec(RecCons(..),RecNil,FieldTag,fieldName)
 import Database.HaskellDB.BoundedString
 import System.Time (CalendarTime)
 import Database.HaskellDB.Query (Expr, Table, Attr(..), baseTable, attribute, ( # ))
@@ -33,8 +33,8 @@ import Database.HaskellDB.FieldType
 hdbMakeEntry :: FieldTag f => 
 		f -- ^ Field tag
 	     -> b -- ^ Rest of the record
-	     -> HDBRecCons f (Expr a) b
-hdbMakeEntry f = HDBRecCons (attribute (fieldName f))
+	     -> RecCons f (Expr a) b
+hdbMakeEntry f = RecCons (attribute (fieldName f))
 
 -- | Make an 'Attr' for a field.
 mkAttr :: FieldTag f => 
