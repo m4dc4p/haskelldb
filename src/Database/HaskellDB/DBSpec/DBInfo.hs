@@ -14,7 +14,7 @@
 
 module Database.HaskellDB.DBSpec.DBInfo
     (DBInfo(..),TInfo(..),CInfo(..),DBOptions(..),makeDBSpec,
-     makeTInfo,makeCInfo,dbInfoToDoc,finalizeSpec)
+     makeTInfo,makeCInfo,dbInfoToDoc,finalizeSpec,constructNonClashingDBInfo)
     where
 
 import Database.HaskellDB.FieldType
