@@ -36,4 +36,5 @@
   configured with wxHaskell support, DbDirect and the test programs
   won't work in Hugs for this reason.
   
-  
+- The HSQL only catches SqlError in connect. Should do it for each
+  call. Reported by shapr on 2004-03-22.
