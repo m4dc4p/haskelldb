@@ -6,6 +6,7 @@
 import Database.HSQL.ODBC as OD
 import Database.HSQL.MySQL as MY
 import Database.HSQL.PostgreSQL as PG
+import Database.HSQL.SQLite as SL
 
 import Data.List
 import Control.Monad
@@ -83,10 +84,12 @@ mkCreate (Table n fs) = "CREATE TABLE " ++ n ++ " ( "
 conn ["ODBC",d,u,p] = OD.connect d u p
 conn ["MySQL",h,d,u,p] = MY.connect h d u p
 conn ["PostgreSQL",h,d,u,p] = PG.connect h d u p
+conn ["SQLite",f,m] = SL.connect f (read m)
 conn _ = fail $ unlines ["Accepted options:",
 			     "ODBC dsn uid pwd",
 			     "MySQL server db uid pwd",
-			     "PostgreSQL server db uid pwd"]
+			     "PostgreSQL server db uid pwd",
+			     "SQLite file mode"]
 
 
 createTables db [] = return ()

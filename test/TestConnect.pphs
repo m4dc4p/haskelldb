@@ -1,23 +1,23 @@
 module TestConnect where
 
+import Database.HaskellDB.Database
 import System.Environment
 
--- #define WITH_HSQL_ODBC
--- #define WITH_HSQL_MYSQL
--- #define WITH_HSQL_POSTGRESQL
-
-import Database.HaskellDB.HSQL.Common
 #ifdef WITH_HSQL_ODBC
 import qualified Database.HaskellDB.HSQL.ODBC as OD
 #endif
 #ifdef WITH_HSQL_MYSQL
 import qualified Database.HaskellDB.HSQL.MySQL as MY
 #endif
+#ifdef WITH_HSQL_SQLITE
+import qualified Database.HaskellDB.HSQL.SQLite as LI
+import System.IO
+#endif
 #ifdef WITH_HSQL_POSTGRESQL
 import qualified Database.HaskellDB.HSQL.PostgreSQL as PG
 #endif
 
---connect :: [String] -> (HSQL -> IO a) -> IO a
+connect :: [String] -> (Database -> IO a) -> IO a
 #ifdef WITH_HSQL_ODBC
 connect ["ODBC",d,u,p] = OD.odbcConnect OD.ODBCOptions 
 				     {OD.dsn = d,OD.uid = u,OD.pwd = p}
@@ -26,6 +26,10 @@ connect ["ODBC",d,u,p] = OD.odbcConnect OD.ODBCOptions
 connect ["MySQL",s,d,u,p] = MY.mysqlConnect MY.MySQLOptions 
 			               {MY.server = s,MY.db = d, 
 					MY.uid = u,MY.pwd = p}
+#endif
+#ifdef WITH_HSQL_SQLITE
+connect ["SQLite",f,m] = LI.sqliteConnect LI.SQLiteOptions 
+			               {LI.filepath = f,LI.mode = (read m)}
 #endif
 #ifdef WITH_HSQL_POSTGRESQL
 connect ["PostgreSQL",s,d,u,p] = PG.postgresqlConnect PG.PostgreSQLOptions 
@@ -37,7 +41,7 @@ connect _ = error $ unlines ["Accepted options:",
 			     "MySQL server db uid pwd",
 			     "PostgreSQL server db uid pwd"]
 
---argConnect :: (HSQL -> IO a) -> IO a
+argConnect :: (Database -> IO a) -> IO a
 argConnect f = do
                args <- getArgs
                connect args f

@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.18 $)
+AC_REVISION($Revision: 1.19 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -62,6 +62,19 @@ AC_HELP_STRING([--enable-hsql-mysql],
 AC_SUBST(WITH_HSQL_MYSQL)
 
 dnl ***********************************************
+dnl Enable/Disable SQLite binding
+dnl ***********************************************
+
+AC_ARG_ENABLE(hsql-sqlite,
+AC_HELP_STRING([--enable-hsql-sqlite],
+	       [Enable use of the HSQL SQLite driver.  
+	        (default = yes)]),
+[WITH_HSQL_SQLITE="$enableval"],
+[WITH_HSQL_SQLITE=yes]
+)
+AC_SUBST(WITH_HSQL_SQLITE)
+
+dnl ***********************************************
 dnl Enable/Disable PostgreSQL binding
 dnl ***********************************************
 
@@ -99,6 +112,13 @@ AC_HELP_STRING([--enable-ghc],
 [ENABLE_GHC=yes]
 )
 AC_SUBST(ENABLE_GHC)
+
+dnl ***********************************************
+dnl C compiler
+dnl ***********************************************
+
+AC_PROG_CC
+AC_SUBST(CC)
 
 dnl ***********************************************
 dnl GHC
@@ -435,6 +455,22 @@ if test $WITH_HSQL_MYSQL = yes && test "$HSQL_AUTO_PACKAGE" != "yes"; then
 fi
 
 dnl ***********************************************
+dnl check for SQLite module and libraries
+dnl ***********************************************
+
+if test $WITH_HSQL_SQLITE = yes; then
+  AC_HS_MODULE_IFELSE([Database.HSQL.SQLite],[connect],,
+    [AC_MSG_WARN([SQLite module not found, 
+	          not building SQLite support])
+    WITH_HSQL_SQLITE=no])
+fi
+
+if test "$WITH_HSQL_SQLITE" = "yes" && test "$HSQL_AUTO_PACKAGE" != "yes"; then
+   AC_CHECK_LIB(sqlite,sqlite_open,,
+	AC_MSG_ERROR([libsqlite required to build SQLite building.]))
+fi
+
+dnl ***********************************************
 dnl subst
 dnl ***********************************************
 
@@ -474,6 +510,7 @@ echo "-----------------------"
 echo
 echo "ODBC:           $WITH_HSQL_ODBC"
 echo "MySql:          $WITH_HSQL_MYSQL"
+echo "SQLite:         $WITH_HSQL_SQLITE"
 echo "PostgreSQL:     $WITH_HSQL_POSTGRESQL"
 echo "Hugs:           $ENABLE_HUGS"
 echo "GHC:            $ENABLE_GHC"
