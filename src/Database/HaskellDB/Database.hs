@@ -103,6 +103,8 @@ data GetInstances s =
 	       , getInteger      :: s -> String -> IO (Maybe Integer)
 		 -- | Get a 'Double' value. 
 	       , getDouble       :: s -> String -> IO (Maybe Double)
+		 -- | Get a 'Bool' value.
+	       , getBool :: s -> String -> IO (Maybe Bool)
 		 -- | Get a 'CalendarTime' value.
 	       , getCalendarTime :: s -> String -> IO (Maybe CalendarTime)
 	       }
@@ -143,6 +145,7 @@ instance GetValue String where getValue = getNonNull
 instance GetValue Int where getValue = getNonNull
 instance GetValue Integer where getValue = getNonNull
 instance GetValue Double where getValue = getNonNull
+instance GetValue Bool where getValue = getNonNull
 instance GetValue CalendarTime where getValue = getNonNull
 instance Size n => GetValue (BoundedString n) where getValue = getNonNull
 
@@ -150,6 +153,7 @@ instance GetValue (Maybe String) where getValue = getString
 instance GetValue (Maybe Int) where getValue = getInt
 instance GetValue (Maybe Integer) where getValue = getInteger
 instance GetValue (Maybe Double) where getValue = getDouble
+instance GetValue (Maybe Bool) where getValue = getBool
 instance GetValue (Maybe CalendarTime) where getValue = getCalendarTime
 instance Size n => GetValue (Maybe (BoundedString n)) where 
     getValue fs s f = liftM (liftM trunc) (getValue fs s f)

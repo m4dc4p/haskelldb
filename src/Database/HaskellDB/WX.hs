@@ -174,6 +174,7 @@ wxGetInstances =
 		 , getInt          = WX.dbRowGetIntMb
 		 , getInteger      = WX.dbRowGetIntegerMb
 		 , getDouble       = WX.dbRowGetDoubleMb
+		 , getBool         = WX.dbRowGetBoolMb
 		 , getCalendarTime = wxGetCalendarTime
 		 }
 

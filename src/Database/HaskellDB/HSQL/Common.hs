@@ -183,6 +183,7 @@ hsqlGetInstances =
 		 , getInt          = getFieldValueMB
 		 , getInteger      = getFieldValueMB
 		 , getDouble       = getFieldValueMB
+		 , getBool         = getFieldValueMB
 		 , getCalendarTime = hsqlGetCalendarTime
 		 }
 
