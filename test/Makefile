@@ -5,7 +5,7 @@ PROG = hardcoded-layout-simple-query join-and-aggr html-users-list
 all: $(PROG)
 
 %: %.hs
-	ghc --make -o $@ $^
+	ghc --make -fcontext-stack30 -o $@ $^
 
 clean:
 	-rm -f $(PROG) *.o *.hi 
