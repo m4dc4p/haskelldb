@@ -11,6 +11,8 @@
 -- 
 -- Transform a PrimQuery (relational expression) to SQL
 -- and pretty print SQL
+--
+-- $Revision: 1.22 $
 -----------------------------------------------------------
 module Database.HaskellDB.Sql ( 
 		-- * Type Declarations

@@ -11,7 +11,8 @@
 --
 -- Interface to the SQLite <http://www.hwaci.com/sw/sqlite/>
 -- databases.
--- 
+--
+-- $Revision: 1.3 $
 -----------------------------------------------------------
 module Database.HaskellDB.HSQL.SQLite (
 		   SQLiteOptions(..)

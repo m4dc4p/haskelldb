@@ -9,6 +9,8 @@
 -- Portability :  non-portable
 --
 -- Various functions used when pretty printing stuff
+--
+-- $Revision: 1.3 $
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.PPHelpers where
 -- no explicit export, we want ALL of it
@@ -68,4 +70,4 @@ checkUpper s@(x:xs)	| isUpper x	= s
 checkLower ""           = error "Empty name from database?"	
 checkLower s@(x:xs)	| isLower x	= s
 			| isUpper x	= toLower x : xs
-			| otherwise	= 'x' : s -- isNumeric?	 
+			| otherwise	= 'x' : s -- isNumeric?

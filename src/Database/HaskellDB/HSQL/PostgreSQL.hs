@@ -9,7 +9,8 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- 
+--
+-- $Revision: 1.7 $
 -----------------------------------------------------------
 module Database.HaskellDB.HSQL.PostgreSQL (
 		      PostgreSQLOptions(..)

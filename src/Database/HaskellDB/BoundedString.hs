@@ -9,11 +9,13 @@
 -- Portability :  non-portable
 --
 --
--- BoundedString represents the sql types; CHARACTER and CHARACTER VARYING 
+-- BoundedString represents the sql types; CHARACTER and CHARACTER VARYING
 -- both defined in SQL 1992.
 -- BoundedString supports sizes in the range [0,255] and 65535.
 -- Greater sizes and the sql type SQL_TEXT (SQL 1992) will might be 
 -- supported in the future.
+--
+-- $Revision: 1.8 $
 
 -- The use of BoundedString together with HaskellDB enables feedback when
 -- the length of a string exceeds the bound of a certain database field.

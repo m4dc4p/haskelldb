@@ -12,6 +12,8 @@
 -- It is designed to be able to describe a database in such a 
 -- way that it can easily be converted to a DBDirect-spec OR
 -- directly into a database
+--
+-- $Revision: 1.8 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBSpec 

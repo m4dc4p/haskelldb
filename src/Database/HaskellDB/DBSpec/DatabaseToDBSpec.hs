@@ -9,7 +9,9 @@
 -- Portability :  portable
 --
 -- Connects to a Database and generates a DBSpec specification
--- from it
+-- from it.
+--
+-- $Revision: 1.6 $
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DatabaseToDBSpec
     (dbToDBSpec)

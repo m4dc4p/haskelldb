@@ -9,7 +9,8 @@
 -- Stability   :  experimental
 -- Portability :  non-portable
 --
--- 
+--
+-- $Revision: 1.8 $
 -----------------------------------------------------------
 module Database.HaskellDB.HSQL.MySQL (
 		   MySQLOptions(..)

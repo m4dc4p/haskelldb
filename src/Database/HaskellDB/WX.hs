@@ -10,6 +10,8 @@
 --
 -- WxHaskell <http://wxhaskell.sourceforge.net/> 
 -- interface for HaskellDB
+--
+-- $Revision: 1.10 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.WX (

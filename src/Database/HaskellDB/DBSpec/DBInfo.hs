@@ -10,6 +10,8 @@
 --
 -- This is the "core" file of the DBSpec files. It defines
 -- a DBInfo and important functions on it.
+--
+-- $Revision: 1.8 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBSpec.DBInfo

@@ -13,6 +13,7 @@
 -- primitive hooks that a particular database binding
 -- must provide.
 --
+-- $Revision: 1.37 $ 
 -----------------------------------------------------------
 module Database.HaskellDB.Database ( 
 		-- * Operators

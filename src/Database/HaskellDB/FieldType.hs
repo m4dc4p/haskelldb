@@ -11,6 +11,7 @@
 -- Defines the types of database columns, and functions
 -- for converting these between HSQL and internal formats
 --
+-- $Revision: 1.22 $
 -----------------------------------------------------------
 module Database.HaskellDB.FieldType 
     (FieldDesc, FieldType(..), PrimShow(..), 

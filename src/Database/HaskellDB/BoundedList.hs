@@ -17,6 +17,8 @@
 -- The implementation is based on inductive instances, making it very easy to
 -- expand with new bounds. A new bound only requires one instance of size and 
 -- two instances of Less.
+--
+-- $Revision: 1.8 $
 
 -- BoundedList works as follows.
 -- Every bound is build up by declaring a data-type representing the new bound.

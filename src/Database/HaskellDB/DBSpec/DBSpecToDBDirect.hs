@@ -12,6 +12,8 @@
 -- (FilePath,Doc), that can be used to generate definition 
 -- files usable in HaskellDB (the generation itself is done 
 -- in DBDirect)
+--
+-- $Revision: 1.18 $
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DBSpecToDBDirect
     (specToHDB) 

@@ -12,6 +12,7 @@
 -- Defines standard optimizations performed on PrimQuery's
 -- (relational expressions).
 --
+-- $Revision: 1.16 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.Optimize (optimize) where

@@ -14,6 +14,8 @@
 -- a 'Catalog' data type. After that it pretty prints that
 -- data structure in an appropiate Haskell module which
 -- can be used to perform queries on the database.
+--
+-- $Revision: 1.6 $
 -----------------------------------------------------------
 
 module Main where
