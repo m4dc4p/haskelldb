@@ -2,6 +2,9 @@ Things that need to be done, in no particular order:
 
 - Code:
   * Handle dates before 1970 correctly.
+  * Overload operators so that when they take a maybe, they always 
+    return maybe, i.e. .<. may give NULL when one of the arguments
+    is NULL. Suggested by eivuokko.
   * Support all SQL datatypes
   * make SQL generation tweakable by the DB driver, since different
     DBs have different SQL syntax, for example TOP / LIMIT.
