@@ -5,7 +5,7 @@ import Database.HaskellDB.BoundedList
 import Database.HaskellDB.HSQL.ODBC
 import Dp037_bounded.D3proj_users
 
-opts = ODBCOptions{dsn="mysql-dp037", uid="dp037", pwd="teent333"}
+opts = ODBCOptions{dsn="", uid="", pwd=""}
 withDB f = odbcConnect opts f
 
 q n = do

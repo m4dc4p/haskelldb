@@ -1,4 +1,6 @@
 import Database.HaskellDB
+import Database.HaskellDB.HDBRec
+import Database.HaskellDB.HDBRecUtils
 import Database.HaskellDB.Database
 import Database.HaskellDB.Query
 import Database.HaskellDB.PrimQuery
@@ -14,9 +16,18 @@ withDB f = odbcConnect opts f
 
 q = Project [("t",BinExpr (OpOther "NOW()") (ConstExpr "") (ConstExpr ""))] Empty
 
+data Timefield = Timefield
+
+instance HDBRecEntry Timefield (Expr CalendarTime) where
+    fieldTag = Timefield
+    fieldName _ = "timefield"
+
+timefield :: Attr Timefield r CalendarTime
+timefield = mkAttr Timefield
+
 getTime db = do
-	     (r:_) <- (dbQuery db) (database db) q undefined
-	     return (fromJust (r!.(Attr "t")) :: CalendarTime)
+	     (r:_) <- dbQuery db q (Rel 0 ["timefield"]::Rel (HDBRecCons Timefield CalendarTime HDBRecTail))
+	     return (r!.timefield)
 	     
 printTime db = do
 	       t <- getTime db

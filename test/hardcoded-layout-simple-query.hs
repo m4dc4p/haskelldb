@@ -36,7 +36,7 @@ instance HDBRecEntry C11 (Expr Int) where
     fieldTag = C11
     fieldName _ = "c11"
 
-c11 :: HasField C11 r => Attr C11 r Int
+c11 :: Attr C11 r Int
 c11 = mkAttr C11
 
 -------------------------------------
@@ -49,7 +49,7 @@ instance HDBRecEntry C12 (Expr (Maybe Int)) where
     fieldTag = C12
     fieldName _ = "c12"
 
-c12 :: HasField C12 r => Attr C12 r (Maybe Int)
+c12 :: Attr C12 r (Maybe Int)
 c12 = mkAttr C12
 
 
