@@ -68,3 +68,10 @@
   is not converted to have an intial lower case letter if the
   user gives a name with an uppercase letter on the command line.
   Reported by Tom Moertel (tmoertel) on 2004-04-27.
+
+- When querying a Microsoft Access database using the ODBC driver,
+  you can get the error "The field is too small to accept the 
+  amount of data you attempted to add." if the query includes a
+  field of type Memo. This is because HaskellDB queries
+  use SELECT DISTINCT, which Access does not like on Memo fields
+  for some reason. Reported by Esa Ilari Vuokko on 2004-04-27.
