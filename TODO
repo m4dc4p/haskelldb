@@ -12,6 +12,8 @@ Things that need to be done, in no particular order:
     itself, so that generated code only needs to import that module. /Bjorn
   * Handle fields with default values and auto increment.
     This was found by stepcut.
+  * Figure out some intutive way of doing grouping.
+  * Fix semantics of lazyQuery.
   (* strictness checking. In other words: optimize the code to sort out what
      types and expressions are evaluated strictly, and explicitly tell the
      compiler that they are strict)
@@ -39,9 +41,18 @@ Things that need to be done, in no particular order:
 - Build system 
 
 - Database drivers
+
   * Add more drivers:
-  * Make SQLite report more useful types. Make HSQL parse the original
-    create query from the meta-table?
+     - Oracle (http://cvs.sf.net/viewcvs.py/haskell-libs/libs/takusen/)
+
+  * wxHaskell:
+    - Figure out how to handle wrapping wxHaskell execute calls
+      in transactions intelligently.
+    - Make it work in Hugs.
+
+  * SQLite:
+    - Make SQLite report more useful types. Make HSQL parse the original
+      create query from the meta-table?
 
 - Documentation
   * Haddock comments on all exported functions, classes and types
