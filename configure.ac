@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.5],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.10 $)
+AC_REVISION($Revision: 1.11 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -179,9 +179,15 @@ else
   RUNHUGS=$(dirname $HUGS)/runhugs
 fi
 
+case $ac_cv_target_alias in
+    i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
+        SO_EXT=dll;;
+    *)  SO_EXT=so;;
+esac
+
 AC_SUBST(HUGS)
 AC_SUBST(RUNHUGS)
-
+AC_SUBST(SO_EXT)
 
 dnl ***********************************************
 dnl Hugs directory
@@ -209,22 +215,78 @@ fi
 AC_SUBST(HUGS_DIR)
 
 dnl ***********************************************
+dnl HSQL for all compilers
+dnl ***********************************************
+
+AC_ARG_WITH(hsql-dir,
+AC_HELP_STRING([--with-hsql-dir=DIR],
+               [Look for HSQL for all compilers in DIR.
+		(default: none)]),
+[GHC_HSQL_DIR="$withval"
+HUGS_HSQL_DIR="$withval"],
+)
+
+dnl ***********************************************
 dnl HSQL for GHC
 dnl ***********************************************
 
+AC_ARG_WITH(ghc-hsql-dir,
+AC_HELP_STRING([--with-ghc-hsql-dir=DIR],
+               [Look for HSQL for GHC in DIR.
+		(default: ghc-dir)]),
+[GHC_HSQL_DIR="$withval"],
+[if test "$GHC_HSQL_DIR" = ""; then
+	GHC_HSQL_DIR="$GHC_DIR"
+fi]
+)
+
 if test "$GHC" != ""; then
+
+  AC_MSG_NOTICE([Checking if HSQL is available automatically])
+  AC_HS_GHC_MODULE_IFELSE([Database.HSQL],[query],[HSQL_AUTO_PACKAGE="yes"],)
+
+  if test "$HSQL_AUTO_PACKAGE" = "yes"; then
+	GHCFLAGS="$GHCFLAGS -package hsql"
+  else
+	if test "$GHC_HSQL_DIR" = "" || test ! -d $GHC_HSQL_DIR; then
+	   AC_MSG_ERROR([ghc-hsql-dir $GHC_HSQL_DIR does not exist])
+	fi
+        
+	AC_MSG_NOTICE([Using HSQL for GHC in $GHC_HSQL_DIR])
+
+	GHCFLAGS="$GHCFLAGS -i$GHC_HSQL_DIR"
 
 	AC_HS_GHC_MODULE_IFELSE([Database.HSQL],[query],,
 	  AC_MSG_ERROR([Database.HSQL for GHC not found]))
- 
-	GHCFLAGS="$GHCFLAGS -package hsql"
+
+	LDFLAGS="$LDFLAGS -L$GHC_HSQL_DIR -lHSsql"
+  fi
+
 fi
 
 dnl ***********************************************
 dnl HSQL for Hugs
 dnl ***********************************************
 
+AC_ARG_WITH(hugs-hsql-dir,
+AC_HELP_STRING([--with-hugs-hsql-dir=DIR],
+               [Look for HSQL for Hugs in DIR.
+		(default: hugs-dir)]),
+[HUGS_HSQL_DIR="$withval"],
+[if test "$HUGS_HSQL_DIR" = ""; then
+	HUGS_HSQL_DIR="$HUGS_DIR"
+fi]
+)
+
 if test "$HUGS" != ""; then
+	if test "$HUGS_HSQL_DIR" = "" || test ! -d $HUGS_HSQL_DIR; then
+	   AC_MSG_ERROR([hugs-hsql-dir $HUGS_HSQL_DIR does not exist])
+	fi
+
+	AC_MSG_NOTICE([Using HSQL for HUGS in $HUGS_HSQL_DIR])
+
+	HUGSFLAGS="$HUGSFLAGS -P$HUGS_HSQL_DIR:"
+
 	AC_HS_HUGS_MODULE_IFELSE([Database.HSQL],[query],,
 	  AC_MSG_ERROR([Database.HSQL for HUGS not found]))
 fi
@@ -269,8 +331,21 @@ esac
 AC_SUBST(WIN32)
 
 dnl ***********************************************
-dnl check for ODBC module
+dnl check for ODBC module and libraries 
 dnl ***********************************************
+
+AC_ARG_WITH(odbc-libs,
+  AC_HELP_STRING([--with-odbc-libs=DIR],
+             [Look for ODBC libraries in DIR.]),
+  [ODBC_LIB_DIR="$withval"],
+  [
+  case $ac_cv_target_alias in
+    i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
+	ODBC_LIB_DIR="/cygdrive/c/program/Microsoft\ Data\ Access\ SDK/lib/x86"
+        ;;
+  esac
+  ]
+)
 
 if test "$WITH_HSQL_ODBC" = "yes"; then
   AC_HS_MODULE_IFELSE([Database.HSQL.ODBC],[connect],,
@@ -278,8 +353,26 @@ if test "$WITH_HSQL_ODBC" = "yes"; then
     WITH_HSQL_ODBC=no])
 fi
 
+if test "$WITH_HSQL_ODBC" = "yes" && test "$HSQL_AUTO_PACKAGE" != "yes"; then
+
+  if test "$ODBC_LIB_DIR" != ""; then
+    LDFLAGS="$LDFLAGS -L$ODBC_LIB_DIR"
+  fi
+
+  case $ac_cv_target_alias in
+    i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
+	# FIXME: not checking for libodbc on win32
+        LIBS="$LIBS -lodbc32"
+        ;;
+    *)  AC_CHECK_LIB(odbc,SQLAllocEnv,,AC_MSG_ERROR(
+	[libodbc required to build ODBC programs. Skipping ODBC support.]))
+        ;;
+  esac
+
+fi
+
 dnl ***********************************************
-dnl check for PostgreSQL module
+dnl check for PostgreSQL module and libraries
 dnl ***********************************************
 
 if test $WITH_HSQL_POSTGRESQL = yes; then
@@ -289,8 +382,34 @@ if test $WITH_HSQL_POSTGRESQL = yes; then
     WITH_HSQL_POSTGRESQL=no])
 fi
 
+if test "$WITH_HSQL_POSTGRESQL" = "yes" && test "$HSQL_AUTO_PACKAGE" != "yes"; then
+  AC_PATH_PROG(PG_CONFIG, pg_config)
+
+  if test "$PG_CONFIG" = "" || test ! -f $PG_CONFIG; then
+    AC_MSG_WARN([pg_config is required for PostgreSQL, 
+	          skipping PostgreSQL])
+    WITH_HSQL_POSTGRESQL=no
+  fi
+
+  if test $WITH_HSQL_POSTGRESQL = yes; then
+    libdir=`$PG_CONFIG --libdir`
+    case $ac_cv_target_alias in
+      i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
+	libdir=`cygpath -m "$libdir"`
+        ;;
+    esac
+
+    LDFLAGS="$LDFLAGS -L$libdir"
+
+    AC_CHECK_LIB(pq,PQsetdbLogin,,[
+	AC_MSG_WARN([libpq library not found])
+        WITH_HSQL_POSTGRESQL=no
+    ])
+  fi
+fi
+
 dnl ***********************************************
-dnl check for MySQL module
+dnl check for MySQL module and libraries
 dnl ***********************************************
 
 if test $WITH_HSQL_MYSQL = yes; then
@@ -298,6 +417,17 @@ if test $WITH_HSQL_MYSQL = yes; then
     [AC_MSG_WARN([MySQL module not found, 
 	          not building MySQL support])
     WITH_HSQL_MYSQL=no])
+fi
+
+if test $WITH_HSQL_MYSQL = yes && test "$HSQL_AUTO_PACKAGE" != "yes"; then
+  AC_PATH_PROG(MYSQL_CONFIG, mysql_config)
+
+  if test "$MYSQL_CONFIG" = "" || test ! -f $MYSQL_CONFIG; then
+    AC_MSG_WARN([mysql_config is required to build MySQL binding])
+   WITH_HSQL_MYSQL=no
+  fi
+
+  LDFLAGS="$LDFLAGS `$MYSQL_CONFIG --libs`"
 fi
 
 dnl ***********************************************
