@@ -10,7 +10,7 @@
 -- 
 -- This is a replacement for some of TREX.
 --
--- $Revision: 1.28 $
+-- $Revision: 1.29 $
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec 
     (
@@ -52,13 +52,26 @@ type Record r = RecNil -> r
        -> Record (RecCons f a RecNil)  -- ^ New record
 _ .=. x = RecCons x
 
+{-
 -- | Adds the field from a one-field record to another record.
 ( # ) :: Record (RecCons f a RecNil) -- ^ Field to add
       -> (b -> c)                    -- ^ Rest of record
       -> (b -> RecCons f a c)        -- ^ New record
 f # r = let RecCons x _ = f RecNil in RecCons x . r
+-}
 
+class RecCat a b c | a b -> c where
+    -- | Adds the field from a one-field record to another record.
+    ( # ) :: a -> b -> c
 
+instance RecCat RecNil r r where
+    RecNil # r = r
+
+instance RecCat r1 r2 r3 => RecCat (RecCons f a r1) r2 (RecCons f a r3) where
+    RecCons x r1 # r2 = RecCons x (r1 # r2)
+
+instance RecCat r1 r2 r3 => RecCat (Record r1) (Record r2) (Record r3) where
+    r1 # r2 = \n -> r1 n # r2 n
 
 -- | The empty record
 emptyRecord :: Record RecNil
