@@ -10,7 +10,7 @@ CLEAN_COMPILERS = $(addprefix clean-,$(COMPILERS))
 all: $(ALL_COMPILERS)
 
 $(ALL_COMPILERS):
-	$(MAKE) -f $(subst all-,Makefile., $@)
+	$(MAKE) -f $(subst all-,Makefile., $@) all
 
 clean: $(CLEAN_COMPILERS)
 
