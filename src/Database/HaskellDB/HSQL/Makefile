@@ -20,10 +20,10 @@ default all: test
 # HUGS
 #
 
-hugsload: $(HSQL_DIR)/Database/ODBC/HSQL.hs  $(HSQL_DIR)/Database/ODBC/HSQL.so
-	$(HUGS) $(HUGSFLAGS) HSQL_driver.hs
+hugsload: $(HSQL_DIR)/Database/ODBC/HSQL.hs $(HSQL_DIR)/Database/ODBC/HSQL.so
+	$(HUGS) $(HUGSFLAGS) test.hs
 
-hugstest: $(HSQL_DIR)/Database/ODBC/HSQL.hs  $(HSQL_DIR)/Database/ODBC/HSQL.so
+hugstest: $(HSQL_DIR)/Database/ODBC/HSQL.hs $(HSQL_DIR)/Database/ODBC/HSQL.so
 	$(RUNHUGS) $(HUGSFLAGS) test.hs
 
 #
