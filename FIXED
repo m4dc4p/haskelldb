@@ -1,6 +1,24 @@
 This is where we keep track of reported and fixed bugs, mostly for 
 bragging rights at the end of the project:
 
+- Krasimir Angelov reported these two bugs 2004-02-04:
+
+    * "The PrimQuery imports List module instead of
+      Data.List which make HaskellDB dependent from
+      Haskell98 package. In the haskelldb.pkg script the
+      Haskell98 package is not added in the dependency list.
+      The package works well with modified PrimQuery where
+      the List is replaced with Data.List."
+
+    * "In the makefile the ghc-pkg tool is called with
+       -g option to autogenerate library for GHCi. The
+       trouble here is that if there already exist HShdb.o
+       object then the tool ignores the option. The work
+       arround which I use in HSQL is to remove HShdb.o from
+       the GHC directory before the install phase."
+
+    Bjorn fixed these bugs on 2004-02-04.
+
 - shapr reported a bug in Dbdirect 2004-02-07. For some reason DbDirect 
 didn't generate Tables that had a Maybe type for String, it just made them 
 String. Chucky fixed this on 2004-02-08
