@@ -12,6 +12,8 @@
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec where
 
+import Data.List
+
 -- * Data declarations.
 
 -- | Last entry in each record.
@@ -55,3 +57,34 @@ instance (HDBRecEntry a b, Show b, ShowRecRow c) => ShowRecRow (HDBRecCons a b c
 
 instance ShowRecRow r => ShowRecRow (HDBRec r) where
     showRecRow r = showRecRow (r HDBRecTail)
+
+{-
+-- Quite likely to be totally useless. We'd actually like 
+-- something like instance Row r => Show / Read r /Bjorn
+
+instance ShowRecRow r => Show (HDBRec r) where
+    showsPrec _ r = 
+	showChar '[' . punct (showChar ',') (fields r) . showChar ']'
+	    where fields = map (\ (x,y) -> showString x . 
+				showChar '=' . y) . showRecRow
+		  punct p ss r = foldr ($) r (intersperse p ss)
+
+class ReadRecRow r where
+    readRecRow :: [(String,String)] -> [(r,[(String,String)])]
+
+instance ReadRecRow HDBRecTail where
+    readRecRow xs = [(HDBRecTail,xs)]
+
+instance (HDBRecEntry a b, Read b, ReadRecRow c) => 
+    ReadRecRow (HDBRecCons a b c) where
+    readRecRow [] = []
+    readRecRow ((f,v):xs) = 
+       let t = fieldTag
+	   n = fieldName t
+        in if n == f then
+	       [(HDBRecCons t x r, xs') | (x,v') <- reads v, 
+		                          (r,xs') <- readRecRow xs, 
+		                          null v']
+            else []
+
+-}
