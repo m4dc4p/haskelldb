@@ -206,7 +206,7 @@ foldPrimExpr (attr,scalar,binary,unary,aggr)
 -- coincidently, ppPrimExpr shows exactly a valid SQL expression :-)
 -----------------------------------------------------------
 -- This just calls itself, can't really see why, deriving Show instead
--- /Björn
+-- /Bjorn
 --instance Show PrimQuery where
 --  showsPrec d qt        = shows qt
   
