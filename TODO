@@ -17,6 +17,8 @@ Things that need to be done, in no particular order:
   (* maybe make it work on multi-processor systems using Concurrent Haskell?)
   (* try to compile with nhc98. It would be nice to support all three 
      available Haskell compilers)
+  (* Add features for adding and modifying tables /Added by Bjorn,
+     suggested by Shae Erisson)
 
 - DbDirect 
   (* add optional command line argument for selecting which
