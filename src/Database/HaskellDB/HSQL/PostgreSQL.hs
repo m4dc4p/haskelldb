@@ -16,6 +16,7 @@ module Database.HaskellDB.HSQL.PostgreSQL (
 		      , postgresqlConnect
 		      ) where
 
+import Database.HaskellDB.Database
 import Database.HaskellDB.HSQL.Common
 import qualified Database.HSQL.PostgreSQL as PostgreSQL (connect) 
 
@@ -26,7 +27,7 @@ data PostgreSQLOptions = PostgreSQLOptions {
 				  pwd :: String     -- ^ password
                   		 }
 
-postgresqlConnect :: PostgreSQLOptions -> (HSQL -> IO a) -> IO a
+postgresqlConnect :: PostgreSQLOptions -> (Database -> IO a) -> IO a
 postgresqlConnect = 
     hsqlConnect (\opts -> PostgreSQL.connect 
 		            (server opts) (db opts) (uid opts) (pwd opts))

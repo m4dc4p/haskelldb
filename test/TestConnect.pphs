@@ -17,7 +17,7 @@ import qualified Database.HaskellDB.HSQL.MySQL as MY
 import qualified Database.HaskellDB.HSQL.PostgreSQL as PG
 #endif
 
-connect :: [String] -> (HSQL -> IO a) -> IO a
+--connect :: [String] -> (HSQL -> IO a) -> IO a
 #ifdef WITH_HSQL_ODBC
 connect ["ODBC",d,u,p] = OD.odbcConnect OD.ODBCOptions 
 				     {OD.dsn = d,OD.uid = u,OD.pwd = p}
@@ -37,7 +37,7 @@ connect _ = error $ unlines ["Accepted options:",
 			     "MySQL server db uid pwd",
 			     "PostgreSQL server db uid pwd"]
 
-argConnect :: (HSQL -> IO a) -> IO a
+--argConnect :: (HSQL -> IO a) -> IO a
 argConnect f = do
                args <- getArgs
                connect args f

@@ -14,8 +14,7 @@ module Database.HaskellDB.HDBRecUtils (hdbMakeEntry,
 		    mkAttr,
 		    ( << ),
 		    ( # ),
-		    selectField,
-		    (<<-)
+		    SelectField(..)
 		   ) where
 
 import Database.HaskellDB.HDBRec
@@ -53,9 +52,8 @@ _ << x = HDBRecCons x
 f1 # f2 = f1 . f2
 
 
--- beginnings of a field selector function
-
 class SelectField f r a where
+    -- | Gets the value of a field from a record.
     selectField :: Attr f r1 a -> r -> a
 
 instance SelectField f (HDBRecCons f a r) a where
@@ -64,11 +62,3 @@ instance SelectField f (HDBRecCons f a r) a where
 instance SelectField f r a => SelectField f (HDBRecCons g b r) a where
     selectField f (HDBRecCons _ r) = selectField f r
 
-
---  FIXME: remove
--- for testing selectField
-( <<- ) :: HDBRecEntry f (Expr a) => 
-        Attr f r a 
-       -> a
-       -> (b -> HDBRecCons f a b)
-_ <<- x = HDBRecCons x

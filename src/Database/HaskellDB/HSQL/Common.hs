@@ -13,7 +13,7 @@
 
 module Database.HaskellDB.HSQL.Common (
 		     hsqlConnect
-		   , HSQL
+--		   , HSQL
 		   ) where
 
 import Data.Dynamic
@@ -32,25 +32,9 @@ import Database.HaskellDB.BoundedList
 
 import Database.HSQL as HSQL
 
-type HSQL = Database Connection HSQLRow
-
-data HSQLRow r = HSQLRow [(Attribute,HSQLValue)] deriving Show
-
-type HSQLValue = Dynamic
-
--- Enable selection in an HSQL row
-instance Typeable a => Row HSQLRow a where
-    rowSelect = hsqlRowSelect
-
-instance Typeable a => Row HSQLRow (Maybe a) where
-    rowSelect = hsqlRowSelectMB
-
-instance  Size n => Row HSQLRow (BoundedString n) where
-    rowSelect = hsqlRowSelectBStr
-
 -- | Run an action on a HSQL Connection and close the connection.
 hsqlConnect :: (opts -> IO Connection) -- ^ HSQL connection function, e.g.  
-	    -> opts -> (HSQL -> IO a) -> IO a
+	    -> opts -> (Database -> IO a) -> IO a
 hsqlConnect connect opts action = 
     do
     conn <- handleSqlError (connect opts)
@@ -61,9 +45,9 @@ hsqlConnect connect opts action =
 handleSqlError :: IO a -> IO a
 handleSqlError io = handleSql (\err -> fail (show err)) io
 
-newHSQL :: Connection -> HSQL
+newHSQL :: Connection -> Database
 newHSQL connection
-    = Database { dbQuery	= hsqlQuery connection,
+    = Database { dbQuery	= hsqlQuery' connection,
     		 dbInsert	= hsqlInsert connection,
 		 dbInsertQuery 	= hsqlInsertQuery connection,
 		 dbDelete	= hsqlDelete connection,
@@ -72,32 +56,6 @@ newHSQL connection
 		 dbDescribe     = hsqlDescribe connection,
 		 dbTransaction  = hsqlTransaction connection
 	       }
-
-
-hsqlRowSelect' :: (Typeable a, Typeable b) => Attr f r a -> HSQLRow r1 -> (Maybe b)
-hsqlRowSelect' attr (HSQLRow vals)
-        = case lookup (attributeName attr) vals of
-            Nothing  -> error $ "Query.rowSelect: invalid attribute: " 
-						++ attributeName attr
-            Just dyn -> case fromDynamic dyn of
-	                  Nothing -> 
-			      error ("Query.rowSelect: type mismatch: " 
-				     ++ attributeName attr ++ " :: " ++ show dyn)
-			  Just val -> val
-
-hsqlRowSelectMB :: Typeable a => Attr f r (Maybe a) -> HSQLRow r -> (Maybe a)
-hsqlRowSelectMB = hsqlRowSelect'
-
-hsqlRowSelectBStr :: Size n => Attr f r (BoundedString n) 
-		     -> HSQLRow r -> BoundedString n
-hsqlRowSelectBStr attr vals = case (hsqlRowSelect' attr vals) of
-			    Nothing -> error ("Query.rowSelect: Null returned from non-nullable field")
-			    Just val -> trunc val
-
-hsqlRowSelect :: Typeable a => Attr f r a -> HSQLRow r -> a
-hsqlRowSelect attr vals = case (hsqlRowSelect' attr vals) of
-			    Nothing -> error ("Query.rowSelect: Null returned from non-nullable field")
-			    Just val -> val
 
 hsqlInsert conn table assoc = 
     hsqlPrimExecute conn $ show $ ppInsert $ toInsert table assoc
@@ -110,15 +68,6 @@ hsqlDelete conn table exprs =
 
 hsqlUpdate conn table criteria assigns = 
     hsqlPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
-
-hsqlQuery :: Connection -> PrimQuery -> Rel r -> IO [HSQLRow r]
-hsqlQuery connection qtree rel
-    = do
-      rows <- hsqlPrimQuery connection sql scheme rel
-      return rows
-    where
-      sql = show (ppSql (toSql qtree))  
-      scheme = attributes qtree
 
 hsqlTables :: Connection -> IO [TableName]
 hsqlTables = HSQL.tables
@@ -157,43 +106,10 @@ toFieldType _                = StringT
 -- the return type right.
 -----------------------------------------------------------
 
-hsqlPrimQuery :: Connection -> String -> Scheme -> Rel r -> IO [HSQLRow r]
-hsqlPrimQuery connection sql scheme _ = 
-    do
-    -- FIXME: (DEBUG) remove
-    --putStrLn sql
-    stmt <- HSQL.query connection sql
-    -- FIXME: (DEBUG) remove
-    -- putStrLn $ unlines $ map show $ getFieldsTypes stmt
-    collectRows (getRow scheme) stmt
-
-getRow :: Scheme -> Statement -> IO (HSQLRow r)
-getRow scheme stmt = 
-    do
-    vals <- mapM (getField stmt) scheme
-    return (HSQLRow (zip scheme vals))
-
-getField :: Statement -> Attribute -> IO HSQLValue
-getField s n = 
-    case toFieldType t of
-	    StringT  -> toVal (getFieldValueMB s n :: IO (Maybe String))
-	    IntT     -> toVal (getFieldValueMB s n :: IO (Maybe Int))
-	    IntegerT -> toVal (getFieldValueMB s n :: IO (Maybe Integer))
-	    DoubleT  -> toVal (getFieldValueMB s n :: IO (Maybe Double))
-	    CalendarTimeT -> 
-		toVal ((getFieldValueMB s n :: IO (Maybe ClockTime))
-		       >>= mkIOMBCalendarTime)
-	    -- FIXME: should wo do it like this?
-	    -- if so, must fix hsqlRowSelect to handle this
-	    BStrT _ -> toVal (getFieldValueMB s n :: IO (Maybe String))
-    where
-    (t,_) = getFieldValueType s n
-    toVal :: Typeable a => IO (Maybe a) -> IO HSQLValue
-    toVal = liftM toDyn
-
 mkIOMBCalendarTime :: Maybe ClockTime -> IO (Maybe CalendarTime)
 mkIOMBCalendarTime Nothing = return Nothing
 mkIOMBCalendarTime (Just c) = return (Just (mkCalendarTime c))
+
 
 hsqlPrimExecute :: Connection -> String -> IO ()
 hsqlPrimExecute connection sql = 
@@ -202,60 +118,39 @@ hsqlPrimExecute connection sql =
     --putStrLn sql
     execute connection sql
 
-{-
+
 
 --
--- New way of getting data, does not use Dynamic. Not used yet.
+-- New way of getting data, does not use Dynamic.
 --
 
-hsqlPrimQuery' :: GetRec r => Connection -> String -> Scheme -> Rel r -> IO [r]
-hsqlPrimQuery' connection sql scheme _ = 
+
+hsqlQuery' :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [vr]
+hsqlQuery' connection qtree rel
+    = do
+      rows <- hsqlPrimQuery' connection sql scheme rel
+      return rows
+    where
+      sql = show (ppSql (toSql qtree))  
+      scheme = attributes qtree
+
+hsqlPrimQuery' :: GetRec er vr => Connection -> String -> Scheme -> Rel er -> IO [vr]
+hsqlPrimQuery' connection sql scheme rel = 
     do
     stmt <- HSQL.query connection sql
-    collectRows (getRec scheme) stmt
+    collectRows (getRec hsqlValueFuncs rel scheme) stmt
 
-class GetRec r where
-    getRec :: Scheme -> Statement -> IO r
 
-instance GetRec HDBRecTail where
-    getRec [] _ = return HDBRecTail
-    getRec fs _ = fail $ "Wanted empty record from scheme " ++ show fs
+hsqlValueFuncs :: ValueFuncs Statement
+hsqlValueFuncs = ValueFuncs {
+			     getString        = getFieldValueMB
+			    , getInt          = getFieldValueMB
+			    , getInteger      = getFieldValueMB
+			    , getDouble       = getFieldValueMB
+			    , getCalendarTime = hsqlGetCalendarTime
+			    }
 
-instance (GetValue a, GetRec r) => GetRec (HDBRecCons f a r) where
-    getRec [] _ = fail $ "Wanted non-empty record, but scheme is empty"
-    getRec (f:fs) stmt = 
-	do
-	x <- getValue stmt f
-	r <- getRec fs stmt
-	return (HDBRecCons x r)
+hsqlGetCalendarTime :: Statement -> String -> IO (Maybe CalendarTime)
+hsqlGetCalendarTime s f = getFieldValueMB s f >>= mkIOMBCalendarTime
 
-class GetValue a where
-    getValue :: Statement -> String -> IO a
 
-instance GetValue String where getValue = getFieldValue
-instance GetValue (Maybe String) where getValue = getFieldValueMB
-
-instance GetValue Int where getValue = getFieldValue
-instance GetValue (Maybe Int) where getValue = getFieldValueMB
-
-instance GetValue Integer where getValue = getFieldValue
-instance GetValue (Maybe Integer) where getValue = getFieldValueMB
-
-instance GetValue Double where getValue = getFieldValue
-instance GetValue (Maybe Double) where getValue = getFieldValueMB
-
-instance GetValue CalendarTime where 
-    -- FIXME: should maybe give some sensible error message
-    getValue stmt f = 
-	liftM fromJust (getFieldValueMB stmt f >>= mkIOMBCalendarTime )
-
-instance GetValue (Maybe CalendarTime) where 
-    getValue stmt f = getFieldValueMB stmt f >>= mkIOMBCalendarTime
-
-instance Size n => GetValue (BoundedString n) where 
-    getValue stmt f = liftM trunc (getFieldValue stmt f) 
-
-instance Size n => GetValue (Maybe (BoundedString n)) where 
-    getValue stmt f = liftM (fmap trunc) (getFieldValueMB stmt f) 
-
--}

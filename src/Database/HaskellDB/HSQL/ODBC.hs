@@ -17,6 +17,7 @@ module Database.HaskellDB.HSQL.ODBC (
 		 , ODBCOptions(..)
 		 ) where
 
+import Database.HaskellDB.Database
 import Database.HaskellDB.HSQL.Common
 import qualified Database.HSQL.ODBC as ODBC (connect) 
 
@@ -26,6 +27,6 @@ data ODBCOptions = ODBCOptions {
                                pwd :: String  -- ^ password
                   	       }          
 
-odbcConnect :: ODBCOptions -> (HSQL -> IO a) -> IO a
+odbcConnect :: ODBCOptions -> (Database -> IO a) -> IO a
 odbcConnect = 
     hsqlConnect (\opts -> ODBC.connect (dsn opts) (uid opts) (pwd opts))

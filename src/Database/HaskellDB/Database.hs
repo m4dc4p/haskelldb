@@ -18,9 +18,9 @@ module Database.HaskellDB.Database (
 		-- * Operators
 	      	(!.)
 		-- * Type declarations
-		, Row, rowSelect
 		, Database(..)
-		
+		, GetRec(..), ValueFuncs(..)		
+
 		-- * Function declarations
 		, query, lazyQuery, strictQuery
 		, insert, delete, update, insertQuery
@@ -34,28 +34,26 @@ import Database.HaskellDB.Optimize (optimize)
 import Database.HaskellDB.Query	(Rel(..), Attr, Table(..), Query, Expr(..)
 		,ToPrimExprs, runQuery, runQueryRel, exprs, labels)
 
-
+import Database.HaskellDB.HDBRecUtils
+import Database.HaskellDB.BoundedString
+import Database.HaskellDB.BoundedList
+import System.Time
+import Control.Monad
 
 infix 9 !. 
 
 -- | The (!.) operator selects over returned records from
 --  the database (= rows)
+(!.) :: (SelectField f r a, HasField f r) => r -> Attr f r a -> a
+row !. attr     = selectField attr row
 
-(!.) :: (Row row a, HasField f r) => row r -> Attr f r a -> a
-row !. attr     = rowSelect attr row
-
-
--- | 'Row' and 'Database' abstract away over any particular
--- database. The 'Row' class enables selection over rows
--- that are returned from a database query. The 'Database'
--- data type contains all the primitive functions that
--- a particular database binding should provide.
-class Row row a where
-  rowSelect :: HasField f r => Attr f r a -> row r -> a
   
-data Database db row
+data Database
 	= Database  
-	  { dbQuery  :: forall r. PrimQuery -> Rel r -> IO [row r]
+	  { dbQuery  :: forall er vr. GetRec er vr => 
+	     PrimQuery 
+	     -> Rel er
+	     -> IO [vr]
   	  , dbInsert :: TableName -> Assoc -> IO ()
 	  , dbInsertQuery :: TableName -> PrimQuery -> IO ()
   	  , dbDelete :: TableName -> [PrimExpr] -> IO ()
@@ -64,23 +62,101 @@ data Database db row
 	  , dbDescribe :: TableName -> IO [(Attribute,FieldDesc)]
 	  , dbTransaction :: forall a. IO a -> IO a
   	  }
-  	  
--- Obsolete?
---dbInvoke :: (Database db row -> db -> a) -> Database db row -> a
---dbInvoke fun db		= (fun db) (database db)  	  
+
+
+--
+-- Creating result records
+-- 	 
+
+-- | Functions for getting values of a given type. Database drivers
+--   need to implement these functions and pass this record to 'getRec'
+--   when getting query results.
+--
+--   All these functions Should return 'Nothing' if the value is NULL.
+data ValueFuncs s = 
+    ValueFuncs {
+		 -- | Get a 'String' value.
+		 getString       :: s -> String -> IO (Maybe String)
+		 -- | Get an 'Int' value.
+	       , getInt          :: s -> String -> IO (Maybe Int)
+		 -- | Get an 'Integer' value.
+	       , getInteger      :: s -> String -> IO (Maybe Integer)
+		 -- | Get a 'Double' value. 
+	       , getDouble       :: s -> String -> IO (Maybe Double)
+		 -- | Get a 'CalendarTime' value.
+	       , getCalendarTime :: s -> String -> IO (Maybe CalendarTime)
+	       }
+
+
+class GetRec er vr | er -> vr, vr -> er where
+    -- | Create a result record.
+    getRec :: ValueFuncs s -- ^ Driver functions for getting values
+			   --   of different types.
+	   -> Rel er       -- ^ Phantom argument to the the return type right
+	   -> Scheme       -- ^ Fields to get.
+	   -> s            -- ^ Driver-specific result data 
+	                   --   (for example a Statement object)
+           -> IO vr        -- ^ Result record.
+
+instance GetRec HDBRecTail HDBRecTail where
+    getRec _ _ [] _ = return HDBRecTail
+    getRec _ _ fs _ = fail $ "Wanted empty record from scheme " ++ show fs
+
+
+instance (GetValue a, GetRec er vr) 
+    => GetRec (HDBRecCons f (Expr a) er) (HDBRecCons f a vr) where
+
+    getRec _ _ [] _ = fail $ "Wanted non-empty record, but scheme is empty"
+    getRec vfs (_::Rel (HDBRecCons ef (Expr ea) er)) (f:fs) stmt = 
+	do
+	x <- getValue vfs stmt f
+	r <- getRec vfs (undefined :: Rel er) fs stmt
+	return (HDBRecCons x r)
+
+
+class GetValue a where
+    getValue :: ValueFuncs s -> s -> String -> IO a
+
+-- these are silly, there's probably a cleaner way to do this,
+-- but instance GetValue (Maybe a) => GetValue a doesn't work
+-- Maybe we could do it the other way around.
+instance GetValue String where getValue = getNonNull
+instance GetValue Int where getValue = getNonNull
+instance GetValue Integer where getValue = getNonNull
+instance GetValue Double where getValue = getNonNull
+instance GetValue CalendarTime where getValue = getNonNull
+instance Size n => GetValue (BoundedString n) where getValue = getNonNull
+
+instance GetValue (Maybe String) where getValue = getString
+instance GetValue (Maybe Int) where getValue = getInt
+instance GetValue (Maybe Integer) where getValue = getInteger
+instance GetValue (Maybe Double) where getValue = getDouble
+instance GetValue (Maybe CalendarTime) where getValue = getCalendarTime
+instance Size n => GetValue (Maybe (BoundedString n)) where 
+    getValue fs s f = liftM (liftM trunc) (getValue fs s f)
+
+-- | Get a non-NULL value. Fails if the value is NULL.
+getNonNull :: GetValue (Maybe a) => ValueFuncs s -> s -> String -> IO a
+getNonNull fs s f = 
+	do
+	m <- getValue fs s f
+	case m of
+	       Nothing -> fail $ "Got NULL value from non-NULL field " ++ f
+	       Just v -> return v
+	  
 
 -----------------------------------------------------------
 -- Database operations
 -----------------------------------------------------------  	    	  
 
 -- | performs a query on a database
-query :: Database db row -> Query (Rel r) -> IO [(row r)]
+query :: GetRec er vr => Database -> Query (Rel er) -> IO [vr]
 query	= lazyQuery
 
 -- | lazy query performs a lazy query on a database
 --   FIXME: this function is currently NOT lazy since
 --   we have not implemented lazy queries in the HSQL driver
-lazyQuery :: Database db row -> Query (Rel r) -> IO [(row r)]
+lazyQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [vr]
 lazyQuery db q	
 	= (dbQuery db) (optimize primQuery) (rel)
 	where
@@ -89,7 +165,7 @@ lazyQuery db q
 
 -- | retrieves all the results directly in Haskell. This allows
 -- a connection to close as early as possible.
-strictQuery :: Database db row -> Query (Rel r) -> IO [(row r)]
+strictQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [vr]
 strictQuery db q
         = do xs <- lazyQuery db q
              let xs' = seqList xs
@@ -100,12 +176,12 @@ strictQuery db q
                   	    in  xs' `seq` x:xs'
 	
 -- | Inserts values from a query into a table
-insertQuery :: ShowRecRow r => Database db row -> Table r -> Query (Rel r) -> IO ()
+insertQuery :: ShowRecRow r => Database -> Table r -> Query (Rel r) -> IO ()
 insertQuery db (Table name assoc) q
 	= (dbInsertQuery db) name (optimize (runQuery q))
 
 -- | Inserts a record into a table
-insert :: (ToPrimExprs r, ShowRecRow r) => Database db row -> Table r -> HDBRec r -> IO ()
+insert :: (ToPrimExprs r, ShowRecRow r) => Database -> Table r -> HDBRec r -> IO ()
 insert db (Table name assoc) newrec	
 	= (dbInsert db) name (zip (attrs assoc) (exprs newrec))
 	where
@@ -113,7 +189,7 @@ insert db (Table name assoc) newrec
 	  
 -- | deletes a bunch of records	  
 delete :: ShowRecRow r => 
-	  Database db row -- ^ The database
+	  Database -- ^ The database
        -> Table r -- ^ The table to delete records from
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to delete
        -> IO ()
@@ -125,7 +201,7 @@ delete db (Table name assoc) criteria
 	  
 -- | Updates records
 update :: (ToPrimExprs s, ShowRecRow s,ShowRecRow r) => 
-	  Database db row      -- ^ The database
+	  Database             -- ^ The database
        -> Table r              -- ^ The table to update
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to update
        -> (Rel r -> HDBRec s)  -- ^ Function used to modify selected records
@@ -147,12 +223,12 @@ update db (Table name assoc) criteria assignFun
 	  rel		= Rel 0 (map fst assoc)
 	
 -- | List all tables in the database
-tables :: Database db row -- ^ Database
+tables :: Database  -- ^ Database
        -> IO [TableName]  -- ^ Names of all tables in the database
 tables db = dbTables db
 
 -- | List all columns in a table, along with their types
-describe :: Database db row -- ^ Database
+describe :: Database  -- ^ Database
 	 -> TableName       -- ^ Name of the tables whose columns are to be listed
 	 -> IO [(Attribute,FieldDesc)] -- ^ Name and type info for each column
 describe db = dbDescribe db
@@ -160,7 +236,7 @@ describe db = dbDescribe db
 
 -- | Performs some database action in a transaction. If no exception is thrown,
 --   the changes are committed. 
-transaction :: Database db row -- ^ Database
+transaction :: Database -- ^ Database
 	    -> IO a -- ^ Action to run
 	    -> IO a 
 transaction db = dbTransaction db

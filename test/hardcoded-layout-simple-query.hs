@@ -64,9 +64,6 @@ q = do
 
 newRec x y = c11 << constant x # c12 << constant y
 
-
-printResults :: (Row row Int, Row row (Maybe Int)) => 
-		[row (HDBRecCons C11 (Expr Int) (HDBRecCons C12 (Expr (Maybe Int)) HDBRecTail))] -> IO ()
 printResults = mapM_ (\row -> putStrLn (show (row!.c11) ++ " " ++ show (row!.c12)))
 
 --

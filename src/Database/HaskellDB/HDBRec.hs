@@ -53,6 +53,12 @@ class HasField f r
 instance HasField f (HDBRecCons f a r)
 instance HasField f r => HasField f (HDBRecCons g a r)
 
+
+--
+-- Showing rows 
+--
+
+
 -- | A record must belong to this class to be showable.
 class ShowRecRow r where
     showRecRow :: r -> [(String,ShowS)]
@@ -62,20 +68,15 @@ instance ShowRecRow HDBRecTail where
     showRecRow _ = []
 
 -- Recurse a record and produce a showable tuple.
-instance (FieldTag a, Show b, ShowRecRow c) => ShowRecRow (HDBRecCons a b c) where
+instance (FieldTag a, 
+	  Show b, 
+	  ShowRecRow c) => ShowRecRow (HDBRecCons a b c) where
     showRecRow r@(HDBRecCons x fs) = (consFieldName r, shows x) : showRecRow fs
 
 instance ShowRecRow r => ShowRecRow (HDBRec r) where
     showRecRow r = showRecRow (r HDBRecTail)
 
-{-
 
--- reading and showing rows. these are not used yet and do not type check
--- in Hugs.
-
---
--- Show 
---
 
 instance Show r => Show (HDBRec r) where
     showsPrec x r = showsPrec x (r HDBRecTail)
@@ -90,6 +91,7 @@ instance Show HDBRecTail where
 instance  (FieldTag a, Show b, ShowRecRow c) => Show (HDBRecCons a b c) where
     showsPrec _ r = showsShowRecRow r
 
+
 --
 -- ReadRecRow
 --
@@ -100,16 +102,21 @@ class ReadRecRow r where
 instance ReadRecRow HDBRecTail where
     readRecRow xs = [(HDBRecTail,xs)]
 
-instance (FieldTag a, Read b, ReadRecRow c) => 
-    ReadRecRow (HDBRecCons a b c) where
+instance (FieldTag a, 
+	  Read b, 
+	  ReadRecRow c) => ReadRecRow (HDBRecCons a b c) where
     readRecRow [] = []
-    readRecRow ((f,v):xs) | consFieldName (fst (head res)) == f = res
+    readRecRow xs = let res = readRecEntry xs (fst $ head res) in res
+
+readRecEntry :: (Read a, FieldTag f, ReadRecRow r) => 
+		[(String,String)] 
+	     -> HDBRecCons f a r   -- ^ Dummy to get return type right
+	     -> [(HDBRecCons f a r,[(String,String)])]
+readRecEntry ((f,v):xs) r | f == consFieldName r = res
 			  | otherwise = []
-	where
-	res :: ReadRecRow (HDBRecCons a b c) => [(HDBRecCons a b c,[(String,String)])]
-	res = [(HDBRecCons x r, xs') | (x,v') <- reads v, 
-	                               (r,xs') <- readRecRow xs, 
-		                       null v']
+    where
+    res = [(HDBRecCons x r, xs') | (x,"") <- reads v, 
+	   (r,xs') <- readRecRow xs]
 
 --
 -- Read
@@ -126,5 +133,3 @@ instance Read HDBRecTail where
 
 instance (FieldTag a, Read b, ReadRecRow c) => Read (HDBRecCons a b c) where
     readsPrec _ s = readsReadRecRow s
-
--}

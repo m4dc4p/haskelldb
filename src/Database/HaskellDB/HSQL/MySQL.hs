@@ -16,6 +16,7 @@ module Database.HaskellDB.HSQL.MySQL (
 		  , mysqlConnect
 		  ) where
 
+import Database.HaskellDB.Database
 import Database.HaskellDB.HSQL.Common
 import qualified Database.HSQL.MySQL as MySQL (connect) 
 
@@ -26,7 +27,7 @@ data MySQLOptions = MySQLOptions {
 				  pwd :: String     -- ^ password
                   		 }
 
-mysqlConnect :: MySQLOptions -> (HSQL -> IO a) -> IO a
+mysqlConnect :: MySQLOptions -> (Database -> IO a) -> IO a
 mysqlConnect = 
     hsqlConnect (\opts -> MySQL.connect 
 		            (server opts) (db opts) (uid opts) (pwd opts))

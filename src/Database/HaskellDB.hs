@@ -44,7 +44,7 @@ module Database.HaskellDB
 	, asc, desc, order
 	, top --, topPercent
 	
-	, Row, Database				-- abstract
+	, Database				-- abstract
 	, (!.)
 	, query, lazyQuery, strictQuery
 	, insert, delete, update, insertQuery
