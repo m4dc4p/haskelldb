@@ -69,24 +69,21 @@ odbcRowSelect attr (ODBCRow vals)
             Nothing  -> error "Query.rowSelect: invalid attribute used ??"
             Just dyn -> case fromDynamic dyn of
 	                  Nothing -> 
-			      error ("Query.rowSelect: type mismatch: " ++ show dyn)
+			      error ("Query.rowSelect: type mismatch: " 
+				     ++ attributeName attr ++ " :: " ++ show dyn)
 			  Just val -> val
 
-odbcInsertNew connection table assoc = execute connection sql
-	where
-	  sql = show (ppInsert (toInsertNew table assoc))
+odbcInsertNew conn table assoc = 
+    odbcPrimExecute conn $ show $ ppInsert $ toInsertNew table assoc
 	  
-odbcInsert connection table assoc = execute connection sql
-	where
-	  sql = show (ppInsert (toInsert table assoc))
+odbcInsert conn table assoc = 
+    odbcPrimExecute conn $ show $ ppInsert $ toInsert table assoc
 	  
-odbcDelete connection table exprs = execute connection sql    		
-	where
-	  sql = show (ppDelete (toDelete table exprs))
-		  
-odbcUpdate connection table criteria assigns = execute connection sql
-	where
-	  sql = show (ppUpdate (toUpdate table criteria assigns))	  
+odbcDelete conn table exprs = 
+    odbcPrimExecute conn $ show $ ppDelete $ toDelete table exprs
+
+odbcUpdate conn table criteria assigns = 
+    odbcPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
 
 odbcQuery :: Connection -> PrimQuery -> Rel r -> IO [ODBCRow r]
 odbcQuery connection qtree rel
@@ -113,6 +110,7 @@ toFieldType (SqlNumeric _ _) = DoubleT
 toFieldType SqlSmallInt      = IntT
 toFieldType SqlInteger       = IntT
 toFieldType SqlReal          = DoubleT
+toFieldType SqlFloat         = DoubleT
 toFieldType SqlDouble        = DoubleT
 --toFieldType SqlBit           = ?
 toFieldType SqlTinyInt       = IntT
@@ -133,8 +131,10 @@ odbcPrimQuery :: Connection -> String -> Scheme -> Rel r -> IO [ODBCRow r]
 odbcPrimQuery connection sql scheme _ = 
     do
     -- FIXME: (DEBUG) remove
-    --putStrLn sql
+    putStrLn sql
     stmt <- query connection sql
+    -- FIXME: (DEBUG) remove
+    -- putStrLn $ unlines $ map show $ getFieldsTypes stmt
     collectRows (getRow scheme) stmt
 
 getRow :: Scheme -> Statement -> IO (ODBCRow r)
@@ -156,3 +156,10 @@ getField s n =
     toVal m | nullable = liftM toDyn m
 	    -- FIXME: what if we have Nothing?
 	    | otherwise = liftM (toDyn . fromJust) m
+
+odbcPrimExecute :: Connection -> String -> IO ()
+odbcPrimExecute connection sql = 
+    do
+    -- FIXME: (DEBUG) remove
+    --putStrLn sql
+    execute connection sql
