@@ -174,13 +174,6 @@ class Select r f a | r f -> a where
 instance HasField f r => Select (Rel r) (Attr f a) (Expr a) where
     rel ! attr = select attr rel
 
-{-
--- | Attribute selection operator. Given a relation and an 
--- attribute name, it returns the attribute value expression.
-(!) :: HasField f r => Rel r -> Attr f a -> Expr a
-rel ! attr      = select attr rel
--}
-
 select :: HasField f r => Attr f a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))

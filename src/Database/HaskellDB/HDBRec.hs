@@ -28,9 +28,6 @@ data HDBRecCons f a b = HDBRecCons a b
 --   put a 'HDBRecTail' at the end of every record.
 type HDBRec r = HDBRecTail -> r
 
-mkRec :: HDBRec r -> r
-mkRec f = f HDBRecTail
-
 -- * Class definitions.
 
 class FieldTag f where
@@ -47,10 +44,12 @@ instance HasField f (HDBRecCons f a r)
 instance HasField f r => HasField f (HDBRecCons g a r)
 instance HasField f r => HasField f (HDBRec r)
 
-
+-- | Class for getting the value of a field from a record.
 class SelectField f r a where
     -- | Gets the value of a field from a record.
-    selectField :: f -> r -> a
+    selectField :: f -- ^ Field label
+		-> r -- ^ Record 
+		-> a -- ^ Field value
 
 instance SelectField f (HDBRecCons f a r) a where
     selectField _ (HDBRecCons x _) = x
