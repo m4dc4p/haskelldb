@@ -17,6 +17,8 @@ Things that need to be done, in no particular order:
   * Allow using queries in expressions.
   * Change types of aggregate expressions that can return NULL when the
     table is empty to reflect the nullability.
+  * Fix typing bug where update does not check that all fields are in the
+    table (probably by adding a subtyping relation on records).
   (* strictness checking. In other words: optimize the code to sort out what
      types and expressions are evaluated strictly, and explicitly tell the
      compiler that they are strict)
