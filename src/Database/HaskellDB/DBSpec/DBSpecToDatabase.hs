@@ -25,6 +25,6 @@ dbSpecToDatabase :: DBInfo -- ^ The DBInfo to generate from
 dbSpecToDatabase dbi db 
     = do
       createDB db (dbname dbi)
-      mapM (\t -> createTable db (tname t) (createAttFD t)) (tbls dbi) -- creates in the WRONG DATABASE!!!
+      mapM_ (\t -> createTable db (tname t) (createAttFD t)) (tbls dbi) -- creates in the WRONG DATABASE!!!
     where
     createAttFD tbl = zip (map cname (cols tbl)) (map descr (cols tbl))
