@@ -12,7 +12,7 @@
 -- Defines standard optimizations performed on PrimQuery's
 -- (relational expressions).
 --
--- $Revision: 1.16 $
+-- $Revision: 1.17 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.Optimize (optimize) where
@@ -182,7 +182,7 @@ pushRestrict (Restrict x (Project assoc query))
 
 pushRestrict (Restrict x (Binary op query1 query2))
         | noneIn1   = Binary op query1 (pushRestrict (Restrict x query2))
-        | noneIn2   = Binary op (pushRestrict (Restrict x query2)) query1
+        | noneIn2   = Binary op (pushRestrict (Restrict x query1)) query2
         -- otherwise fall through
         where
           attrs     = attrInExpr x
