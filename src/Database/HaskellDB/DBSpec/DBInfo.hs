@@ -1,4 +1,4 @@
-a-----------------------------------------------------------
+-----------------------------------------------------------
 -- |
 -- Module      :  DBInfo
 -- Copyright   :  HWT Group (c) 2004, dp03-7@mdstud.chalmers.se
@@ -13,8 +13,8 @@ a-----------------------------------------------------------
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBSpec.DBInfo
-    (DBInfo(..),TInfo(..),CInfo(..),DBOptions(..), makeDBSpec,
-     makeTInfo, makeCInfo,dbInfoToDoc,finalizeSpec)
+    (DBInfo(..),TInfo(..),CInfo(..),DBOptions(..),makeDBSpec,
+     makeTInfo,makeCInfo,dbInfoToDoc,finalizeSpec)
     where
 
 import Database.HaskellDB.FieldType
