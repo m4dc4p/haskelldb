@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.5],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.12 $)
+AC_REVISION($Revision: 1.13 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -235,7 +235,6 @@ AC_HELP_STRING([--with-ghc-hsql-dir=DIR],
                [Look for HSQL for GHC in DIR.
 		(default: ghc-dir)]),
 [GHC_HSQL_DIR="$withval"],
-[]
 )
 
 if test "$GHC" != ""; then
