@@ -13,7 +13,7 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.51 $
+-- $Revision: 1.52 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -406,7 +406,26 @@ class ShowConstant a where
     showConstant :: a -> String
 
 instance ShowConstant String where
-    showConstant x = show x
+    showConstant x = quote x
+
+-- | Quote a string and escape characters that need escaping
+--   FIXME: this might be backend dependent
+quote :: String -> String 
+quote s = "'" ++ concatMap escape s ++ "'"
+
+-- | Escape characters that need escaping
+escape :: Char -> String
+escape '\NUL' = "\\0"
+escape '\'' = "\\'"
+escape '"' = "\\\""
+escape '\b' = "\\b"
+escape '\n' = "\\n"
+escape '\r' = "\\r"
+escape '\t' = "\\t"
+escape '\\' = "\\\\"
+escape c = [c]
+
+
 instance ShowConstant Int where
     showConstant x = show x
 instance ShowConstant Integer where

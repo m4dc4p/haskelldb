@@ -12,7 +12,7 @@
 -- PrimQuery defines the datatype of relational expressions
 -- ('PrimQuery') and some useful functions on PrimQuery\'s
 --
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 -----------------------------------------------------------
 module Database.HaskellDB.PrimQuery (
 		  -- * Type Declarations
@@ -264,7 +264,7 @@ ppPrimExpr :: PrimExpr -> Doc
 ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
         where
           attr          = text
-          scalar        = text . unquote 
+          scalar        = text -- . unquote 
           binary op x y = parens (x <+> ppBinOp op <+> y)
           -- paranthesis around ASC / desc exprs not allowed
           unary OpAsc x  = x <+> ppUnOp OpAsc
@@ -276,6 +276,9 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
           aggr op x	= ppAggrOp op <> parens x
           _case cs el   = text "CASE" <+> vcat (map ppWhen cs)
 			  <+> text "ELSE" <+> el <+> text "END"
+{-
+          -- Now done in ShowConstant String, since we can't use Haskell
+	  -- escaping of non-ascii characters. /Bjorn 2004-05-27
 
           -- be careful when showing a SQL string
           unquote ('"':s)       = "'" ++ (concat (map tosquote (init s))) 
@@ -284,7 +287,7 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
           
           tosquote '\''         = "\\'"
           tosquote c            = [c]
-	  
+-}	  
           isFun OpLength        = True
 	  isFun _               = False
 
