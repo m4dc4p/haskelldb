@@ -2,6 +2,8 @@ Things that need to be done, in no particular order:
 
 - Code:
   * Handle exceptions in a driver-independent way
+    (kind of fixed now, by catching driver exceptions and 
+    calling fail in the IO monad /Bjorn) 
   * Support all SQL datatypes
   * Make row retrieval lazy in HSQL driver
   * Make Query.exprs type safe
@@ -21,22 +23,23 @@ Things that need to be done, in no particular order:
 - DbDirect 
   (* add optional command line argument for selecting which
   tables to generate code for)
-  * make DbDirect use any driver /Bjorn
+  * make DbDirect use any driver, preferrable selecting driver at
+    run time /Bjorn
 
 - Installation
-  * GHC package specification
   * Packages (separate binary packages for Hugs and GHC?))
     - Source tarball
     - Linux binary and source RPMs 
     - Windows installer (MSI?)
 
-- Build system
-  * Automatic configuration (autoconf or something)
-  * Get it to work with GHCi. There is s problem where
-    GHCi is looking for libHSsql.so, which does not exist. (Added by Bjorn)
+- Build system 
+  * Get it to work with GHCi. Currently there is a
+    problem with HSQL and GHCi: "can't load .so/.DLL for: c
+    (/usr/lib/libc.so: invalid ELF header)" (Added by Bjorn)
 
-- More database drivers
-  * wxHaskell
+- Database drivers
+  * Add more drivers:
+    - wxHaskell
 
 - Documentation
   * Haddock comments on all exported functions, classes and types
@@ -55,16 +58,3 @@ Things that need to be done, in no particular order:
 - Misc
   * Get an allocated name in the hierarchical library namespace 
     (Database.HaskellDB?)
-  * Figure out some sensible module naming strategy. E.g.:
-    Database.HaskellDB
-        (main module that users import)
-    Database.HaskellDB.{Query,Primquery,Sql, ...} 
-        (HaskellDB internals)
-    Database.HaskellDB.DbDirect
-	(DbDirect)
-    Database.HaskellDB.Drivers
-	(possibly some code for runtime driver selection)
-    Database.HaskellDB.Drivers.HSQL.Internals
-	(common code for talking to HSQL)
-    Database.HaskellDB.Drivers.HSQL.{ODBC,MySQL,PostgreSQL} 
-        (HSQL driver-specific code)
