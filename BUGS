@@ -70,3 +70,11 @@
   field of type Memo. This is because HaskellDB queries
   use SELECT DISTINCT, which Access does not like on Memo fields
   for some reason. Reported by Esa Ilari Vuokko on 2004-04-27.
+
+- When getting results from a TIMESTAMP column from Microsoft Access
+  under wxHaskell, the ODBC driver gives the error:
+  "[Microsoft][ODBC Driver Manager] Program type out of range".
+  The only know workaround is to hack the DBDirect-generated
+  table layout to prented that the field has type String and use
+  the date as a string.
+  Reported by Esa Ilari Vuokko on 2004-04-27.
