@@ -9,6 +9,7 @@ Things that need to be done, in no particular order:
   * Make row retrieval lazy in HSQL driver
   * Make Query.exprs type safe
   * switch ad-hoc assert to Control.Expcetion.assert
+  * change insert to work like insertNew and remove insertNew 
 
 - DbDirect 
   (* add optional command line argument for selecting which
