@@ -14,13 +14,6 @@
 --
 -----------------------------------------------------------
 
-
--- 'mergeProject' merges adjacent projections
--- 'pushRestrict' pushes restrictions down the tree, ie.
---		  perform restrictions as soon as possible.
--- 'removeDead'   removes unused attributes from projections.
--- 'removeEmpty'  removes unused branches of an expression.
-
 module Database.HaskellDB.Optimize (optimize) where
 
 import Data.List (intersect)
@@ -86,7 +79,7 @@ removeD live (Project assoc query)
           		  newAttr (attr,AttrExpr name)  = (attr /= name)
           		  newAttr _   		  	= True
 
-          -- Is any live attribute is bound to a an aggregate expression?
+          -- Is any live attribute bound to an aggregate expression?
 	  hasAggregate :: Bool
 	  hasAggregate  = any (isAggregate.snd) liveAssoc
 
@@ -142,7 +135,7 @@ mergeProject
              	where
              	  newAssoc = subst assoc1 assoc2
 
-	  -- hmm, is this always true ?
+	  -- "hmm, is this always true ?" (Daan Leijen)
           project assoc (Binary op (Project assoc1 query1)
           		           (Project assoc2 query2))
           	| safe newAssoc1 && safe newAssoc2
@@ -204,17 +197,6 @@ pushRestrict (Restrict x query)
 
 
 -- also push specials
-
--- This can cause the argument of ORDER BY
--- to become something other than an attribute.
--- Replaced this by the version below. /Bjorn
-{-
-pushRestrict (Special op (Project assoc query))
-	= Project assoc (pushRestrict (Special (subst op) query))
-	where
-	  subst (Order xs)	= Order (map (substAttr assoc) xs)
-	  subst op		= op
--}
 
 -- Order is only pushed if it does not cause it to
 -- end up with aggregate expressions in one of its expressions

@@ -61,7 +61,6 @@ instance Size N0 where size _ = 0
 data N1 = N1
 instance Size N1 where size _ = 1
 instance Less N0 N1
-instance Less a N0 => Less a N1
 
 data N2 = N2
 instance Size N2 where size _ = 2

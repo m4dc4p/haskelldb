@@ -15,8 +15,8 @@
 --
 -----------------------------------------------------------
 module Database.HaskellDB.Database ( 
-			-- * Operators
-			(!.)
+		-- * Operators
+	      	(!.)
 		-- * Type declarations
 		, Row, rowSelect
 		, Database(..)
@@ -50,7 +50,6 @@ row !. attr     = rowSelect attr row
 -- that are returned from a database query. The 'Database'
 -- data type contains all the primitive functions that
 -- a particular database binding should provide.
--- Look in the 'Ado' module for an example of a database binding.
 class Row row a where
   rowSelect :: Attr f r a -> row r -> a
   
@@ -92,11 +91,10 @@ lazyQuery db q
 -- a connection to close as early as possible.
 strictQuery :: Database db row -> Query (Rel r) -> IO [(row r)]
 strictQuery db q
-        = do{ xs <- lazyQuery db q
-            ; let xs' = seqList xs
-            ; xs' `seq` return xs'
-            } 
-        where
+        = do xs <- lazyQuery db q
+             let xs' = seqList xs
+             xs' `seq` return xs'
+          where
 	  seqList []      = []
 	  seqList (x:xs)  = let xs' = seqList xs
                   	    in  xs' `seq` x:xs'
@@ -125,13 +123,12 @@ delete db (Table name assoc) criteria
 	  (Expr primExpr)  = criteria rel
 	  rel		   = Rel 0 (map fst assoc)
 	  
-	  
 -- | Updates records
 update :: (ShowRecRow s,ShowRecRow r) => 
-	  Database db row -- ^ The database
-       -> Table r -- ^ The table to update
+	  Database db row      -- ^ The database
+       -> Table r              -- ^ The table to update
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to update
-       -> (Rel r -> HDBRec s) -- ^ Function used to modify selected records
+       -> (Rel r -> HDBRec s)  -- ^ Function used to modify selected records
        -> IO ()
 update db (Table name assoc) criteria assignFun
 	= (dbInvoke dbUpdate db) name [substAttr assoc primExpr] newassoc			     
@@ -151,12 +148,12 @@ update db (Table name assoc) criteria assignFun
 	
 -- | List all tables in the database
 tables :: Database db row -- ^ Database
-       -> IO [TableName] -- ^ Names of all tables in the database
+       -> IO [TableName]  -- ^ Names of all tables in the database
 tables db = dbInvoke dbTables db
 
 -- | List all columns in a table, along with their types
 describe :: Database db row -- ^ Database
-	 -> TableName -- ^ Name of the tables whose columns are to be listed
+	 -> TableName       -- ^ Name of the tables whose columns are to be listed
 	 -> IO [(Attribute,FieldDef)] -- ^ Name and type info for each column
 describe db = dbInvoke dbDescribe db
 

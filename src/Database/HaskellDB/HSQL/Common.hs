@@ -11,15 +11,6 @@
 -- HSQL interface for HaskellDB
 -----------------------------------------------------------
 
-{-
- HSQL interface for HaskellDB
-
- TODO:
- - add Haddock comments
- - figure out date / time types
- - make odbcPrimQuery lazy
--}
-
 module Database.HaskellDB.HSQL.Common (
 		     hsqlConnect
 		   , HSQL
@@ -53,7 +44,8 @@ instance Typeable a => Row HSQLRow (Maybe a) where
     rowSelect = hsqlRowSelectMB
 
 -- | Run an action on a HSQL Connection and close the connection.
-hsqlConnect :: (opts -> IO Connection) -> opts -> (HSQL -> IO a) -> IO a
+hsqlConnect :: (opts -> IO Connection) -- ^ HSQL connection function, e.g.  
+	    -> opts -> (HSQL -> IO a) -> IO a
 hsqlConnect connect opts action = 
     do
     conn <- handleSqlError (connect opts)
@@ -112,8 +104,6 @@ hsqlQuery :: Connection -> PrimQuery -> Rel r -> IO [HSQLRow r]
 hsqlQuery connection qtree rel
     = do
       rows <- hsqlPrimQuery connection sql scheme rel
-      -- FIXME: remove
-      --putStrLn (unlines (map show rows))
       return rows
     where
       sql = show (ppSql (toSql qtree))  
@@ -184,7 +174,6 @@ getField s n =
 	    -- FIXME: should wo do it like this?
 	    -- if so, must fix hsqlRowSelect to handle this
 	    BStrT _ -> toVal (getFieldValueMB s n :: IO (Maybe String))
--- FIXME!!!
     where
     (t,_) = getFieldValueType s n
     toVal :: Typeable a => IO (Maybe a) -> IO HSQLValue

@@ -14,7 +14,7 @@
 -- (PrimQuery). 
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
-		 -- * Data declarations
+	      -- * Data declarations
 			Rel(..), Attr(..), Table(..), Query, Expr(..)
 	      -- * Operators
 	     , (!)
@@ -159,7 +159,7 @@ table (Table name assoc)
 	  updatePrimQuery (times q)
           return (Rel alias scheme)
 
--- used in table definitions, see 'pubs.hs' for an example
+-- used in table definitions
 
 baseTable :: ShowRecRow r => TableName -> HDBRec r -> Table r
 baseTable t r   = Table t (zip (labels r) (exprs r))
@@ -420,24 +420,9 @@ asc rel attr	= orderOp OpAsc rel attr
 desc :: Rel r -> Attr f r a -> Expr Order
 desc rel attr	= orderOp OpDesc rel attr
 
--- Maybe the above should take an expression instead of
--- a relation and an attribute, since that seemes
--- unneccessarily restrictive. However this is not really safe
--- since, for example, in SQL you cannot ORDER BY an
--- aggregate expression. Leaving the alternative code below.
--- Bjorn Bringert, 2004-01-20
-{-
-orderOp :: UnOp -> Expr a -> Expr Order
-orderOp op (Expr expr) = Expr (UnExpr op expr)
-
-asc,desc :: Expr a -> Expr Order
-asc 	= orderOp OpAsc
-desc	= orderOp OpDesc
--}
-
--- | HaskellDB countherpart to the SQL keyqword ORDER BY. 
+-- | HaskellDB counterpart to the SQL keyword ORDER BY. 
 -- Use this with the 'asc' or 'desc' functions to create 
--- an orderd 'Query'.
+-- an ordered 'Query'.
 order :: [Expr Order] -> Query ()
 order xs	= updatePrimQuery_ (Special (Order (map unExpr xs)))
 		where

@@ -20,14 +20,6 @@ import System.Time
 
 import Database.HaskellDB.BoundedString
 
-{-
- TODO:
-
- - add date / time type(s)
- DEVELOPMENT OF THIS HAS BEEN MOVED TO DateTypes.hs (only on Chucky's machine)
-
--}
-
 -- | The type and @nullable@ flag of a database column
 type FieldDef = (FieldType, Bool)
 
@@ -52,12 +44,12 @@ instance Show FieldType where
     show (BStrT a) = "BStr" ++ show a
 
 -- | Creates a CalendarTime from a ClockTime
--- | This loses the time zone and assumes UTC. :(
--- | A probable fix could be to make DbDirect aware of which time zone the
--- | server is in and handle it here
--- | This is just a function synonym for now
+--   This loses the time zone and assumes UTC. :(
+--   A probable fix could be to make DbDirect aware of which time zone the
+--   server is in and handle it here
+--   This is just a function synonym for now
 mkCalendarTime :: ClockTime -> CalendarTime
 mkCalendarTime = toUTCTime
 
-instance Typeable CalendarTime where
+instance Typeable CalendarTime where -- not available in standard libraries
     typeOf _ = mkAppTy (mkTyCon "System.Time.CalendarTime") []

@@ -8,7 +8,7 @@
 -- Stability   :  experimental
 -- Portability :  portable
 -- 
--- This is a simple replacement for TREX.
+-- This is replacement for some TREX.
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec where
 

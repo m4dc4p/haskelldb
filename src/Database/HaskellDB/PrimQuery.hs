@@ -219,13 +219,6 @@ foldPrimExpr (attr,scalar,binary,unary,aggr)
 -- Pretty print PrimQuery and PrimExpr.
 -- coincidently, ppPrimExpr shows exactly a valid SQL expression :-)
 -----------------------------------------------------------
--- This just calls itself, can't really see why, deriving Show 
--- instead /Bjorn
--- instance Show PrimQuery where
--- showsPrec d qt        = shows qt
-  
--- instance Pretty PrimQuery where
--- pretty                = ppPrimQuery
 
 -- | Pretty prints a 'PrimQuery'
 ppPrimQuery :: PrimQuery -> Doc

@@ -12,7 +12,7 @@
 -- HaskellDB is the main module that a user should 
 -- import. Beside this module, a user should import a
 -- particular database binding (ie. "Database.HaskellDB.HSQL.ODBC") 
--- and database definitions (ie. Pubs).
+-- and database definitions.
 -----------------------------------------------------------
 module Database.HaskellDB 
 	( Rel, Attr, Expr, Table, Query	-- abstract

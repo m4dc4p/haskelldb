@@ -180,7 +180,7 @@ ppAttrs xs      = vcat $ punctuate comma (map nameAs xs)
 ppCriteria      = vcat . punctuate (text " AND ") . map text
 ppTables        = vcat . punctuate comma . map ppTable . 
 		  zipWith tableAlias [1..]
-ppGroupBy	= vcat . punctuate comma  . map text 		
+ppGroupBy	= vcat . punctuate comma  . map text
 ppOrderBy ord	= ppSpecialOp (Order ord)
 
 tableAlias i (_,sql)  		= ("T" ++ show i,sql)
