@@ -79,3 +79,7 @@
 
 - When using HSQL ODBC with MySQL, AUTO_INCREMENT fields 
   are reported as nullable.
+
+- When using HSQL ODBC with PostgreSQL, the result of a SUM() is
+  reported as SqlVarChar 19, which means that it can't be treated 
+  as a number.
