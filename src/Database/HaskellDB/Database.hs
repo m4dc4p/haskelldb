@@ -19,7 +19,7 @@ module Database.HaskellDB.Database (
 	      	(!.)
 		-- * Type declarations
 		, Database(..)
-		, GetRec(..), ValueFuncs(..)		
+		, GetRec(..), GetInstances(..)
 
 		-- * Function declarations
 		, query, lazyQuery, strictQuery
@@ -72,9 +72,9 @@ data Database
 --   need to implement these functions and pass this record to 'getRec'
 --   when getting query results.
 --
---   All these functions Should return 'Nothing' if the value is NULL.
-data ValueFuncs s = 
-    ValueFuncs {
+--   All these functions should return 'Nothing' if the value is NULL.
+data GetInstances s = 
+    GetInstances {
 		 -- | Get a 'String' value.
 		 getString       :: s -> String -> IO (Maybe String)
 		 -- | Get an 'Int' value.
@@ -90,8 +90,8 @@ data ValueFuncs s =
 
 class GetRec er vr | er -> vr, vr -> er where
     -- | Create a result record.
-    getRec :: ValueFuncs s -- ^ Driver functions for getting values
-			   --   of different types.
+    getRec :: GetInstances s -- ^ Driver functions for getting values
+			     --   of different types.
 	   -> Rel er       -- ^ Phantom argument to the the return type right
 	   -> Scheme       -- ^ Fields to get.
 	   -> s            -- ^ Driver-specific result data 
@@ -115,7 +115,7 @@ instance (GetValue a, GetRec er vr)
 
 
 class GetValue a where
-    getValue :: ValueFuncs s -> s -> String -> IO a
+    getValue :: GetInstances s -> s -> String -> IO a
 
 -- these are silly, there's probably a cleaner way to do this,
 -- but instance GetValue (Maybe a) => GetValue a doesn't work
@@ -136,7 +136,7 @@ instance Size n => GetValue (Maybe (BoundedString n)) where
     getValue fs s f = liftM (liftM trunc) (getValue fs s f)
 
 -- | Get a non-NULL value. Fails if the value is NULL.
-getNonNull :: GetValue (Maybe a) => ValueFuncs s -> s -> String -> IO a
+getNonNull :: GetValue (Maybe a) => GetInstances s -> s -> String -> IO a
 getNonNull fs s f = 
 	do
 	m <- getValue fs s f

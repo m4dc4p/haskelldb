@@ -13,22 +13,17 @@
 
 module Database.HaskellDB.HSQL.Common (
 		     hsqlConnect
---		   , HSQL
 		   ) where
 
-import Data.Dynamic
 import Data.Maybe
 import Control.Monad
 import System.Time
 
-import Database.HaskellDB.HDBRec
 import Database.HaskellDB.Database
 import Database.HaskellDB.Sql
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query
 import Database.HaskellDB.FieldType
-import Database.HaskellDB.BoundedString
-import Database.HaskellDB.BoundedList
 
 import Database.HSQL as HSQL
 
@@ -47,7 +42,7 @@ handleSqlError io = handleSql (\err -> fail (show err)) io
 
 newHSQL :: Connection -> Database
 newHSQL connection
-    = Database { dbQuery	= hsqlQuery' connection,
+    = Database { dbQuery	= hsqlQuery connection,
     		 dbInsert	= hsqlInsert connection,
 		 dbInsertQuery 	= hsqlInsertQuery connection,
 		 dbDelete	= hsqlDelete connection,
@@ -56,6 +51,12 @@ newHSQL connection
 		 dbDescribe     = hsqlDescribe connection,
 		 dbTransaction  = hsqlTransaction connection
 	       }
+
+hsqlQuery :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [vr]
+hsqlQuery connection qtree rel = hsqlPrimQuery connection sql scheme rel
+    where
+      sql = show (ppSql (toSql qtree))  
+      scheme = attributes qtree
 
 hsqlInsert conn table assoc = 
     hsqlPrimExecute conn $ show $ ppInsert $ toInsert table assoc
@@ -77,10 +78,6 @@ hsqlDescribe conn table = liftM (map toFieldDesc) (HSQL.describe conn table)
    where
    toFieldDesc (name,sqlType,nullable) = (name,(toFieldType sqlType, nullable))
 
--- | HSQL implementation of 'Database.dbTransaction'.
-hsqlTransaction :: Connection -> IO a -> IO a
-hsqlTransaction conn action = inTransaction conn (\_ -> action)
-
 toFieldType :: SqlType -> FieldType
 toFieldType (SqlDecimal _ _) = DoubleT
 toFieldType (SqlNumeric _ _) = DoubleT
@@ -99,58 +96,50 @@ toFieldType SqlDateTime      = CalendarTimeT
 toFieldType (SqlVarChar a)   = BStrT a
 toFieldType _                = StringT
 
+-- | HSQL implementation of 'Database.dbTransaction'.
+hsqlTransaction :: Connection -> IO a -> IO a
+hsqlTransaction conn action = inTransaction conn (\_ -> action)
+
 
 -----------------------------------------------------------
--- Primitive Query
--- The "Rel r" argument is a phantom argument to get
--- the return type right.
+-- Primitive operations
 -----------------------------------------------------------
 
-mkIOMBCalendarTime :: Maybe ClockTime -> IO (Maybe CalendarTime)
-mkIOMBCalendarTime Nothing = return Nothing
-mkIOMBCalendarTime (Just c) = return (Just (mkCalendarTime c))
-
-
-hsqlPrimExecute :: Connection -> String -> IO ()
-hsqlPrimExecute connection sql = 
-    do
-    -- FIXME: (DEBUG) remove
-    --putStrLn sql
-    execute connection sql
-
-
-
---
--- New way of getting data, does not use Dynamic.
---
-
-
-hsqlQuery' :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [vr]
-hsqlQuery' connection qtree rel
-    = do
-      rows <- hsqlPrimQuery' connection sql scheme rel
-      return rows
-    where
-      sql = show (ppSql (toSql qtree))  
-      scheme = attributes qtree
-
-hsqlPrimQuery' :: GetRec er vr => Connection -> String -> Scheme -> Rel er -> IO [vr]
-hsqlPrimQuery' connection sql scheme rel = 
+-- | Primitive query
+hsqlPrimQuery :: GetRec er vr => 
+		 Connection -- ^ Database connection.
+	      -> String     -- ^ SQL query
+	      -> Scheme     -- ^ List of field names to retrieve
+	      -> Rel er     -- ^ Phantom argument to get the return type right.
+	      -> IO [vr]    -- ^ Query results
+hsqlPrimQuery connection sql scheme rel = 
     do
     stmt <- HSQL.query connection sql
-    collectRows (getRec hsqlValueFuncs rel scheme) stmt
+    collectRows (getRec hsqlGetInstances rel scheme) stmt
+
+-- | Primitive execute
+hsqlPrimExecute :: Connection -- ^ Database connection.
+		-> String     -- ^ SQL query.
+		-> IO ()
+hsqlPrimExecute connection sql = execute connection sql
 
 
-hsqlValueFuncs :: ValueFuncs Statement
-hsqlValueFuncs = ValueFuncs {
-			     getString        = getFieldValueMB
-			    , getInt          = getFieldValueMB
-			    , getInteger      = getFieldValueMB
-			    , getDouble       = getFieldValueMB
-			    , getCalendarTime = hsqlGetCalendarTime
-			    }
+-----------------------------------------------------------
+-- Getting data from a statement
+-----------------------------------------------------------
+
+hsqlGetInstances :: GetInstances Statement
+hsqlGetInstances = GetInstances {
+				 getString        = getFieldValueMB
+				, getInt          = getFieldValueMB
+				, getInteger      = getFieldValueMB
+				, getDouble       = getFieldValueMB
+				, getCalendarTime = hsqlGetCalendarTime
+				}
 
 hsqlGetCalendarTime :: Statement -> String -> IO (Maybe CalendarTime)
 hsqlGetCalendarTime s f = getFieldValueMB s f >>= mkIOMBCalendarTime
 
-
+mkIOMBCalendarTime :: Maybe ClockTime -> IO (Maybe CalendarTime)
+mkIOMBCalendarTime Nothing = return Nothing
+mkIOMBCalendarTime (Just c) = return (Just (mkCalendarTime c))
