@@ -29,7 +29,7 @@ import Database.HaskellDB.FieldType
 import Database.HaskellDB.BoundedString
 import Database.HaskellDB.BoundedList
 
-import Database.HSQL as HSQL hiding (FieldDef)
+import Database.HSQL as HSQL
 
 type HSQL = Database Connection HSQLRow
 
@@ -121,10 +121,10 @@ hsqlQuery connection qtree rel
 hsqlTables :: Connection -> IO [TableName]
 hsqlTables = HSQL.tables
 
-hsqlDescribe :: Connection -> TableName -> IO [(Attribute,FieldDef)]
-hsqlDescribe conn table = liftM (map toFieldDef) (HSQL.describe conn table)
-    where
-    toFieldDef (name,sqlType,nullable) = (name,(toFieldType sqlType, nullable))
+hsqlDescribe :: Connection -> TableName -> IO [(Attribute,FieldDesc)]
+hsqlDescribe conn table = liftM (map toFieldDesc) (HSQL.describe conn table)
+   where
+   toFieldDesc (name,sqlType,nullable) = (name,(toFieldType sqlType, nullable))
 
 -- | HSQL implementation of 'Database.dbTransaction'.
 hsqlTransaction :: Connection -> IO a -> IO a
