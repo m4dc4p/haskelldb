@@ -10,14 +10,14 @@
 -- 
 -- This is a replacement for some of TREX.
 --
--- $Revision: 1.24 $
+-- $Revision: 1.25 $
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec 
     (
     -- * Record types
     RecNil(..), RecCons(..), Record
     -- * Record construction
-    , ( # )
+    , (.=.), ( # )
     -- * Labels
     , FieldTag(..)
     -- * Record predicates and operations
@@ -29,6 +29,7 @@ module Database.HaskellDB.HDBRec
 import Data.List
 
 infixr  5 #
+infix   6 .=.
 
 -- | The empty record.
 data RecNil = RecNil deriving (Eq, Ord)
@@ -44,9 +45,16 @@ type Record r = RecNil -> r
 
 -- * Record construction
 
--- | Adds a field to a record.
-( # ) :: (b -> c) -> (a -> b) -> a -> c
-f1 # f2 = f1 . f2
+-- | Creates an a record field from a label and a value
+( .=. ) :: f             -- ^ Label
+       -> a              -- ^ Value
+       -> b              -- ^ Rest of the record
+       -> RecCons f a b  -- ^ New record
+_ .=. x = RecCons x
+
+-- | Adds an entry to a record.
+( # ) :: (b -> c) -> Record b -> Record c
+( # ) = (.)
 
 -- * Class definitions.
 
@@ -54,10 +62,6 @@ f1 # f2 = f1 . f2
 class FieldTag f where
     -- | Gets the name of the label.
     fieldName :: f -> String
-
--- | Get the label name of a record entry.
-consFieldName :: FieldTag f => RecCons f a r -> String
-consFieldName (_::RecCons f a r) = fieldName (undefined::f)
 
 
 -- | The record @r@ has the field @f@ if there is an instance of
@@ -96,6 +100,9 @@ instance SelectField f r a => SelectField f (Record r) a where
 
 -- * Showing rows 
 
+-- | Get the label name of a record entry.
+consFieldName :: FieldTag f => RecCons f a r -> String
+consFieldName (_::RecCons f a r) = fieldName (undefined::f)
 
 -- | Convert a record to a list of label names and field values.
 class ShowRecRow r where

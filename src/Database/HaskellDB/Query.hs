@@ -13,7 +13,7 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.45 $
+-- $Revision: 1.46 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -150,8 +150,9 @@ instance (ProjectExpr e, ProjectRec r er) =>
 -- Record operators
 -----------------------------------------------------------
 
--- | Adds an entry to a record.
-( << ) :: ExprC e => Attr f a        -- ^ Label
+-- | Creates a record field.
+--   Similar to '(.=.)', but gets the field label from an 'Attr'.
+( << ) :: Attr f a        -- ^ Label
        -> e a                        -- ^ Expression
        -> (b -> RecCons f (e a) b)
 _ << x = RecCons x
