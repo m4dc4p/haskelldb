@@ -10,10 +10,11 @@ HUGS_DIR=/usr/local/dp03-7/hugs98-Nov2003/lib/hugs
 
 default all: HSQL/libHSsql.a
 
-HSQL HSQL/%:
+HSQL:
 	cvs -d $(HTOOLKIT_CVS) co HSQL
-	patch -N -d HSQL -p0 < HSQL-hugs.patch
-	patch -N -d HSQL -p0 < HSQL-desc.patch
+
+HSQL/%: HSQL HSQL-hwt.patch
+	patch -N -d HSQL -p0 < HSQL-hwt.patch
 
 HSQL/configure: HSQL/configure.ac
 	cd HSQL && autoconf

@@ -50,7 +50,7 @@ test: $(HSQL_DIR)/Database/libHSsql.a test.o HSQL_driver.o
 # Generic
 #
 
-HSQL Database HSQL/% Database/%: HSQL-desc.patch HSQL-hugs.patch
+HSQL Database HSQL/% Database/%: HSQL-hwt.patch
 	$(MAKE) -f Makefile.HSQL HSQL Database
 
 clean:
