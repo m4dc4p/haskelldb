@@ -18,8 +18,9 @@ module Sql ( SqlSelect(..)
 	   ) where
 
 import List (intersect)
-import PPrint
 import PrimQuery
+
+import Text.PrettyPrint.HughesPJ
 
 -----------------------------------------------------------
 -- SQL data type
@@ -105,7 +106,8 @@ toSql   = foldPrimQuery (empty,table,project,restrict,binary,special)
 		  sql 	    = toSelect q
 		  
 		  oldOrder  = filter notdup (orderby sql)
-		  notdup x  = null (attrInExpr x `intersect` attrInOrder newOrder)
+		  notdup x  = null (attrInExpr x `intersect` attrInOrder 
+				    newOrder)
 		  
 		  	    
 		  	    
@@ -119,7 +121,7 @@ toSelect sql    = case sql of
                     (SqlTable name)     -> newSelect { tables = [("",sql)] }
                     (SqlBin op q1 q2)   -> newSelect { tables = [("",sql)] }
                     s | null (attrs s) -> sql
-                                        | otherwise  -> newSelect { tables = [("",sql)] }
+                      | otherwise  -> newSelect { tables = [("",sql)] }
 
 toSqlAssoc      = map (\(attr,expr) -> (attr, toSqlExpr expr))
 toSqlExpr       = show . ppPrimExpr
@@ -134,19 +136,15 @@ toSqlOp Difference   = "MINUS"
 -- SELECT, show & pretty print
 -----------------------------------------------------------
 
-instance Pretty SqlSelect where
-  pretty        = ppSql
-
 ppSql (SqlSelect options attrs tables criteria groupby orderby)
-        = indent $
-          text "SELECT DISTINCT" <+> htext options <+> ppAttrs attrs
-       $$ f "FROM " ppTables tables
-       $$ f "WHERE" ppCriteria criteria
-       $$ f "GROUP BY" ppGroupBy groupby
-       $$ f "ORDER BY" ppOrderBy orderby
-        where
-          f clause action xs    | null xs       = emptyDoc
-                                | otherwise     = text clause <+> action xs
+    = text "SELECT DISTINCT" <+> (hsep . map text) options <+> ppAttrs attrs
+      $$ f "FROM " ppTables tables
+      $$ f "WHERE" ppCriteria criteria
+      $$ f "GROUP BY" ppGroupBy groupby
+      $$ f "ORDER BY" ppOrderBy orderby
+    where
+    f clause action xs    | null xs       = empty
+			  | otherwise     = text clause <+> action xs
 
 ppSql (SqlBin op sql1 sql2)     = ppSql sql1 $$ text op $$ ppSql sql2
 ppSql (SqlTable name)           = text name
@@ -155,12 +153,13 @@ ppSql (SqlEmpty)                = text ""
 
 -- helpers
 
-ppAttrs []	= text "*"                                                   		
-ppAttrs xs      = commas (map nameAs xs)                               		
+ppAttrs []	= text "*"
+ppAttrs xs      = vcat $ punctuate comma (map nameAs xs)
                                                                  
-ppCriteria      = sepby (text " AND ") . map text                      		
-ppTables        = commas . map ppTable . zipWith tableAlias [1..]      		
-ppGroupBy	= commas . map text 		
+ppCriteria      = vcat . punctuate (text " AND ") . map text
+ppTables        = vcat . punctuate comma . map ppTable . 
+		  zipWith tableAlias [1..]
+ppGroupBy	= vcat . punctuate comma  . map text 		
 ppOrderBy ord	= ppSpecialOp (Order ord)
 
 tableAlias i (_,sql)  		= ("T" ++ show i,sql)
@@ -169,12 +168,11 @@ ppTable (alias,(SqlTable name)) = ppAs alias (text name)
 ppTable (alias,sql)             = ppAs alias (parens (ppSql sql))
 
 
-nameAs (name,expr)	| name == expr  = text name                                
-                        | otherwise     = ppAs name (text expr)              
+nameAs (name,expr) | name == expr  = text name
+                   | otherwise     = ppAs name (text expr)              
                                                                      
-ppAs alias expr         | null alias    = expr                               
-                        | otherwise     = expr <+> htext ["as",alias]        
-
+ppAs alias expr    | null alias    = expr                               
+                   | otherwise     = expr <+> (hsep . map text) ["as",alias]
 
 -----------------------------------------------------------
 -- INSERT
@@ -187,19 +185,18 @@ toInsertNew :: TableName -> Assoc -> SqlInsert
 toInsertNew table assoc
 	= SqlInsertNew table (map showExpr assoc)
 	where
-	  showExpr (attr,expr)	= (attr,show (pretty expr))
+	  showExpr (attr,expr)	= (attr,show expr)
 
--- pretty
 ppInsert (SqlInsert table select)
 	= text "INSERT INTO" <+> text table
-        $$ indent (ppSql select)
-
+        $$ ppSql select
 
 ppInsert (SqlInsertNew table exprs)
-	= text "INSERT INTO" <+> text table <+> parens (commas (map text names))
-        $$ text "VALUES"     <+> parens (commas (map text values))
-        where
-          (names,values)        = unzip exprs
+    = text "INSERT INTO" <+> text table 
+      <+> parens (vcat $ punctuate comma (map text names))
+      $$ text "VALUES"   <+> parens (vcat $ punctuate comma (map text values))
+    where
+    (names,values)        = unzip exprs
 
 
 -----------------------------------------------------------
@@ -229,8 +226,8 @@ toUpdate name criteria assigns
 
 ppUpdate (SqlUpdate name criteria assigns)
         = text "UPDATE" <+> text name
-        $$ text "SET" <+> commas (map text assigns)
+        $$ text "SET" <+> (vcat $ punctuate comma (map text assigns))
         $$ f "WHERE" ppCriteria criteria
         where
-           f clause action xs   | null xs    = emptyDoc
+           f clause action xs   | null xs    = empty
                                 | otherwise  = text clause <+> action xs

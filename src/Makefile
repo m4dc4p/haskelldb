@@ -3,7 +3,7 @@ TOP_DIR = ..
 include $(TOP_DIR)/config.mk
 include $(TOP_DIR)/rules.mk
 
-OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o PPrint.o \
+OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o \
        PrimQuery.o Query.o Sql.o FieldType.o
 
 DRIVER_OBJS = drivers/hsql/HSQL_driver.o

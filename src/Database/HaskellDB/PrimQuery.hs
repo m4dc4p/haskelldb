@@ -7,8 +7,9 @@
 -----------------------------------------------------------
 module PrimQuery where
 
-import PPrint
 import List ((\\))
+
+import Text.PrettyPrint.HughesPJ
 
 -----------------------------------------------------------
 -- assertions
@@ -91,7 +92,9 @@ times :: PrimQuery -> PrimQuery -> PrimQuery
 times (Empty) query	= query
 times query (Empty)     = query
 times query1 query2     = assert "PrimQuery" "times" "overlapping attributes"
-                                 (length (attributes query1 \\ attributes query2) == length (attributes query1))
+                                 (length (attributes query1 \\ 
+					  attributes query2) == 
+				  length (attributes query1))
                           Binary Times query1 query2
 
 -----------------------------------------------------------
@@ -145,7 +148,7 @@ substAttr assoc
         where        
           attr name     = case (lookup name assoc) of        
                             Just x      -> x        
-                            Nothing     -> AttrExpr name                          
+                            Nothing     -> AttrExpr name
                   
   
 isAggregate, nestedAggregate :: PrimExpr -> Bool
@@ -183,49 +186,45 @@ foldPrimQuery (empty,table,project,restrict,binary,special)
 foldPrimExpr (attr,scalar,binary,unary,aggr) 
         = fold
         where
-          fold (AttrExpr name)  = attr name
-          fold (ConstExpr s)    = scalar s
-          fold (BinExpr op x y) = binary op (fold x) (fold y)
-          fold (UnExpr op x)    = unary op (fold x)
-          fold (AggrExpr op x)	= aggr op (fold x)
-          fold _                = error "PrimQuery.foldPrimExpr: undefined case"
+          fold (AttrExpr name) = attr name
+          fold (ConstExpr s)   = scalar s
+          fold (BinExpr op x y)= binary op (fold x) (fold y)
+          fold (UnExpr op x)   = unary op (fold x)
+          fold (AggrExpr op x) = aggr op (fold x)
+          fold _               = error "PrimQuery.foldPrimExpr: undefined case"
 
 -----------------------------------------------------------
 -- Pretty print PrimQuery and PrimExpr.
 -- coincidently, ppPrimExpr shows exactly a valid SQL expression :-)
 -----------------------------------------------------------
 instance Show PrimQuery where
-  showsPrec d qt        = shows (pretty qt)
+  showsPrec d qt        = shows qt
   
-instance Pretty PrimQuery where
-  pretty                = ppPrimQuery
+--instance Pretty PrimQuery where
+--  pretty                = ppPrimQuery
 
 ppPrimQuery = foldPrimQuery (empty,table,project,restrict,binary,special)
         where
-          ontop d e             = tab (d $$ e)
+          ontop d e             = nest 2 (d $$ e)
           
-          empty                 = emptyDoc
-          table name scheme     = htext ["BaseTable",name] <+> ppScheme scheme
+          empty                 = empty
+          table name scheme     = (hsep . map text) ["BaseTable",name] 
+				  <+> ppScheme scheme
           project assoc         = ontop $ text "Project" <+> ppAssoc assoc
           restrict x            = ontop $ text "Restrict" <+> ppPrimExpr x
-          binary op d1 d2       = tab (ppRelOp op $$ (d1 $$ d2))
+          binary op d1 d2       = nest 2 (ppRelOp op $$ (d1 $$ d2))
           special op 		= ontop $ ppSpecialOp op
-          
-          
-ppScheme                        = braces . commas . map text          
-ppAssoc                         = braces . commas . map ppNameExpr
+                    
+ppScheme                        = braces . vcat . punctuate comma . map text
+ppAssoc                         = braces . vcat . punctuate comma . 
+				  map ppNameExpr
 ppNameExpr (attr,expr)          = text attr <> colon <+> ppPrimExpr expr
           
-          
-instance Pretty PrimExpr where
-  pretty = ppPrimExpr  
-
 ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
         where
           attr          = text
           scalar        = text . unquote 
-          binary op x y = parens (x <+> ppBinOp  op </> y)
-          
+          binary op x y = parens (x <+> ppBinOp  op <> char '\n' <+> y)
           unary OpAsc x = x <+> text "ASC"
           unary OpDesc x= x <+> text "DESC" 
           unary op x    = parens (ppUnOp  op <+> x)
@@ -233,7 +232,8 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
           aggr op x	= ppAggrOp op <> parens x
           
           -- be careful when showing a SQL string
-          unquote ('"':s)       = "'" ++ (concat (map tosquote (init s))) ++ "'"
+          unquote ('"':s)       = "'" ++ (concat (map tosquote (init s))) 
+		                  ++ "'"
           unquote s             = s
           
           tosquote '\''         = "\\'"
@@ -246,9 +246,9 @@ ppBinOp  op             = text (showBinOp  op)
 ppAggrOp op             = text (showAggrOp op)
 
 
-ppSpecialOp (Order xs)  = commas (map ppPrimExpr xs)		          
+ppSpecialOp (Order xs)  = (vcat . punctuate comma) (map ppPrimExpr xs)
 ppSpecialOp (Top perc n)= text "TOP" <+> text (show n) <+>
-			  (if perc then text "PERCENT" else emptyDoc)
+			  (if perc then text "PERCENT" else empty)
 			  
 -----------------------------------------------------------
 -- Show expression operators, coincidently they show
