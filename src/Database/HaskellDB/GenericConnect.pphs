@@ -57,7 +57,7 @@ genericConnect "postgre" (a:b:c:d:[])
 genericConnect "wx" (a:b:c:[]) = connectWXHaskell a b c
 genericConnect "wxhaskell" (a:b:c:[]) = connectWXHaskell a b c
 #endif
-connectCommon _ _ = error "Database driver not compiled in" 
+genericConnect _ _ = error "Database driver not compiled in" 
 -- only used when no drivers, to make
 -- this compile anyway
 
