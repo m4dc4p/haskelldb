@@ -15,7 +15,7 @@
 -- data structure in an appropiate Haskell module which
 -- can be used to perform queries on the database.
 --
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -----------------------------------------------------------
 
 module Main where
@@ -71,10 +71,10 @@ showHelp
 		   "We want:",
 		   "Enable BoundedString [-b],",
 		   "database type (ODBC, MySQL, PostgreSQL or SQLite) and",
-		   "ODBC: dsn, userid, password and file",
-		   "MySQL: server, database, userid password and file",
-		   "PostgreSQL: server, database, userid, password and file",
-		   "SQLite: filepath and IOMode",
-		   "WXHaskell: dsn, userid, password and file",
+		   "ODBC: dsn, userid, password and module",
+		   "MySQL: server, database, userid password and module",
+		   "PostgreSQL: server, database, userid, password and module",
+		   "SQLite: filepath, IOMode and module",
+		   "WXHaskell: dsn, userid, password and module",
 		   "as arguments"
 	          ]

@@ -13,7 +13,7 @@
 -- files usable in HaskellDB (the generation itself is done 
 -- in DBDirect)
 --
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DBSpecToDBDirect
     (specToHDB, dbInfoToModuleFiles) 
@@ -27,7 +27,9 @@ import Database.HaskellDB.DBSpec.DBInfo
 
 import Database.HaskellDB.DBSpec.PPHelpers
 
-import System.Directory (createDirectory)
+import Control.Monad (unless)
+import Data.List (isPrefixOf)
+import System.Directory (createDirectory, doesDirectoryExist)
 import Text.PrettyPrint.HughesPJ
 
 -- | Common header for all files
@@ -64,8 +66,8 @@ createModules :: FilePath -- ^ Base directory
 	      -> IO ()
 createModules basedir dbname files
     = do 
-      let dir = withPrefix basedir dbname
-      createDirectory dir
+      let dir = withPrefix basedir (replace '.' '/' dbname)
+      createPath dir
       mapM_ (\ (name,doc) -> writeFile (moduleNameToFile basedir name)
 	     (render doc)) files
 
@@ -81,6 +83,24 @@ withPrefix base f | null base = f
 replace :: Eq a => a -> a -> [a] -> [a]
 replace x y zs = [if z == x then y else z | z <- zs]
 
+-- | Like createDirectory, but creates all the directories in
+--   the path.
+createPath :: FilePath -> IO ()
+createPath p | "/" `isPrefixOf` p = createPath' "/" (dropWhile (=='/') p)
+	     | otherwise = createPath' "" p
+    where
+    createPath' _ "" = return ()
+    createPath' b p = do
+		      let (d,r) = break (=='/') p
+			  n = withPrefix b d
+		      createDirIfNotExists n
+		      createPath' n (dropWhile (=='/') r)
+
+createDirIfNotExists :: FilePath -> IO ()
+createDirIfNotExists p = do
+			 exists <- doesDirectoryExist p
+			 unless exists (createDirectory p)
+
 -- | Converts a database specification to a set of module names 
 --   and module contents. The first element of the returned list
 --   is the top-level module.
@@ -90,7 +110,8 @@ specToHDB name dbinfo = genDocs name (constructNonClashingDBInfo dbinfo)
 
 -- | Does the actual conversion work
 genDocs :: String -- ^ Top-level module name
-	-> DBInfo -> [(String,Doc)]
+	-> DBInfo 
+	-> [(String,Doc)] -- ^ list of module name, module contents pairs
 genDocs name dbinfo 
     = (name,
 --       contextStackPragma dbinfo $$
@@ -124,7 +145,7 @@ tInfoToModule dbname tinfo@TInfo{tname=name,cols=col}
        $$ ppComment ["Fields"]
        $$ if col == [] then empty -- no fields, don't do any weird shit
              else vcat (map ppField (columnNamesTypes tinfo)))
-    where modname = moduleName dbname ++ "." ++ moduleName name
+    where modname = dbname ++ "." ++ moduleName name
 
 -- | Pretty prints a TableInfo
 ppTable :: TInfo -> Doc
