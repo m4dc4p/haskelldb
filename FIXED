@@ -6,5 +6,5 @@ didn't generate Tables that had a Maybe type for String, it just made them
 String. Chucky fixed this on 2004-02-08
 
 - shapr reported a bug in Dbdirect 2004-02-11, where a Table and a Field, 
-  if they had the same name, would clash in the generated file. NOT FIXED 
-  YET.
+  if they had the same name, would clash in the generated file. Chucky 
+  fixed this on 2004-02-17
