@@ -6,9 +6,9 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable
 -- 
--- This is replacement for some TREX.
+-- This is replacement for some of TREX.
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec where
 
@@ -33,6 +33,7 @@ type HDBRec r = HDBRecTail -> r
 class FieldTag f where
     fieldName :: f -> String
 
+-- | Get the label name of a record entry.
 consFieldName :: FieldTag f => HDBRecCons f a r -> String
 consFieldName (_::HDBRecCons f a r) = fieldName (undefined::f)
 
@@ -60,9 +61,8 @@ instance SelectField f r a => SelectField f (HDBRecCons g b r) a where
 instance SelectField f r a => SelectField f (HDBRec r) a where
     selectField f r = selectField f (r HDBRecTail)
 
---
--- Showing rows 
---
+
+-- * Showing rows 
 
 
 -- | A record must belong to this class to be showable.
@@ -98,10 +98,9 @@ instance  (FieldTag a, Show b, ShowRecRow c) => Show (HDBRecCons a b c) where
     showsPrec _ r = showsShowRecRow r
 
 
---
--- ReadRecRow
---
+-- * Reading rows
 
+-- | Corresponds to 'ShowRecRow'.
 class ReadRecRow r where
     readRecRow :: [(String,String)] -> [(r,[(String,String)])]
 
@@ -124,15 +123,12 @@ readRecEntry ((f,v):xs) r | f == consFieldName r = res
     res = [(HDBRecCons x r, xs') | (x,"") <- reads v, 
 	   (r,xs') <- readRecRow xs]
 
---
--- Read
---
-
-instance ReadRecRow r => Read (HDBRec r) where
-    readsPrec _ s = [(const r, rs) | (r,rs) <- readsReadRecRow s]
 
 readsReadRecRow :: ReadRecRow r => ReadS r
 readsReadRecRow s = [(r,"") | (l,"") <- reads s, (r,[]) <- readRecRow l]
+
+instance ReadRecRow r => Read (HDBRec r) where
+    readsPrec _ s = [(const r, rs) | (r,rs) <- readsReadRecRow s]
 
 instance Read HDBRecTail where
    readsPrec _ = readsReadRecRow
