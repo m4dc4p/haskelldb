@@ -18,8 +18,6 @@
 -- expand with new bounds. A new bound only requires one instance of size and 
 -- two instances of Less.
 --
--- $Revision: 1.8 $
-
 -- BoundedList works as follows.
 -- Every bound is build up by declaring a data-type representing the new bound.
 -- The instance of size only returns the size as an Int.
@@ -27,20 +25,21 @@
 -- is greater than the largest smaller bound.
 -- The second instance of Less is used by the typechecker to construct a chain
 -- of instances if there is no hardcoded instance available.
--- This way the type checker can determine if a bound is smaller/greater
+-- This way the type checker can determine if a bound is smaller\/greater
 -- then any other bound.
 --
 -- This inductive approach gives the complexity O(n) on the number of instances
--- and very short type checking times compared to an O(n^2) implementation.
+-- and very short type checking times compared to an O(n\^2) implementation.
 --
 -- BoundedList also comes with a few utility function for manipulation an
 -- contructing bounded lists.
 --
 -- To be noted:
 -- Since each bound is a unique type:
--- Explicit shrink and/or grow is needed before using (==).
+-- Explicit shrink and\/or grow is needed before using (==).
 -- BoundedList does not have an instance of Ordering. (This might change)
 --
+-- $Revision: 1.9 $
 -----------------------------------------------------------
 module Database.HaskellDB.BoundedList (shrink,
 		    grow,
