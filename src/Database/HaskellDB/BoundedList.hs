@@ -3,15 +3,15 @@
 -- Module      :  BoundedList
 -- Copyright   :  HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
 -- License     :  BSD-style
--- 
+--
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable
 --
 --
--- The main idea of bounded lists is to create lists with predetermined 
+-- The main idea of bounded lists is to create lists with predetermined
 -- maximum size.
-
+--
 -- BoundedList is a simple, fast and type safe approach to implementing 
 -- this idea.
 -- The implementation is based on inductive instances, making it very easy to
@@ -26,21 +26,21 @@
 -- The second instance of Less is used by the typechecker to construct a chain
 -- of instances if there is no hardcoded instance available.
 -- This way the type checker can determine if a bound is smaller/greater
--- than any other bound.
-
+-- then any other bound.
+--
 -- This inductive approach gives the complexity O(n) on the number of instances
 -- and very short type checking times compared to an O(n^2) implementation.
-
--- BoundedList also comes with a few utility function for manipulation an 
+--
+-- BoundedList also comes with a few utility function for manipulation an
 -- contructing bounded lists.
-
+--
 -- To be noted:
 -- Since each bound is a unique type:
---       Explicit shrink and/or grow is needed before using (==).
---       BoundedList does not have an instance of Ordering. (This might change)
-
+-- Explicit shrink and/or grow is needed before using (==).
+-- BoundedList does not have an instance of Ordering. (This might change)
+--
 -----------------------------------------------------------
-module Database.HaskellDB.BoundedList (shrink, 
+module Database.HaskellDB.BoundedList (shrink,
 		    grow,
 		    trunc,
 		    listBound,
@@ -1375,21 +1375,31 @@ instance (Show a, Size n) => Show (BoundedList a n) where
 instance (Size n, Eq a) => Eq (BoundedList a n) where
     L c == L d = c == d
 
+-- | Shrinks the 'BoundedList' supplied if
+-- it can do so without truncating the list. Returns Nothing
+-- if the list inside was to long.
 shrink :: Size m => BoundedList a n -> Maybe (BoundedList a m)
 shrink =  toBounded . fromBounded
 
+-- | Takes a 'BoundedList' add grows it size.
 grow :: LessEq n m => BoundedList a n -> BoundedList a m
 grow (L xs) = (L xs)
 
+-- | Takes a 'BoundedList' and return the list inside.
 fromBounded :: BoundedList a n -> [a]
 fromBounded (L xs) = xs
+
 
 listLength :: BoundedList a n -> Int
 listLength (L l) = length l
 
+-- | Returns the length of a 'BoundedList'.
 listBound :: Size n => BoundedList a n -> Int
 listBound (_ :: BoundedList a n) = size (undefined :: n)
 
+
+-- | Takes a list and transforms it to a 'BoundedList'.
+-- If the list doesn\'t fit, Nothing is returned.
 toBounded :: Size n => [a] -> Maybe (BoundedList a n)
 toBounded a = toBound_ (L a)
     where
@@ -1398,6 +1408,9 @@ toBounded a = toBound_ (L a)
 	| listLength l <= listBound l = Just l
 	| otherwise = Nothing
 
+-- | Takes a list and transforms it to a 'BoundedList'.
+-- If the list doesn\'n fit, the list is truncated
+-- to make it fit into the bounded list.
 trunc :: Size n => [a] -> BoundedList a n
 trunc xs = trunc_ (L xs)
     where
