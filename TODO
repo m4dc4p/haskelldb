@@ -7,6 +7,7 @@ Things that need to be done, in no particular order:
     Added by Bjorn, suggested by Shae Erisson.
   * Figure out some intutive way of doing grouping.
   * Fix semantics of lazyQuery.
+  * Fix table alias clashes with binary relops.
   (* strictness checking. In other words: optimize the code to sort out what
      types and expressions are evaluated strictly, and explicitly tell the
      compiler that they are strict)

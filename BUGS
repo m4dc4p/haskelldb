@@ -56,4 +56,5 @@
 - PostgreSQL does not accept inserting default values into non-null
   columns which do not have a set default value.
 
-- Tables in unions may get the same table alias, which Not A Good Thing.
+- Tables in unions may get the same table alias, which Not A Good
+  Thing. This is a problem i Sql.ppSql.

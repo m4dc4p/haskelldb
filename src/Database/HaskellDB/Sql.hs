@@ -185,6 +185,8 @@ ppAttrs []	= text "*"
 ppAttrs xs      = vcat $ punctuate comma (map nameAs xs)
                                                                  
 ppCriteria      = vcat . punctuate (text " AND ") . map text
+-- FIXME: table aliases start from 1 in every select, which means that
+-- with binary RelOps we can get table alias clashes.
 ppTables        = vcat . punctuate comma . map ppTable . 
 		  zipWith tableAlias [1..]
 ppGroupBy	= vcat . punctuate comma  . map text
