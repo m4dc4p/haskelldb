@@ -1,33 +1,42 @@
 -----------------------------------------------------------
--- Daan Leijen (c) 1999, daan@cs.uu.nl
---
--- module PrimQuery:
--- 	defines the datatype of relational expressions (PrimQuery)
--- 	and some useful functions on PrimQuery's.
+-- |
+-- Module      :  Main
+-- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
+--                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- License     :  BSD-style
+-- 
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
+-- 
+-- PrimQuery defines the datatype of relational expressions
+-- ('PrimQuery') and some useful functions on PrimQuery\'s
 -----------------------------------------------------------
-module PrimQuery (TableName, Attribute, Scheme, Assoc
+module PrimQuery (
+		  -- * Type Declarations
+
+		  -- ** Types
+		  TableName, Attribute, Scheme, Assoc
+
+		  -- ** Data types
 		 , PrimQuery(..), RelOp(..), SpecialOp(..) 
 		 , PrimExpr(..), BinOp(..), UnOp(..), AggrOp(..)
+
+		  -- * Function declarations
 		 , extend, times
 		 , attributes, attrInExpr, attrInOrder
 		 , substAttr
 		 , isAggregate, nestedAggregate
 		 , foldPrimQuery, foldPrimExpr
+		 , assert		 
+		 -- ** Pretty printers
 		 , ppPrimQuery, ppPrimExpr 
 		 , ppRelOp, ppBinOp, ppAggrOp, ppSpecialOp 
-		 , assert
 		 ) where
 
 import List ((\\))
 
 import Text.PrettyPrint.HughesPJ
-
--- | Assertions
-assert :: String -> String -> String -> Bool -> a -> a
-assert moduleName functionName msg test x
- 	| test      = x
-        | otherwise = error ("assert: " ++ moduleName ++ "." 
-        		     ++ functionName ++ ": " ++ msg)
 
 -----------------------------------------------------------
 -- data definitions
@@ -40,6 +49,7 @@ type TableName  = String
 type Attribute  = String
 type Scheme     = [Attribute]
 type Assoc      = [(Attribute,PrimExpr)]
+
 
 data PrimQuery  = BaseTable TableName Scheme
                 | Project   Assoc PrimQuery
@@ -89,6 +99,13 @@ data AggrOp     = AggrCount | AggrSum | AggrAvg | AggrMin | AggrMax
                 | AggrOther String
                 deriving (Show,Read)
 
+-- | Assertions
+assert :: String -> String -> String -> Bool -> a -> a
+assert moduleName functionName msg test x
+ 	| test      = x
+        | otherwise = error ("assert: " ++ moduleName ++ "." 
+        		     ++ functionName ++ ": " ++ msg)
+
 -- | Creates a projection of some attributes while
 --   keeping all other attributes in the relation visible too. 
 extend :: Assoc -> PrimQuery -> PrimQuery
@@ -132,7 +149,7 @@ assocFromScheme scheme
 		= map (\attr -> (attr,AttrExpr attr)) scheme
 
 
--- | Returns all attributes in a qexpr 
+-- | Returns all attributes in an expression.
 attrInExpr :: PrimExpr -> Scheme
 attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr)
                 where
@@ -142,7 +159,7 @@ attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr)
                   unary op x    = x
                   aggr op x	= x
 
-
+-- | Returns all attributes in a list of expressions.
 attrInOrder :: [PrimExpr] -> Scheme
 attrInOrder  = concat . map attrInExpr
 
@@ -168,10 +185,7 @@ countAggregate
           unary op x		= x
           aggr op x		= x + 1
 
------------------------------------------------------------
--- fold on PrimQuery's and PrimExpr's
------------------------------------------------------------
-
+-- | Fold on 'PrimQuery'
 foldPrimQuery :: (t, TableName -> Scheme -> t, Assoc -> t -> t,
                   PrimExpr -> t -> t, RelOp -> t -> t -> t,
                   SpecialOp -> t -> t) -> PrimQuery -> t
@@ -189,7 +203,7 @@ foldPrimQuery (empty,table,project,restrict,binary,special)
                         = binary op (fold query1) (fold query2)
           fold (Special op query)
           		= special op (fold query)
-
+-- | Fold on 'PrimExpr'
 foldPrimExpr :: (Attribute -> t, String -> t, BinOp -> t -> t -> t,
                  UnOp -> t -> t, AggrOp -> t -> t) -> PrimExpr -> t
 foldPrimExpr (attr,scalar,binary,unary,aggr) 
@@ -205,14 +219,15 @@ foldPrimExpr (attr,scalar,binary,unary,aggr)
 -- Pretty print PrimQuery and PrimExpr.
 -- coincidently, ppPrimExpr shows exactly a valid SQL expression :-)
 -----------------------------------------------------------
--- This just calls itself, can't really see why, deriving Show instead
--- /Bjorn
---instance Show PrimQuery where
---  showsPrec d qt        = shows qt
+-- This just calls itself, can't really see why, deriving Show 
+-- instead /Bjorn
+-- instance Show PrimQuery where
+-- showsPrec d qt        = shows qt
   
---instance Pretty PrimQuery where
---  pretty                = ppPrimQuery
+-- instance Pretty PrimQuery where
+-- pretty                = ppPrimQuery
 
+-- | Pretty prints a 'PrimQuery'
 ppPrimQuery :: PrimQuery -> Doc
 ppPrimQuery = foldPrimQuery (empty,table,project,restrict,binary,special)
         where
@@ -225,12 +240,21 @@ ppPrimQuery = foldPrimQuery (empty,table,project,restrict,binary,special)
           restrict x            = ontop $ text "Restrict" <+> ppPrimExpr x
           binary op d1 d2       = nest 2 (ppRelOp op $$ (d1 $$ d2))
           special op 		= ontop $ ppSpecialOp op
-                    
+
+-- | Pretty prints a Scheme
+ppScheme :: Scheme -> Doc                    
 ppScheme                        = braces . vcat . punctuate comma . map text
+
+-- | Pretty prints an 'Assoc'
+ppAssoc :: Assoc -> Doc
 ppAssoc                         = braces . vcat . punctuate comma . 
 				  map ppNameExpr
+
+-- | Pretty prints ('Attribute', 'PrimExpr')
+ppNameExpr :: (Attribute, PrimExpr) -> Doc
 ppNameExpr (attr,expr)          = text attr <> colon <+> ppPrimExpr expr
 
+-- | Pretty prints a 'PrimExpr'
 ppPrimExpr :: PrimExpr -> Doc
 ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
         where
@@ -251,12 +275,25 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
           tosquote '\''         = "\\'"
           tosquote c            = [c]
 
+-- PP on ops:
+-- | Pretty pints a 'RelOp'
+ppRelOp :: RelOp -> Doc
 ppRelOp  op		= text (showRelOp  op) 
+
+-- | Pretty pints an 'UnUp'
+ppUnOp :: UnOp -> Doc
 ppUnOp	 op		= text (showUnOp   op)         
+
+-- | Pretty prints a 'BinOp'
+ppBinOp :: BinOp -> Doc
 ppBinOp  op             = text (showBinOp  op)
+
+-- | Pretty prints an 'AggrOp'
+ppAggrOp :: AggrOp -> Doc
 ppAggrOp op             = text (showAggrOp op)
 
-
+-- | Pretty prints a 'Special Op'
+ppSpecialOp :: SpecialOp -> Doc
 ppSpecialOp (Order xs)  = (vcat . punctuate comma) (map ppPrimExpr xs)
 ppSpecialOp (Top perc n)= text "TOP" <+> text (show n) <+>
 			  (if perc then text "PERCENT" else empty)
