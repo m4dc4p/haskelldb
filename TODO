@@ -1,7 +1,9 @@
 Things that need to be done, in no particular order:
 
 - Code:
-  * Handle dates before 1970 correctly.
+  * Handle dates correctly. 
+    - Handle dates before 1970.
+    - Distinguish between date / time / date & time.
   * Overload operators so that when they take a maybe, they always 
     return maybe, i.e. .<. may give NULL when one of the arguments
     is NULL. Suggested by eivuokko.

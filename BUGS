@@ -12,6 +12,9 @@
   columns are treated as String fields. This seems to be a problem
   with the PostgreSQL ODBC driver.
 
+- wxHaskell with PostgreSQL (at least) gives "user error" when trying to 
+  get query results containing a CalendarTime value.
+
 - Since SQLite is untyped, all columns in SQLite databases are treated
   as having type String, even if some other type was used when the
   table was created.
