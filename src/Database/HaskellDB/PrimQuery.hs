@@ -5,16 +5,16 @@
 -- 	defines the datatype of relational expressions (PrimQuery)
 -- 	and some useful functions on PrimQuery's.
 -----------------------------------------------------------
-module PrimQuery (TableName, Attribute, Scheme, Assoc, 
-		 , PrimQuery(..), RelOp(..), SpecialOp(..), 
+module PrimQuery (TableName, Attribute, Scheme, Assoc
+		 , PrimQuery(..), RelOp(..), SpecialOp(..) 
 		 , PrimExpr(..), BinOp(..), UnOp(..), AggrOp(..)
 		 , extend, times
 		 , attributes, attrInExpr, attrInOrder
 		 , substAttr
 		 , isAggregate, nestedAggregate
-		 , foldPrimQuery, foldPrimExpr,
-		 , ppPrimQuery, ppPrimExpr, 
-		 , ppRelOp, ppBinOp, ppAggrOp, ppSpecialOp, 
+		 , foldPrimQuery, foldPrimExpr
+		 , ppPrimQuery, ppPrimExpr 
+		 , ppRelOp, ppBinOp, ppAggrOp, ppSpecialOp 
 		 , assert
 		 ) where
 
