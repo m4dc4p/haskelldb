@@ -1,14 +1,16 @@
+SUBDIRS = src doc
 
-.PHONY: clean install
+SUBDIRS_CLEAN = $(addsuffix -clean, $(SUBDIRS))
 
-all: DBDirect
+.PHONY = haskelldb doc clean $(SUBDIRS_CLEAN)
 
-DBDirect: src/DBDirect.hs
-	ghc -package haskelldb-dynamic --make -o $@ $^
+default haskelldb: 
+	$(MAKE) -C src
 
-clean:
-	-rm -f *.o *.hi
-	-rm -f DBDirect
+doc: 
+	$(MAKE) -C doc
 
-install:
-	install DBDirect /usr/local/bin
+clean: $(SUBDIRS_CLEAN)
+
+$(SUBDIRS_CLEAN):
+	$(MAKE) -C $(subst -clean,,$@) clean
