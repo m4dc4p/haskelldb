@@ -86,6 +86,10 @@ insertData db = do
 		mapM (insert db hdb_test_t2) data2
 
 
+deleteData db = do
+		delete db hdb_test_t1 (\r -> constant True)
+		delete db hdb_test_t2 (\r -> constant True)
+
 mkJoinOnQuery f1 f2 = 
     do
     t1 <- table hdb_test_t1
@@ -151,21 +155,23 @@ q2 = do
 
 printQuery = putStrLn . show . showSql
 
+doQuery db q =
+    do
+    --printQuery q
+    query db q
+
 testOps db =
     do
---    printQuery $ union q1 q2
     query db (union q1 q2)
 -- These don't work in MySQL:
---    printQuery $ intersect q1 q2
-    query db (intersect q1 q2)
---    printQuery $ divide q1 q2
+--    query db (intersect q1 q2)
 --    query db (divide q1 q2)
---    printQuery $ minus q1 q2
-    query db (minus q1 q2)
+--    query db (minus q1 q2)
 
 runTests db =
     do
     insertData db
+    putStrLn "After INSERT:"
     showAll db
     joinOn db t1f01 t2f01 t1f01 t2f01
     joinOn db t1f02 t2f02 t1f02 t2f02
@@ -174,6 +180,8 @@ runTests db =
     joinOn db t1f05 t2f05 t1f05 t2f05
     joinOn db t1f06 t2f06 t1f06 t2f06
     testOps db    
+    deleteData db
+    putStrLn "After DELETE:"
 
 main = argConnect runTests
 --       putStrLn $ unlines $ [ v "" | (_,v) <- showRecRow data0]
