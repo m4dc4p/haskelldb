@@ -1,0 +1,39 @@
+For installation instructions, see the INSTALL file.
+
+
+HaskellDB is a Haskell library for expressing database queries and
+operations in a type safe and declarative way. HaskellDB compiles a
+relational algebra-like syntax into SQL, submits the operations to the
+database for processing, and returns the results as ordinary Haskell
+values.
+
+HaskellDB is written entirely in Haskell and works under both the
+Glasgow Haskell Compiler (GHC) and the Hugs Haskell interpreter. The
+library is designed to to support multiple database backends.
+
+Currently the only supported database backend uses the HSQL database
+library (available from the HToolkit project,
+http://htoolkit.sourceforge.net/). HSQLs bindings to ODBC, MySQL and
+PostgreSQL are currently used.
+
+HaskellDB is intended to be platform independent. It should be
+possible to use HaskellDB on any platform that has a supported Haskell
+implementation and that is supported by the database backend.
+
+HaskellDB was originally written by Daan Leijen and it's design is
+described in the paper Domain Specific Embedded Compilers, Daan Leijen
+and Erik Meijer. 2nd USENIX Conference on Domain-Specific Languages
+(DSL), Austin, USA, October 1999. That version of HaskellDB was
+published in 1999 and has been available from
+http://www.haskell.org/haskellDB/ since then.
+
+The original version implements the entire HaskellDB combinator
+library, but has some practical drawbacks. It requires certain
+extensions (most notably the typed records extensions) which, in the
+form that are used by HaskellDB, are only available in antiquated
+versions of the Hugs interpreter. Furthermore, the original HaskellDB
+only supports a Windows-specific ADO-based database backend.
+
+The new version of HaskellDB is produced as a student project at
+Chalmers University of Technology in Gothenburg, Sweden. We aim to
+make HaskellDB a practically useful database library.

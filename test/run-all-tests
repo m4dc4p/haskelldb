@@ -1,0 +1,39 @@
+#!/bin/sh
+
+#HSQL_DIR=/usr/local/lib/HSQL/Hugs/libraries
+HSQL_DIR=/usr/local/dp03-7/lib/HSQL/Hugs/libraries
+
+PROG="hardcoded-layout-simple-query join-and-aggr html-users-list \
+       current-time date-types test-non-ascii \
+       insert-update-delete test-bounded transaction \
+       higher-order big-test null-and-case \
+       join-without-restrict test-sum"
+
+# make sure TestConnect.hs exists
+make TestConnect.hs
+
+echo "Deleting old database definitions..."
+rm -rf Dp037*
+echo
+
+echo "Running DbDirect..."
+../build/ghc/DBDirect "$@" Dp037 || exit 1
+echo
+
+echo "Running DbDirect -b..."
+../build/ghc/DBDirect -b "$@" Dp037_bounded || exit 1
+echo
+
+# run tests with ghc
+for p in $PROG; do
+	echo "GHC compiling $p"
+	make $p || exit 1
+	echo "GHC running: $p"
+	./$p "$@" || exit 1
+done
+
+# run tests with hugs
+for p in $PROG; do
+	echo "Hugs running: $p"
+	runhugs -98 +o -P:$HSQL_DIR -h1024K $p.hs "$@" || exit 1
+done

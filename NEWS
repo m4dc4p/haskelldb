@@ -1,0 +1,66 @@
+HaskellDB 0.9: 2004-08-19
+
+- HaskellDB is no longer an auto-package, since this would turn on
+  glasgow-exts even for programs that don't use HaskellDB.
+- Fixed various character escaping issues. There are still some
+  problems with escaping for SQLite.
+- Exposed dbInfoToModuleFiles for creating database description
+  modules from a DBInfo.
+- Added <<- operator to make creating constant records for insert
+  easier.
+- Added _length query operator for getting the length of a string.
+- Made record implementation more general.
+- Lots of smaller fixes to code and documentation.
+
+HaskellDB Improved accepted to Haskell Workshop 2004: 2004-07-05
+
+The paper "HaskellDB Improved" has been accepted for publication as a
+Student Paper as Haskell Workshop 2004.
+
+HaskellDB 0.8: 2004-05-04
+
+- Improved compatibility with Microsoft Access
+- Internal restructuring of code
+- DBDirect generated files are now cleaner and more portable across 
+  HaskellDB versions
+- More test programs
+
+HaskellDB 0.7: 2004-03-31
+
+- Added functions for creating and dropping tables and databases.
+  Too be improved in future releases.
+- Support for wxHaskell when using GHC.
+- Support for SQLite, thanks to a patch from Jeremy Shaw.
+- Overloaded (!) can be used for both (!) and (!.).
+- Compiling for Hugs does not require GHC.
+- Added function for converting from nullable types. Suggested by Shae Erisson.
+- Added case construct.
+- A GenericConnect is now available. Uses similar syntax to DBDirect.
+- Backend interface changed to make function types backend independent.
+- Queries now return records instead of backend specific types.
+
+HaskellDB 0.6: 2004-03-03
+
+- Bounded lists and bounded strings.
+- Vastly increased performance. On reasonably modern computers, I/O is now
+  the limiting factor when doing database operations.
+- Transactions are now supported.
+- Some error messages (esp. some type errors) are easier to understand.
+- Better documentation.
+- Many, many bug fixes.
+
+HaskellDB 0.5, changes from Daan Leijen's HaskellDB: 2003-01-04
+
+- Support for both GHC and Hugs.
+- Redesigned type system to remove dependency on Typed Record Extensions.
+- Uses HSQL to access ODBC, MySQL and PostgreSQL databases.
+- Fixed various bugs.
+- Haddock documentation.
+- Uses standard library where possible.
+- Metadata functions have been added.
+- Dbdirect now uses metadata functions to generate database info.
+- Dbdirect produces files in a new format.
+- Proper build system (using autoconf/configure/GNU make).
+- Uses new notation compared to Leijen's HaskellDB.
+- Two old HaskellDB functions have been changed. The old insert is now
+  insertQuery. The old insertNew is now insert.

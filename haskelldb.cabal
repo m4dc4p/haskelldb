@@ -1,0 +1,34 @@
+Name: haskelldb
+Version: 0.9
+Copyright: The authors
+Maintainer: haskelldb-users@lists.sourceforge.net
+Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
+License: BSD3
+build-depends: haskell98, base
+Extensions: ExistentialQuantification,
+            OverlappingInstances,
+            AllowUndecidableInstances,
+            MultiParamTypeClasses
+Synopsis: SQL unwrapper for Haskell.
+Exposed-Modules:
+        Database.HaskellDB,
+        Database.HaskellDB.BoundedList,
+        Database.HaskellDB.BoundedString,
+        Database.HaskellDB.DBLayout,
+        Database.HaskellDB.DBSpec,
+        Database.HaskellDB.DBSpec.DBInfo,
+        Database.HaskellDB.DBSpec.DBSpecToDBDirect,
+        Database.HaskellDB.DBSpec.DBSpecToDatabase,
+        Database.HaskellDB.DBSpec.DatabaseToDBSpec,
+        Database.HaskellDB.DBSpec.PPHelpers,
+        Database.HaskellDB.Database,
+        Database.HaskellDB.FieldType,
+        Database.HaskellDB.HDBRec,
+        Database.HaskellDB.Optimize,
+        Database.HaskellDB.PrimQuery,
+        Database.HaskellDB.Query,
+        Database.HaskellDB.Sql,
+        Database.HaskellDB.Version,
+        Database.HaskellDB.DriverAPI
+hs-source-dir: src
+ghc-options: -O2

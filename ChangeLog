@@ -1,0 +1,3199 @@
+2004-08-19 15:02  d00bring
+
+	* src/Query.hs: Changed Num constraint to Ord on _min and _max.
+
+2004-08-19 09:20  d00bring
+
+	* ChangeLog: Updated ChangeLog
+
+2004-08-19 09:19  d00bring
+
+	* ANNOUNCE, NEWS, configure.ac: Updated for 0.9 release.
+
+2004-08-19 08:58  d00bring
+
+	* src/: HaskellDB.hs, Query.hs: Added and fixed some haddock
+	  comments.
+
+2004-08-19 08:35  d00bring
+
+	* BUGS: Added url to bug tracker.
+
+2004-08-19 08:29  d00bring
+
+	* INSTALL: Added mote info about SQLite problems.
+
+2004-08-18 17:23  d00bring
+
+	* src/: DBDirect/DBDirect.hs, DBSpec/DBSpecToDBDirect.hs: expose
+	  function for creating database layout modules from a DBInfo
+
+2004-08-18 17:22  d00bring
+
+	* src/: HaskellDB.hs, Query.hs: Added <<- operator
+
+2004-08-17 10:41  d00bring
+
+	* src/PrimQuery.hs, src/Query.hs, test/CustomSql.hs,
+	  test/current-time.hs, test/default-auto-inc.hs: Added PrimExpr
+	  for literals. Moved quoting and showing of literals to PrimQuery.
+
+2004-08-17 10:40  d00bring
+
+	* test/run-all-tests: Added test-non-ascii
+
+2004-08-17 10:38  d00bring
+
+	* src/BoundedList.hs: Added more Size constraints to shrink and
+	  fromBounded
+
+2004-07-16 20:57  d00bring
+
+	* src/Query.hs: Changed escaping of single quotes to use repeated
+	  single quotes instead of backslash, since SQLite doesnät support
+	  backslash escapes.
+
+2004-06-10 11:22  chucky
+
+	* haskelldb.pkg.in: Fixed a stupid missing new-line bug
+
+2004-06-02 21:37  d00bring
+
+	* src/Query.hs: use single quotes instead of double quotes when
+	  quoting dates, double quotes break in postgre
+
+2004-05-29 17:00  chucky
+
+	* src/FieldType.hs: CalendarTime now becomes a timestamp in sql
+	  instead of date
+
+2004-05-29 12:11  d00bring
+
+	* src/Query.hs: Export ShowConstant
+
+2004-05-27 23:18  d00bring
+
+	* src/PrimQuery.hs, src/Query.hs, test/Makefile,
+	  test/test-non-ascii.hs: Fixed escaping of non-ascii characters.
+
+2004-05-24 14:07  d00bring
+
+	* src/PrimQuery.hs: removed space between function and arguments
+
+2004-05-24 14:03  d00bring
+
+	* src/DBLayout.hs: DBLayout now only exports FieldType from the
+	  FieldType module
+
+2004-05-24 14:02  d00bring
+
+	* src/: HaskellDB.hs, PrimQuery.hs, Query.hs: Added _length.
+
+2004-05-22 17:14  d00bring
+
+	* TODO: should support like etc. on nullable arguments
+
+2004-05-20 01:17  d00bring
+
+	* src/HDBRec.hs: setField now takes a typed label
+
+2004-05-20 01:08  d00bring
+
+	* src/HDBRec.hs: reverted to old implementation of #
+
+2004-05-20 01:01  d00bring
+
+	* src/Database.hs: fixed type error caused by use of #
+
+2004-05-20 00:54  d00bring
+
+	* src/HDBRec.hs: Fixed RecCat documentation.
+
+2004-05-20 00:52  d00bring
+
+	* src/: DBLayout.hs, HDBRec.hs: Turned # into a general record
+	  concatenation operator.
+
+2004-05-19 15:37  d00bring
+
+	* src/HDBRec.hs: Added Eq and Ord for Record
+
+2004-05-18 23:57  d00bring
+
+	* src/Query.hs: changed type of << to match .=.
+
+2004-05-18 21:29  d00bring
+
+	* src/: Database.hs, HDBRec.hs, HaskellDB.hs, Query.hs,
+	  drivers/hsql/Common.hs, drivers/wxhaskell/WX.hs: Moved more of
+	  record infrastructure into HDBRec
+
+2004-05-18 19:56  d00bring
+
+	* src/DBDirect/DBDirect.hs: Import GenericConnect
+
+2004-05-18 19:55  d00bring
+
+	* src/HaskellDB.hs: Removed re-export of genericConnect, since this
+	  would force everyone yo link against all database drivers
+
+2004-05-13 18:47  d00bring
+
+	* haskelldb.pkg.in, test/Makefile: Made haskelldb a non-auto
+	  package as it would switch -fglasgow-exts on always.
+
+2004-05-13 09:44  d99mary
+
+	* src/Database.hs: createDB hadock comment
+
+2004-05-13 02:36  viblo
+
+	* src/PrimQuery.hs: fixed some spelling errors in the haddock
+	  comments.
+
+2004-05-12 12:46  forester
+
+	* BUGS, INSTALL: Added bug about the string escaping when using
+	  non-ascii characters.
+
+2004-05-11 19:32  d00bring
+
+	* BUGS, TODO: Added update typing bug
+
+2004-05-11 19:28  d00bring
+
+	* test/insert-update-delete.hs: removed unused import
+
+2004-05-11 19:27  d00bring
+
+	* src/Query.hs: added FIXME comment to _default
+
+2004-05-11 19:26  d00bring
+
+	* test/insert-update-delete.hs: removed redundant assignment in
+	  update
+
+2004-05-10 16:51  d00bring
+
+	* test/: THField.hs, th-field-test.hs: THField now exports DBLayout
+
+2004-05-10 16:47  d00bring
+
+	* test/th-field-test.hs: added THField test program
+
+2004-05-10 01:36  d00bring
+
+	* TODO, BUGS: Added nullable aggregates problem
+
+2004-05-09 23:46  d00bring
+
+	* test/max-row.hs: added max-row.hs
+
+2004-05-09 23:14  d00bring
+
+	* TODO: added queries in expressions TODO.
+
+2004-05-08 19:06  d00bring
+
+	* src/HDBRec.hs: reverted the signature of #, the new, more
+	  restrictive, signature caused problems as reported by eivuokko.
+
+2004-05-04 21:49  d00bring
+
+	* test/same-name.hs: added test program for field with same name
+
+2004-05-04 20:34  viblo
+
+	* src/BoundedString.hs: "uncommented" the haddock comment
+
+2004-05-04 20:29  dp03-7
+
+	* src/BoundedList.hs: fixed haddock parse error
+
+2004-05-04 20:24  viblo
+
+	* src/drivers/wxhaskell/WX.hs: Added revision in the haddock
+	  comments
+
+2004-05-04 20:21  viblo
+
+	* src/: DBDirect/DBDirect.hs, DBSpec/DBInfo.hs,
+	  DBSpec/DBSpecToDBDirect.hs, DBSpec/DBSpecToDatabase.hs,
+	  DBSpec/DatabaseToDBSpec.hs, DBSpec/PPHelpers.hs,
+	  drivers/hsql/MySQL.hs, drivers/hsql/ODBC.hs,
+	  drivers/hsql/PostgreSQL.hs, drivers/hsql/SQLite.hs: Added
+	  revision in the haddock comments
+
+2004-05-04 20:18  viblo
+
+	* src/: BoundedList.hs, BoundedString.hs, DBSpec.hs, Database.hs,
+	  FieldType.hs, Optimize.hs, PrimQuery.hs, Query.hs, Sql.hs: Added
+	  revision in the haddock comments
+
+2004-05-04 19:55  dp03-7
+
+	* BUGS: added repeated field name bug
+
+2004-05-04 19:31  dp03-7
+
+	* INSTALL: removed hsql version number req
+
+2004-05-04 19:15  dp03-7
+
+	* ChangeLog: Updated Changelog
+
+2004-05-04 19:04  dp03-7
+
+	* BUGS, TODO: added wxHaskell date problem
+
+2004-05-04 19:04  dp03-7
+
+	* NEWS: typo fix
+
+2004-05-04 18:43  dp03-7
+
+	* BUGS: added odbc postgre sum type error
+
+2004-05-04 18:34  dp03-7
+
+	* test/run-all-tests: don't run default-auto-inc
+
+2004-05-04 18:31  dp03-7
+
+	* BUGS: added ODBC MySQL auto_inc nullable problem
+
+2004-05-04 15:52  chucky
+
+	* ANNOUNCE, ChangeLog, INSTALL, NEWS: Prepared for release of 0.8
+
+2004-05-04 15:50  forester
+
+	* BUGS, TODO, configure.ac: updates for 0.8
+
+2004-05-03 13:15  d00bring
+
+	* TODO: Added operator NULL handling issue.
+
+2004-05-02 18:50  chucky
+
+	* src/DBSpec/DBSpecToDatabase.hs: Fixed so that Databases generated
+	  do not try to create tables with empty names
+
+2004-05-02 16:15  d00bring
+
+	* BUGS, TODO: added pre-1970 bug
+
+2004-05-02 15:43  d00bring
+
+	* ChangeLog: Updated ChangeLog
+
+2004-05-02 15:39  d00bring
+
+	* src/DBSpec/DBSpecToDBDirect.hs: Inverted hasName condition. It
+	  caused only nameless tables to be printed, not the other way
+	  around.
+
+2004-05-01 19:38  d00bring
+
+	* test/THField.hs: Added template haskell field creation module.
+
+2004-05-01 19:00  d00bring
+
+	* BUGS: added access timestamp bug
+
+2004-05-01 18:29  d00bring
+
+	* src/: HDBRec.hs, Query.hs: more record clean-up and
+	  generalization
+
+2004-05-01 16:47  d00bring
+
+	* FIXED: Added dbinfo upper case identifier bug to FIXED. Fixed a
+	  typo.
+
+2004-05-01 16:33  d00bring
+
+	* src/: DBLayout.hs, HDBRec.hs, HaskellDB.hs, Query.hs: Moved # to
+	  HDBRec. Added revision tags.
+
+2004-04-30 02:59  viblo
+
+	* src/BoundedList.hs: Added haddock comments for the functions.
+
+2004-04-29 19:32  chucky
+
+	* BUGS: Forgot to mention I had fixed a bug
+
+2004-04-29 19:32  chucky
+
+	* src/DBSpec/: DBInfo.hs, DBSpecToDBDirect.hs: [no log message]
+
+2004-04-29 19:31  chucky
+
+	* BUGS:
+	  Fixed two bugs
+
+2004-04-28 20:12  d00bring
+
+	* src/drivers/hsql/Common.hs: Added a bunch of type signatures that
+	  the versose warnings complained about. Added revision tag.
+
+2004-04-28 20:06  d00bring
+
+	* src/Sql.hs: Added a bunch of type signatures to fix some warnings
+	  produced by --enable-verbose-warnings.
+
+2004-04-28 19:59  d00bring
+
+	* src/PrimQuery.hs: added type signatures to showRelOp, showUnOp,
+	  showBinOp and showAggrOp, to fix some warnings produces with
+	  --enable-verbose-warnings.
+
+2004-04-28 02:58  viblo
+
+	* src/HaskellDB.hs: Added type sign. for the show funcs so they are
+	  visible in the haddocked doc
+
+2004-04-27 23:49  d00bring
+
+	* BUGS: added MS Access Memo field bug.
+
+2004-04-27 21:32  d00bring
+
+	* test/: Makefile, run-all-tests, test-sum.hs: Added test-sum,
+	  which tests that the the sum of a column of ints can be treated
+	  as an int (did not work with MySQL and older hsql versions).
+
+2004-04-27 21:28  d00bring
+
+	* src/Database.hs: Added Show, ReadRecRow and Read instances for
+	  Row.
+
+2004-04-27 20:08  d00bring
+
+	* configure.ac: Added --enable-hsql flag
+
+2004-04-27 20:07  d00bring
+
+	* BUGS, TODO: Added DBDirect uppercase DBInfo name bug.
+
+2004-04-27 15:04  chucky
+
+	* src/DBSpec/DBSpecToDBDirect.hs: Hopefully fixed the "missing
+	  field" bug in DBDirect.
+
+2004-04-27 00:46  d00bring
+
+	* BUGS, TODO: Added empty tables / table name bug
+
+2004-04-24 14:58  d00bring
+
+	* src/HDBRec.hs: Added explicit export list, added some haddock
+
+2004-04-24 14:35  d00bring
+
+	* src/DBLayout.hs, src/Database.hs, src/HDBRec.hs, src/Query.hs,
+	  src/DBSpec/DBSpecToDBDirect.hs,
+	  test/hardcoded-layout-simple-query.hs, test/run-all-tests: gave
+	  HBDRec types non-hdb-specific names
+
+2004-04-23 02:46  viblo
+
+	* src/Sql.hs: Added some haddock comments
+
+2004-04-22 20:44  d00bring
+
+	* Makefile: stop running autoconf automatically, gets messy when
+	  you just want ot make clean
+
+2004-04-22 20:41  d00bring
+
+	* configure.ac: fixed hugs hsql path flags when prefix not set
+
+2004-04-22 20:27  d00bring
+
+	* src/HDBRec.hs: added fundep to SelectField
+
+2004-04-22 17:32  dp03-7
+
+	* config.mk.in, configure.ac: Configure now finds HSQL for Hugs
+	  using --prefix
+
+2004-04-08 19:57  d00bring
+
+	* src/Query.hs: reduced precedence of like to be lower than !
+
+2004-04-08 18:10  d00bring
+
+	* src/HDBRec.hs, doc/descript: Minor documentation updates.
+
+2004-04-08 15:16  d00bring
+
+	* test/: CustomSql.hs, custom-test.hs: Added some examples of using
+	  cusom SQL operators
+
+2004-04-08 15:05  d00bring
+
+	* src/Database.hs: change implementation of !. to use !, change !
+	  to use selectField directly
+
+2004-04-08 14:59  d00bring
+
+	* src/Database.hs: Removed unneccessary HasField constraint from
+	  selection operators
+
+2004-04-08 13:38  d00bring
+
+	* test/quickcheck.hs: More quickcheck property ideas
+
+2004-04-08 13:37  d00bring
+
+	* test/run-all-tests: Make hugs use a bigger heap, needed for
+	  join-without-restrict
+
+2004-04-08 13:33  d00bring
+
+	* test/default-auto-inc.hs: stupid monomorphism restriction
+
+2004-04-08 13:22  d00bring
+
+	* test/big-test.hs: Print PrimQuery for UNION
+
+2004-04-08 13:22  d00bring
+
+	* test/run-all-tests: halt on errors
+
+2004-04-08 13:20  d00bring
+
+	* BUGS, TODO, src/Sql.hs: Identified source of table alias clashes
+
+2004-04-08 13:01  d00bring
+
+	* src/Optimize.hs: Allow merging projects through all binaray
+	  relational operators, except Times where it does not work.
+
+2004-04-08 12:54  d00bring
+
+	* BUGS: added repeated table alias problem
+
+2004-04-08 12:51  d00bring
+
+	* test/big-test.hs: Print UNION query before running it
+
+2004-04-08 12:48  d00bring
+
+	* src/: Database.hs, drivers/hsql/Common.hs,
+	  drivers/wxhaskell/WX.hs: Backends can now retrieve Bools
+
+2004-04-08 12:31  d00bring
+
+	* test/run-all-tests: don't run lazy, it makes mysqld crazy
+
+2004-04-08 12:29  d00bring
+
+	* test/run-all-tests: run-all-tests now runs all tests
+
+2004-04-08 12:29  d00bring
+
+	* test/null-and-case.hs: Changed name of DBDirect module used
+
+2004-04-08 12:26  d00bring
+
+	* test/current-time.hs: fixed some type errors, forgot to compile
+	  before checking in earlier
+
+2004-04-08 12:12  d00bring
+
+	* BUGS, FIXED, TODO: Moved queries without tables and join without
+	  restrict (that was not actually the problem) to FIXED.
+
+2004-04-08 12:08  d00bring
+
+	* src/Optimize.hs, test/Makefile, test/current-time.hs,
+	  test/default-auto-inc.hs, test/join-without-restrict.hs: Fixed
+	  bugs in Optimize that messed up queries without a table and
+	  certain joins.
+
+2004-04-08 11:59  d00bring
+
+	* src/PrimQuery.hs: Changed attributes to use union instead of ++
+	  for times
+
+2004-04-08 01:38  d00bring
+
+	* test/default-auto-inc.hs: now gets last_insert_id()
+
+2004-04-08 01:37  d00bring
+
+	* TODO: added query without table TODO
+
+2004-04-08 01:17  d00bring
+
+	* test/current-time.hs: Cleaned up a little.
+
+2004-04-08 00:01  d00bring
+
+	* test/join-without-restrict.hs: added program that demonstrates
+	  the join without restrict bug
+
+2004-04-07 21:57  d00bring
+
+	* test/quickcheck.hs: Chnaged name of test function, conflicted
+	  with a QuickCheck function
+
+2004-04-07 21:52  chucky
+
+	* src/GenericConnect.pphs: Damnit I introduced a bug, fixed now
+
+2004-04-07 21:48  chucky
+
+	* src/GenericConnect.pphs: Created clearer error messages, and did
+	  some cleaning up
+
+2004-04-07 21:44  d00bring
+
+	* test/quickcheck.hs: first step towards quickcheck properties
+
+2004-04-07 21:16  d00bring
+
+	* src/HDBRec.hs: Added deriving Eq to record types.
+
+2004-04-07 20:42  d00bring
+
+	* src/: HDBRec.hs, Query.hs: Removed some unused code.
+
+2004-04-07 20:11  d00bring
+
+	* src/HDBRecUtils.hs: Removed HDBRecUtils.hs
+
+2004-04-07 20:10  d00bring
+
+	* src/DBLayout.hs, src/Database.hs, src/HDBRec.hs,
+	  src/HaskellDB.hs, src/Query.hs, src/common.mk,
+	  test/current-time.hs, test/hardcoded-layout-simple-query.hs,
+	  test/run-all-tests: Removed HDBRecUtils and put its pieces where
+	  they makethe most sense.
+
+2004-04-07 19:42  d00bring
+
+	* BUGS, FIXED, TODO: Moved default value support to FIXED.
+
+2004-04-07 19:34  d00bring
+
+	* BUGS, FIXED, TODO, src/Database.hs, src/HDBRecUtils.hs,
+	  src/HaskellDB.hs, src/Query.hs, test/Makefile,
+	  test/default-auto-inc.hs, test/higher-order.hs: Added support for
+	  default values in insert. Restricted use of aggregate expressions
+	  to project.
+
+2004-04-07 16:39  chucky
+
+	* src/: DBLayout.hs, common.mk, DBSpec/DBSpecToDBDirect.hs: [no log
+	  message]
+
+2004-04-07 16:39  chucky
+
+	* TODO: Fixed the following TODO:   * put all imports that
+	  DbDirect-generated files need in a module by	   itself, so that
+	  generated code only needs to import that module. /Bjorn
+
+2004-04-07 14:36  forester
+
+	* src/: BoundedList.hs, BoundedString.hs, drivers/hsql/Common.hs:
+	  Added size 65535 to boundedstring. Also added more SqlTypes
+
+2004-04-07 14:35  d00bring
+
+	* src/DBSpec/DBSpecToDBDirect.hs: Moved $$ after contextStackPragma
+	  into the commented-out part to fix a parse error.
+
+2004-04-07 10:31  chucky
+
+	* test/dbspec.hs: removed the easter egg
+
+2004-04-06 13:15  chucky
+
+	* src/DBSpec/DBSpecToDBDirect.hs: Tried adding -fcontext-stackXX as
+	  a pragma at the top of generated files, but it didn't work. The
+	  code remains if it starts to work some day. :)
+
+2004-04-06 13:14  chucky
+
+	* BUGS: Tried adding -fcontext-stackXX as a pragma at the top of
+	  generated files, but it didn't work.
+
+2004-04-05 12:09  chucky
+
+	* BUGS: Wrote something about SqlBit
+
+2004-04-05 11:57  chucky
+
+	* src/drivers/: hsql/Common.hs, wxhaskell/WX.hs: [no log message]
+
+2004-04-05 11:57  chucky
+
+	* src/FieldType.hs: Tried adding support for SqlBit, but gave up
+	  because of db incompatibilities
+
+2004-04-04 16:59  d00bring
+
+	* BUGS: fixed simple typo
+
+2004-04-01 22:46  d00bring
+
+	* BUGS: added LIKE/ILIKE problem
+
+2004-03-31 21:57  d00bring
+
+	* ChangeLog: Updated ChangeLog for release
+
+2004-03-31 21:56  forester
+
+	* NEWS: Added news for version 0.7
+
+2004-03-31 21:55  forester
+
+	* ANNOUNCE: Updated to version 0.7
+
+2004-03-31 21:52  d00bring
+
+	* INSTALL: added HSQL-MySQL windows problem
+
+2004-03-31 21:27  d00bring
+
+	* ChangeLog: Updated ChangeLog
+
+2004-03-31 21:26  forester
+
+	* ANNOUNCE, NEWS: Changed NEWS and ANNOUNCE to 0.7
+
+2004-03-31 21:16  d00bring
+
+	* test/: Makefile, big-test-create-tables.hs, big-test.hs, lazy.hs,
+	  run-all-tests, run-big-test: Cleaned up test programs. Changed
+	  big-test to use dbspec.
+
+2004-03-31 21:09  d00bring
+
+	* NEWS: Added 0.7 release.
+
+2004-03-31 20:54  d00bring
+
+	* TODO: Removed DbDirect multiple driver TODO.
+
+2004-03-31 20:51  d00bring
+
+	* BUGS: Removed Hugs not working with wxHaskell enabled.
+
+2004-03-31 20:49  d00bring
+
+	* INSTALL: Fixed typos, added SQLite and wxHaskell info.
+
+2004-03-31 20:45  d00bring
+
+	* aclocal.m4, configure.ac: Fixed disabling ghc/hugs
+
+2004-03-31 20:23  d00bring
+
+	* configure.ac: Changed version to 0.7.
+
+2004-03-31 20:09  d00bring
+
+	* Makefile: Fixed install targets for separate compilation dirs.
+
+2004-03-31 20:06  d00bring
+
+	* config.mk.in, configure.ac, rules.mk, src/Makefile.ghc,
+	  src/Makefile.hugs, src/common.mk: Separate module tests in
+	  configure.ac for ghc and hugs.
+
+2004-03-31 19:04  d00bring
+
+	* config.mk.in, src/Makefile, src/Makefile.ghc, src/Makefile.hugs,
+	  src/common.mk, src/DBDirect/Makefile: Made separate build dirs
+	  for ghc and hugs.
+
+2004-03-31 16:48  viblo
+
+	* doc/api/Makefile: Added the wx-driver to the doc generation
+
+2004-03-31 11:25  chucky
+
+	* src/DBSpec/DBSpecToDBDirect.hs: Cosmetic changes
+
+2004-03-31 01:12  viblo
+
+	* src/: BoundedString.hs, DBSpec.hs, Database.hs, FieldType.hs,
+	  HDBRecUtils.hs, Sql.hs, drivers/hsql/MySQL.hs,
+	  drivers/hsql/ODBC.hs, drivers/hsql/SQLite.hs, DBSpec/DBInfo.hs,
+	  DBSpec/DBSpecToDBDirect.hs, DBSpec/DBSpecToDatabase.hs,
+	  DBSpec/PPHelpers.hs: Changed to non-portable in all files
+
+2004-03-29 17:48  forester
+
+	* configure.ac: Bug in configure disabled hsql if hugs was disable
+
+2004-03-29 14:03  chucky
+
+	* src/DBSpec.hs, src/DBSpec/DBInfo.hs,
+	  src/DBSpec/DBSpecToDBDirect.hs, test/dbspec.hs: DBInfos can now
+	  be pretty printed
+
+2004-03-29 09:41  chucky
+
+	* src/: DBSpec/DBSpecToDatabase.hs, drivers/hsql/Common.hs,
+	  drivers/wxhaskell/WX.hs: [no log message]
+
+2004-03-29 09:41  chucky
+
+	* src/: Database.hs, GenericConnect.pphs, Sql.hs: Fixed various
+	  bugs that Björn found
+
+2004-03-28 16:20  forester
+
+	* configure.ac: tweaking configure.ac, no needs for absolute path
+	  whatsoever. It absolute path for ghc is given, check for ghc-pkg
+	  in same path first
+
+2004-03-28 13:05  forester
+
+	* configure.ac: If HSQL does not support HUGS, don't build for HUGS
+
+2004-03-27 19:13  forester
+
+	* configure.ac: No need for explicit path when using
+	  --with-ghc/hugs Maybe not the best solution
+
+2004-03-26 00:20  d00bring
+
+	* BUGS, FIXED, TODO: Removed fromNull and _case from BUGS and TODO
+
+2004-03-25 23:43  d00bring
+
+	* TODO, src/drivers/wxhaskell/WX.hs: Added TODO about making the
+	  wxhaskell driver lazy
+
+2004-03-25 23:40  d00bring
+
+	* src/Query.hs: removed obsolote comment about showing of True and
+	  False
+
+2004-03-25 23:35  d00bring
+
+	* src/Query.hs, test/null-and-case.hs, src/HaskellDB.hs,
+	  src/PrimQuery.hs: Added _case and fromNull constructs.
+
+2004-03-25 21:44  d00bring
+
+	* config.mk.in, src/Makefile, src/DBSpec/Makefile,
+	  src/drivers/hsql/Makefile, src/drivers/wxhaskell/Makefile:
+	  Cleaned up and simplified build system.
+
+2004-03-25 21:39  chucky
+
+	* src/DBSpec/: DBInfo.hs, DBSpecToDatabase.hs: grr more bugs
+
+2004-03-25 21:21  chucky
+
+	* src/DBSpec/DBInfo.hs: Fixed a stupid parse error
+
+2004-03-25 21:10  chucky
+
+	* src/DBSpec/: DBInfo.hs, DBSpecToDBDirect.hs, DBSpecToDatabase.hs:
+	  Hopefully fixed circular deps this time
+
+2004-03-25 20:57  chucky
+
+	* src/DBSpec/: DBInfo.hs, DBSpecToDatabase.hs, DatabaseToDBSpec.hs,
+	  Makefile: [no log message]
+
+2004-03-25 20:57  chucky
+
+	* src/DBSpec.hs: Fixed circular dependencies, I hope
+
+2004-03-25 09:01  d00bring
+
+	* test/: Makefile, TestConnect.hs, TestConnect.pphs: Changed
+	  TestConnect to use GenericConnect.
+
+2004-03-25 08:53  d00bring
+
+	* test/: big-test-create-tables.hs, big-test.hs, current-time.hs,
+	  date-types.hs, hardcoded-layout-simple-query.hs, higher-order.hs,
+	  html-users-list.hs, insert-update-delete.hs, join-and-aggr.hs,
+	  test-bounded.hs, top.hs, transaction.hs: Changed !. to ! in all
+	  test programs
+
+2004-03-24 21:48  d00bring
+
+	* BUGS, TODO: added CASE and fromNullable problems
+
+2004-03-24 18:27  d00bring
+
+	* src/Database.hs, src/drivers/hsql/Common.hs,
+	  src/drivers/wxhaskell/WX.hs, test/current-time.hs: Changed type
+	  of query results to Row r (using HDBRecRow was an ugly hack)
+
+2004-03-24 12:19  chucky
+
+	* test/dbspec.hs: Used for testing generating from database
+
+2004-03-24 12:15  chucky
+
+	* src/Sql.hs: oops forgot something
+
+2004-03-24 12:14  chucky
+
+	* src/: FieldType.hs, Sql.hs: Fixed a bug in create and drop table
+
+2004-03-24 11:54  chucky
+
+	* src/GenericConnect.pphs: Fixed a bug
+
+2004-03-24 11:13  chucky
+
+	* src/: HaskellDB.hs, Makefile: GenericConnect added
+
+2004-03-24 11:13  chucky
+
+	* src/DBDirect/: DBDirectCommon.pphs, DBDirect.hs, Makefile: [no
+	  log message]
+
+2004-03-24 11:13  chucky
+
+	* src/GenericConnect.pphs: Rearranged and moved. This is the old
+	  DBDirectCommon, but it is now part of the standard lib
+
+2004-03-24 10:31  chucky
+
+	* src/DBSpec.hs: DBSpec.hs now exports everything useful in its
+	  submodules
+
+2004-03-24 10:30  d00bring
+
+	* src/Database.hs: fixed stupid constraint problem in !.
+
+2004-03-24 10:25  chucky
+
+	* src/DBSpec/DBSpecToDatabase.hs: Ready for testing?
+
+2004-03-23 22:49  d00bring
+
+	* src/: Database.hs, HDBRec.hs, HDBRecUtils.hs, Query.hs,
+	  drivers/hsql/Common.hs, drivers/wxhaskell/WX.hs: Overloaded ! to
+	  selection on both relations in a query and query results.
+
+2004-03-23 20:13  d00bring
+
+	* configure.ac: more configure clean-up
+
+2004-03-23 20:08  d00bring
+
+	* config.mk.in, configure.ac, test/run-big-test: some clean-up of
+	  configure.ac. added BUILD_DOC variable.
+
+2004-03-23 19:12  d00bring
+
+	* configure.ac: Removed all the old cruft for looking for libraries
+	  and headers.
+
+2004-03-22 23:54  d00bring
+
+	* BUGS: added list of unsupported features
+
+2004-03-22 23:45  d00bring
+
+	* BUGS, FIXED: Moved error catching bug from BUGS to FIXED
+
+2004-03-22 23:38  d00bring
+
+	* test/transaction.hs: catch errors from all db functions
+
+2004-03-22 23:37  d00bring
+
+	* src/drivers/: hsql/Common.hs, wxhaskell/WX.hs: Fixed drivers to
+	  catch exceptiosn in all top-level calls to driver functions
+
+2004-03-22 23:24  d00bring
+
+	* src/DBSpec/DBSpecToDatabase.hs: Changed mapM to mapM_ to fix a
+	  type error.
+
+2004-03-22 23:03  d00bring
+
+	* BUGS: added top-level-only HSQL error catching
+
+2004-03-22 21:49  d00bring
+
+	* TODO: added some things from BUGS to the TODO
+
+2004-03-22 21:32  d00bring
+
+	* test/: big-test-create-tables.hs, big-test.hs: enabled timestamp
+	  tests
+
+2004-03-22 21:26  d00bring
+
+	* BUGS: added info about wxhaskell not working in Hugs
+
+2004-03-22 17:25  chucky
+
+	* src/DBSpec/DBSpecToDatabase.hs: incremental change. Still no
+	  useful code
+
+2004-03-22 16:48  d00bring
+
+	* BUGS: Added info about GROUP BY problem.
+
+2004-03-22 16:40  d00bring
+
+	* test/: Makefile, higher-order.hs: Added test program that uses a
+	  higher-order query.
+
+2004-03-22 16:40  d00bring
+
+	* src/Optimize.hs: Fixed optimization that put aggregate
+	  expressions in restricts.
+
+2004-03-22 16:08  d00bring
+
+	* BUGS: added aggregates in restrict problem
+
+2004-03-22 16:06  chucky
+
+	* src/drivers/wxhaskell/WX.hs: [no log message]
+
+2004-03-22 16:06  chucky
+
+	* src/: Database.hs, Sql.hs, DBSpec/DBSpecToDatabase.hs,
+	  drivers/hsql/Common.hs: Added support for creating and dropping
+	  databases and tables
+
+2004-03-22 16:02  chucky
+
+	* BUGS: Added a bug in the wxHaskell driver
+
+2004-03-22 13:16  chucky
+
+	* TODO: We've done some things on the list now, most notably
+	  wxHaskell support
+
+2004-03-22 13:13  chucky
+
+	* src/DBSpec/DBSpecToDatabase.hs: [no log message]
+
+2004-03-22 13:13  chucky
+
+	* src/FieldType.hs: Incremental changes, creating databases.
+	  Nothing that works yet
+
+2004-03-20 21:24  d00bring
+
+	* BUGS: added wx to drivers that think postgre timestamps are
+	  strings
+
+2004-03-20 20:47  chucky
+
+	* src/DBSpec.hs:
+	  Fixed a stupid bug. We never generated Bounded Strings
+
+2004-03-20 20:41  chucky
+
+	* src/: DBDirect/DBDirect.hs, DBDirect/DBDirectCommon.pphs,
+	  DBSpec/DBSpecToDBDirect.hs, DBSpec/DatabaseToDBSpec.hs: [no log
+	  message]
+
+2004-03-20 20:41  chucky
+
+	* src/DBSpec.hs:
+	  Added WxHaskell support, and also made DBSpec generate better
+	  specifications (that always include Bounded Strings, whether we
+	  want them or not, they are stripped if we want to when running
+	  the new function finalizeSpec
+
+2004-03-20 16:37  d00bring
+
+	* configure.ac: fixed removal of package flags
+
+2004-03-20 16:33  d00bring
+
+	* configure.ac: add -package flag before looking for packages
+
+2004-03-20 15:52  d00bring
+
+	* INSTALL, config.mk.in, configure.ac, haskelldb.pkg.in,
+	  src/Makefile, src/DBSpec/DatabaseToDBSpec.hs,
+	  src/drivers/hsql/Makefile, src/drivers/wxhaskell/Makefile,
+	  src/drivers/wxhaskell/WX.hs, test/Makefile,
+	  test/TestConnect.pphs, test/join-and-aggr.hs: Added wxHaskell
+	  driver. Removed some cruft from configure.ac.
+
+2004-03-19 14:45  chucky
+
+	* src/: DBDirect/DBDirect.hs, DBDirect/Makefile, DBSpec/DBSpec.hs,
+	  DBSpec/DBSpecToDBDirect.hs, DBSpec/Makefile: [no log message]
+
+2004-03-19 14:44  chucky
+
+	* src/: DBSpec.hs, FieldType.hs, Makefile: Fixed some bugs, and
+	  added preliminary code for generating DBSpecs
+
+2004-03-18 13:46  chucky
+
+	* src/DBDirect/DBDirectCommon.pphs:
+	  Corrected a minor bug, it did not accept "postgre" as valid input
+
+2004-03-17 01:14  d00bring
+
+	* BUGS: added join without restrict bug
+
+2004-03-16 22:25  d00bring
+
+	* BUGS, TODO, src/Database.hs, src/drivers/hsql/Common.hs: Made
+	  row-retrieval lazy in the HSQL driver.
+
+2004-03-16 22:22  d00bring
+
+	* test/: Makefile, lazy.hs: added test for lazyQuery
+
+2004-03-16 18:43  d00bring
+
+	* INSTALL: changed HSQL requirement to 1.2.1
+
+2004-03-15 15:06  chucky
+
+	* src/DBDirect/: DBDirect.hs, DBDirectCommon.pphs, Makefile:
+	  Readded the SQLite support that I almost söp bort. Also, fixed
+	  command line arguments so that DBDirect now doesn't care about
+	  case
+
+2004-03-15 15:05  chucky
+
+	* doc/api/Makefile: Generating docs for DBSpec
+
+2004-03-15 14:37  d00bring
+
+	* src/DBDirect/Makefile: fixed building of DBDirect when doing make
+	  all
+
+2004-03-15 14:11  chucky
+
+	* src/DBSpec/: DBSpecToDBDirect.hs, DatabaseToDBSpec.hs: [no log
+	  message]
+
+2004-03-15 14:11  chucky
+
+	* src/DBDirect/DBDirectCommon.pphs: fixed some errors since I
+	  uploaded the wrong files
+
+2004-03-15 14:06  chucky
+
+	* src/Makefile: New makefile for the new DBDirect and DBSpec
+	  additions
+
+2004-03-15 14:05  chucky
+
+	* src/dbdirect/: DbDirect.hs, DbDirectCommon.pphs, Makefile: New
+	  structure for DBDirect
+
+2004-03-15 14:04  chucky
+
+	* src/DBDirect/DBDirectCommon.hs: added by mistake
+
+2004-03-15 14:03  chucky
+
+	* src/DBSpec/SpecTest.hs: Added by mistake
+
+2004-03-15 13:44  chucky
+
+	* src/DBSpec/DBSpecToDBDirect.hs: readded. :)
+
+2004-03-15 13:43  chucky
+
+	* src/DBSpec/DBSpecToDBDirect.hs: moived
+
+2004-03-15 13:39  chucky
+
+	* src/DBDirect/DBDirect.hs: Almost lost a file!
+
+2004-03-15 12:38  chucky
+
+	* src/DBSpec/: DBSpec.hs, DBSpecToDBDirect.hs, DBSpecToDatabase.hs,
+	  DatabaseToDBSpec.hs, Makefile, PPHelpers.hs, SpecTest.hs: Same as
+	  5 secs ago!
+
+2004-03-15 12:38  chucky
+
+	* src/DBDirect/: DBDirectCommon.hs, DBDirectCommon.pphs, Makefile:
+	  restructuring, documenting. Almost done, just need some more
+	  testing!
+
+2004-03-15 10:35  d00bring
+
+	* test/big-test.hs: Print more messages
+
+2004-03-15 10:34  d00bring
+
+	* src/Query.hs: Changed showConstant for Bools to TRUE/FALSE
+
+2004-03-12 01:12  viblo
+
+	* TODO: Added def. values & auto increment-problem
+
+2004-03-10 10:21  d00bring
+
+	* TODO: Added TODO about ading a module that contins all the
+	  imports that DbDirect-generated files need
+
+2004-03-09 01:57  d00bring
+
+	* aclocal.m4, configure.ac: fixed status messages in ghc version
+	  checking
+
+2004-03-09 01:44  d00bring
+
+	* aclocal.m4, configure.ac: added check for ghc version
+
+2004-03-08 03:20  d00bring
+
+	* src/drivers/hsql/SQLite.hs: Added the SQLite module, which should
+	  have been in the commit of stepcut's patch yesterday, but which I
+	  forgot to add.
+
+2004-03-08 02:59  d00bring
+
+	* TODO, src/Database.hs, src/HDBRecUtils.hs, src/Query.hs,
+	  src/dbdirect/DbDirect.hs, test/current-time.hs,
+	  test/hardcoded-layout-simple-query.hs: Removed unused r type
+	  parameter to Attr.
+
+2004-03-08 02:48  d00bring
+
+	* src/HDBRec.hs, src/HDBRecUtils.hs, src/dbdirect/DbDirect.hs,
+	  test/current-time.hs, test/hardcoded-layout-simple-query.hs:
+	  Removed HDBRecEntry type class, it does not seem to be neccessary
+	  any more.
+
+2004-03-08 02:47  d00bring
+
+	* TODO: removed SQLite driver TODO, added SQLite typing probelm
+
+2004-03-08 02:17  d00bring
+
+	* FIXED: added stepcuts patches to FIXED
+
+2004-03-08 02:13  d00bring
+
+	* TODO: Added aggregate functions in restrict problem.
+
+2004-03-06 23:17  d00bring
+
+	* BUGS: added info about SQLite-untypedness
+
+2004-03-06 23:04  d00bring
+
+	* AUTHORS: Added Jeremy Shaw as a contributor
+
+2004-03-06 22:55  d00bring
+
+	* config.mk.in, configure.ac, src/dbdirect/DbDirect.hs,
+	  src/dbdirect/DbDirectCommon.pphs, test/TestConnect.pphs,
+	  test/big-test-create-tables.hs: Added Jeremy Shaw's SQLite patch.
+	  Modified it to support the changes to Database from this morning.
+
+2004-03-06 21:28  d00bring
+
+	* Makefile: Added Makefile patch from Jeremy Shaw for makeing
+	  distclean delete more stuff. Removed configure from the things to
+	  delete, since configure is included in in release distributions,
+	  and we do not want the user to have to rebuild that.
+
+2004-03-06 16:40  d00bring
+
+	* src/: Database.hs, drivers/hsql/Common.hs: Changed name of
+	  ValueFuncs to GetInstances. Cleaned up hsql driver.
+
+2004-03-06 15:39  d00bring
+
+	* FIXED, TODO: removed TODO items concerning the Database type and
+	  Read/Show for records and added them to FIXED
+
+2004-03-06 14:57  d00bring
+
+	* src/Database.hs, src/HDBRec.hs, src/HDBRecUtils.hs,
+	  src/HaskellDB.hs, src/dbdirect/DbDirect.hs,
+	  src/dbdirect/DbDirectCommon.pphs, src/drivers/hsql/Common.hs,
+	  src/drivers/hsql/MySQL.hs, src/drivers/hsql/ODBC.hs,
+	  src/drivers/hsql/PostgreSQL.hs, test/TestConnect.pphs,
+	  test/current-time.hs, test/hardcoded-layout-simple-query.hs:
+	  Removed type parameters from the Database type. Changed dbQuery
+	  to return records instead of a driver dependent type. Changed
+	  dbQuery in the HSQL driver to support this. Removed the Row
+	  class. Fixed Show and Read instances for records. Changed HSQL
+	  connection functions to take a Database -> IO a instead of HSQL
+	  -> IO a.
+
+2004-03-03 22:20  viblo
+
+	* doc/api/Makefile: changed the descript path
+
+2004-03-03 22:19  viblo
+
+	* doc/descript: prologue file for the haddoc documentation
+
+2004-03-03 21:30  chucky
+
+	* configure.ac:
+	  Modified version to 0.6
+
+2004-03-03 21:27  chucky
+
+	* ANNOUNCE:
+	  Latest announcement made
+
+2004-03-03 21:26  chucky
+
+	* ChangeLog:
+	  Added a ChangeLog to the CVS. Generated automatically.
+
+2004-03-03 21:09  chucky
+
+	* INSTALL, NEWS:
+	  Updated for release
+
+2004-03-03 19:22  forester
+
+	* src/: Bounded.txt, BoundedList.hs, BoundedString.hs: Moved text
+	  about bounded into BoundedString and BoundedList
+
+2004-03-03 16:15  chucky
+
+	* BUGS: Removed a fixed bug
+
+2004-03-03 15:55  forester
+
+	* src/Bounded.txt: Simple informative text about BoundedList and
+	  BoundedString
+
+2004-03-03 13:08  d00bring
+
+	* test/join-and-aggr.hs: do not print queries, output gets messy
+
+2004-03-03 13:08  d00bring
+
+	* test/: run-all-tests, run-big-test: run tests with Hugs too
+
+2004-03-03 13:07  d00bring
+
+	* test/big-test.hs: added data deletion, disbaled tests that MySQL
+	  cannot handle.
+
+2004-03-03 12:55  d00bring
+
+	* src/: HDBRec.hs, drivers/hsql/Common.hs: commented out parts that
+	  are not used yet
+
+2004-03-03 11:54  viblo
+
+	* src/HaskellDB.hs: Changed haddock header
+
+2004-03-03 02:07  viblo
+
+	* src/Query.hs: added some haddock-comments, every (except 2 small
+	  funcs) function exported by haskelldb.hs should have a comment
+	  now
+
+2004-03-03 02:05  viblo
+
+	* src/: Optimize.hs, PrimQuery.hs: Replaced the assert function
+	  with the standard haskell equivalent assert
+
+2004-03-02 02:47  viblo
+
+	* src/Query.hs: Added some haddock comments
+
+2004-03-01 02:45  viblo
+
+	* src/Query.hs: Fixed the minor typo again... :)
+
+2004-03-01 02:40  viblo
+
+	* src/Query.hs: Replaced nullable with constJust, fixed some
+	  haddock comments
+
+2004-03-01 02:37  viblo
+
+	* test/transaction.hs, src/HaskellDB.hs: Replaced nullable with
+	  constJust
+
+2004-03-01 02:36  viblo
+
+	* doc/api/Makefile: Added title and prologue
+
+2004-02-29 10:32  d00bring
+
+	* TODO: fixed typo. removed ghci TODO, it seems to have been a
+	  problem on my machine only.
+
+2004-02-29 10:26  d00bring
+
+	* TODO: added SQLite interface to TODO
+
+2004-02-29 10:24  d00bring
+
+	* TODO: removed some fixed TODOs
+
+2004-02-29 09:28  d00bring
+
+	* FIXED: added memory leak and SqlDecimal fix
+
+2004-02-29 09:23  d00bring
+
+	* FIXED: added date formatting bug.
+
+2004-02-28 21:47  d00bring
+
+	* test/: Makefile, TestConnect.pphs: added argConnect to
+	  TestConnect module, removed big-test stuff from Makefile
+
+2004-02-28 21:41  d00bring
+
+	* test/: TestConnect.hs, TestConnect.pphs: added TestConnect.pphs
+	  instead of TestConnect.hs
+
+2004-02-28 21:38  d00bring
+
+	* test/: Makefile, TestConnect.hs: added TestConnect.hs
+
+2004-02-27 22:09  d00bring
+
+	* test/current-time.hs: fixed attribute name in current-time
+
+2004-02-27 22:07  d00bring
+
+	* src/drivers/hsql/Common.hs: better error message for invalid
+	  attributes
+
+2004-02-27 22:05  d00bring
+
+	* test/run-all-tests: added run-all-tests
+
+2004-02-27 22:05  d00bring
+
+	* test/: Makefile, big-test.hs, current-time.hs, date-types.hs,
+	  hardcoded-layout-simple-query.hs, html-users-list.hs,
+	  insert-update-delete.hs, join-and-aggr.hs, test-bounded.hs,
+	  top.hs, transaction.hs: fixed tests to use common connect
+	  function
+
+2004-02-27 21:25  d00bring
+
+	* src/Query.hs: updated toPrimExprs twith new HDBRecCons
+
+2004-02-27 21:20  forester
+
+	* src/: Database.hs, Query.hs: Exchanged exprs. We are now using
+	  the one based on a typeclass.
+
+2004-02-27 19:59  d00bring
+
+	* src/drivers/hsql/Common.hs: changed getValue for BoundedString to
+	  use HSQL functions directly.
+
+2004-02-27 19:54  d00bring
+
+	* src/: HDBRec.hs, HDBRecUtils.hs, dbdirect/DbDirect.hs,
+	  drivers/hsql/Common.hs: added prototype code for getting data as
+	  a record. fixed type of mkIOMBCalendarTime. moved fieldName to
+	  its own class, removed fieldTag. removed field tag argument from
+	  HDBRecCons data constructor, but not from type constructor.
+
+2004-02-27 09:41  d00bring
+
+	* test/: Makefile, current-time.hs,
+	  hardcoded-layout-simple-query.hs, test-bounded.hs: Makefile now
+	  builds all tests. Fixed all tests to compile with the current
+	  HaskellDB version.
+
+2004-02-27 09:29  d00bring
+
+	* test/test-bounded.hs: added a simple test that uses BoundedString
+
+2004-02-27 09:28  d00bring
+
+	* test/top.hs: added test for top
+
+2004-02-27 00:50  d00bring
+
+	* TODO: added remove r from Attr to TODO
+
+2004-02-27 00:45  d00bring
+
+	* src/: Database.hs, Query.hs: Added a few missing HasField
+	  constraints
+
+2004-02-27 00:39  d00bring
+
+	* src/Database.hs, src/HDBRecUtils.hs, src/Query.hs,
+	  src/dbdirect/DbDirect.hs, test/big-test-create-tables.hs,
+	  test/big-test.hs: Moved HasField constraint to methods that need
+	  it to get rid of rank-2 type of <<
+
+2004-02-26 23:29  d00bring
+
+	* BUGS: added info about TIMESTAMP columns in ODBC-PostgreSQL
+
+2004-02-26 23:23  d00bring
+
+	* test/: big-test-create-tables.hs, big-test.hs, run-big-test:
+	  added big-test
+
+2004-02-26 23:23  d00bring
+
+	* test/Makefile: added -fcontext-stack flag
+
+2004-02-26 23:22  d00bring
+
+	* BUGS: added -fcontext-stack info
+
+2004-02-26 23:16  d00bring
+
+	* INSTALL, src/Query.hs, src/Sql.hs: changed MINUS to EXCEPT
+	  (SQL92). documented unsupported binary relational operators.
+
+2004-02-26 22:46  d00bring
+
+	* BUGS: added PostgreSQL TIME problem
+
+2004-02-26 22:04  d00bring
+
+	* INSTALL: added info about missing binary operations in MySQL 4.1.
+
+2004-02-26 21:29  d00bring
+
+	* BUGS: removed HSQL date handling from BUGS
+
+2004-02-26 20:35  d00bring
+
+	* src/Query.hs: Fixed ShowConstant CalendarTime instance to format
+	  months with numbers instaed of names, and to quote the results.
+
+2004-02-26 20:07  d00bring
+
+	* src/HDBRec.hs: fixed Show and Read for records so they actually
+	  work
+
+2004-02-25 10:57  d00bring
+
+	* src/HDBRec.hs: added commented-out useless Read and Show
+	  instances for HDBRec, just checked them in to have them in
+	  version control
+
+2004-02-25 10:57  chucky
+
+	* src/drivers/hsql/Common.hs:
+	  Removed an unnecessary base case
+
+2004-02-25 10:56  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Removed a base case that was unnecessary
+
+2004-02-25 10:56  chucky
+
+	* src/: Database.hs, FieldType.hs:
+	  Replaced FieldDef by FieldDesc
+
+2004-02-25 10:48  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Removed a legacy case from checkUpper and checkLower, and
+	  replaced it with an error
+
+2004-02-25 00:52  forester
+
+	* Makefile, src/BoundedList.hs, src/BoundedString.hs,
+	  src/Database.hs, src/FieldType.hs, src/Query.hs,
+	  src/drivers/hsql/Common.hs: Removed dbInvoke, fixed Row-instance
+	  for BoundedString. BoundedString is now working, query-tests have
+	  been performed. Some more features like new instances is still to
+	  be added.
+
+2004-02-24 23:19  d00bring
+
+	* TODO: added record Read TODO
+
+2004-02-24 17:34  d00bring
+
+	* src/: BoundedList.hs, Database.hs, FieldType.hs, HDBRec.hs,
+	  HaskellDB.hs, Optimize.hs, PrimQuery.hs, Query.hs, Sql.hs,
+	  drivers/hsql/Common.hs: All the simple changes done during the
+	  code review.
+
+2004-02-24 10:08  forester
+
+	* src/dbdirect/DbDirect.hs: Removed implicit parameters then
+	  switching on BoundedString
+
+2004-02-24 10:05  forester
+
+	* src/: BoundedList.hs, BoundedString.hs, Query.hs: Deleted newtype
+	  from BoundedList, added Eq and ShowConstant instances
+
+2004-02-24 07:43  d00bring
+
+	* src/: Optimize.hs, Sql.hs: added some comment and type
+	  signatures. small bits of code clean-up.
+
+2004-02-23 14:55  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Found some oddities and commented them
+
+2004-02-22 22:24  d00bring
+
+	* test/current-time.hs: removed login info
+
+2004-02-22 22:21  d00bring
+
+	* test/current-time.hs: added extremely hacky way to get the
+	  server's current time
+
+2004-02-22 13:07  d00bring
+
+	* test/transaction.hs: added simple transaction testing program.
+
+2004-02-22 13:05  d00bring
+
+	* INSTALL, src/Database.hs, src/HaskellDB.hs, src/Query.hs,
+	  src/drivers/hsql/Common.hs: added transactions support. exported
+	  nullable.
+
+2004-02-22 11:22  d00bring
+
+	* TODO: added backend-dependent SQL generation
+
+2004-02-22 03:47  d00bring
+
+	* FIXED: added top and union fixes
+
+2004-02-22 03:45  d00bring
+
+	* src/Sql.hs: wrap queries used with binary operations (union etc.)
+	  in parens to fix SQL syntax problem with union as reported by
+	  viblo
+
+2004-02-22 03:33  d00bring
+
+	* src/: HaskellDB.hs, PrimQuery.hs, Query.hs, Sql.hs: fixed top to
+	  put LIMIT clause at the end of the query, instead of the
+	  unsupported TOP x option after DISTINCT. Commented out topPercent
+	  since I have not found any DBs that support that.
+
+2004-02-22 03:31  d00bring
+
+	* src/drivers/hsql/Common.hs: added case to save bounded strings as
+	  strings in the HSQLRow (Dynamic)
+
+2004-02-22 02:50  chucky
+
+	* TODO: Added transactions to the todo list
+
+2004-02-20 03:11  viblo
+
+	* src/Query.hs: Added som haddock-comments
+
+2004-02-19 00:02  viblo
+
+	* BUGS: Added the memory leak bug
+
+2004-02-18 02:31  viblo
+
+	* src/Query.hs: Added some haddock comments
+
+2004-02-17 21:58  d00bring
+
+	* FIXED: added bugs reported by Krasimir right after the release
+
+2004-02-17 21:47  chucky
+
+	* src/: FieldType.hs, Query.hs: Made CalendarTime an instance of
+	  ShowConstant
+
+2004-02-17 20:53  chucky
+
+	* src/dbdirect/DbDirect.hs: Forgot a base case in my bug fix
+
+2004-02-17 20:29  forester
+
+	* src/dbdirect/DbDirect.hs: Bstr can be followed by a higher number
+	  than 9
+
+2004-02-17 20:27  forester
+
+	* src/dbdirect/DbDirect.hs: Forgot about head [] :(
+
+2004-02-17 20:20  forester
+
+	* src/: FieldType.pphs, dbdirect/DbDirect.hs,
+	  drivers/hsql/Common.pphs: Removing 2 old files
+
+2004-02-17 20:06  forester
+
+	* src/: BoundedString.hs, FieldType.hs, dbdirect/DbDirect.hs,
+	  drivers/hsql/Common.hs: DbDirect now accepts a flag for deciding
+	  if BoundedString should be used.  Str* has been changed to BStr*
+	  to allow string comparing.
+
+2004-02-17 16:10  chucky
+
+	* FIXED, src/dbdirect/DbDirect.hs: Fixed a bug in DbDirect. Ought
+	  to redesign though, but I have to think about how that should be
+	  done
+
+2004-02-16 23:35  forester
+
+	* configure.ac, src/FieldType.hs, src/FieldType.pphs, src/Makefile,
+	  src/drivers/hsql/Common.hs, src/drivers/hsql/Common.pphs,
+	  src/drivers/hsql/Makefile: Removed BoundedString options.
+	  BoundedString always compiles now.
+
+2004-02-16 20:57  forester
+
+	* config.mk.in, configure.ac, src/BoundedList.hs,
+	  src/BoundedString.hs, src/FieldType.pphs, src/Makefile,
+	  src/drivers/hsql/Common.pphs, src/drivers/hsql/Makefile:
+	  including config.mk enables using ifdef
+
+2004-02-15 01:03  forester
+
+	* configure.ac: Added support for configure feedback
+
+2004-02-11 10:56  forester
+
+	* src/dbdirect/DbDirect.hs: Changed "map (\(t, c) -> MakeTableInfo
+	  t c)" to "map (uncurry MakeTableInfo)"
+
+2004-02-11 10:36  chucky
+
+	* FIXED:
+	  Added a file for writing down fixed bugs
+
+2004-02-11 01:11  viblo
+
+	* src/Query.hs: Added som haddock-comments
+
+2004-02-09 20:47  d00bring
+
+	* TODO: added use TH to compile to SQL at compile time suggestion
+
+2004-02-08 20:37  chucky
+
+	* src/dbdirect/DbDirect.hs: Fixed a weird bug. For some reason
+	  DbDirect didn't generate Tables that had a Maybe type for String,
+	  it just made them String. Very weird, since DbDirect EXPLICITLY
+	  checked if they were String to do this. So someone (likely me)
+	  put that bug in for some reason...
+
+2004-02-08 15:37  d00bring
+
+	* TODO: added database layout modification suggestion
+
+2004-02-05 18:46  viblo
+
+	* src/dbdirect/DbDirect.hs: Fixed a small bug that created prelude
+	  error when running dbdirect without arguments
+
+2004-02-04 10:45  d00bring
+
+	* Makefile: fixed unistallation and reinstalltion of GHCi library
+	  (HShdb.o)
+
+2004-02-04 10:38  d00bring
+
+	* src/PrimQuery.hs: Changed List import to Data.List
+
+2004-02-04 01:22  d00bring
+
+	* configure.ac: bugfix: set ENABLE_HUGS to no if hugs is not found.
+
+2004-02-03 23:25  d00bring
+
+	* TODO: removed release TODO stuff
+
+2004-02-03 23:24  d00bring
+
+	* Makefile: fixed bug in install target
+
+2004-02-03 23:19  d00bring
+
+	* src/HaskellDB.hs: made HSQL.ODBC reference a link in the haddock
+	  docs
+
+2004-02-03 22:01  chucky
+
+	* test/: date-types.hs, hardcoded-layout-simple-query.hs,
+	  html-users-list.hs, insert-update-delete.hs, join-and-aggr.hs:
+	  Removed our passwords and so on from the source files
+
+2004-02-03 22:00  chucky
+
+	* NEWS:
+	  Removed a typo
+
+2004-02-03 18:13  chucky
+
+	* TODO:
+	  Removed some done things
+
+2004-02-03 17:51  chucky
+
+	* BUGS:
+	  Added new file BUGS, to be used to store bugs that end users need
+	  to know about
+
+2004-02-03 17:37  d00bring
+
+	* configure.ac: fixed typo
+
+2004-02-03 17:36  d00bring
+
+	* configure.ac: fixed ghc-hsql-dir heuristics
+
+2004-02-03 17:32  d00bring
+
+	* config.mk.in: don't disable HSQL if no drivers enabled
+
+2004-02-03 17:31  chucky
+
+	* src/dbdirect/: DbDirect.hs, DbDirectCommon.pphs, Makefile:
+	  Finished editing
+
+2004-02-03 16:08  d00bring
+
+	* preprocess: added final # to LINE pragmas as required by ghc.
+
+2004-02-03 15:38  d00bring
+
+	* config.mk.in, rules.mk: added preprocessing variables
+
+2004-02-03 15:04  chucky
+
+	* TODO:
+	  Missed one. :)
+
+2004-02-03 15:04  chucky
+
+	* NEWS, TODO:
+	  Updated our TODO
+
+2004-02-03 14:21  d00bring
+
+	* src/PrimQuery.hs: bugfix: made IS NULL and IS NOT NULL prefix
+	  operators, as they are in SQL
+
+2004-02-03 14:21  d00bring
+
+	* src/Database.hs: added som functions argument documentation
+
+2004-02-03 14:20  d00bring
+
+	* test/insert-update-delete.hs: added delete and update tests
+
+2004-02-03 14:19  chucky
+
+	* src/dbdirect/: DbDirect.hs, DbDirectCommon.pphs, Makefile:
+	  Separated out driver-dependent things, not done yet.
+
+2004-02-03 14:18  chucky
+
+	* rules.mk:
+	  Edited some things regarding DbDirectCommon.hspp
+
+2004-02-03 14:05  chucky
+
+	* preprocess:
+	  Preprocessor for Haskell files with #ifdefs
+
+2004-02-03 13:57  chucky
+
+	* INSTALL:
+	  Added GNU make as a requirement
+
+2004-02-03 13:19  d00bring
+
+	* src/dbdirect/Makefile: added DbDirect dependency on
+	  DbDirectCommon
+
+2004-02-03 13:14  d00bring
+
+	* TODO: removed HSQL release TODO
+
+2004-02-03 13:12  chucky
+
+	* src/dbdirect/Makefile:
+	  Added dbdirectcommon
+
+2004-02-03 13:10  d00bring
+
+	* rules.mk: added implicit rule for preprocessing hspp files
+
+2004-02-03 13:05  d00bring
+
+	* INSTALL: updated INSTALL
+
+2004-02-02 22:48  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Fixed DbDirect so that it works again
+
+2004-02-02 21:17  chucky
+
+	* src/dbdirect/DbDirect.hs: ....
+
+2004-02-02 21:16  chucky
+
+	* src/dbdirect/DbDirect.hs: More bugfixes
+
+2004-02-02 21:14  chucky
+
+	* src/dbdirect/DbDirect.hs: Fixed some (all?) of the bugs I
+	  introduced
+
+2004-02-02 21:06  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Can now use any database driver
+
+2004-02-02 21:03  d00bring
+
+	* test/insert-update-delete.hs: added insert, delete, update test
+
+2004-02-02 20:34  d00bring
+
+	* TODO: remove AUTHORS file TODO
+
+2004-02-02 20:33  d00bring
+
+	* .cvsignore: added tarballs to .cvsignore
+
+2004-02-02 20:32  d00bring
+
+	* AUTHORS: added AUTHORS file
+
+2004-02-02 20:26  chucky
+
+	* TODO:
+	  Edited...
+
+2004-02-02 20:24  d00bring
+
+	* TODO: removed fixed SqlNoData problem
+
+2004-02-02 20:14  d00bring
+
+	* configure.ac: put support for non-installed HSQL back into
+	  configure
+
+2004-02-02 20:13  d00bring
+
+	* test/date-types.hs: print reported field too
+
+2004-02-02 19:57  chucky
+
+	* src/drivers/hsql/Common.hs:
+	  Fixed copyright notice
+
+2004-02-02 19:51  chucky
+
+	* src/HDBRecUtils.hs:
+	  Corrected copyright notice
+
+2004-02-02 19:50  chucky
+
+	* src/HDBRec.hs:
+	  Revised copyright notice
+
+2004-02-02 19:48  chucky
+
+	* src/FieldType.hs:
+	  Added copyright notice
+
+2004-02-02 19:30  d00bring
+
+	* src/: Database.hs, HaskellDB.hs, Sql.hs, drivers/hsql/Common.hs:
+	  changed insert and insertNew names
+
+2004-02-02 19:29  d00bring
+
+	* TODO: removed insert renaming TODO. added "Test insert, delete
+	  and update".
+
+2004-02-02 19:23  viblo
+
+	* INSTALL: Added requirements for comp on win
+
+2004-02-02 19:12  chucky
+
+	* TODO:
+	  Dbdirect stuff done
+
+2004-02-02 19:01  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  fixed bugs
+
+2004-02-02 18:55  d00bring
+
+	* TODO: added SqlNoData error to TODO
+
+2004-02-02 18:13  d00bring
+
+	* src/drivers/hsql/Common.hs: made SqlDateTime produce a
+	  CalendarTime
+
+2004-02-02 18:12  d00bring
+
+	* test/date-types.hs: fixed date formatting
+
+2004-02-02 18:12  d00bring
+
+	* src/dbdirect/DbDirect.hs: removed redundant imports from
+	  top-level generated file
+
+2004-02-02 17:28  d00bring
+
+	* TODO: added some DbDirect issues
+
+2004-02-02 12:53  chucky
+
+	* src/FieldType.hs:
+	  Fixed a bug in the Typeable definition for CalendarTime
+
+2004-02-02 07:42  d00bring
+
+	* src/Makefile: fixed source file copying to only copy modified
+	  files
+
+2004-02-02 07:33  d00bring
+
+	* src/Database.hs: fixed a syntax error in a comment
+
+2004-02-02 07:30  d00bring
+
+	* src/Makefile: removed a debug print
+
+2004-02-02 07:13  d00bring
+
+	* README: added README
+
+2004-02-02 02:17  viblo
+
+	* src/drivers/hsql/: Common.hs, MySQL.hs, ODBC.hs, PostgreSQL.hs:
+	  Added haddock header
+
+2004-02-02 02:09  viblo
+
+	* src/: Optimize.hs, Query.hs: Added haddock header
+
+2004-02-02 02:06  viblo
+
+	* src/HaskellDB.hs: Added haddock header
+
+2004-02-02 02:03  viblo
+
+	* src/Database.hs: Added haddock header and type defs to some
+	  functions
+
+2004-02-02 01:00  viblo
+
+	* src/Sql.hs: Added haddock header, and type defenitions to some
+	  functions.
+
+2004-02-01 23:02  chucky
+
+	* src/dbdirect/DbDirect.hs: More qualified importing
+
+2004-02-01 22:20  chucky
+
+	* src/dbdirect/DbDirect.hs: DbDirect now imports System.Time
+	  qualified
+
+2004-02-01 21:56  d00bring
+
+	* INSTALL: updated INSTALL file
+
+2004-02-01 21:22  d00bring
+
+	* config.mk.in, configure.ac: removed local HSQL installation
+	  support cruft from configure
+
+2004-02-01 21:09  d00bring
+
+	* configure.ac: try to use -package hsql if possible
+
+2004-02-01 20:21  d00bring
+
+	* configure.ac: fail if ghc is not found
+
+2004-02-01 20:15  d00bring
+
+	* src/Makefile: removed HShdb.o depencency
+
+2004-02-01 20:05  d00bring
+
+	* Makefile, src/Makefile: cosmetic makefile changes
+
+2004-02-01 17:34  d00bring
+
+	* TODO: added some installation TODOs
+
+2004-02-01 16:04  d00bring
+
+	* TODO: added dbdirect driver support release todo
+
+2004-02-01 16:03  d00bring
+
+	* test/date-types.hs: added simple test program that uses date
+	  types
+
+2004-02-01 16:02  d00bring
+
+	* TODO: fixed formatting and typos
+
+2004-02-01 16:01  d00bring
+
+	* TODO: added list of things to do before the release
+
+2004-02-01 15:48  d00bring
+
+	* TODO: removed fixed TODOs and updated some existing ones
+
+2004-02-01 15:22  d00bring
+
+	* src/dbdirect/DbDirect.hs: fixed typo
+
+2004-02-01 15:19  chucky
+
+	* src/dbdirect/DbDirect.hs: Made Dbdirect modules import
+	  System.Time
+
+2004-02-01 10:59  chucky
+
+	* TODO: Removed the reference to date types as they are now
+	  handled.  Added the following: try to compile with nhc98. It
+	  would be nice to support all three available Haskell compilers
+
+2004-02-01 10:42  chucky
+
+	* src/: FieldType.hs, Optimize.hs, Sql.hs, dbdirect/DbDirect.hs,
+	  drivers/hsql/Common.hs: Added handling of Date types. They now
+	  become type "CalendarTime". Also, went through all files and
+	  adjusted everything to use hierarchical modules (import Monad
+	  became import Control.Monad and so on)
+
+2004-02-01 02:47  d00bring
+
+	* doc/api/Makefile: fixed haddock rules so that haddock is only run
+	  once.
+
+2004-02-01 01:58  d00bring
+
+	* Makefile, src/Makefile, src/dbdirect/Makefile,
+	  src/drivers/hsql/Makefile: added more cleaning
+
+2004-02-01 01:54  d00bring
+
+	* .cvsignore, Makefile, TODO, config.mk.in, configure.ac,
+	  haskelldb.pkg.in, rules.mk, doc/Makefile, src/Database.hs,
+	  src/FieldType.hs, src/HDBRec.hs, src/HDBRecUtils.hs,
+	  src/HaskellDB.hs, src/Makefile, src/Optimize.hs,
+	  src/PrimQuery.hs, src/Query.hs, src/Sql.hs,
+	  src/dbdirect/DbDirect.hs, src/dbdirect/Makefile,
+	  src/drivers/hsql/Common.hs, src/drivers/hsql/HSQL_MySQL.hs,
+	  src/drivers/hsql/HSQL_ODBC.hs,
+	  src/drivers/hsql/HSQL_PostgreSQL.hs,
+	  src/drivers/hsql/HSQL_driver.hs, src/drivers/hsql/Makefile,
+	  src/drivers/hsql/MySQL.hs, src/drivers/hsql/ODBC.hs,
+	  src/drivers/hsql/PostgreSQL.hs, test/Makefile,
+	  test/hardcoded-layout-simple-query.hs, test/html-users-list.hs,
+	  test/join-and-aggr.hs: Added hierarchical package names. Added
+	  install and uninstall targets. Build in separate directory.
+
+2004-01-31 20:27  d00bring
+
+	* Makefile, config.mk.in, configure.ac, rules.mk, src/Makefile,
+	  src/dbdirect/Makefile, src/drivers/hsql/Makefile: added
+	  beginnings of install target. fixed some windows config and
+	  building problems.
+
+2004-01-31 19:15  d00bring
+
+	* test/html-users-list.hs: changed ouput format
+
+2004-01-31 19:15  d00bring
+
+	* Makefile, config.mk.in, configure.ac: get version number from
+	  configure.ac
+
+2004-01-31 19:12  d00bring
+
+	* LICENSE: set copygiht holder to "The HaskellDB development team"
+
+2004-01-31 18:23  d00bring
+
+	* INSTALL: removed jackass info, fixed jackass setup instead
+
+2004-01-31 17:35  d00bring
+
+	* test/html-users-list.hs: added html-users-list test program
+
+2004-01-31 17:29  d00bring
+
+	* test/.cvsignore: added .cvsignore to test/
+
+2004-01-31 17:28  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs: commented out debug
+	  printing of the SQL statement
+
+2004-01-31 17:27  d00bring
+
+	* src/drivers/hsql/Makefile: fixed compilation of HSQL_driver
+
+2004-01-31 17:11  d00bring
+
+	* TODO: added ghci problem
+
+2004-01-31 14:35  d00bring
+
+	* LICENSE: Changed license text to more closely match the BSD
+	  license text available from OSI. The only difference from the OSI
+	  version is that "Neither the name of the <ORGANIZATION> nor the
+	  names of its contributors ..." has been replaced by "Neither the
+	  names of the copyright holders nor the names of the contributors
+	  ...".
+
+2004-01-30 18:33  d00bring
+
+	* src/drivers/hsql/Makefile: changed dependencies to only look at
+	  files in HSQL_DRIVERS
+
+2004-01-30 17:58  chucky
+
+	* TODO: Added some stuff
+
+2004-01-30 13:09  d00bring
+
+	* .cvsignore: added autom4te.cache to .cvsignore
+
+2004-01-30 13:07  d00bring
+
+	* configure.ac: Added --enable-hugs flag.
+
+2004-01-30 01:10  d00bring
+
+	* config.mk.in: fixed some typos
+
+2004-01-30 00:46  d00bring
+
+	* Makefile: added dist target.
+
+2004-01-30 00:35  d00bring
+
+	* test/Makefile: disabled dependency generation
+
+2004-01-30 00:35  d00bring
+
+	* config.mk.in, src/Makefile: moved DRIVERS to config.mk.in
+
+2004-01-30 00:34  d00bring
+
+	* configure.ac: added cygwin odbc lib dir
+
+2004-01-30 00:33  d00bring
+
+	* INSTALL: added simple compile instructions
+
+2004-01-29 23:57  d00bring
+
+	* configure.ac: added --with-odbc-libs. fixed help message
+	  formatting.
+
+2004-01-29 23:28  d00bring
+
+	* src/drivers/hsql/test.hs, test/Makefile,
+	  test/hardcoded-layout-simple-query.hs, test/join-and-aggr.hs:
+	  moved test programs to test/ dir
+
+2004-01-29 23:27  d00bring
+
+	* .cvsignore: added .cvsignore to top-level dir
+
+2004-01-29 23:27  d00bring
+
+	* Makefile, aclocal.m4, config.guess, config.mk, config.mk.in,
+	  config.sub, configure.ac, haskelldb.pkg.in, install-sh, rules.mk,
+	  src/Makefile, src/dbdirect/Makefile, src/drivers/hsql/Makefile:
+	  Added autoconf configuration.
+
+2004-01-28 12:58  d00bring
+
+	* TODO: Removed fixed NULL problem from TODO.
+
+2004-01-28 01:40  viblo
+
+	* src/HDBRec.hs: Added haddock header
+
+2004-01-28 01:34  viblo
+
+	* src/HDBRecUtils.hs: Added haddock header
+
+2004-01-28 01:34  viblo
+
+	* src/PrimQuery.hs: Fixed minor typo
+
+2004-01-27 22:09  forester
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs: Separated
+	  hsqlRowSelect into hsqlRowSelect and hsqlRowSelectMB
+
+2004-01-27 20:17  chucky
+
+	* src/FieldType.hs: Added preliminary types for Date, Time,
+	  DateTime and Timestamp. They are not usable yet and the interface
+	  is not done, but the code doesn't break anything existing
+
+2004-01-27 01:35  viblo
+
+	* src/PrimQuery.hs: Added haddock comments
+
+2004-01-24 23:19  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_MySQL.hs, HSQL_ODBC.hs,
+	  HSQL_PostgreSQL.hs, HSQL_driver.hs, MySQL.hs, ODBC.hs,
+	  PostgreSQL.hs: added missing exception handling to connect call
+
+2004-01-24 23:17  d00bring
+
+	* src/Makefile: Now build PostgreSQL driver
+
+2004-01-24 20:51  d00bring
+
+	* rules.mk: made linking rule explicit
+
+2004-01-24 20:31  d00bring
+
+	* src/drivers/hsql/: HSQL_MySQL.hs, HSQL_ODBC.hs,
+	  HSQL_PostgreSQL.hs, MySQL.hs, ODBC.hs, PostgreSQL.hs: removed
+	  superfluous imports
+
+2004-01-24 20:06  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: quoted some variables given to
+	  configure
+
+2004-01-24 20:01  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: added postgresql includes for
+	  jackass
+
+2004-01-24 19:48  d00bring
+
+	* src/: Makefile, dbdirect/DbDirect.hs, drivers/hsql/Common.hs,
+	  drivers/hsql/HSQL_MySQL.hs, drivers/hsql/HSQL_ODBC.hs,
+	  drivers/hsql/HSQL_PostgreSQL.hs, drivers/hsql/HSQL_driver.hs,
+	  drivers/hsql/Makefile, drivers/hsql/MySQL.hs,
+	  drivers/hsql/ODBC.hs, drivers/hsql/PostgreSQL.hs,
+	  drivers/hsql/test.hs: added support for HSQLs MySQL and
+	  PostgreSQL drivers
+
+2004-01-24 19:46  d00bring
+
+	* TODO: added module naming to TODO
+
+2004-01-24 19:39  d00bring
+
+	* TODO: Removed some fixed items from TODO.
+
+2004-01-24 19:29  d00bring
+
+	* TODO: added TODO about giving the connect functions more general
+	  types
+
+2004-01-24 17:31  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: removed creation for Database
+	  symlink. update CVS_DATE
+
+2004-01-24 17:28  d00bring
+
+	* INSTALL: updated HSQL CVS version requirement
+
+2004-01-24 17:27  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: disabled date tag in cvs
+	  checkout, we'll just use the latest version for now.
+
+2004-01-23 00:27  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs: Removed
+	  commented-out testing code that I had left in by mistake.
+
+2004-01-23 00:24  d00bring
+
+	* config.mk, src/drivers/hsql/Common.hs,
+	  src/drivers/hsql/HSQL_driver.hs, src/drivers/hsql/test.hs:
+	  updated HSQL support to the redesigned version
+
+2004-01-21 21:03  d00bring
+
+	* TODO, src/Optimize.hs: I think I have fixed the ORDER
+	  optimization bug
+
+2004-01-21 20:26  d00bring
+
+	* src/Optimize.hs: pushRestrict now pushes all specials except
+	  Order through projections.
+
+2004-01-21 01:47  d00bring
+
+	* src/Query.hs: Reverted ordering operators to old types (taking
+	  relation and attribute instead of expression).
+
+2004-01-21 01:42  d00bring
+
+	* src/Optimize.hs: Commented out optimization code that can cause
+	  ORDER arguments to be aggregate expressions, which is not allowed
+	  in SQL.
+
+2004-01-21 01:30  d00bring
+
+	* src/PrimQuery.hs: Change my name in comment to a better form.
+
+2004-01-21 01:29  d00bring
+
+	* src/PrimQuery.hs: Old show instance PrimQuery did infinite
+	  recursion, not very good. Commented out that instance and derived
+	  Show instead.
+
+2004-01-20 22:50  chucky
+
+	* src/PrimQuery.hs: Fixed a bug concerning an extra \n
+
+2004-01-10 19:43  d00bring
+
+	* TODO: added nasty result column null problem.
+
+2004-01-10 18:44  d00bring
+
+	* src/Query.hs: Changed ordering and aggreagate operators to take
+	  an expression instead of a relation and an attribute, since the
+	  latter seems unneccessarily restrictive. I have probably
+	  overlooked something in doing so, so I left the old code
+	  commented out.
+
+2004-01-10 18:42  d00bring
+
+	* TODO: Added possible query optimization bug and ppPrimExpr adding
+	  a superfluous newline.
+
+2004-01-10 18:41  d00bring
+
+	* INSTALL: Added info about building MyODBC.
+
+2004-01-09 19:25  d00bring
+
+	* src/drivers/hsql/: Makefile, test.hs: added more testes to test
+	  program
+
+2004-01-09 19:22  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs: better debugging
+	  and error messages. added support for SqlFloat
+
+2004-01-09 19:19  d00bring
+
+	* src/Query.hs: Fixed showing of Maybe values so that only those
+	  that are instances of ShowConstant are shown
+
+2004-01-09 17:38  d00bring
+
+	* TODO, src/Sql.hs: Fixed showing of PrimExpr in Sql.toInsertNew
+
+2004-01-09 15:28  d00bring
+
+	* TODO: added ConstExpr showing
+
+2004-01-09 15:09  d00bring
+
+	* TODO: added change insert -> insertNew
+
+2004-01-08 16:38  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Oops, corrected a typo
+
+2004-01-08 16:32  chucky
+
+	* src/dbdirect/DbDirect.hs: Corrected a bug. The field name (as a
+	  string) should not be checked for being a keyword
+
+2004-01-08 02:17  d00bring
+
+	* INSTALL: added info aout unixODBC and RDBMS requirements
+
+2004-01-08 02:16  d00bring
+
+	* TODO: added some todo items
+
+2004-01-08 02:15  d00bring
+
+	* src/drivers/hsql/test.hs: now shows entire exception on error
+
+2004-01-08 02:14  d00bring
+
+	* rules.mk, src/drivers/hsql/Makefile: fixed LDFLAGS for ghci
+	  targets
+
+2004-01-08 02:13  d00bring
+
+	* src/Optimize.hs: fixed comment formatting
+
+2004-01-07 17:03  d00bring
+
+	* src/Query.hs: Added ShowConstant class. Reformatted some comments
+	  to haddock format.
+
+2004-01-07 16:09  d00bring
+
+	* src/Query.hs: Simplified some funtion definitions and type
+	  signatures. Cleaned up layout.
+
+2004-01-07 15:52  d00bring
+
+	* src/Query.hs: Removed superfluous functions, added type
+	  signatures, simplifed some funtion definitions.
+
+2004-01-07 15:40  d00bring
+
+	* src/HaskellDB.hs: removed unused name
+
+2004-01-07 15:33  d00bring
+
+	* src/Query.hs: Some serious whitespace clean-up
+
+2004-01-07 15:23  d00bring
+
+	* Makefile, rules.mk, doc/Makefile, doc/api/Makefile, src/Makefile,
+	  src/dbdirect/Makefile, src/drivers/hsql/Makefile: moved a lot of
+	  rules from individual Makfiles to rules.mk
+
+2004-01-07 14:05  chucky
+
+	* src/dbdirect/DbDirect.hs: Simplifications
+
+2004-01-07 13:55  d00bring
+
+	* src/: HDBRec.hs, HDBRecUtils.hs, drivers/hsql/test.hs: Changed
+	  HRBRec type to avoid having to use hdbMakeRec everywhere. Changed
+	  hdbMakeEntry to make table description code simpler.
+
+2004-01-07 13:51  d00bring
+
+	* src/HaskellDB.hs: Added 'project' to export list.
+
+2004-01-07 12:56  d00bring
+
+	* config.mk: Changed Hugs directory search order so that local
+	  modules override system ones.
+
+2004-01-07 12:51  d00bring
+
+	* src/PrimQuery.hs: Removed superfluous commas in export
+	  declaration.
+
+2004-01-07 12:14  d00bring
+
+	* config.mk: Turned on -fwarn-unused-imports be default.
+
+2004-01-07 11:49  d00bring
+
+	* LICENSE: Added a license file. License text is taken from the
+	  Parsec license, which is basically the same as the GHC and Hugs
+	  licenses.
+
+2004-01-07 02:54  d00bring
+
+	* src/FieldType.hs: Added explicit exports.
+
+2004-01-07 02:52  d00bring
+
+	* src/Optimize.hs: added explicit exports. reformatted comments.
+	  cleaned up whitespace.
+
+2004-01-07 02:37  d00bring
+
+	* src/Makefile: Added ghciload target. Added some comments.
+
+2004-01-07 02:36  d00bring
+
+	* TODO: added using assertions from the libraries instead of own
+
+2004-01-07 02:35  d00bring
+
+	* src/PrimQuery.hs: Added explicit exports. Added some signatures.
+	  Reformatted some comments to haddock format. Cleaned up some
+	  whitespace.
+
+2004-01-07 01:52  d00bring
+
+	* TODO: added som TODO items
+
+2004-01-07 01:34  d00bring
+
+	* Makefile, config.mk, rules.mk, src/Makefile: added extra warnings
+	  target
+
+2004-01-07 01:07  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs: removed unused
+	  imports and names
+
+2004-01-07 00:42  d00bring
+
+	* config.mk, doc/api/Makefile: doc/api/Makfile now includes global
+	  config file
+
+2004-01-06 23:46  d00bring
+
+	* doc/api/Makefile: removed DBDirect building
+
+2004-01-06 23:45  chucky
+
+	* src/dbdirect/DbDirect.hs: Documented
+
+2004-01-06 23:42  d00bring
+
+	* INSTALL: added info about requiring HSQL from  2004-01-06
+
+2004-01-06 23:36  d00bring
+
+	* doc/api/Makefile: added dbdirect module to haddock doc makefile
+
+2004-01-06 23:31  d00bring
+
+	* src/Query.hs: added (commented-out) type safe version of exprs.
+	  It requires extra constraints on other functions, so it is not
+	  used right now
+
+2004-01-06 23:29  d00bring
+
+	* src/HDBRec.hs: simplified implementation of showRecRow a little
+
+2004-01-06 22:25  chucky
+
+	* src/dbdirect/DbDirect.hs: VERY small cleanup
+
+2004-01-06 22:21  chucky
+
+	* src/: Makefile, PPrint.hs, PrimQuery.hs, Sql.hs: Finally removed
+	  all dependencies on Leijen's PPrint.hs. This required editing of
+	  PrimQuery and Sql.
+
+2004-01-06 21:46  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: now checks out the 2004-01-06
+	  version of HSQL
+
+2004-01-06 21:28  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: added dirs to all target
+
+2004-01-06 21:27  d00bring
+
+	* INSTALL: added INSTALL file (only requirements and HSQL setup so
+	  far)
+
+2004-01-06 21:18  d00bring
+
+	* src/drivers/odbc/: Makefile, ODBC.hs, genodbcconst.pl, test.hs:
+	  removed obsolete odbc driver files, should use hsql driver
+	  instead
+
+2004-01-06 21:13  chucky
+
+	* src/dbdirect/TestCatalog.hs: Not used
+
+2004-01-06 20:47  d00bring
+
+	* Makefile, config.mk, rules.mk, src/config.mk, src/Makefile,
+	  src/rules.mk, src/dbdirect/Makefile, src/drivers/hsql/Makefile:
+	  fixed compilation against HSQL in sibling directory to
+	  hwt_haskelldb, moved config files
+
+2004-01-06 02:28  chucky
+
+	* src/dbdirect/Catalog.hs:
+	  This isn't needed any more
+
+2004-01-06 02:13  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Bug fixed
+
+2004-01-06 02:07  d00bring
+
+	* src/config.mk: fixed typo that messed up hugs flags
+
+2004-01-06 01:58  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Fixed up the new code. It works beautifully now
+
+2004-01-06 01:52  d00bring
+
+	* src/: config.mk, dbdirect/Makefile, drivers/hsql/Makefile:
+	  simplified makefiles, moved more stuff to config.mk, DbDirect now
+	  does not link with the driver directly
+
+2004-01-06 01:38  d00bring
+
+	* src/: Makefile, drivers/hsql/Makefile: libHDB.a now includers
+	  driver objects
+
+2004-01-06 01:38  d00bring
+
+	* src/drivers/hsql/.cvsignore: added depend files and compiled test
+	  program to .cvsignore
+
+2004-01-06 01:30  chucky
+
+	* src/dbdirect/DbDirect.hs: Created a flashy new system. Haven't
+	  tested it yet, since I need jackass for that
+
+2004-01-06 01:11  d00bring
+
+	* src/: Makefile, config.mk, dbdirect/Makefile,
+	  drivers/hsql/Makefile: moved HSQL build out of source tree
+
+2004-01-05 23:24  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Modules are now named without having the .hs-suffix.
+
+2004-01-05 23:00  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Altered to generate files in a shorter neater format
+
+2004-01-05 23:00  chucky
+
+	* src/dbdirect/Makefile: Renamed the resulting binary from test to
+	  DbDirect
+
+2004-01-05 22:10  chucky
+
+	* src/dbdirect/Makefile: Fixes
+
+2004-01-05 21:54  chucky
+
+	* src/dbdirect/DbDirect.hs: Bug fixes
+
+2004-01-05 21:48  d00bring
+
+	* src/Query.hs: added exports of some construtors
+
+2004-01-05 21:44  d00bring
+
+	* src/Database.hs: added type signature to dbInvoke
+
+2004-01-05 19:31  d00bring
+
+	* Makefile: Fixed syntax error in top-level Makefile
+
+2004-01-05 19:27  d00bring
+
+	* doc/api/Makefile: Haddock API docs are now only rebuilt if source
+	  code files have changes.
+
+2004-01-05 19:13  d00bring
+
+	* doc/api/: .cvsignore, Makefile: fixed up api doc build system
+
+2004-01-05 19:12  d00bring
+
+	* src/Query.hs: Added explicit exports and some type signatures
+
+2004-01-05 19:12  d00bring
+
+	* src/PPrint.hs: reformatted comments for haddock
+
+2004-01-05 16:26  d00bring
+
+	* src/Makefile: added dbdirect target
+
+2004-01-05 16:24  d00bring
+
+	* src/drivers/hsql/: Makefile, Makefile.HSQL: Makefile clean-up
+
+2004-01-05 16:24  d00bring
+
+	* Makefile: added top-level Makefile
+
+2004-01-05 16:24  d00bring
+
+	* doc/: Makefile, api/Makefile: added doc directory
+
+2004-01-05 16:11  chucky
+
+	* src/dbdirect/: DbDirect.hs, Makefile: Fixed (hopefully) the
+	  Makefile and made some small corrections to Dbdirect
+
+2004-01-05 15:47  d00bring
+
+	* src/: Makefile, rules.mk, drivers/hsql/Makefile: cleaned up
+	  Makefiles
+
+2004-01-05 14:59  chucky
+
+	* src/dbdirect/: Catalog.hs, Makefile: Added an experimental
+	  Makefile for DbDirect, and modified Catalog a bit
+
+2004-01-05 12:36  d00bring
+
+	* TODO: Added Build system section
+
+2004-01-05 12:36  d00bring
+
+	* src/Makefile: make clean now descends into driver dirs
+
+2004-01-05 04:29  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: fixed jackass setup
+
+2004-01-05 04:26  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: playing with conditional jackass
+	  stuff
+
+2004-01-05 04:21  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: fixed syntax in conditional
+	  jackass setup
+
+2004-01-05 04:15  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: added conditional jackass setup
+
+2004-01-05 04:12  d00bring
+
+	* src/drivers/hsql/: HSQL-hwt.patch, Makefile, Makefile.HSQL:
+	  Latest CVS HSQL does not need to be patched
+
+2004-01-05 03:58  d00bring
+
+	* src/drivers/hsql/test.hs: Removed unneccessary imports
+
+2004-01-05 03:58  d00bring
+
+	* src/HaskellDB.hs: Added export of <<
+
+2004-01-05 03:57  d00bring
+
+	* src/: Makefile, config.mk, rules.mk, drivers/hsql/Makefile: moved
+	  common rules and variables to separate files
+
+2004-01-05 03:22  chucky
+
+	* src/dbdirect/DbDirect.hs:
+	  Made DbDirect compileable
+
+2004-01-05 02:45  d00bring
+
+	* TODO: added TODO file
+
+2004-01-05 02:33  chucky
+
+	* src/dbdirect/DbDirect.hs: Fixed so that this uses the ODBC
+	  interface, hopefully
+
+2004-01-05 02:13  d00bring
+
+	* src/FieldType.hs: added instance of Show for FieldType
+
+2004-01-05 02:11  d00bring
+
+	* src/: Database.hs, FieldType.hs: added some Haddock doc
+
+2004-01-05 01:52  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: fixed build params for jackass
+
+2004-01-05 01:37  d00bring
+
+	* src/: Database.hs, HDBRec.hs, HDBRecUtils.hs, Query.hs,
+	  drivers/hsql/Common.hs, drivers/hsql/HSQL_driver.hs,
+	  drivers/hsql/test.hs: Changed HRBRec in order to get cleaner
+	  syntax and more compact db descriptions
+
+2004-01-05 01:34  d00bring
+
+	* src/drivers/hsql/HSQL-hwt.patch: updated for new CVS HSQL
+
+2004-01-05 01:31  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: updated for new CVS HSQL
+
+2004-01-05 01:01  d00bring
+
+	* src/drivers/hsql/Makefile: added ghciload target
+
+2004-01-05 00:06  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs: added comments,
+	  commencted out some debug stuff
+
+2004-01-05 00:05  d00bring
+
+	* src/FieldType.hs: Corrected comment typo
+
+2004-01-05 00:04  d00bring
+
+	* src/: Database.hs, HaskellDB.hs: Added exports of tables and
+	  describe
+
+2004-01-04 23:00  d00bring
+
+	* src/drivers/hsql/HSQL-hwt.patch: HSQL now includes the hugs
+	  compatibility patches, fixed inverted comparison for the nullable
+	  field in describe
+
+2004-01-04 04:55  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs, test.hs: Fixed
+	  handling of NULLable fields. Added some more test functions.
+
+2004-01-04 04:42  d00bring
+
+	* src/drivers/hsql/: Makefile, Makefile.HSQL: fixed patching rules
+	  for new unified HSQL patch
+
+2004-01-04 04:17  d00bring
+
+	* src/drivers/hsql/Makefile: Changes hugs targets to load test
+	  program
+
+2004-01-04 04:16  d00bring
+
+	* src/drivers/hsql/: HSQL-desc.patch, HSQL-hugs.patch,
+	  HSQL-hwt.patch: fixed inverted nullable flags, merged HSQL
+	  patches into one
+
+2004-01-04 03:06  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: Set build parameters for jackass
+
+2004-01-04 03:00  d00bring
+
+	* src/.cvsignore: Added dependency files to .cvsignore
+
+2004-01-03 21:14  d00bring
+
+	* src/drivers/hsql/Makefile.HSQL: make clean now does not delete
+	  the HSQL dir
+
+2004-01-03 21:06  d00bring
+
+	* src/Makefile: put FieldType.o in libHSsql.a
+
+2004-01-03 21:03  d00bring
+
+	* src/: Database.hs, FieldType.hs, drivers/hsql/Common.hs,
+	  drivers/hsql/HSQL_driver.hs: Added 'tables' and 'describe' to the
+	  db driver interface
+
+2004-01-03 21:02  d00bring
+
+	* src/drivers/hsql/.cvsignore: experimenting with .cvsignore to
+	  hide HSQL build dir
+
+2004-01-03 21:00  d00bring
+
+	* src/.cvsignore: added .cvsignore to hide .hi files
+
+2004-01-03 11:29  d00bring
+
+	* src/drivers/hsql/.cvsignore: added object and interface file
+	  patterns
+
+2004-01-03 11:23  d00bring
+
+	* src/drivers/hsql/.cvsignore: added .cvsignore
+
+2004-01-02 18:25  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs: added TODO comments
+
+2004-01-02 18:23  d00bring
+
+	* src/drivers/hsql/Makefile: fixed HSQL compilation
+
+2004-01-02 18:23  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs: added expicit
+	  exports and database description functions
+
+2004-01-02 18:10  d00bring
+
+	* src/drivers/hsql/: Makefile, Makefile.HSQL, build-hsql: added
+	  makefile for HSQL
+
+2004-01-02 17:49  d00bring
+
+	* src/drivers/hsql/: HSQL-desc.patch, build-hsql,
+	  hsql-hugs-problems.txt: Created HSQL build script. Added hsql
+	  patch with tables and describe.
+
+2004-01-02 16:36  d00bring
+
+	* src/drivers/hsql/hsql-hugs-problems.txt: added configure options
+	  for building hugs library
+
+2003-12-23 16:22  d00bring
+
+	* src/drivers/hsql/test.hs: Made it work with Hugs (added a type
+	  signature to handleQuery)
+
+2003-12-23 16:13  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs: removed obsolote
+	  unsafeCoerce import
+
+2003-12-23 16:00  d00bring
+
+	* src/drivers/hsql/: HSQL-hugs.patch, HSQL.hsc.diff: Changed HSQL
+	  patch to patch all files
+
+2003-12-23 01:49  d00bring
+
+	* src/drivers/hsql/: Makefile, hsql-hugs-problems.txt: preparing
+	  for hugs HSQL
+
+2003-12-23 00:32  d00bring
+
+	* src/drivers/hsql/HSQL.hsc.diff: updated HSQL patch to be against
+	  CVS version of HSQL. CHnaged to unified diff format (diff -u)
+
+2003-12-09 11:57  d00bring
+
+	* src/drivers/hsql/: HSQL.hsc.diff, hsql-hugs-problems.txt: added
+	  HSQL diff
+
+2003-12-04 17:32  d00bring
+
+	* src/drivers/hsql/: Common.hs, HSQL_driver.hs, Makefile, test.hs:
+	  Added HSQL driver
+
+2003-11-25 23:45  d00bring
+
+	* src/drivers/odbc/ODBC.hs: changed newForiegnPtr use to GHC
+	  version
+
+2003-11-25 23:42  d00bring
+
+	* src/drivers/odbc/ODBC.hs: removed hugs nov 2002 foreign import
+	  type synonym bug work-around
+
+2003-11-25 23:39  d00bring
+
+	* src/drivers/odbc/: Makefile, ODBC.hs: Fixed compilation with Hugs
+	  Nov 2003
+
+2003-11-24 20:37  d00bring
+
+	* src/drivers/odbc/ODBC.hs: Changed a left-over 'Ado'-name to ODBC
+
+2003-11-24 20:27  d00bring
+
+	* src/drivers/odbc/: ODBC.hs, test.hs: describe works now. tables
+	  is not finished.
+
+2003-11-24 19:28  d00bring
+
+	* src/drivers/odbc/: ODBC.hs, test.hs: fiex some typos
+
+2003-11-24 19:18  d00bring
+
+	* src/HDBRecUtils.hs: Added export of hdbMakeRec. Just needed until
+	  we come up with a syntax for making records.
+
+2003-11-24 19:17  d00bring
+
+	* src/drivers/odbc/ODBC.hs: Added describe function. Moved some
+	  duplicate code into execDirect and freeStmt functions.
+
+2003-11-23 14:48  d00bring
+
+	* src/drivers/odbc/ODBC.hs: Changed sizeOf hack to use undefined
+	  instead of error
+
+2003-11-22 16:41  d00bring
+
+	* src/drivers/odbc/Makefile: fixed errors in hugs path variables
+
+2003-11-22 16:35  d00bring
+
+	* src/drivers/odbc/Makefile: fixed some Makefile typos
+
+2003-11-21 09:22  chucky
+
+	* src/dbdirect/DbDirect.hs: added some very small progress
+
+2003-11-20 17:41  d00bring
+
+	* src/drivers/odbc/: ODBC.hs, genodbcconst.pl: started woring on
+	  getting results
+
+2003-11-20 16:04  viblo
+
+	* src/drivers/odbc/: ODBC.hs, test.hs: Even more query hacking
+
+2003-11-20 14:47  viblo
+
+	* src/drivers/odbc/: Makefile, ODBC.hs, genodbcconst.pl: More
+	  hacking on Query
+
+2003-11-19 17:04  chucky
+
+	* src/dbdirect/: Catalog.hs, DbDirect.hs: Added some lost functions
+	  and restructured a bit
+
+2003-11-19 15:07  d00bring
+
+	* src/drivers/odbc/ODBC.hs: started work on query
+
+2003-11-19 12:54  forester
+
+	* src/HDBRecUtils.hs: Updated the exportlist
+
+2003-11-19 01:20  d00bring
+
+	* src/drivers/odbc/: Makefile, test.hs: changed test case to use
+	  HaskellDB
+
+2003-11-19 01:20  d00bring
+
+	* src/drivers/odbc/ODBC.hs: added debugging stuff in
+	  odbcPrimCommand
+
+2003-11-19 01:16  d00bring
+
+	* src/Makefile: Added odbc-driver target
+
+2003-11-19 01:15  d00bring
+
+	* src/HaskellDB.hs: Added export of (#)
+
+2003-11-18 19:58  chucky
+
+	* src/dbdirect/: Catalog.hs, DbDirect.hs, TestCatalog.hs: Fixed
+	  Catalog.hs, and restructured DbDirect.hs and TestCatalog.hs
+
+2003-11-18 12:38  forester
+
+	* src/: HDBRec.hs, HDBRecUtils.hs: [no log message]
+
+2003-11-18 12:02  d00bring
+
+	* src/drivers/odbc/: Makefile, ODBC.hs, test.hs: added HaskellDB
+	  interface to ODBC driver. Added insert/delete/update handling.
+
+2003-11-18 00:42  d00bring
+
+	* src/drivers/odbc/: Makefile, test.hs: modified to work on jackass
+
+2003-11-17 23:54  d00bring
+
+	* src/drivers/odbc/test.hs: added simple test program for ODBC
+	  driver
+
+2003-11-17 23:50  d00bring
+
+	* src/drivers/odbc/: Makefile, ODBC.hs, genodbcconst.pl: First stab
+	  at an ODBC driver. Heavily based on the HSQL ODBC module. Does
+	  not work with hugs as it needs dynamic exceptions.
+
+2003-11-17 23:02  chucky
+
+	* src/dbdirect/DbDirect.hs: Cleaned up and commented somewhat.
+
+2003-11-17 16:23  chucky
+
+	* src/dbdirect/DbDirect.hs: Me and Mary worked on the Database
+	  definition printer. It seems to be working and generating the
+	  right things now.
+
+2003-11-17 13:08  chucky
+
+	* src/dbdirect/DbDirect.hs: [no log message]
+
+2003-11-11 11:51  chucky
+
+	* src/dbdirect/DbDirect.hs: Removed the dependency on Daan Leijens
+	  custom pretty printer, and replaced it with the one from the
+	  Haskell hierarchical libraries.
+
+2003-11-10 14:26  chucky
+
+	* src/dbdirect/: DbDirect.hs, TestCatalog.hs: Added the work done
+	  so far by me and Mary
+
+2003-11-10 14:18  d00bring
+
+	* src/dbdirect/TestCatalog.hs: Added data listing for example table
+
+2003-11-10 14:13  d00bring
+
+	* src/dbdirect/TestCatalog.hs: Updated test catalog to reflect the
+	  test db
+
+2003-11-10 14:00  d00bring
+
+	* src/dbdirect/TestCatalog.hs: Added chucky's version of the test
+	  catalog
+
+2003-11-08 18:44  dp03-7
+
+	* src/Makefile: removed cruft from Makefile
+
+2003-11-08 18:42  d00bring
+
+	* src/Makefile: Added a Makefile that builds HaskellDB for GHC
+
+2003-11-08 18:29  d00bring
+
+	* src/Ado.hs: Removed Ado module
+
+2003-11-08 18:18  d00bring
+
+	* src/: HDBRec.hs, HDBRecUtils.hs: Added our Trex replacement
+	  module
+
+2003-11-08 18:18  d00bring
+
+	* src/: Database.hs, HaskellDB.hs, Query.hs, Sql.hs: Added our
+	  changes for replacing Trex and fixing syntax to compile with GHC
+
+2003-11-08 18:05  dp03-7
+
+	* src/: Ado.hs, Database.hs, HaskellDB.hs, Optimize.hs, PPrint.hs,
+	  PrimQuery.hs, Query.hs, Sql.hs, dbdirect/Catalog.hs,
+	  dbdirect/DbDirect.hs: Imported original HaskellDB sources
+
+2003-11-08 18:05  dp03-7
+
+	* src/: Ado.hs, Database.hs, HaskellDB.hs, Optimize.hs, PPrint.hs,
+	  PrimQuery.hs, Query.hs, Sql.hs, dbdirect/Catalog.hs,
+	  dbdirect/DbDirect.hs: Initial revision
+

@@ -1,0 +1,108 @@
+The HaskellDB bug tracker can be found at:
+
+http://sourceforge.net/tracker/?group_id=101095&atid=629040
+
+This is a partial list of known problems in HaskellDB:
+
+- Character escapes are not compatible with SQLite.
+
+- There is currently no boolean type in HaskellDB. Some databases 
+  implement this best using tinyint, some using boolean, and so on. The 
+  "standard" portable way of doing this seems to be using tinyint, but 
+  should this be something we decide? If we do, tinyint cannot be used for 
+  anything else
+
+- Inserting values into TIME columns in PostgreSQL does not work,
+  since PostgreSQL doesn't like getting date and time as input to a 
+  TIME column. We're working on a general solution to date handling issues.
+
+- When using PostgreSQL with HSQL ODBC and wxHaskell, TIMESTAMP
+  columns are treated as String fields. This seems to be a problem
+  with the PostgreSQL ODBC driver.
+
+- wxHaskell with PostgreSQL (at least) gives "user error" when trying to 
+  get query results containing a CalendarTime value.
+
+- Since SQLite is untyped, all columns in SQLite databases are treated
+  as having type String, even if some other type was used when the
+  table was created.
+
+- When compiling DbDirect-generated code for tables with many columns,
+  GHC may need the -fcontext-stackXX flag, where XX needs to be at
+  least around the number of columns in the largest table. Chucky tried
+  to fix this by adding it as an OPTIONS pragma at the top of every
+  generated file, but it turns out this is not currently supported by
+  GHC. The code remains in case the GHC team starts to support it.
+
+- When using lazyQuery with the MySQL driver and running a second
+  query without retrieving all data from the first, you get the 
+  error "Commands out of sync;  You can't run this command now".
+
+- WXHaskell _REQUIRES_ that all changes that we want committed are wrapped 
+  in transactions. We currently do not do this, it is up to the user.
+
+- There is no way to do grouping explicitly, and tricking HaskellDB
+  into doing the right thing is not always easy. Currently, if a
+  project contains aggregate expressions, the results are grouped
+  by all non-aggregate fields in the project.
+
+- The wxHaskell backend doesn't work in Hugs.
+
+- MySQL does case-insensitive comparison with LIKE, PostgreSQL does 
+  case-sensititve. PostgreSQL uses ILIKE for case-insensitive
+  matching. We need to make 'like' do the same for all backends.
+  Reported by shapr.
+
+- The following features are currently not supported:
+  * stored procedures
+  * natural joins (just use restrict)
+  * db-specific types and functions
+  * db-specific syntax (for example, only TOP is supported to limit
+    the number of results)
+  * db-specific quoting rules
+  * db-specific restrictions on column and database names
+  * db-specific table options (such as the table type in MySQL)
+  * getting the value inserted into an auto_increment column.
+
+- PostgreSQL does not accept inserting default values into non-null
+  columns which do not have a set default value.
+
+- Tables in unions may get the same table alias, which Not A Good
+  Thing. This is a problem i Sql.ppSql.
+
+- When querying a Microsoft Access database using the ODBC driver,
+  you can get the error "The field is too small to accept the 
+  amount of data you attempted to add." if the query includes a
+  field of type Memo. This is because HaskellDB queries
+  use SELECT DISTINCT, which Access does not like on Memo fields
+  for some reason. Reported by Esa Ilari Vuokko on 2004-04-27.
+
+- When getting results from a TIMESTAMP column from Microsoft Access
+  under wxHaskell, the ODBC driver gives the error:
+  "[Microsoft][ODBC Driver Manager] Program type out of range".
+  The only know workaround is to hack the DBDirect-generated
+  table layout to prented that the field has type String and use
+  the date as a string.
+  Reported by Esa Ilari Vuokko on 2004-04-27.
+
+- Dates before 1970 are not handled correctly. 
+  Reported by Mary on 2004-05-02.
+
+- When using HSQL ODBC with MySQL, AUTO_INCREMENT fields 
+  are reported as nullable.
+
+- When using HSQL ODBC with PostgreSQL, the result of a SUM() is
+  reported as SqlVarChar 19, which means that it can't be treated 
+  as a number.
+
+- If a relation has two fields with the same name, only one of the values
+  can be accessed. Reported by Jeremy Shaw on 2004-05-04.
+
+- Some aggregate expressions (_max, _min etc.) return NULL when the
+  relation has now rows. This is not reflected in their type, which
+  can cause runtime errors. Reported by Gregory Wright on 2004-05-10.
+
+- It is possible to set fields in an update that are not present in the
+  table being changed. The code compiles, but fails at runtime. This bug
+  was present in the original haskellDB and was found by Bjorn on
+  2004-05-11.

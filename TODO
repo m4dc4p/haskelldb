@@ -1,0 +1,80 @@
+Things that need to be done, in no particular order:
+
+- Code:
+  * Handle dates correctly. 
+    - Handle dates before 1970.
+    - Distinguish between date / time / date & time.
+  * Overload operators so that when they take a maybe, they always 
+    return maybe, i.e. .<. may give NULL when one of the arguments
+    is NULL. Suggested by eivuokko.
+  * Support like, cat etc. on nullable arguments.
+  * Support all SQL datatypes
+  * make SQL generation tweakable by the DB driver, since different
+    DBs have different SQL syntax, for example TOP / LIMIT.
+    Added by Bjorn, suggested by Shae Erisson.
+  * Figure out some intutive way of doing grouping.
+  * Fix semantics of lazyQuery.
+  * Fix table alias clashes with binary relops.
+  * Allow using queries in expressions.
+  * Change types of aggregate expressions that can return NULL when the
+    table is empty to reflect the nullability.
+  * Fix typing bug where update does not check that all fields are in the
+    table (probably by adding a subtyping relation on records).
+  (* strictness checking. In other words: optimize the code to sort out what
+     types and expressions are evaluated strictly, and explicitly tell the
+     compiler that they are strict)
+  (* maybe make it work on multi-processor systems using Concurrent Haskell?)
+  (* try to compile with nhc98. It would be nice to support all three 
+     available Haskell compilers)
+  (* Add features for modifying tables /Added by Bjorn,
+     suggested by Shae Erisson)
+  (* use template haskell to compile queries to SQL at compile time 
+     /Added by Bjorn, thanks to Anders Carlsson for inspiration )
+
+- DbDirect 
+  * Set sensible default values for all NOT NULL columns.
+  (* add optional command line argument for selecting which
+  tables to generate code for)
+
+- Installation
+  * Install targets should install DbDirect and the documentation.
+  * Packages (separate binary packages for Hugs and GHC?))
+    - Source tarball
+    - Linux binary and source RPMs (debs, ebuild?)
+    - Windows installer (MSI?)
+
+- Build system 
+
+- Database drivers
+
+  * Add more drivers:
+     - Oracle (http://cvs.sf.net/viewcvs.py/haskell-libs/libs/takusen/)
+
+  * wxHaskell:
+    - Figure out how to handle wrapping wxHaskell execute calls
+      in transactions intelligently.
+    - Make dbQuery lazy.
+    - Make it work in Hugs.
+
+  * SQLite:
+    - Make SQLite report more useful types. Make HSQL parse the original
+      create query from the meta-table?
+
+- Documentation
+  * Haddock comments on all exported functions, classes and types
+  * Tutorial
+  * Example programs
+
+- Testing
+  * Test on Windows, Solaris, Linux, Mac OS X
+  * Test against different DB systems, at least MySQL, PostgreSQL,
+    Oracle
+  * Test under GHC and Hugs
+  * Test all functions
+  * Test all datatypes
+  * Test NULL and NOT NULL fields
+
+- Misc
+  * Get an allocated name in the hierarchical library namespace 
+    (Database.HaskellDB?)
+
