@@ -55,7 +55,7 @@ class SQLShow a where
     sshow :: a -> String
 
 instance SQLShow FieldType where
-    sshow StringT = "varchar"
+    sshow StringT = "varchar(255)"
     sshow IntT = "int"
     sshow IntegerT = "bigint"
     sshow DoubleT = "double precision"
