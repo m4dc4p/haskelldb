@@ -1,3 +1,7 @@
+- When using non-ascii characters the string escaping sometimes gives a badly
+  escaped string to the backend. This can result in data which can not be
+  removed using haskelldb.
+
 - There is currently no boolean type in HaskellDB. Some databases 
   implement this best using tinyint, some using boolean, and so on. The 
   "standard" portable way of doing this seems to be using tinyint, but 

@@ -12,6 +12,8 @@ autoconf
 make
 make install
 
+Building RPM-package:
+rpmbuild -ta haskelldb-....tar.gz
 
 Requirements:
 
