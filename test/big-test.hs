@@ -7,16 +7,106 @@ import System.Locale
 import System.IO.Unsafe
 
 import Database.HaskellDB
-import Database.HaskellDB.HDBRec
-import Database.HaskellDB.Query
+import Database.HaskellDB.Database
+import Database.HaskellDB.DBSpec
+import Database.HaskellDB.FieldType
 
 import TestConnect
 
-import BigTestDB.Hdb_test_t1
-import BigTestDB.Hdb_test_t2
+import Dp037.Hdb_test_t1
+import Dp037.Hdb_test_t2
 
 now = unsafePerformIO (getClockTime >>= toCalendarTime)
 
+
+t1 = TInfo {tname = "hdb_test_t1",
+	    cols = [CInfo {cname = "t1f01",
+		      descr = (StringT, True)},
+		    CInfo {cname = "t1f02",
+			   descr = (StringT, False)},
+		    CInfo {cname = "t1f03",
+			   descr = (StringT, True)},
+		    CInfo {cname = "t1f04",
+			   descr = (StringT, False)},
+		    CInfo {cname = "t1f05",
+			   descr = (IntT, True)},
+		    CInfo {cname = "t1f06",
+			   descr = (IntT, False)},
+		    CInfo {cname = "t1f07",
+			   descr = (DoubleT, True)},
+		    CInfo {cname = "t1f08",
+			   descr = (DoubleT, False)},
+		    CInfo {cname = "t1f09",
+			   descr = (DoubleT, True)},
+		    CInfo {cname = "t1f10",
+			   descr = (DoubleT, False)},
+		    CInfo {cname = "t1f11",
+			   descr = (IntT, True)},
+		    CInfo {cname = "t1f12",
+			   descr = (IntT, False)},
+		    CInfo {cname = "t1f13",
+			   descr = (DoubleT, True)},
+		    CInfo {cname = "t1f14",
+			   descr = (DoubleT, False)},
+		    CInfo {cname = "t1f15",
+			   descr = (DoubleT, True)},
+		    CInfo {cname = "t1f16",
+			   descr = (DoubleT, False)},
+		    CInfo {cname = "t1f17",
+			   descr = (DoubleT, True)},
+		    CInfo {cname = "t1f18",
+			   descr = (DoubleT, False)},
+		    CInfo {cname = "t1f19",
+			   descr = (CalendarTimeT, True)},
+		    CInfo {cname = "t1f20",
+			   descr = (CalendarTimeT, False)}]}
+
+t2 = TInfo {tname = "hdb_test_t2",
+	    cols = [CInfo {cname = "t2f01",
+			   descr = (StringT, True)},
+		    CInfo {cname = "t2f02",
+			   descr = (StringT, False)},
+		    CInfo {cname = "t2f03",
+			   descr = (StringT, True)},
+		    CInfo {cname = "t2f04",
+			   descr = (StringT, False)},
+		    CInfo {cname = "t2f05",
+			   descr = (IntT, True)},
+		    CInfo {cname = "t2f06",
+			   descr = (IntT, False)},
+		    CInfo {cname = "t2f07",
+			   descr = (DoubleT, True)},
+		    CInfo {cname = "t2f08",
+			   descr = (DoubleT, False)},
+		    CInfo {cname = "t2f09",
+			   descr = (DoubleT, True)},
+		    CInfo {cname = "t2f10",
+			   descr = (DoubleT, False)},
+		    CInfo {cname = "t2f11",
+			   descr = (IntT, True)},
+		    CInfo {cname = "t2f12",
+			   descr = (IntT, False)},
+		    CInfo {cname = "t2f13",
+			   descr = (DoubleT, True)},
+		    CInfo {cname = "t2f14",
+			   descr = (DoubleT, False)},
+		    CInfo {cname = "t2f15",
+			   descr = (DoubleT, True)},
+		    CInfo {cname = "t2f16",
+			   descr = (DoubleT, False)},
+		    CInfo {cname = "t2f17",
+			   descr = (DoubleT, True)},
+		    CInfo {cname = "t2f18",
+			   descr = (DoubleT, False)},
+		    CInfo {cname = "t2f19",
+			   descr = (CalendarTimeT, True)},
+		    CInfo {cname = "t2f20",
+			   descr = (CalendarTimeT, False)}]}
+
+dbinfo :: DBInfo 
+dbinfo = DBInfo {dbname = "BigTestDB", 
+		 opts = DBOptions {useBString = False}, 
+		 tbls = [t1, t2]}
 
 data1 = [(
 	 t1f01 << constant (Just "bepa") #
@@ -173,6 +263,9 @@ testOps db =
 
 runTests db =
     do
+    dropTable db "hdb_test_t1"
+    dropTable db "hdb_test_t2"
+    dbSpecToDatabase db dbinfo
     insertData db
     putStrLn "After INSERT:"
     showAll db
@@ -186,5 +279,8 @@ runTests db =
     deleteData db
     putStrLn "After DELETE:"
 
-main = argConnect runTests
+startsWith x y = take (length y) x == y
+
+main = do
+       argConnect runTests
 --       putStrLn $ unlines $ [ v "" | (_,v) <- showRecRow data0]

@@ -5,7 +5,7 @@ include $(TOP_DIR)/config.mk
 PROG = hardcoded-layout-simple-query join-and-aggr html-users-list \
        current-time date-types \
        insert-update-delete test-bounded transaction lazy \
-       higher-order
+       higher-order big-test
 
 .PHONY: all
 
