@@ -1,3 +1,592 @@
+2004-03-31 21:16  d00bring
+
+	* test/: Makefile, big-test-create-tables.hs, big-test.hs, lazy.hs,
+	  run-all-tests, run-big-test: Cleaned up test programs. Changed
+	  big-test to use dbspec.
+
+2004-03-31 21:09  d00bring
+
+	* NEWS: Added 0.7 release.
+
+2004-03-31 20:54  d00bring
+
+	* TODO: Removed DbDirect multiple driver TODO.
+
+2004-03-31 20:51  d00bring
+
+	* BUGS: Removed Hugs not working with wxHaskell enabled.
+
+2004-03-31 20:49  d00bring
+
+	* INSTALL: Fixed typos, added SQLite and wxHaskell info.
+
+2004-03-31 20:45  d00bring
+
+	* aclocal.m4, configure.ac: Fixed disabling ghc/hugs
+
+2004-03-31 20:23  d00bring
+
+	* configure.ac: Changed version to 0.7.
+
+2004-03-31 20:09  d00bring
+
+	* Makefile: Fixed install targets for separate compilation dirs.
+
+2004-03-31 20:06  d00bring
+
+	* config.mk.in, configure.ac, rules.mk, src/Makefile.ghc,
+	  src/Makefile.hugs, src/common.mk: Separate module tests in
+	  configure.ac for ghc and hugs.
+
+2004-03-31 19:04  d00bring
+
+	* config.mk.in, src/Makefile, src/Makefile.ghc, src/Makefile.hugs,
+	  src/common.mk, src/DBDirect/Makefile: Made separate build dirs
+	  for ghc and hugs.
+
+2004-03-31 16:48  viblo
+
+	* doc/api/Makefile: Added the wx-driver to the doc generation
+
+2004-03-31 11:25  chucky
+
+	* src/DBSpec/DBSpecToDBDirect.hs: Cosmetic changes
+
+2004-03-31 01:12  viblo
+
+	* src/: BoundedString.hs, DBSpec.hs, Database.hs, FieldType.hs,
+	  HDBRecUtils.hs, Sql.hs, drivers/hsql/MySQL.hs,
+	  drivers/hsql/ODBC.hs, drivers/hsql/SQLite.hs, DBSpec/DBInfo.hs,
+	  DBSpec/DBSpecToDBDirect.hs, DBSpec/DBSpecToDatabase.hs,
+	  DBSpec/PPHelpers.hs: Changed to non-portable in all files
+
+2004-03-29 17:48  forester
+
+	* configure.ac: Bug in configure disabled hsql if hugs was disable
+
+2004-03-29 14:03  chucky
+
+	* src/DBSpec.hs, src/DBSpec/DBInfo.hs,
+	  src/DBSpec/DBSpecToDBDirect.hs, test/dbspec.hs: DBInfos can now
+	  be pretty printed
+
+2004-03-29 09:41  chucky
+
+	* src/: DBSpec/DBSpecToDatabase.hs, drivers/hsql/Common.hs,
+	  drivers/wxhaskell/WX.hs: [no log message]
+
+2004-03-29 09:41  chucky
+
+	* src/: Database.hs, GenericConnect.pphs, Sql.hs: Fixed various
+	  bugs that Björn found
+
+2004-03-28 16:20  forester
+
+	* configure.ac: tweaking configure.ac, no needs for absolute path
+	  whatsoever. It absolute path for ghc is given, check for ghc-pkg
+	  in same path first
+
+2004-03-28 13:05  forester
+
+	* configure.ac: If HSQL does not support HUGS, don't build for HUGS
+
+2004-03-27 19:13  forester
+
+	* configure.ac: No need for explicit path when using
+	  --with-ghc/hugs Maybe not the best solution
+
+2004-03-26 00:20  d00bring
+
+	* BUGS, FIXED, TODO: Removed fromNull and _case from BUGS and TODO
+
+2004-03-25 23:43  d00bring
+
+	* TODO, src/drivers/wxhaskell/WX.hs: Added TODO about making the
+	  wxhaskell driver lazy
+
+2004-03-25 23:40  d00bring
+
+	* src/Query.hs: removed obsolote comment about showing of True and
+	  False
+
+2004-03-25 23:35  d00bring
+
+	* src/Query.hs, test/null-and-case.hs, src/HaskellDB.hs,
+	  src/PrimQuery.hs: Added _case and fromNull constructs.
+
+2004-03-25 21:44  d00bring
+
+	* config.mk.in, src/Makefile, src/DBSpec/Makefile,
+	  src/drivers/hsql/Makefile, src/drivers/wxhaskell/Makefile:
+	  Cleaned up and simplified build system.
+
+2004-03-25 21:39  chucky
+
+	* src/DBSpec/: DBInfo.hs, DBSpecToDatabase.hs: grr more bugs
+
+2004-03-25 21:21  chucky
+
+	* src/DBSpec/DBInfo.hs: Fixed a stupid parse error
+
+2004-03-25 21:10  chucky
+
+	* src/DBSpec/: DBInfo.hs, DBSpecToDBDirect.hs, DBSpecToDatabase.hs:
+	  Hopefully fixed circular deps this time
+
+2004-03-25 20:57  chucky
+
+	* src/DBSpec/: DBInfo.hs, DBSpecToDatabase.hs, DatabaseToDBSpec.hs,
+	  Makefile: [no log message]
+
+2004-03-25 20:57  chucky
+
+	* src/DBSpec.hs: Fixed circular dependencies, I hope
+
+2004-03-25 09:01  d00bring
+
+	* test/: Makefile, TestConnect.hs, TestConnect.pphs: Changed
+	  TestConnect to use GenericConnect.
+
+2004-03-25 08:53  d00bring
+
+	* test/: big-test-create-tables.hs, big-test.hs, current-time.hs,
+	  date-types.hs, hardcoded-layout-simple-query.hs, higher-order.hs,
+	  html-users-list.hs, insert-update-delete.hs, join-and-aggr.hs,
+	  test-bounded.hs, top.hs, transaction.hs: Changed !. to ! in all
+	  test programs
+
+2004-03-24 21:48  d00bring
+
+	* BUGS, TODO: added CASE and fromNullable problems
+
+2004-03-24 18:27  d00bring
+
+	* src/Database.hs, src/drivers/hsql/Common.hs,
+	  src/drivers/wxhaskell/WX.hs, test/current-time.hs: Changed type
+	  of query results to Row r (using HDBRecRow was an ugly hack)
+
+2004-03-24 12:19  chucky
+
+	* test/dbspec.hs: Used for testing generating from database
+
+2004-03-24 12:15  chucky
+
+	* src/Sql.hs: oops forgot something
+
+2004-03-24 12:14  chucky
+
+	* src/: FieldType.hs, Sql.hs: Fixed a bug in create and drop table
+
+2004-03-24 11:54  chucky
+
+	* src/GenericConnect.pphs: Fixed a bug
+
+2004-03-24 11:13  chucky
+
+	* src/: HaskellDB.hs, Makefile: GenericConnect added
+
+2004-03-24 11:13  chucky
+
+	* src/DBDirect/: DBDirectCommon.pphs, DBDirect.hs, Makefile: [no
+	  log message]
+
+2004-03-24 11:13  chucky
+
+	* src/GenericConnect.pphs: Rearranged and moved. This is the old
+	  DBDirectCommon, but it is now part of the standard lib
+
+2004-03-24 10:31  chucky
+
+	* src/DBSpec.hs: DBSpec.hs now exports everything useful in its
+	  submodules
+
+2004-03-24 10:30  d00bring
+
+	* src/Database.hs: fixed stupid constraint problem in !.
+
+2004-03-24 10:25  chucky
+
+	* src/DBSpec/DBSpecToDatabase.hs: Ready for testing?
+
+2004-03-23 22:49  d00bring
+
+	* src/: Database.hs, HDBRec.hs, HDBRecUtils.hs, Query.hs,
+	  drivers/hsql/Common.hs, drivers/wxhaskell/WX.hs: Overloaded ! to
+	  selection on both relations in a query and query results.
+
+2004-03-23 20:13  d00bring
+
+	* configure.ac: more configure clean-up
+
+2004-03-23 20:08  d00bring
+
+	* config.mk.in, configure.ac, test/run-big-test: some clean-up of
+	  configure.ac. added BUILD_DOC variable.
+
+2004-03-23 19:12  d00bring
+
+	* configure.ac: Removed all the old cruft for looking for libraries
+	  and headers.
+
+2004-03-22 23:54  d00bring
+
+	* BUGS: added list of unsupported features
+
+2004-03-22 23:45  d00bring
+
+	* BUGS, FIXED: Moved error catching bug from BUGS to FIXED
+
+2004-03-22 23:38  d00bring
+
+	* test/transaction.hs: catch errors from all db functions
+
+2004-03-22 23:37  d00bring
+
+	* src/drivers/: hsql/Common.hs, wxhaskell/WX.hs: Fixed drivers to
+	  catch exceptiosn in all top-level calls to driver functions
+
+2004-03-22 23:24  d00bring
+
+	* src/DBSpec/DBSpecToDatabase.hs: Changed mapM to mapM_ to fix a
+	  type error.
+
+2004-03-22 23:03  d00bring
+
+	* BUGS: added top-level-only HSQL error catching
+
+2004-03-22 21:49  d00bring
+
+	* TODO: added some things from BUGS to the TODO
+
+2004-03-22 21:32  d00bring
+
+	* test/: big-test-create-tables.hs, big-test.hs: enabled timestamp
+	  tests
+
+2004-03-22 21:26  d00bring
+
+	* BUGS: added info about wxhaskell not working in Hugs
+
+2004-03-22 17:25  chucky
+
+	* src/DBSpec/DBSpecToDatabase.hs: incremental change. Still no
+	  useful code
+
+2004-03-22 16:48  d00bring
+
+	* BUGS: Added info about GROUP BY problem.
+
+2004-03-22 16:40  d00bring
+
+	* test/: Makefile, higher-order.hs: Added test program that uses a
+	  higher-order query.
+
+2004-03-22 16:40  d00bring
+
+	* src/Optimize.hs: Fixed optimization that put aggregate
+	  expressions in restricts.
+
+2004-03-22 16:08  d00bring
+
+	* BUGS: added aggregates in restrict problem
+
+2004-03-22 16:06  chucky
+
+	* src/drivers/wxhaskell/WX.hs: [no log message]
+
+2004-03-22 16:06  chucky
+
+	* src/: Database.hs, Sql.hs, DBSpec/DBSpecToDatabase.hs,
+	  drivers/hsql/Common.hs: Added support for creating and dropping
+	  databases and tables
+
+2004-03-22 16:02  chucky
+
+	* BUGS: Added a bug in the wxHaskell driver
+
+2004-03-22 13:16  chucky
+
+	* TODO: We've done some things on the list now, most notably
+	  wxHaskell support
+
+2004-03-22 13:13  chucky
+
+	* src/DBSpec/DBSpecToDatabase.hs: [no log message]
+
+2004-03-22 13:13  chucky
+
+	* src/FieldType.hs: Incremental changes, creating databases.
+	  Nothing that works yet
+
+2004-03-20 21:24  d00bring
+
+	* BUGS: added wx to drivers that think postgre timestamps are
+	  strings
+
+2004-03-20 20:47  chucky
+
+	* src/DBSpec.hs:
+	  Fixed a stupid bug. We never generated Bounded Strings
+
+2004-03-20 20:41  chucky
+
+	* src/: DBDirect/DBDirect.hs, DBDirect/DBDirectCommon.pphs,
+	  DBSpec/DBSpecToDBDirect.hs, DBSpec/DatabaseToDBSpec.hs: [no log
+	  message]
+
+2004-03-20 20:41  chucky
+
+	* src/DBSpec.hs:
+	  Added WxHaskell support, and also made DBSpec generate better
+	  specifications (that always include Bounded Strings, whether we
+	  want them or not, they are stripped if we want to when running
+	  the new function finalizeSpec
+
+2004-03-20 16:37  d00bring
+
+	* configure.ac: fixed removal of package flags
+
+2004-03-20 16:33  d00bring
+
+	* configure.ac: add -package flag before looking for packages
+
+2004-03-20 15:52  d00bring
+
+	* INSTALL, config.mk.in, configure.ac, haskelldb.pkg.in,
+	  src/Makefile, src/DBSpec/DatabaseToDBSpec.hs,
+	  src/drivers/hsql/Makefile, src/drivers/wxhaskell/Makefile,
+	  src/drivers/wxhaskell/WX.hs, test/Makefile,
+	  test/TestConnect.pphs, test/join-and-aggr.hs: Added wxHaskell
+	  driver. Removed some cruft from configure.ac.
+
+2004-03-19 14:45  chucky
+
+	* src/: DBDirect/DBDirect.hs, DBDirect/Makefile, DBSpec/DBSpec.hs,
+	  DBSpec/DBSpecToDBDirect.hs, DBSpec/Makefile: [no log message]
+
+2004-03-19 14:44  chucky
+
+	* src/: DBSpec.hs, FieldType.hs, Makefile: Fixed some bugs, and
+	  added preliminary code for generating DBSpecs
+
+2004-03-18 13:46  chucky
+
+	* src/DBDirect/DBDirectCommon.pphs:
+	  Corrected a minor bug, it did not accept "postgre" as valid input
+
+2004-03-17 01:14  d00bring
+
+	* BUGS: added join without restrict bug
+
+2004-03-16 22:25  d00bring
+
+	* BUGS, TODO, src/Database.hs, src/drivers/hsql/Common.hs: Made
+	  row-retrieval lazy in the HSQL driver.
+
+2004-03-16 22:22  d00bring
+
+	* test/: Makefile, lazy.hs: added test for lazyQuery
+
+2004-03-16 18:43  d00bring
+
+	* INSTALL: changed HSQL requirement to 1.2.1
+
+2004-03-15 15:06  chucky
+
+	* src/DBDirect/: DBDirect.hs, DBDirectCommon.pphs, Makefile:
+	  Readded the SQLite support that I almost söp bort. Also, fixed
+	  command line arguments so that DBDirect now doesn't care about
+	  case
+
+2004-03-15 15:05  chucky
+
+	* doc/api/Makefile: Generating docs for DBSpec
+
+2004-03-15 14:37  d00bring
+
+	* src/DBDirect/Makefile: fixed building of DBDirect when doing make
+	  all
+
+2004-03-15 14:11  chucky
+
+	* src/DBSpec/: DBSpecToDBDirect.hs, DatabaseToDBSpec.hs: [no log
+	  message]
+
+2004-03-15 14:11  chucky
+
+	* src/DBDirect/DBDirectCommon.pphs: fixed some errors since I
+	  uploaded the wrong files
+
+2004-03-15 14:06  chucky
+
+	* src/Makefile: New makefile for the new DBDirect and DBSpec
+	  additions
+
+2004-03-15 14:05  chucky
+
+	* src/dbdirect/: DbDirect.hs, DbDirectCommon.pphs, Makefile: New
+	  structure for DBDirect
+
+2004-03-15 14:04  chucky
+
+	* src/DBDirect/DBDirectCommon.hs: added by mistake
+
+2004-03-15 14:03  chucky
+
+	* src/DBSpec/SpecTest.hs: Added by mistake
+
+2004-03-15 13:44  chucky
+
+	* src/DBSpec/DBSpecToDBDirect.hs: readded. :)
+
+2004-03-15 13:43  chucky
+
+	* src/DBSpec/DBSpecToDBDirect.hs: moived
+
+2004-03-15 13:39  chucky
+
+	* src/DBDirect/DBDirect.hs: Almost lost a file!
+
+2004-03-15 12:38  chucky
+
+	* src/DBSpec/: DBSpec.hs, DBSpecToDBDirect.hs, DBSpecToDatabase.hs,
+	  DatabaseToDBSpec.hs, Makefile, PPHelpers.hs, SpecTest.hs: Same as
+	  5 secs ago!
+
+2004-03-15 12:38  chucky
+
+	* src/DBDirect/: DBDirectCommon.hs, DBDirectCommon.pphs, Makefile:
+	  restructuring, documenting. Almost done, just need some more
+	  testing!
+
+2004-03-15 10:35  d00bring
+
+	* test/big-test.hs: Print more messages
+
+2004-03-15 10:34  d00bring
+
+	* src/Query.hs: Changed showConstant for Bools to TRUE/FALSE
+
+2004-03-12 01:12  viblo
+
+	* TODO: Added def. values & auto increment-problem
+
+2004-03-10 10:21  d00bring
+
+	* TODO: Added TODO about ading a module that contins all the
+	  imports that DbDirect-generated files need
+
+2004-03-09 01:57  d00bring
+
+	* aclocal.m4, configure.ac: fixed status messages in ghc version
+	  checking
+
+2004-03-09 01:44  d00bring
+
+	* aclocal.m4, configure.ac: added check for ghc version
+
+2004-03-08 03:20  d00bring
+
+	* src/drivers/hsql/SQLite.hs: Added the SQLite module, which should
+	  have been in the commit of stepcut's patch yesterday, but which I
+	  forgot to add.
+
+2004-03-08 02:59  d00bring
+
+	* TODO, src/Database.hs, src/HDBRecUtils.hs, src/Query.hs,
+	  src/dbdirect/DbDirect.hs, test/current-time.hs,
+	  test/hardcoded-layout-simple-query.hs: Removed unused r type
+	  parameter to Attr.
+
+2004-03-08 02:48  d00bring
+
+	* src/HDBRec.hs, src/HDBRecUtils.hs, src/dbdirect/DbDirect.hs,
+	  test/current-time.hs, test/hardcoded-layout-simple-query.hs:
+	  Removed HDBRecEntry type class, it does not seem to be neccessary
+	  any more.
+
+2004-03-08 02:47  d00bring
+
+	* TODO: removed SQLite driver TODO, added SQLite typing probelm
+
+2004-03-08 02:17  d00bring
+
+	* FIXED: added stepcuts patches to FIXED
+
+2004-03-08 02:13  d00bring
+
+	* TODO: Added aggregate functions in restrict problem.
+
+2004-03-06 23:17  d00bring
+
+	* BUGS: added info about SQLite-untypedness
+
+2004-03-06 23:04  d00bring
+
+	* AUTHORS: Added Jeremy Shaw as a contributor
+
+2004-03-06 22:55  d00bring
+
+	* config.mk.in, configure.ac, src/dbdirect/DbDirect.hs,
+	  src/dbdirect/DbDirectCommon.pphs, test/TestConnect.pphs,
+	  test/big-test-create-tables.hs: Added Jeremy Shaw's SQLite patch.
+	  Modified it to support the changes to Database from this morning.
+
+2004-03-06 21:28  d00bring
+
+	* Makefile: Added Makefile patch from Jeremy Shaw for makeing
+	  distclean delete more stuff. Removed configure from the things to
+	  delete, since configure is included in in release distributions,
+	  and we do not want the user to have to rebuild that.
+
+2004-03-06 16:40  d00bring
+
+	* src/: Database.hs, drivers/hsql/Common.hs: Changed name of
+	  ValueFuncs to GetInstances. Cleaned up hsql driver.
+
+2004-03-06 15:39  d00bring
+
+	* FIXED, TODO: removed TODO items concerning the Database type and
+	  Read/Show for records and added them to FIXED
+
+2004-03-06 14:57  d00bring
+
+	* src/Database.hs, src/HDBRec.hs, src/HDBRecUtils.hs,
+	  src/HaskellDB.hs, src/dbdirect/DbDirect.hs,
+	  src/dbdirect/DbDirectCommon.pphs, src/drivers/hsql/Common.hs,
+	  src/drivers/hsql/MySQL.hs, src/drivers/hsql/ODBC.hs,
+	  src/drivers/hsql/PostgreSQL.hs, test/TestConnect.pphs,
+	  test/current-time.hs, test/hardcoded-layout-simple-query.hs:
+	  Removed type parameters from the Database type. Changed dbQuery
+	  to return records instead of a driver dependent type. Changed
+	  dbQuery in the HSQL driver to support this. Removed the Row
+	  class. Fixed Show and Read instances for records. Changed HSQL
+	  connection functions to take a Database -> IO a instead of HSQL
+	  -> IO a.
+
+2004-03-03 22:20  viblo
+
+	* doc/api/Makefile: changed the descript path
+
+2004-03-03 22:19  viblo
+
+	* doc/descript: prologue file for the haddoc documentation
+
+2004-03-03 21:30  chucky
+
+	* configure.ac:
+	  Modified version to 0.6
+
+2004-03-03 21:27  chucky
+
+	* ANNOUNCE:
+	  Latest announcement made
+
+2004-03-03 21:26  chucky
+
+	* ChangeLog:
+	  Added a ChangeLog to the CVS. Generated automatically.
+
 2004-03-03 21:09  chucky
 
 	* INSTALL, NEWS:
