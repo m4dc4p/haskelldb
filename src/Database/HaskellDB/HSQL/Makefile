@@ -24,7 +24,7 @@ $(SRC): $(SRC_HERE)
 	cp -f $^ $(sort $(dir $@))
 
 clean:
-	-rm -f .depend .depend.bak
+	-rm -f *.o *.hi .depend .depend.bak
 
 .depend: $(SRC)
 

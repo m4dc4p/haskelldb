@@ -62,7 +62,7 @@ $(DATABASE_SRC): $(notdir $(DATABASE_SRC))
 # cleaning up
 
 clean: 
-	-rm -f .depend .depend.bak
+	-rm -f *.o *.hi .depend .depend.bak
 
 # dependencies
 

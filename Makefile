@@ -1,6 +1,6 @@
 TOP_DIR = .
 
-SUBDIRS = src doc
+SUBDIRS = src doc test
 
 include $(TOP_DIR)/rules.mk
 
