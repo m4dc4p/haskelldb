@@ -13,7 +13,7 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.56 $
+-- $Revision: 1.57 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -24,7 +24,7 @@ module Database.HaskellDB.Query (
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
 	     , (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
-             , (<<)
+             , (<<), (<<-)
 	      -- * Function declarations
 	     , runQuery, runQueryRel
 	     , attribute, project, baseTable
@@ -58,7 +58,7 @@ import System.Time (CalendarTime)
 infix   8 `like`
 infixl  7 .*., ./., .%.
 infixl  6 .+.,.-.
-infix   6 <<
+infix   6 <<, <<-
 infixr  5 .++.
 infix   4 .==., .<>., .<., .<=., .>., .>=.
 infixr  3 .&&.
@@ -154,6 +154,15 @@ instance (ProjectExpr e, ProjectRec r er) =>
        -> e a                        -- ^ Expression
        -> Record (RecCons f (e a) RecNil)  -- ^ New record
 _ << x = RecCons x
+
+-- | Convenience operator for constructing records of constants.
+--   Useful primarily with 'insert'.
+--   @f <<- x@ is the same as @f << constant x@
+( <<- ) :: ShowConstant a => 
+	   Attr f a        -- ^ Field label
+	-> a                        -- ^ Field value
+	-> Record (RecCons f (Expr a) RecNil)  -- ^ New record
+f <<- x = f << constant x
 
 -----------------------------------------------------------
 -- Basic relational operators
