@@ -47,6 +47,7 @@ data PrimQuery  = BaseTable TableName Scheme
                 | Binary    RelOp PrimQuery PrimQuery
                 | Special   SpecialOp PrimQuery
                 | Empty
+		deriving (Show)
 
 data RelOp      = Times 
                 | Union 
@@ -57,6 +58,7 @@ data RelOp      = Times
 
 data SpecialOp  = Order [PrimExpr] -- ^ always UnExpr (OpDesc|OpAsc) (AttrExpr name)
 		| Top Bool Integer -- ^ 'True' = top percent, 'False' = top n
+		deriving (Show)
 
 data PrimExpr   = AttrExpr  Attribute
                 | BinExpr   BinOp PrimExpr PrimExpr
@@ -203,8 +205,10 @@ foldPrimExpr (attr,scalar,binary,unary,aggr)
 -- Pretty print PrimQuery and PrimExpr.
 -- coincidently, ppPrimExpr shows exactly a valid SQL expression :-)
 -----------------------------------------------------------
-instance Show PrimQuery where
-  showsPrec d qt        = shows qt
+-- This just calls itself, can't really see why, deriving Show instead
+-- /Björn
+--instance Show PrimQuery where
+--  showsPrec d qt        = shows qt
   
 --instance Pretty PrimQuery where
 --  pretty                = ppPrimQuery
