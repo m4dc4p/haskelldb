@@ -8,8 +8,8 @@
 -}
 
 module HSQL_driver (
-		    ODBCOptions(..)
-		   , odbcConnect
+		     hsqlAction
+		   , HSQL
 		   ) where
 
 import Data.Dynamic
@@ -22,50 +22,43 @@ import PrimQuery
 import Query
 import FieldType
 
---import Database.ODBC.HSQL as HSQL
 import Database.HSQL as HSQL hiding (FieldDef)
-import qualified Database.HSQL.ODBC as ODBC (connect) 
 
-type ODBC = Database Connection (ODBCRow)
+type HSQL = Database Connection HSQLRow
 
-data ODBCRow r = ODBCRow [(Attribute,ODBCValue)] deriving Show
+data HSQLRow r = HSQLRow [(Attribute,HSQLValue)] deriving Show
 
-type ODBCValue = Dynamic
+type HSQLValue = Dynamic
 
+-- Enable selection in an HSQL row
+instance Typeable a => Row HSQLRow a where
+    rowSelect = hsqlRowSelect
 
+-- | Run an action on a HSQL Connection and close the connection.
+hsqlAction :: Connection -> (HSQL -> IO a) -> IO a
+hsqlAction conn action = do
+			 x <- handleSqlError (action (newHSQL conn))
+			 disconnect conn
+			 return x
 
--- Enable selection in an ODBC row
-instance Typeable a => Row ODBCRow a where
-    rowSelect = odbcRowSelect
+handleSqlError :: IO a -> IO a
+handleSqlError io = handleSql (\err -> fail (show err)) io
 
-data ODBCOptions = ODBCOptions { 
-                               dsn :: String, --name binding in ODBC
-                               uid :: String, --user id
-                               pwd :: String  --password
-                  	       }          
-
-odbcConnect :: ODBCOptions -> (ODBC -> IO a) -> IO a
-odbcConnect opts action = do
-			  conn <- ODBC.connect (dsn opts) (uid opts) (pwd opts)
-			  x <- action (newODBC conn)
-			  disconnect conn
-			  return x
-
-newODBC :: Connection -> ODBC
-newODBC connection
-    = Database { dbQuery	= odbcQuery,
-    		 dbInsert	= odbcInsert,
-		 dbInsertNew 	= odbcInsertNew,
-		 dbDelete	= odbcDelete,
-		 dbUpdate	= odbcUpdate,
-		 dbTables       = odbcTables,
-		 dbDescribe     = odbcDescribe,
+newHSQL :: Connection -> HSQL
+newHSQL connection
+    = Database { dbQuery	= hsqlQuery,
+    		 dbInsert	= hsqlInsert,
+		 dbInsertNew 	= hsqlInsertNew,
+		 dbDelete	= hsqlDelete,
+		 dbUpdate	= hsqlUpdate,
+		 dbTables       = hsqlTables,
+		 dbDescribe     = hsqlDescribe,
 		 database	= connection
 	       }
 
 
-odbcRowSelect :: Typeable a => Attr f r a -> ODBCRow r -> a
-odbcRowSelect attr (ODBCRow vals)
+hsqlRowSelect :: Typeable a => Attr f r a -> HSQLRow r -> a
+hsqlRowSelect attr (HSQLRow vals)
         = case lookup (attributeName attr) vals of
             Nothing  -> error "Query.rowSelect: invalid attribute used ??"
             Just dyn -> case fromDynamic dyn of
@@ -74,22 +67,22 @@ odbcRowSelect attr (ODBCRow vals)
 				     ++ attributeName attr ++ " :: " ++ show dyn)
 			  Just val -> val
 
-odbcInsertNew conn table assoc = 
-    odbcPrimExecute conn $ show $ ppInsert $ toInsertNew table assoc
+hsqlInsertNew conn table assoc = 
+    hsqlPrimExecute conn $ show $ ppInsert $ toInsertNew table assoc
 	  
-odbcInsert conn table assoc = 
-    odbcPrimExecute conn $ show $ ppInsert $ toInsert table assoc
+hsqlInsert conn table assoc = 
+    hsqlPrimExecute conn $ show $ ppInsert $ toInsert table assoc
 	  
-odbcDelete conn table exprs = 
-    odbcPrimExecute conn $ show $ ppDelete $ toDelete table exprs
+hsqlDelete conn table exprs = 
+    hsqlPrimExecute conn $ show $ ppDelete $ toDelete table exprs
 
-odbcUpdate conn table criteria assigns = 
-    odbcPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
+hsqlUpdate conn table criteria assigns = 
+    hsqlPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
 
-odbcQuery :: Connection -> PrimQuery -> Rel r -> IO [ODBCRow r]
-odbcQuery connection qtree rel
+hsqlQuery :: Connection -> PrimQuery -> Rel r -> IO [HSQLRow r]
+hsqlQuery connection qtree rel
     = do
-      rows <- odbcPrimQuery connection sql scheme rel
+      rows <- hsqlPrimQuery connection sql scheme rel
       -- FIXME: remove
       --putStrLn (unlines (map show rows))
       return rows
@@ -97,11 +90,11 @@ odbcQuery connection qtree rel
       sql = show (ppSql (toSql qtree))  
       scheme = attributes qtree
 
-odbcTables :: Connection -> IO [TableName]
-odbcTables = HSQL.tables
+hsqlTables :: Connection -> IO [TableName]
+hsqlTables = HSQL.tables
 
-odbcDescribe :: Connection -> TableName -> IO [(Attribute,FieldDef)]
-odbcDescribe conn table = liftM (map toFieldDef) (HSQL.describe conn table)
+hsqlDescribe :: Connection -> TableName -> IO [(Attribute,FieldDef)]
+hsqlDescribe conn table = liftM (map toFieldDef) (HSQL.describe conn table)
     where
     toFieldDef (name,sqlType,nullable) = (name,(toFieldType sqlType, nullable))
 
@@ -128,8 +121,8 @@ toFieldType _                = StringT
 -- the return type right.
 -----------------------------------------------------------
 
-odbcPrimQuery :: Connection -> String -> Scheme -> Rel r -> IO [ODBCRow r]
-odbcPrimQuery connection sql scheme _ = 
+hsqlPrimQuery :: Connection -> String -> Scheme -> Rel r -> IO [HSQLRow r]
+hsqlPrimQuery connection sql scheme _ = 
     do
     -- FIXME: (DEBUG) remove
     putStrLn sql
@@ -138,13 +131,13 @@ odbcPrimQuery connection sql scheme _ =
     -- putStrLn $ unlines $ map show $ getFieldsTypes stmt
     collectRows (getRow scheme) stmt
 
-getRow :: Scheme -> Statement -> IO (ODBCRow r)
+getRow :: Scheme -> Statement -> IO (HSQLRow r)
 getRow scheme stmt = 
     do
     vals <- mapM (getField stmt) scheme
-    return (ODBCRow (zip scheme vals))
+    return (HSQLRow (zip scheme vals))
 
-getField :: Statement -> Attribute -> IO ODBCValue
+getField :: Statement -> Attribute -> IO HSQLValue
 getField s n = 
     case toFieldType t of
 	    StringT  -> toVal (getFieldValueMB s n :: IO (Maybe String))
@@ -153,13 +146,13 @@ getField s n =
 	    DoubleT  -> toVal (getFieldValueMB s n :: IO (Maybe Double))
     where
     (t,nullable) = getFieldValueType s n
-    toVal :: Typeable a => IO (Maybe a) -> IO ODBCValue
+    toVal :: Typeable a => IO (Maybe a) -> IO HSQLValue
     toVal m | nullable = liftM toDyn m
 	    -- FIXME: what if we have Nothing?
 	    | otherwise = liftM (toDyn . fromJust) m
 
-odbcPrimExecute :: Connection -> String -> IO ()
-odbcPrimExecute connection sql = 
+hsqlPrimExecute :: Connection -> String -> IO ()
+hsqlPrimExecute connection sql = 
     do
     -- FIXME: (DEBUG) remove
     --putStrLn sql

@@ -1,9 +1,8 @@
-import HSQL_driver
+import HSQL_ODBC
 import HaskellDB
 import Query 
 import Random
 
-import Database.HSQL (SqlError, handleSql)
 import HDBRec
 import HDBRecUtils
 
@@ -56,14 +55,11 @@ c12 = mkAttr C12
 -- Test utilites
 --
 
-exError :: SqlError -> IO a
-exError = error . show
-
 opts :: ODBCOptions
 opts = ODBCOptions{dsn="mysql-dp037", uid="dp037", pwd="teent333"}
 
 -- run a test function
-runTest f = handleSql exError $ odbcConnect opts f
+runTest f = odbcConnect opts f
 
 --
 -- A simple query
@@ -76,7 +72,8 @@ q = do
 newRec x y = c11 << constant x # c12 << constant y
 
 
---printResults :: (HasField C11 r, HasField C12 r, Row row Int, Row row (Maybe Int)) => [row r] -> IO ()
+printResults :: (Row row Int, Row row (Maybe Int)) => 
+		[row (HDBRecCons C11 (Expr Int) (HDBRecCons C12 (Expr (Maybe Int)) HDBRecTail))] -> IO ()
 printResults = mapM_ (\row -> putStrLn (show (row!.c11) ++ " " ++ show (row!.c12)))
 
 --
@@ -91,7 +88,6 @@ listTables = runTest tables >>= putStr . unlines
 describeTable :: String -> IO ()
 describeTable table = runTest (\db -> describe db table) 
 		      >>= putStr . unlines . map show
-
 
 
 
