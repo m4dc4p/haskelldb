@@ -6,7 +6,7 @@ HC_INCLUDES=
 HCFLAGS=$(HC_SPEC_FLAGS) $(HC_INCLUDES)
 
 OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o PPrint.o \
-       PrimQuery.o Query.o Sql.o
+       PrimQuery.o Query.o Sql.o FieldType.o
 
 .SUFFIXES: .hs .hi .o
 
