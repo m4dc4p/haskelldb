@@ -30,4 +30,4 @@ Database: HSQL
 	ln -s HSQL Database
 
 clean:
-	rm -rf HSQL Database
+	make -C HSQL distclean
