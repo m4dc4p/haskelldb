@@ -40,7 +40,7 @@ infix   4 .==., .<>., .<., .<=., .>., .>=.
 infixr  3 .&&.
 infixr  2 .||.
 
-(!) :: (ShowRecRow r) => Rel r -> Attr f r a -> Expr a
+(!) :: Rel r -> Attr f r a -> Expr a
 rel ! attr      = select attr rel
 
 ----------------------------------------------------------
@@ -78,37 +78,30 @@ data Query a    = Query (QState -> (a,QState))
 
 
 scheme :: Rel r -> Scheme
-scheme (Rel _ s)
-	= s
+scheme (Rel _ s) = s
 
 attributeName :: Attr f r a -> Attribute
-attributeName (Attr name)
-	= name
+attributeName (Attr name) = name
 
 -----------------------------------------------------------
 -- Basic relational operators
 -----------------------------------------------------------
 
-select :: (ShowRecRow r) => Attr f r a -> Rel r -> Expr a
+select :: Attr f r a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
 
-
 project :: (ShowRecRow r) => HDBRec r -> Query (Rel r)
 project r
-        = do{ alias <- newAlias
-            ; let scheme        = labels r
-                  assoc         = zip (map (fresh alias) scheme) (exprs r)
-            ; updatePrimQuery (extend assoc)
-            ; return (Rel alias scheme)
-            }
+        = do
+	  alias <- newAlias
+          let scheme        = labels r
+	      assoc         = zip (map (fresh alias) scheme) (exprs r)
+	  updatePrimQuery (extend assoc)
+          return (Rel alias scheme)
 
 restrict :: Expr Bool -> Query ()
-restrict (Expr primExpr)
-        = do{ updatePrimQuery (Restrict primExpr)
-            ; return ()
-            }
-
+restrict (Expr primExpr) = updatePrimQuery_ (Restrict primExpr)
 
 -----------------------------------------------------------
 -- Binary operations
@@ -145,14 +138,13 @@ minus           = binrel Difference
 -----------------------------------------------------------
 table :: (ShowRecRow r) => Table r -> Query (Rel r)
 table (Table name assoc)
-        = do{ alias <- newAlias
-            ; let newAssoc = map (\(attr,expr) -> (fresh alias attr,expr)) assoc
-                  scheme   = map fst assoc
-                  q        = Project newAssoc (BaseTable name scheme)
-            ; updatePrimQuery (times q)
-            ; return (Rel alias scheme)
-            }
-
+        = do
+	  alias <- newAlias
+          let newAssoc = map (\(attr,expr) -> (fresh alias attr,expr)) assoc
+	      scheme   = map fst assoc
+	      q        = Project newAssoc (BaseTable name scheme)
+	  updatePrimQuery (times q)
+          return (Rel alias scheme)
 
 -- used in table definitions, see 'pubs.hs' for an example
 
@@ -241,21 +233,21 @@ nullable x      = Expr (ConstExpr (showConstant x))
 -- Aggregate operators
 -----------------------------------------------------------
 
-aggregate :: ShowRecRow r => AggrOp -> Rel r -> Attr f r a -> Expr b
+aggregate :: AggrOp -> Rel r -> Attr f r a -> Expr b
 aggregate op rel attr
 		= Expr (AggrExpr op primExpr)
 		where
  	  	  (Expr primExpr)  = rel ! attr
 
-count :: ShowRecRow r => Rel r -> Attr f r a -> Expr Int
+count :: Rel r -> Attr f r a -> Expr Int
 count x		= aggregate AggrCount x
 
 
-numAggregate :: (ShowRecRow r,Num a) => AggrOp -> Rel r -> Attr f r a -> Expr a
+numAggregate :: Num a => AggrOp -> Rel r -> Attr f r a -> Expr a
 numAggregate	= aggregate
 
 _sum,_max,_min,avg,stddev,stddevP,variance,varianceP 
-    :: (ShowRecRow r,Num a) => Rel r -> Attr f r a -> Expr a
+    :: Num a => Rel r -> Attr f r a -> Expr a
 _sum x          = numAggregate AggrSum x
 _max x          = numAggregate AggrMax x
 _min x          = numAggregate AggrMin x
@@ -270,39 +262,28 @@ varianceP x     = numAggregate AggrVarP x
 -----------------------------------------------------------
 
 top,topPercent :: Integer -> Query ()
-top n           = do { updatePrimQuery (Special (Top False n))
-		     ; return ()
-		     }
-
-topPercent n    = do { updatePrimQuery (Special (Top True perc))
-		     ; return ()
-		     }
+top n           = updatePrimQuery_ (Special (Top False n))
+topPercent n    = updatePrimQuery_ (Special (Top True perc))
                 where
                   perc  | n < 0         = 0
                         | n > 100       = 100
                         | otherwise     = n
 
-
-
 data Order	= OrderPhantom
 
-orderOp :: (ShowRecRow r) => UnOp -> Rel r -> Attr f r a -> Expr Order
-orderOp op rel attr
-	= Expr (UnExpr op expr)
+orderOp :: UnOp -> Rel r -> Attr f r a -> Expr Order
+orderOp op rel attr = Expr (UnExpr op expr)
 	where
 	  (Expr expr) = rel ! attr
 
-asc, desc :: (ShowRecRow r) => Rel r -> Attr f r a -> Expr Order
+asc,desc :: Rel r -> Attr f r a -> Expr Order
 asc rel attr	= orderOp OpAsc rel attr
 desc rel attr	= orderOp OpDesc rel attr
 
 order :: [Expr Order] -> Query ()
-order xs	= do{ updatePrimQuery (Special (Order (map unExpr xs)))
-		    ; return ()
-		    }
+order xs	= updatePrimQuery_ (Special (Order (map unExpr xs)))
 		where
 		  unExpr (Expr x) = x
-
 
 -----------------------------------------------------------
 -- Query Monad
@@ -328,8 +309,10 @@ instance Monad Query where
                                         in  (h q1))
 
 updatePrimQuery :: (PrimQuery -> PrimQuery) -> Query PrimQuery
-updatePrimQuery f           = Query (\(i,qt) -> (qt,(i,f qt)))
+updatePrimQuery f  = Query (\(i,qt) -> (qt,(i,f qt)))
 
+updatePrimQuery_ :: (PrimQuery -> PrimQuery) -> Query ()
+updatePrimQuery_ f = updatePrimQuery f >> return ()
 
 newAlias :: Query Alias
 newAlias                = Query (\(i,qt) -> (i,(i+1,qt)))
