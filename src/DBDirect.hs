@@ -25,11 +25,8 @@ import Text.PrettyPrint.HughesPJ
 
 import Database.HaskellDB
 import Database.HaskellDB.DBSpec
-import Database.HaskellDB.DBSpec.DBSpecToDBDirect
 import Database.HaskellDB.DBSpec.PPHelpers
-
-import Database.HaskellDB.DBSpec.DatabaseToDBSpec
-import DBDirectCommon
+import Database.HaskellDB.DBSpec.DBSpecToDBDirect
 
 -- | Command line driver
 main = do
@@ -42,10 +39,10 @@ main = do
        process useBStrT args = 
 	   case checkArgs args of
 	    True -> do
-		    let f = createCatalogCommon (map toLower (head args)) 
+		    let db = genericConnect (map toLower (head args)) 
 			       (init $ tail args)
 		    putStrLn "creating database specification..."
-		    spec <- f (dbToDBSpec useBStrT $ last args)
+		    spec <- db (dbToDBSpec useBStrT (last args))
 		    putStrLn "creating modules from specification..."
 		    let spec' = finalizeSpec spec
 			files = specToHDB spec'
