@@ -40,7 +40,7 @@ ALL_COMPILERS = $(addprefix all-,$(COMPILERS))
 
 all: $(ALL_COMPILERS) $(DRIVER_DIRS) dbdirect
 
-all-ghc: $(BUILD_DIR)/libHShdb.a $(BUILD_DIR)/HShdb.o
+all-ghc: $(BUILD_DIR)/libHShdb.a
 
 all-hugs: $(SRC) 
 
