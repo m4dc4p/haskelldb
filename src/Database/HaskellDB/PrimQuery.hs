@@ -34,7 +34,7 @@ module Database.HaskellDB.PrimQuery (
 		 , ppRelOp, ppBinOp, ppAggrOp, ppSpecialOp 
 		 ) where
 
-import List ((\\))
+import Data.List ((\\))
 
 import Text.PrettyPrint.HughesPJ
 
