@@ -63,13 +63,21 @@ import Database.HaskellDB.Optimize  (optimize)
 import Database.HaskellDB.Query
 import Database.HaskellDB.Database
 import Database.HaskellDB.GenericConnect
+import Text.PrettyPrint.HughesPJ (Doc) -- This is for the 
+-- typesignatures of the show-functions
 
 -----------------------------------------------------------
 -- Show Queries, both as PrimQuery, Optimized PrimQuery and SQL
 -----------------------------------------------------------
 instance Show (Query (Rel r)) where
   showsPrec _ query = shows (showSql query)
-  
-showQ       = ppPrimQuery . runQuery
-showOpt     = ppPrimQuery . optimize . runQuery
-showSql     = ppSql . toSql . optimize . runQuery 
+
+
+showQ :: Query (Rel r) -> Doc
+showQ = ppPrimQuery . runQuery
+
+showOpt :: Query (Rel r) -> Doc
+showOpt = ppPrimQuery . optimize . runQuery
+
+showSql :: Query (Rel r) -> Doc
+showSql = ppSql . toSql . optimize . runQuery 
