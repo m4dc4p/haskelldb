@@ -139,10 +139,19 @@ binrel op (Query q1) (Query q2)
       in
           (Rel alias scheme,(k+1,times r primQ)) )
 
-union,intersect,divide,minus :: Query (Rel r) -> Query (Rel r) -> Query (Rel r)
+union :: Query (Rel r) -> Query (Rel r) -> Query (Rel r)
 union           = binrel Union
+
+intersect :: Query (Rel r) -> Query (Rel r) -> Query (Rel r) 
 intersect       = binrel Intersect
+
+-- | Not in SQL92.
+divide :: Query (Rel r) -> Query (Rel r) -> Query (Rel r) 
 divide          = binrel Divide
+
+-- | Return all records from the first relation that are not 
+--   present in the second relation.
+minus :: Query (Rel r) -> Query (Rel r) -> Query (Rel r)
 minus           = binrel Difference
 
 -----------------------------------------------------------

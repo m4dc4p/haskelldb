@@ -147,7 +147,7 @@ toSqlOp :: RelOp -> String
 toSqlOp Union        = "UNION"
 toSqlOp Intersect    = "INTERSECT"
 toSqlOp Divide       = "DIVIDE"
-toSqlOp Difference   = "MINUS"
+toSqlOp Difference   = "EXCEPT"
 
 
 -----------------------------------------------------------

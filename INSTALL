@@ -63,7 +63,7 @@ Database support:
   such as InnoDB and BDB. The default table type, MyISAM does not
   support transactions. See the MySQL manual for more information.
 
-  MySQL 4.1 does not support intersect, divide and minus.
+  MySQL 4.1 does not support intersect.
 
 - PostgreSQL
 
