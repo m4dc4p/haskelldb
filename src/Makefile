@@ -1,35 +1,29 @@
-HC=ghc
-HC_SPEC_FLAGS=-fglasgow-exts -fallow-overlapping-instances
-HC_LDFLAGS=
-HC_INCLUDES=
-
-HCFLAGS=$(HC_SPEC_FLAGS) $(HC_INCLUDES)
+include config.mk
+include rules.mk
 
 OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o PPrint.o \
        PrimQuery.o Query.o Sql.o FieldType.o
 
-.SUFFIXES: .hs .hi .o
+DRIVERS = hsql
 
-.PHONY: clean odbc-driver
+SRC = $(patsubst %.o,%.hs, $(OBJS))
 
-default all: libHDB.a
+.PHONY: clean drivers
+
+default all: libHDB.a drivers
 
 libHDB.a: $(OBJS)
 	$(AR) -rc $@ $^
 
-odbc-driver:
-	cd drivers/odbc; $(MAKE)
+drivers: 
+	for d in $(addprefix drivers/, $(DRIVERS)); do \
+	   $(MAKE) -C $$d; \
+	done
 
-.depend: *.hs
-	$(HC) -M -optdep-f -optdep.depend $(HCFLAGS) *.hs
+.depend: $(SRC)
+	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
 
 clean:
 	-rm -f *.o *.hi *.a .depend .depend.bak
-
-%.o: %.hs
-	$(HC) $(HCFLAGS) -c $< -o $@
-
-%.hi: %.o
-	@\:
 
 include .depend

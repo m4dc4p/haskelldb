@@ -1,17 +1,19 @@
+include ../../config.mk
+include ../../rules.mk
+
 # in HSQL_DIR there should be a directory (or a symlink to a directory)
-# called Database that contains the compiled HSQL library
-HSQL_DIR=.
+# that contains a directory called Database 
+# that contains the compiled HSQL library
+HSQL_DIR = .
 
-LDFLAGS=-L$(HSQL_DIR)/Database -lHSsql -lodbc
-CFLAGS=
-GHC=ghc
-GHCI=ghci
-GHCFLAGS=-fglasgow-exts -fallow-overlapping-instances -i../.. -i$(HSQL_DIR)
+LDFLAGS += -L$(HSQL_DIR)/Database -lHSsql -lodbc
+GHCFLAGS += -i../.. -i$(HSQL_DIR)
 
-HUGS=hugs
-RUNHUGS=runhugs
-HUGSFLAGS=-98 +o -P:../..:$(HSQL_DIR)
+HUGSFLAGS += -P:../..:$(HSQL_DIR)
 
+OBJS = HSQL_driver.o test.o
+
+SRC = $(patsubst %.o,%.hs, $(OBJS))
 
 .PHONY: clean
 
@@ -31,16 +33,6 @@ hugstest: $(HSQL_DIR)/Database/ODBC/HSQL.hs $(HSQL_DIR)/Database/ODBC/HSQL.so
 # GHC
 #
 
-%.o: %.hs
-	$(GHC) $(GHCFLAGS) -c $< -o $@
-
-%.hi: %.o
-	@\:
-
-HSQL_driver.o: $(HSQL_DIR)/Database/ODBC/HSQL.hi
-
-test.o: HSQL_driver.hi
-
 $(HSQL_DIR)/Database/libHSsql.a: HSQL
 	$(MAKE) -f Makefile.HSQL HSQL/libHSsql.a
 
@@ -57,6 +49,14 @@ ghciload: $(HSQL_DIR)/Database/ODBC/HSQL.hs
 HSQL Database HSQL/% Database/%: HSQL-hwt.patch
 	$(MAKE) -f Makefile.HSQL HSQL Database
 
+../../%: 
+	make -C ../..
+
+.depend: $(SRC)
+	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
+
 clean:
-	-rm -f test *.so *.o *.hi
+	-rm -f test *.so *.o *.hi .depend .depend.bak
 	$(MAKE) -f Makefile.HSQL clean
+
+include .depend
