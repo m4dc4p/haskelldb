@@ -27,6 +27,14 @@ LDFLAGS = @LDFLAGS@
 PACKAGE_DEPS = @PACKAGE_DEPS@
 
 #
+# Installation directories
+#
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+
+#
 # Documentation
 #
 

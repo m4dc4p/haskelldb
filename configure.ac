@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.7],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.34 $)
+AC_REVISION($Revision: 1.35 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -22,8 +22,6 @@ GHCFLAGS="$GHCFLAGS -fglasgow-exts -fallow-overlapping-instances"
 
 HUGSFLAGS="$HUGSFLAGS -98 +o"
 
-AC_SUBST(GHCFLAGS)
-AC_SUBST(HUGSFLAGS)
 
 dnl ***********************************************
 dnl Enable/Disable verbose warnings
@@ -250,6 +248,18 @@ AC_SUBST(GHCI)
 AC_SUBST(GHC_VERSION)
 
 dnl ***********************************************
+dnl GHC flags
+dnl ***********************************************
+
+AC_ARG_WITH(ghc-flags,
+AC_HELP_STRING([--with-ghc-flags=FLAGS],
+               [Add the given flags when running ghc.]),
+[GHCFLAGS="$GHCFLAGS $withval"],)
+
+AC_SUBST(GHCFLAGS)
+
+
+dnl ***********************************************
 dnl GHC directory 
 dnl ***********************************************
 
@@ -322,6 +332,17 @@ AC_SUBST(RUNHUGS)
 AC_SUBST(SO_EXT)
 
 dnl ***********************************************
+dnl HUGS flags
+dnl ***********************************************
+
+AC_ARG_WITH(hugs-flags,
+AC_HELP_STRING([--with-hugs-flags=FLAGS],
+               [Add the given flags when running Hugs.]),
+[HUGSFLAGS="$HUGSFLAGS $withval"],)
+
+AC_SUBST(HUGSFLAGS)
+
+dnl ***********************************************
 dnl HUGS directory
 dnl ***********************************************
 
@@ -343,6 +364,7 @@ if test "$ENABLE_HUGS" = "yes"; then
 fi
 
 AC_SUBST(HUGS_DIR)
+
 
 dnl ***********************************************
 dnl Check for HSQL for ghc
@@ -370,6 +392,13 @@ dnl Check for HSQL for Hugs
 dnl ***********************************************
 
 if test "$ENABLE_HUGS" = "yes" && test "$WITH_HUGS_HSQL" = "yes"; then
+
+  if test "$prefix" != ""; then
+    HUGSFLAGS="$HUGSFLAGS -P:$prefix/lib/HSQL/Hugs/libraries"
+  else
+    HUGSFLAGS="$HUGSFLAGS $ac_default_prefix/lib/HSQL/Hugs/libraries"
+  fi
+
     AC_HS_HUGS_MODULE_IFELSE([Database.HSQL], [query],,
 	 [AC_MSG_WARN([HSQL for Hugs not found.])
 	 WITH_HUGS_HSQL="no"])
