@@ -1,5 +1,8 @@
 Things that must de done before the release:
   * Get date types working.
+  * Fix DbDirect generated files:
+    - do not import System.Time and Query qualified
+    - import (Expr, Table, Attr, baseTable) from Query
   * Change insert and insertNew names.
   * Get Windows build working without needing configure flags.
   (* Make DbDirect support all drivers)
