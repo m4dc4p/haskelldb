@@ -52,7 +52,7 @@ q2 = do
 	       .&&. r!hours .>. constant 0.5)
      return r
 
-test db = do
+t db = do
        sameResults db q1 q2 >>= putStrLn . show
 
-main = argConnect test
+main = argConnect t
