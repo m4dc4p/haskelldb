@@ -1,5 +1,9 @@
 -- | Utility functions for HDBRec.
-module HDBRecUtils where
+module HDBRecUtils (hdbMakeEntry, 
+		    hdbProject, 
+		    hdbBaseTable,
+		    (.<<.),
+		    ( # )) where
 
 import HDBRec
 import Query
