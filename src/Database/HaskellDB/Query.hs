@@ -11,7 +11,7 @@
 -- 
 -- Basic combinators for building type-safe queries.
 -- The "Query" monad constructs a relational expression
--- (PrimQuery).
+-- (PrimQuery). 
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 		 -- * Data declarations
@@ -175,22 +175,50 @@ binop :: BinOp -> Expr a  -> Expr b -> Expr c
 binop op (Expr primExpr1) (Expr primExpr2)
                 = Expr (BinExpr op primExpr1 primExpr2)
 
-
-(.==.),(.<>.) :: Eq a => Expr a -> Expr a -> Expr Bool
+-- | (.==.) is used in a similar way as the standard op (==) in
+-- Haskell and = in SQL, but takes two 'Expr' as arguments and 
+-- returns an 'Expr' Bool.
+(.==.) :: Eq a => Expr a -> Expr a -> Expr Bool
 (.==.) = binop OpEq
+
+-- | (.\<>.) is used in a similar way as the standard op (\/=) in
+-- Haskell and \<> in SQL, but takes two 'Expr' as arguments and 
+-- returns an 'Expr' Bool.
+(.<>.) :: Eq a => Expr a -> Expr a -> Expr Bool
 (.<>.) = binop OpNotEq
 
-(.<.),(.<=.),(.>.),(.>=.) :: Ord a => Expr a -> Expr a -> Expr Bool
+-- | As with (.==.) and (.\<>.), this op has a standard Haskell
+-- op counterpart; (\<) and an SQL counterpart; \<
+(.<.) :: Ord a => Expr a -> Expr a -> Expr Bool
 (.<.)  = binop OpLt
+
+-- | As with (.==.) and (.\<>.), this op have a standard Haskell
+-- op counterpart, (\<=) and an SQL counterpart; <=.
+(.<=.) :: Ord a => Expr a -> Expr a -> Expr Bool
 (.<=.) = binop OpLtEq
+
+-- | As with (.==.) and (.\<>.), this op have a standard Haskell
+-- op counterpart, (>) and an SQL counterpart; >.
+(.>.) :: Ord a => Expr a -> Expr a -> Expr Bool
 (.>.)  = binop OpGt
+
+-- | As with (.==.) and (.\<>.), this op have a standard Haskell
+-- op counterpart, (>=) and an SQL counterpart; >=.
+(.>=.) :: Ord a => Expr a -> Expr a -> Expr Bool
 (.>=.) = binop OpGtEq
+
 
 _not :: Expr Bool -> Expr Bool
 _not   = unop OpNot
 
-(.&&.),(.||.) :: Expr Bool -> Expr Bool -> Expr Bool
+-- | \"Logical and\" on 'Expr', similar to the (&&) op in
+-- Haskell and AND in SQL.
+(.&&.):: Expr Bool -> Expr Bool -> Expr Bool
 (.&&.) = binop OpAnd
+
+-- | \"Logical or\" on 'Expr', similar to the (||) op in
+-- Haskell and OR in SQL.
+(.||.) :: Expr Bool -> Expr Bool -> Expr Bool
 (.||.) = binop OpOr
 
 
