@@ -1,3 +1,27 @@
+2004-05-04 19:04  dp03-7
+
+	* BUGS, TODO: added wxHaskell date problem
+
+2004-05-04 19:04  dp03-7
+
+	* NEWS: typo fix
+
+2004-05-04 18:43  dp03-7
+
+	* BUGS: added odbc postgre sum type error
+
+2004-05-04 18:34  dp03-7
+
+	* test/run-all-tests: don't run default-auto-inc
+
+2004-05-04 18:31  dp03-7
+
+	* BUGS: added ODBC MySQL auto_inc nullable problem
+
+2004-05-04 15:52  chucky
+
+	* ANNOUNCE, ChangeLog, INSTALL, NEWS: Prepared for release of 0.8
+
 2004-05-04 15:50  forester
 
 	* BUGS, TODO, configure.ac: updates for 0.8
