@@ -13,7 +13,8 @@
 --
 -----------------------------------------------------------
 module Database.HaskellDB.FieldType 
-    (FieldDesc, FieldType(..), PrimShow(..), mkCalendarTime) where
+    (FieldDesc, FieldType(..), PrimShow(..), 
+     SQLShow(..), mkCalendarTime) where
 
 import Data.Dynamic
 import System.Time
@@ -47,6 +48,20 @@ instance PrimShow FieldType where
     pshow BoolT = "Bool"
     pshow CalendarTimeT = "CalendarTime"
     pshow (BStrT a) = "BStr" ++ show a
+
+-- | defines a show that is "SQL compatible" so to speak. Used to convert
+-- FieldTypes to their SQL counterpart
+class SQLShow a where
+    sshow :: a -> String
+
+instance SQLShow FieldType where
+    sshow StringT = "varchar"
+    sshow IntT = "int"
+    sshow IntegerT = "bigint"
+    sshow DoubleT = "double precision"
+    sshow BoolT = "bit"
+    sshow CalendarTimeT = "date"
+    sshow (BStrT a) = "varchar(" ++ show a ++ ")"
 
 -- | Creates a CalendarTime from a ClockTime
 --   This loses the time zone and assumes UTC. :(
