@@ -21,6 +21,7 @@ import Data.Maybe
 import Control.Monad
 import System.Time
 
+import Database.HaskellDB.HDBRec
 import Database.HaskellDB.Database
 import Database.HaskellDB.Sql
 import Database.HaskellDB.PrimQuery
@@ -178,8 +179,9 @@ getField s n =
 	    IntT     -> toVal (getFieldValueMB s n :: IO (Maybe Int))
 	    IntegerT -> toVal (getFieldValueMB s n :: IO (Maybe Integer))
 	    DoubleT  -> toVal (getFieldValueMB s n :: IO (Maybe Double))
-	    CalendarTimeT -> toVal $ mkIOMBCalendarTime
-			     (getFieldValueMB s n :: IO (Maybe ClockTime))
+	    CalendarTimeT -> 
+		toVal ((getFieldValueMB s n :: IO (Maybe ClockTime))
+		       >>= mkIOMBCalendarTime)
 	    -- FIXME: should wo do it like this?
 	    -- if so, must fix hsqlRowSelect to handle this
 	    BStrT _ -> toVal (getFieldValueMB s n :: IO (Maybe String))
@@ -187,13 +189,10 @@ getField s n =
     (t,_) = getFieldValueType s n
     toVal :: Typeable a => IO (Maybe a) -> IO HSQLValue
     toVal = liftM toDyn
-    mkIOMBCalendarTime :: IO (Maybe ClockTime) -> IO (Maybe CalendarTime)
-    mkIOMBCalendarTime a 
-	= do
-	  b <- a
-	  case b of
-		 Nothing -> return Nothing
-		 Just c  -> return (Just (mkCalendarTime c))
+
+mkIOMBCalendarTime :: Maybe ClockTime -> IO (Maybe CalendarTime)
+mkIOMBCalendarTime Nothing = return Nothing
+mkIOMBCalendarTime (Just c) = return (Just (mkCalendarTime c))
 
 hsqlPrimExecute :: Connection -> String -> IO ()
 hsqlPrimExecute connection sql = 
@@ -201,3 +200,58 @@ hsqlPrimExecute connection sql =
     -- FIXME: (DEBUG) remove
     --putStrLn sql
     execute connection sql
+
+
+--
+-- New way of getting data, does not use Dynamic. Not used yet.
+--
+
+hsqlPrimQuery' :: GetRec r => Connection -> String -> Scheme -> Rel r -> IO [r]
+hsqlPrimQuery' connection sql scheme _ = 
+    do
+    stmt <- HSQL.query connection sql
+    collectRows (getRec scheme) stmt
+
+class GetRec r where
+    getRec :: Scheme -> Statement -> IO r
+
+instance GetRec HDBRecTail where
+    getRec [] _ = return HDBRecTail
+    getRec fs _ = fail $ "Wanted empty record from scheme " ++ show fs
+
+instance (GetValue a, GetRec r) => GetRec (HDBRecCons f a r) where
+    getRec [] _ = fail $ "Wanted non-empty record, but scheme is empty"
+    getRec (f:fs) stmt = 
+	do
+	x <- getValue stmt f
+	r <- getRec fs stmt
+	return (HDBRecCons x r)
+
+class GetValue a where
+    getValue :: Statement -> String -> IO a
+
+instance GetValue String where getValue = getFieldValue
+instance GetValue (Maybe String) where getValue = getFieldValueMB
+
+instance GetValue Int where getValue = getFieldValue
+instance GetValue (Maybe Int) where getValue = getFieldValueMB
+
+instance GetValue Integer where getValue = getFieldValue
+instance GetValue (Maybe Integer) where getValue = getFieldValueMB
+
+instance GetValue Double where getValue = getFieldValue
+instance GetValue (Maybe Double) where getValue = getFieldValueMB
+
+instance GetValue CalendarTime where 
+    -- FIXME: should maybe give some sensible error message
+    getValue stmt f = 
+	liftM fromJust (getFieldValueMB stmt f >>= mkIOMBCalendarTime )
+
+instance GetValue (Maybe CalendarTime) where 
+    getValue stmt f = getFieldValueMB stmt f >>= mkIOMBCalendarTime
+
+instance Size n => GetValue (BoundedString n) where 
+    getValue stmt f = liftM trunc (getValue stmt f) 
+
+instance Size n => GetValue (Maybe (BoundedString n)) where 
+    getValue stmt f = liftM (fmap trunc) (getValue stmt f) 

@@ -21,7 +21,7 @@ data HDBRecTail = HDBRecTail
 
 -- | Constructor that adds a field to a record
 -- f is the field tag, a is the field value and b is the rest of the record.
-data HDBRecCons f a b = HDBRecCons f a b
+data HDBRecCons f a b = HDBRecCons a b
 
 -- | The type used for records throughout HaskellDB. This is a function
 --   that takes a 'HDBRecTail' so that the user does not have to 
@@ -36,9 +36,16 @@ mkRec f = f HDBRecTail
 -- | Each entry in a record needs to be an instance of this class.
 -- Fundeps and two argument classes are used, this violates 
 -- the haskell 98 standard. 
-class HDBRecEntry f a | f -> a where
+class HDBRecEntry f a | f -> a --where
+--    fieldName :: f -> String
+--    fieldTag :: f
+
+class FieldTag f where
     fieldName :: f -> String
-    fieldTag :: f
+
+consFieldName :: FieldTag f => HDBRecCons f a r -> String
+consFieldName (_::HDBRecCons f a r) = fieldName (undefined::f)
+
 
 -- | The record @r@ has the field @f@ if there is an instance of
 --   @HasField f r@.
@@ -55,8 +62,8 @@ instance ShowRecRow HDBRecTail where
     showRecRow _ = []
 
 -- Recurse a record and produce a showable tuple.
-instance (HDBRecEntry a b, Show b, ShowRecRow c) => ShowRecRow (HDBRecCons a b c) where
-    showRecRow (HDBRecCons f x fs) = (fieldName f, shows x) : showRecRow fs
+instance (FieldTag a, Show b, ShowRecRow c) => ShowRecRow (HDBRecCons a b c) where
+    showRecRow r@(HDBRecCons x fs) = (consFieldName r, shows x) : showRecRow fs
 
 instance ShowRecRow r => ShowRecRow (HDBRec r) where
     showRecRow r = showRecRow (r HDBRecTail)
@@ -76,8 +83,7 @@ showsShowRecRow r = shows $ [(f,v "") | (f,v) <- showRecRow r]
 instance Show HDBRecTail where
     showsPrec _ r = showsShowRecRow r
 
-instance  (HDBRecEntry a b, Show b, ShowRecRow c) => 
-    Show (HDBRecCons a b c) where
+instance  (FieldTag a, Show b, ShowRecRow c) => Show (HDBRecCons a b c) where
     showsPrec _ r = showsShowRecRow r
 
 --
@@ -90,17 +96,16 @@ class ReadRecRow r where
 instance ReadRecRow HDBRecTail where
     readRecRow xs = [(HDBRecTail,xs)]
 
-instance (HDBRecEntry a b, Read b, ReadRecRow c) => 
+instance (FieldTag a, Read b, ReadRecRow c) => 
     ReadRecRow (HDBRecCons a b c) where
     readRecRow [] = []
-    readRecRow ((f,v):xs) = 
-       let t = fieldTag
-	   n = fieldName t
-        in if n == f then
-	       [(HDBRecCons t x r, xs') | (x,v') <- reads v, 
-		                          (r,xs') <- readRecRow xs, 
-		                          null v']
-            else []
+    readRecRow ((f,v):xs) | consFieldName (fst (head res)) == f = res
+			  | otherwise = []
+	where
+	res :: [(HDBRecCons a b c,[(String,String)])]
+	res = [(HDBRecCons x r, xs') | (x,v') <- reads v, 
+	                               (r,xs') <- readRecRow xs, 
+		                       null v']
 
 --
 -- Read
@@ -115,9 +120,8 @@ readsReadRecRow s = [(r,"") | (l,"") <- reads s, (r,[]) <- readRecRow l]
 instance Read HDBRecTail where
    readsPrec _ = readsReadRecRow
 
-instance (HDBRecEntry a b, Read b, ReadRecRow c) => 
-    Read (HDBRecCons a b c) where
-    readsPrec _ = readsReadRecRow
+instance (FieldTag a, Read b, ReadRecRow c) => Read (HDBRecCons a b c) where
+    readsPrec _ s = readsReadRecRow s
 
 {-
 
