@@ -122,5 +122,4 @@ HUGSFLAGS += $(patsubst %, -P%:, $(BUILD_DIR))
 # order is significant here
 LDFLAGS := -L$(BUILD_DIR) -lHShdb $(LDFLAGS)
 
-GHCFLAGS += $(shell echo $(PACKAGE_DEPS) | sed 's/,/ -package /g')
 
