@@ -4,12 +4,13 @@ Requirements:
 
 - Hugs November 2003 (if you want Hugs support)
 
-- The CVS version of HSQL. The build system assumes that there is a
-  sibling directory to the directory that this file is in named
-  HSQL-cvs. That directory contains a copy of
-  src/drivers/hsql/Makefile.HSQL named Makefile, the CVS version 
-  of HSQL in a directory named HSQL and a symlink to the HSQL
-  directory named Database.
+- The CVS version of HSQL (we have tested against the 2004-01-06
+  version, which is the one checked out by the using the instructions
+  below). The build system assumes that there is a sibling directory
+  to the directory that this file is in named HSQL-cvs. That directory
+  contains a copy of src/drivers/hsql/Makefile.HSQL named Makefile,
+  the CVS version of HSQL in a directory named HSQL and a symlink to
+  the HSQL directory named Database.
 
   This can be set up as follows (starting in the directory that this
   file is in.  
