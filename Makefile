@@ -22,8 +22,9 @@ configure: configure.ac aclocal.m4
 config.status: configure
 	./config.status --recheck
 
-config.mk: config.mk.in config.status
-	./config.status
+# Causes autoconf and configure to be run when doing clean
+#config.mk: config.mk.in config.status
+#	./config.status
 
 haskelldb.pkg: haskelldb.pkg.in config.status
 	./config.status
