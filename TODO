@@ -44,6 +44,7 @@ Things that need to be done, in no particular order:
     (/usr/lib/libc.so: invalid ELF header)" (Added by Bjorn)
 
 - Database drivers
+  * Add interface to HSQL.SQLite
   * Add more drivers:
     - wxHaskell
 
