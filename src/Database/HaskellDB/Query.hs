@@ -55,6 +55,7 @@ import System.Locale
 -----------------------------------------------------------
 
 infix   9 !
+infix   8 `like`
 infixl  7 .*., ./., .%.
 infixl  6 .+.,.-.
 infix   6 <<
