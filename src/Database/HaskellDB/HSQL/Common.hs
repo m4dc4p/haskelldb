@@ -140,6 +140,7 @@ toFieldType SqlBigInt        = IntegerT
 toFieldType SqlDate          = CalendarTimeT
 toFieldType SqlTime          = CalendarTimeT
 toFieldType SqlTimeStamp     = CalendarTimeT
+toFieldType SqlDateTime      = CalendarTimeT
 toFieldType _                = StringT
 
 
