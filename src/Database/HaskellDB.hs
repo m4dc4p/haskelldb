@@ -20,18 +20,19 @@
 -- Conference on Domain-Specific Languages (DSL), Austin, 
 -- USA, October 1999 (<http://www.usenix.org/events/dsl99/>).
 --
--- $Revision: 1.27 $
+-- $Revision: 1.28 $
 -----------------------------------------------------------
 module Database.HaskellDB
 	( Rel, Attr, Expr, Table, Query	-- abstract
 
         -- * Records
+	, Record , ( # ), ( << ), (<<-), (!), (!.)
 	
-	, Record , ( # ), ( << ), (<<-), (!) 
-
+        -- * Relational operators
 	, restrict, table, project
 	, union, intersect, divide, minus
-		
+
+	-- * Query expressions
 	, (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	, (.&&.) , (.||.)
 	, (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
@@ -47,37 +48,38 @@ module Database.HaskellDB
 
         , _case
 	, _default
-	
+
+	-- * Database operations
 	, Database				-- abstract
-	, (!.)
 	, query, lazyQuery, strictQuery
 	, insert, delete, update, insertQuery
 	, tables, describe, transaction
-	
+
+	-- * Showing queries
 	, showQ, showOpt, showSql
 	) where
 
 import Database.HaskellDB.HDBRec
-import Database.HaskellDB.PrimQuery (ppPrimQuery)
+-- PrimQuery type is imported so that haddock can find it.
+import Database.HaskellDB.PrimQuery (PrimQuery,ppPrimQuery)
 import Database.HaskellDB.Sql       (toSql, ppSql)
 import Database.HaskellDB.Optimize  (optimize)
 import Database.HaskellDB.Query
 import Database.HaskellDB.Database
-import Text.PrettyPrint.HughesPJ (Doc) -- This is for the 
--- typesignatures of the show-functions
+import Text.PrettyPrint.HughesPJ (Doc)
 
------------------------------------------------------------
--- Show Queries, both as PrimQuery, Optimized PrimQuery and SQL
------------------------------------------------------------
+-- | Shows the optimized SQL for the query.
 instance Show (Query (Rel r)) where
   showsPrec _ query = shows (showSql query)
 
-
+-- | Pretty-prints the unoptimized 'PrimQuery'.
 showQ :: Query (Rel r) -> Doc
 showQ = ppPrimQuery . runQuery
 
+-- | Pretty-prints the optimized 'PrimQuery'.
 showOpt :: Query (Rel r) -> Doc
 showOpt = ppPrimQuery . optimize . runQuery
 
+-- | Pretty-prints the optimized SQL query.
 showSql :: Query (Rel r) -> Doc
 showSql = ppSql . toSql . optimize . runQuery 

@@ -13,7 +13,7 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.57 $
+-- $Revision: 1.58 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -334,6 +334,9 @@ _not   = unop OpNot
 -- > like (constant "ABCDEF") (constant "AC%F") 
 -- 
 -- is false.
+--
+-- Note that SQL92 does not specify whether LIKE is case-sensitive or not.
+-- Different database systems implement this differently.
 like :: Expr String -> Expr String -> Expr Bool
 like   = binop OpLike
 
@@ -388,7 +391,7 @@ _case :: [(Expr Bool, Expr a)] -- ^ A list of conditions and expressions.
       -> Expr a
 _case cs (Expr el) = Expr (CaseExpr [ (c,e) | (Expr c, Expr e) <- cs] el)
 
--- | Takes a default value a and a nullable value. The value is NULL,
+-- | Takes a default value a and a nullable value. If the value is NULL,
 --   the default value is returned, otherwise the value itself is returned.
 --   Simliar to 'fromMaybe'
 fromNull :: Expr a         -- ^ Default value (to be returned for 'Nothing')
@@ -435,7 +438,7 @@ instance ShowConstant a => ShowConstant (Maybe a) where
 instance Size n => ShowConstant (BoundedString n) where
     showConstant = showConstant . fromBounded
 
--- | Transform an a into an Expr a.  
+-- | Creates a constant expression from a haskell value.
 constant :: ShowConstant a => a -> Expr a
 constant x  = Expr (ConstExpr (showConstant x))
 
@@ -546,19 +549,21 @@ orderOp op rel attr = Expr (UnExpr op expr)
     where Expr expr = select attr rel
 
 -- | Use this together with the function 'order' to 
--- create an query orderd ascending.
+-- order the results of a query in ascending order.
+-- Takes a relation and an attribute of that relation, which
+-- is used for the ordering.
 asc :: HasField f r => Rel r -> Attr f a -> Expr Order
 asc rel attr	= orderOp OpAsc rel attr
 
-
 -- | Use this together with the function 'order' to 
--- create an query orderd descending.
+-- order the results of a query in descending order.
+-- Takes a relation and an attribute of that relation, which
+-- is used for the ordering.
 desc :: HasField f r => Rel r -> Attr f a -> Expr Order
 desc rel attr	= orderOp OpDesc rel attr
 
--- | HaskellDB counterpart to the SQL keyword ORDER BY. 
--- Use this with the 'asc' or 'desc' functions to create 
--- an ordered 'Query'.
+-- | Order the results of a query.
+-- Use this with the 'asc' or 'desc' functions.
 order :: [Expr Order] -> Query ()
 order xs	= updatePrimQuery_ (Special (Order (map unExpr xs)))
 		where
