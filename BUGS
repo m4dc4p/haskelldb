@@ -1,3 +1,9 @@
+- There is currently no boolean type in HaskellDB. Some databases 
+  implement this best using tinyint, some using boolean, and so on. The 
+  "standard" portable way of doing this seems to be using tinyint, but 
+  should this be something we decide? If we do, tinyint cannot be used for 
+  anything else
+
 - Inserting values into TIME columns in PostgreSQL does not work,
   since PostgreSQL doesn't like getting date and time as input to a 
   TIME column. We're working on a general solution to date handling issues.
