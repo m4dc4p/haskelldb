@@ -67,9 +67,11 @@ genDocs dbinfo
 		tbnames)
        <> newline
        $$ dbInfoToDoc dbinfo)
-        : map (tInfoToModule ((moduleName . dbname) dbinfo)) (tbls dbinfo)
+        : map (tInfoToModule ((moduleName . dbname) dbinfo)) (filter hasName 
+							      $ tbls dbinfo)
     where
-    tbnames = map (moduleName . tname) (tbls dbinfo)
+    tbnames = map (moduleName . tname) (filter hasName $ tbls dbinfo)
+    hasName TInfo{tname=name} = name == ""
       
 -- | Makes a module from a TInfo
 tInfoToModule :: String -- ^ The name of our main module

@@ -47,8 +47,9 @@ data DBOptions = DBOptions {useBString :: Bool -- ^ Use Bounded Strings?
 --   same as the database name
 dbInfoToDoc :: DBInfo -> Doc
 dbInfoToDoc dbi@(DBInfo {dbname=n}) 
-    = text n <+> text ":: DBInfo"
-      $$ text n <+> equals <+> ppDBInfo dbi
+    = fixedName <+> text ":: DBInfo"
+      $$ fixedName <+> equals <+> ppDBInfo dbi
+      where fixedName = text ((toLower . head) n : tail n)
 
 -- | Pretty prints a DBInfo
 ppDBInfo :: DBInfo -> Doc
