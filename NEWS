@@ -1,3 +1,8 @@
+HaskellDB 0.7:
+
+- Added functions for creating and dropping tables and databases.
+  Too be improved in future releases.
+
 HaskellDB 0.6:
 
 - Bounded lists and bounded strings
