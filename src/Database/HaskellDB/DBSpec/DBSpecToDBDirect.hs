@@ -42,17 +42,10 @@ contextStackPragma dbi
     detNum (DBInfo {tbls=t}) = maximum (map detOnTbl t)
     detOnTbl (TInfo {cols=c}) = length c
 
--- | Imports all generated files have
+-- | All imports generated files have dependencies on. Nowadays, this 
+--   should only be Database.HaskellDB.DBLayout
 imports :: Doc
-imports = vcat (map (text . ("import " ++)) 
-		["Database.HaskellDB.HDBRec",
-		 "Database.HaskellDB.HDBRecUtils",
-		 "Database.HaskellDB.BoundedString",
-		 "System.Time (CalendarTime)",
-		 "Database.HaskellDB.Query (Expr, Table, Attr, baseTable)",
-		 "Database.HaskellDB.DBSpec",
-		 "Database.HaskellDB.FieldType"
-		])
+imports = text "import Database.HaskellDB.DBLayout"
 
 -- | Converts a database specification to a "finished" set of files
 specToHDB :: DBInfo -> [(FilePath,Doc)]
@@ -73,7 +66,7 @@ genDocs dbinfo
 			      ((moduleName . dbname) dbinfo) ++ ".") ++)) 
 		tbnames)
        <> newline
-       $$ dbInfoToDoc dbinfo) -- FIXME!!!
+       $$ dbInfoToDoc dbinfo)
         : map (tInfoToModule ((moduleName . dbname) dbinfo)) (tbls dbinfo)
     where
     tbnames = map (moduleName . tname) (tbls dbinfo)

@@ -17,6 +17,7 @@ HASKELLDB_MODULES = \
 	  Database.HaskellDB.BoundedList \
 	  Database.HaskellDB.GenericConnect \
 	  Database.HaskellDB.DBSpec \
+	  Database.HaskellDB.DBLayout
 
 DBSPEC_MODULES = \
 	  Database.HaskellDB.DBSpec.DBInfo \
