@@ -50,7 +50,7 @@ import HDBRecUtils
 -- Show Queries, both as PrimQuery, Optimized PrimQuery and SQL
 -----------------------------------------------------------
 instance Show (Query (Rel r)) where
-  showsPrec d query     = shows (showSql query)
+  showsPrec _ query = shows (showSql query)
   
 showQ       = ppPrimQuery . runQuery
 showOpt     = ppPrimQuery . optimize . runQuery
