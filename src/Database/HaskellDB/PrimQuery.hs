@@ -12,7 +12,7 @@
 -- PrimQuery defines the datatype of relational expressions
 -- ('PrimQuery') and some useful functions on PrimQuery\'s
 --
--- $Revision: 1.19 $
+-- $Revision: 1.20 $
 -----------------------------------------------------------
 module Database.HaskellDB.PrimQuery (
 		  -- * Type Declarations
@@ -63,7 +63,7 @@ data PrimQuery  = BaseTable TableName Scheme
 		deriving (Show)
 
 data RelOp      = Times 
-                | Union 
+                | Union
                 | Intersect 
                 | Divide 
                 | Difference
@@ -170,7 +170,7 @@ attrInOrder :: [PrimExpr] -> Scheme
 attrInOrder  = concat . map attrInExpr
 
 -- | Substitute attribute names in an expression.
-substAttr :: Assoc -> PrimExpr -> PrimExpr           
+substAttr :: Assoc -> PrimExpr -> PrimExpr
 substAttr assoc 
         = foldPrimExpr (attr,ConstExpr,BinExpr,UnExpr,AggrExpr,CaseExpr)
         where 
@@ -272,7 +272,7 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
 		     | otherwise     = parens (x <+> ppUnOp op)
 
           aggr op x	= ppAggrOp op <> parens x
-          _case cs el   = text "CASE" <+> vcat (map ppWhen cs) 
+          _case cs el   = text "CASE" <+> vcat (map ppWhen cs)
 			  <+> text "ELSE" <+> el <+> text "END"
 
           -- be careful when showing a SQL string
@@ -289,11 +289,11 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
           ppWhen (w,t) = text "WHEN" <+> w <+> text "THEN" <+> t
 
 -- PP on ops:
--- | Pretty pints a 'RelOp'
+-- | Pretty prints a 'RelOp'
 ppRelOp :: RelOp -> Doc
 ppRelOp  op		= text (showRelOp  op) 
 
--- | Pretty pints an 'UnUp'
+-- | Pretty prints an 'UnUp'
 ppUnOp :: UnOp -> Doc
 ppUnOp	 op		= text (showUnOp   op)         
 
