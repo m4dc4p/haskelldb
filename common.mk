@@ -25,7 +25,7 @@ MODULES = Database.HaskellDB \
 SRC_NODEP = $(patsubst %, $(COMPILER_DIR)/%.hs, $(subst .,/,$(MODULES)))
 
 ifeq "$(WITH_HSQL)" "yes"
-NEEDS_HSQL = Database.HaskellDB.HSQL.Common
+NEEDS_HSQL = Database.HaskellDB.HSQL.Common Database.HaskellDB.GenericConnect
 
 ifeq "$(WITH_HSQL_ODBC)" "yes"
 NEEDS_HSQL += Database.HaskellDB.HSQL.ODBC
@@ -52,7 +52,7 @@ endif
 
 
 ifeq "$(WITH_WX)" "yes"
-NEEDS_WX = Database.HaskellDB.WX
+NEEDS_WX = Database.HaskellDB.WX Database.HaskellDB.GenericConnect
 HSPP_FLAGS += -DWITH_WX
 SRC_WX = $(patsubst %, $(COMPILER_DIR)/%.hs, $(subst .,/,$(NEEDS_WX)))
 endif
