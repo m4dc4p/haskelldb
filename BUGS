@@ -76,3 +76,6 @@
 
 - Dates before 1970 are not handled correctly. 
   Reported by Mary on 2004-05-02.
+
+- When using HSQL ODBC with MySQL, AUTO_INCREMENT fields 
+  are reported as nullable.
