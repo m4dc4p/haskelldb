@@ -14,7 +14,7 @@
 -- "delete"	deletes a bunch of records
 -- "update"	updates a bunch of records
 -----------------------------------------------------------
-module Database ( (!.)
+module Database.HaskellDB.Database ( (!.)
 		
 		, Row, rowSelect
 		, Database(..)
@@ -24,11 +24,11 @@ module Database ( (!.)
 		, tables, describe
 		) where
 
-import HDBRec
-import FieldType
-import PrimQuery
-import Optimize (optimize)
-import Query	(Rel(..), Attr, Table(..), Query, Expr(..)
+import Database.HaskellDB.HDBRec
+import Database.HaskellDB.FieldType
+import Database.HaskellDB.PrimQuery
+import Database.HaskellDB.Optimize (optimize)
+import Database.HaskellDB.Query	(Rel(..), Attr, Table(..), Query, Expr(..)
 		,runQuery, runQueryRel, exprs, labels)
 
 -----------------------------------------------------------

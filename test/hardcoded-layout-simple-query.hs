@@ -1,10 +1,12 @@
-import HSQL_ODBC
-import HaskellDB
-import Query 
+import Database.HaskellDB.HSQL.ODBC
+import Database.HaskellDB
+import Database.HaskellDB.Query 
+
+import Database.HaskellDB.HDBRec
+import Database.HaskellDB.HDBRecUtils
+
 import Random
 
-import HDBRec
-import HDBRecUtils
 
 -- create table test_tb1 (c11 int not null, c12 int null);
 

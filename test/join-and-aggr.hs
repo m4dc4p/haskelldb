@@ -1,14 +1,13 @@
 import System (getArgs)
 import Control.Monad (unless)
 
-import HaskellDB
-import Query (runQuery) -- for debugging
-import HDBRec
+import Database.HaskellDB
+import Database.HaskellDB.Query (runQuery) -- for debugging
 import Dp037.D3proj_time_reports hiding (xid)
 import qualified Dp037.D3proj_time_reports
 import Dp037.D3proj_users
---import HSQL_PostgreSQL
-import HSQL_ODBC
+--import Database.HaskellDB.HSQL.PostgreSQL
+import Database.HaskellDB.HSQL.ODBC
 
 {-
 
@@ -16,7 +15,7 @@ Tables:
 
 CREATE TABLE d3proj_time_reports (
   id int NOT NULL,
-  username varchar(8) NOT NULL,
+  userid varchar(8) NOT NULL,
   day date NOT NULL,
   hours float NOT NULL,
   activity text NOT NULL,
@@ -42,11 +41,11 @@ withDB f = odbcConnect opts f
 --opts = PostgreSQLOptions{server="localhost", db="dp037", uid="dp037", pwd="teent333"}
 --withDB f = postgresqlConnect opts f
 
-reports userid
+reports user
     = do
       reports <- table d3proj_time_reports
       users <- table d3proj_users
-      restrict (reports!username .==. users!xid .&&. reports!username .==. constant userid)
+      restrict (reports!userid .==. users!xid .&&. reports!userid .==. constant user)
       project (first_name << users!first_name 
 	       # last_name << users!last_name
 	       # activity << reports!activity)
@@ -55,7 +54,7 @@ avgWorkChunks
     = do
       reports <- table d3proj_time_reports
       users <- table d3proj_users
-      restrict (reports!username .==. users!xid)
+      restrict (reports!userid .==. users!xid)
       r <- project (first_name << users!first_name 
 		    # last_name << users!last_name
 		    # hours << avg (reports!hours))

@@ -7,8 +7,12 @@ include $(TOP_DIR)/rules.mk
 DIST_DIR = haskelldb-$(PACKAGE_VERSION)
 
 INSTALL_COMPILERS = $(addprefix install-,$(COMPILERS))
+INSTALL_FILESONLY_COMPILERS = $(addprefix install-filesonly-,$(COMPILERS))
+UNINSTALL_COMPILERS = $(addprefix uninstall-,$(COMPILERS))
 
-.PHONY: install $(INSTALL_COMPILERS) dist distclean maintainer-clean
+.PHONY: install $(INSTALL_COMPILERS) $(INSTALL_FILESONLY_COMPILERS) \
+	uninstall $(UNINSTALL_COMPILERS) \
+	dist distclean maintainer-clean
 
 all: src
 
@@ -24,11 +28,34 @@ config.mk: config.mk.in config.status
 haskelldb.pkg: haskelldb.pkg.in config.status
 	./config.status
 
-install: $(INSTALL_COMPILERS)
+install: all $(INSTALL_COMPILERS)
 
-install-ghc:
+install-ghc: all haskelldb.pkg install-filesonly-ghc
+	$(GHC_PKG) -u -g -i haskelldb.pkg
 
-install-hugs:
+install-filesonly-ghc: all
+	cd build; tar -cf ghc-interfaces.tar `find Database -name '*.hi' -print`
+	cp build/ghc-interfaces.tar $(GHC_DIR)/imports
+	cd $(GHC_DIR)/imports; tar -xf ghc-interfaces.tar; rm -f ghc-interfaces.tar
+	cd build; cp libHShdb.a HShdb.o $(GHC_DIR)
+
+install-hugs: all
+	cd build; tar -cf hugs-libraries.tar `find Database -name '*.hs' -print`
+	cp build/hugs-libraries.tar $(HUGS_DIR)/libraries
+	cd $(HUGS_DIR)/libraries; tar -xf hugs-libraries.tar; rm -f hugs-libraries.tar
+
+uninstall: $(UNINSTALL_COMPILERS)
+
+uninstall-ghc:
+	cd $(GHC_DIR)/imports; rm -rf Database/HaskellDB*
+	cd $(GHC_DIR); rm -f libHShdb.a HShdb.o
+	$(GHC_PKG) -r haskelldb
+
+uninstall-hugs:
+	cd $(HUGS_DIR)/libraries; rm -rf Database/HaskellDB*
+
+clean:
+	-rm -rf $(BUILD_DIR)/*
 
 dist:
 	mkdir $(DIST_DIR)

@@ -1,5 +1,5 @@
-import HaskellDB
-import HSQL_ODBC
+import Database.HaskellDB
+import Database.HaskellDB.HSQL.ODBC
 
 import Dp037
 import Dp037.D3proj_users

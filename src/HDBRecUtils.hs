@@ -11,13 +11,13 @@
 -- 
 -- This module contains utility functions for HDBRec.
 -----------------------------------------------------------
-module HDBRecUtils (hdbMakeEntry, 
+module Database.HaskellDB.HDBRecUtils (hdbMakeEntry, 
 		    mkAttr,
 		    ( << ),
 		    ( # )) where
 
-import HDBRec
-import Query
+import Database.HaskellDB.HDBRec
+import Database.HaskellDB.Query
 
 -- * Functions
 

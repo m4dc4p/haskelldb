@@ -1,54 +1,68 @@
 TOP_DIR = ..
 
+DRIVER_DIRS = drivers/hsql
+
+SUBDIRS = dbdirect $(DRIVER_DIRS)
+
 include $(TOP_DIR)/rules.mk
 
-OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o \
-       PrimQuery.o Query.o Sql.o FieldType.o
+GHCFLAGS += -package-name haskelldb
 
-SRC = $(patsubst %.o,%.hs, $(OBJS))
+HASKELLDB_MODULES = \
+	  Database.HaskellDB.HDBRec \
+	  Database.HaskellDB.FieldType \
+	  Database.HaskellDB.PrimQuery \
+	  Database.HaskellDB.Sql \
+	  Database.HaskellDB.Query \
+	  Database.HaskellDB.HDBRecUtils \
+	  Database.HaskellDB.Optimize \
+	  Database.HaskellDB.Database
 
-DRIVERS_TEST = $(addsuffix -test, $(DRIVER_DIRS))
-DRIVERS_CLEAN = $(addsuffix -clean, $(DRIVER_DIRS))
-DRIVERS_OBJS = $(addsuffix /*.o, $(DRIVER_DIRS))
+DATABASE_MODULES = Database.HaskellDB
+
+MODULES = $(HASKELLDB_MODULES) $(DATABASE_MODULES)
+
+DATABASE_SRC = \
+      $(patsubst %, $(BUILD_DIR)/%.hs, $(subst .,/,$(DATABASE_MODULES)))
+
+HASKELLDB_SRC = \
+      $(patsubst %, $(BUILD_DIR)/%.hs, $(subst .,/,$(HASKELLDB_MODULES)))
+
+SRC = $(HASKELLDB_SRC) $(DATABASE_SRC)
+
+OBJS = $(patsubst %.hs, %.o, $(SRC))
+
+DRIVERS_OBJS = $(patsubst %, $(BUILD_DIR)/Database/HaskellDB/%/*.o, $(DRIVERS))
 
 ALL_COMPILERS = $(addprefix all-,$(COMPILERS))
 
-.PHONY: drivers $(DRIVER_DIRS) $(DRIVERS_OBJS) \
-	dbdirect dbdirect-clean test $(DRIVERS_TEST) \
-	$(DRIVERS_CLEAN) $(ALL_COMPILERS)
+.PHONY: $(ALL_COMPILERS)
 
-all: $(OBJS) drivers $(ALL_COMPILERS) dbdirect
+all: $(ALL_COMPILERS) $(DRIVER_DIRS) dbdirect
 
-all-ghc: libHShdb.a
+all-ghc: $(BUILD_DIR)/libHShdb.a $(BUILD_DIR)/HShdb.o
 
-libHShdb.a: $(OBJS) $(DRIVERS_OBJS)
-	$(AR) -rc $@ $^
+all-hugs: $(SRC) 
 
-all-hugs:
+$(BUILD_DIR)/libHShdb.a: $(OBJS) $(DRIVER_DIRS)
+	$(AR) -rc $@ $(filter %.o, $^) $(DRIVERS_OBJS)
 
-drivers: $(DRIVER_DIRS)
+$(BUILD_DIR)/HShdb.o: $(BUILD_DIR)/libHShdb.a
+	$(LD) -r --whole-archive -o $@ $^
 
-$(DRIVER_DIRS):
-	$(MAKE) -C $@
+$(HASKELLDB_SRC): $(notdir $(HASKELLDB_SRC))
+	mkdir -p $(sort $(dir $@))
+	cp -f $^ $(sort $(dir $@))
+	echo Driver DIRS: $(DRIVER_DIRS)
 
-dbdirect:
-	$(MAKE) -C dbdirect
-
-test: $(DRIVERS_TEST)
-
-$(DRIVERS_TEST):
-	$(MAKE) -C $(subst -test,,$@) test
+$(DATABASE_SRC): $(notdir $(DATABASE_SRC))
+	mkdir -p $(sort $(dir $@))
+	cp -f $^ $(sort $(dir $@))
 
 # cleaning up
 
-clean: dbdirect-clean $(DRIVERS_CLEAN)
-	-rm -f *.o *.hi *.a .depend .depend.bak
-
-dbdirect-clean:
-	$(MAKE) -C dbdirect clean
-
-$(DRIVERS_CLEAN):
-	$(MAKE) -C $(subst -clean,,$@) clean
+clean: 
+	-rm -f .depend .depend.bak
 
 # dependencies
 

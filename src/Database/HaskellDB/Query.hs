@@ -5,7 +5,7 @@
 -- The "Query" monad constructs a relational expression
 -- (PrimQuery).
 -----------------------------------------------------------
-module Query (
+module Database.HaskellDB.Query (
 	      Rel(..), Attr(..), Table(..), Query, Expr(..)
 	     , runQuery, runQueryRel
 	     , attribute, project, baseTable
@@ -25,8 +25,8 @@ module Query (
 	     , top, topPercent
 	     ) where
 
-import HDBRec
-import PrimQuery
+import Database.HaskellDB.HDBRec
+import Database.HaskellDB.PrimQuery
 
 -----------------------------------------------------------
 -- Operators

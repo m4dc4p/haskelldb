@@ -1,4 +1,4 @@
-module FieldType (FieldDef, FieldType(..)) where
+module Database.HaskellDB.FieldType (FieldDef, FieldType(..)) where
 
 import System.Time
 

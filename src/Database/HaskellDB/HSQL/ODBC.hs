@@ -1,9 +1,9 @@
-module HSQL_ODBC (
+module Database.HaskellDB.HSQL.ODBC (
 		  odbcConnect
 		 , ODBCOptions(..)
 		 ) where
 
-import HSQL_driver
+import Database.HaskellDB.HSQL.Common
 import qualified Database.HSQL.ODBC as ODBC (connect) 
 
 data ODBCOptions = ODBCOptions { 

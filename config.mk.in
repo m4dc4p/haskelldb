@@ -42,25 +42,26 @@ endif
 # HSQL, unixODBC, MySQL, PostgreSQL stuff
 #
 
-# FIXME: this should probably be set by configure in the future
-DRIVERS = hsql
 
 WITH_HSQL_ODBC = @WITH_HSQL_ODBC@
 WITH_HSQL_MYSQL = @WITH_HSQL_MYSQL@
 WITH_HSQL_POSTGRESQL = @WITH_HSQL_POSTGRESQL@
 
 ifeq "$(WITH_HSQL_ODBC)" "yes"
-HSQL_DRIVERS += HSQL_ODBC
+HSQL_DRIVERS += ODBC
 endif
 
 ifeq "$(WITH_HSQL_MYSQL)" "yes"
-HSQL_DRIVERS += HSQL_MySQL
+HSQL_DRIVERS += MySQL
 endif
 
 ifeq "$(WITH_HSQL_POSTGRESQL)" "yes"
-HSQL_DRIVERS += HSQL_PostgreSQL
+HSQL_DRIVERS += PostgreSQL
 endif
 
+ifneq ($(strip $(HSQL_DRIVERS)),)
+DRIVERS += HSQL
+endif
 
 #
 # Include local HaskellDB dirs
@@ -68,10 +69,9 @@ endif
 
 SRC_DIR = $(TOP_DIR)/src
 
-DRIVER_DIRS = $(addprefix $(SRC_DIR)/drivers/, $(DRIVERS))
-IMPORT_DIRS = $(SRC_DIR) $(DRIVER_DIRS)
+BUILD_DIR = $(TOP_DIR)/build
 
-GHCFLAGS += $(addprefix -i, $(IMPORT_DIRS))
-HUGSFLAGS += $(patsubst %, -P%:, $(IMPORT_DIRS))
+GHCFLAGS += $(addprefix -i, $(BUILD_DIR))
+HUGSFLAGS += $(patsubst %, -P%:, $(BUILD_DIR))
 # order is significant here
-LDFLAGS := -L$(SRC_DIR) -lHShdb $(LDFLAGS)
+LDFLAGS := -L$(BUILD_DIR) -lHShdb $(LDFLAGS)

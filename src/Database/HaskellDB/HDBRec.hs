@@ -11,7 +11,7 @@
 -- 
 -- This is a simple replacement for TREX.
 -----------------------------------------------------------
-module HDBRec where
+module Database.HaskellDB.HDBRec where
 
 -- * Data declarations.
 

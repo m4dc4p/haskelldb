@@ -6,7 +6,7 @@
 -- particular database binding (ie. Ado) and database
 -- definitions (ie. Pubs).
 -----------------------------------------------------------
-module HaskellDB 
+module Database.HaskellDB 
 	( Rel, Attr, Expr, Table, Query	-- abstract
 	
 	, ( # )
@@ -39,12 +39,12 @@ module HaskellDB
 	
 	) where
 
-import PrimQuery (ppPrimQuery)
-import Sql       (toSql, ppSql)
-import Optimize  (optimize)
-import Query
-import Database
-import HDBRecUtils
+import Database.HaskellDB.PrimQuery (ppPrimQuery)
+import Database.HaskellDB.Sql       (toSql, ppSql)
+import Database.HaskellDB.Optimize  (optimize)
+import Database.HaskellDB.Query
+import Database.HaskellDB.Database
+import Database.HaskellDB.HDBRecUtils
 
 -----------------------------------------------------------
 -- Show Queries, both as PrimQuery, Optimized PrimQuery and SQL

@@ -21,7 +21,8 @@ ghciload-%: %.hs
 %.o: %.hs
 	$(GHC) $(GHCFLAGS) -c $<
 
-%.hi: %.o ;
+%.hi: %.o
+	@:
 
 .depend: 
 	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
@@ -33,3 +34,4 @@ clean: $(SUBDIRS_CLEAN)
 
 $(SUBDIRS_CLEAN):
 	$(MAKE) -C $(subst -clean,,$@) clean
+

@@ -7,7 +7,7 @@
  - make odbcPrimQuery lazy
 -}
 
-module HSQL_driver (
+module Database.HaskellDB.HSQL.Common (
 		     hsqlConnect
 		   , HSQL
 		   ) where
@@ -16,11 +16,11 @@ import Data.Dynamic
 import Maybe
 import Monad
 
-import Database
-import Sql
-import PrimQuery
-import Query
-import FieldType
+import Database.HaskellDB.Database
+import Database.HaskellDB.Sql
+import Database.HaskellDB.PrimQuery
+import Database.HaskellDB.Query
+import Database.HaskellDB.FieldType
 
 import Database.HSQL as HSQL hiding (FieldDef)
 

@@ -1,9 +1,9 @@
-module HSQL_MySQL (
+module Database.HaskellDB.HSQL.MySQL (
 		   MySQLOptions(..)
 		  , mysqlConnect
 		  ) where
 
-import HSQL_driver
+import Database.HaskellDB.HSQL.Common
 import qualified Database.HSQL.MySQL as MySQL (connect) 
 
 data MySQLOptions = MySQLOptions { 

@@ -1,9 +1,9 @@
-module HSQL_PostgreSQL (
+module Database.HaskellDB.HSQL.PostgreSQL (
 		      PostgreSQLOptions(..)
 		      , postgresqlConnect
 		      ) where
 
-import HSQL_driver
+import Database.HaskellDB.HSQL.Common
 import qualified Database.HSQL.PostgreSQL as PostgreSQL (connect) 
 
 data PostgreSQLOptions = PostgreSQLOptions { 

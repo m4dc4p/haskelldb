@@ -2,8 +2,11 @@ TOP_DIR = ../../..
 
 include $(TOP_DIR)/rules.mk
 
-DRIVER_SRC = $(addsuffix .hs, $(HSQL_DRIVERS))
-SRC = HSQL_driver.hs $(DRIVER_SRC)
+GHCFLAGS += -package-name haskelldb
+
+SRC_HERE = Common.hs $(addsuffix .hs, $(HSQL_DRIVERS))
+
+SRC = $(addprefix $(BUILD_DIR)/Database/HaskellDB/HSQL/, $(SRC_HERE))
 OBJS = $(patsubst %.hs,%.o, $(SRC))
 
 ALL_COMPILERS = $(addprefix all-,$(COMPILERS))
@@ -14,11 +17,15 @@ all: $(ALL_COMPILERS)
 
 all-ghc: $(OBJS)
 
-all-hugs:
+all-hugs: $(SRC)
 
-.depend: $(SRC)
+$(SRC): $(SRC_HERE)
+	mkdir -p $(sort $(dir $@))
+	cp -f $^ $(sort $(dir $@))
 
 clean:
-	-rm -f *.so *.o *.hi .depend .depend.bak
+	-rm -f .depend .depend.bak
+
+.depend: $(SRC)
 
 include .depend

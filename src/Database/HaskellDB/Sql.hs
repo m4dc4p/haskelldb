@@ -5,7 +5,8 @@
 -- Transform a PrimQuery (relational expression) to SQL
 -- and pretty print SQL
 -----------------------------------------------------------
-module Sql ( SqlSelect(..) 
+module Database.HaskellDB.Sql ( 
+	     SqlSelect(..) 
 	   , SqlUpdate(..) 
 	   , SqlDelete(..) 
 	   , SqlInsert(..)
@@ -18,7 +19,7 @@ module Sql ( SqlSelect(..)
 	   ) where
 
 import List (intersect)
-import PrimQuery
+import Database.HaskellDB.PrimQuery
 
 import Text.PrettyPrint.HughesPJ
 

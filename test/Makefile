@@ -1,11 +1,11 @@
-TOP_DIR = ..
+PROG = hardcoded-layout-simple-query join-and-aggr html-users-list
 
-include $(TOP_DIR)/rules.mk
+.PHONY: all
 
-.depend: *.hs
+all: $(PROG)
+
+%: %.hs
+	ghc --make -o $@ $^
 
 clean:
-	-rm -f *.hi .depend .depend.bak
-
-# disabled to avoid looking for dbdirect-generated code
-#include .depend
+	-rm -f $(PROG) *.o *.hi 

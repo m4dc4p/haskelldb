@@ -11,10 +11,10 @@
 -- 'removeDead'   removes unused attributes from projections.
 -- 'removeEmpty'  removes unused branches of an expression.
 -----------------------------------------------------------
-module Optimize (optimize) where
+module Database.HaskellDB.Optimize (optimize) where
 
 import List (intersect)
-import PrimQuery
+import Database.HaskellDB.PrimQuery
 
 -- | Optimize a PrimQuery
 optimize :: PrimQuery -> PrimQuery

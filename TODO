@@ -20,6 +20,7 @@ Things that need to be done, in no particular order:
 - DbDirect 
   (* add optional command line argument for selecting which
   tables to generate code for)
+  * make DbDirect use any driver /Bjorn
 
 - Installation
   * GHC package specification
