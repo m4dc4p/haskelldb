@@ -144,6 +144,8 @@ minus           = binrel Difference
 -----------------------------------------------------------
 -- Tables
 -----------------------------------------------------------
+
+
 table :: (ShowRecRow r) => Table r -> Query (Rel r)
 table (Table name assoc)
         = do
@@ -311,9 +313,13 @@ instance ShowConstant CalendarTime where
 instance ShowConstant a => ShowConstant (Maybe a) where
     showConstant x = maybe "NULL" showConstant x
 
+
+-- | Transform an a into an Expr a.  
 constant :: ShowConstant a => a -> Expr a
 constant x      = Expr (ConstExpr (showConstant x))
 
+-- This function is not exported and is not used anywhere.. 
+-- Either export it or delete it :)
 nullable        :: ShowConstant a => a -> Expr (Maybe a)
 nullable x      = Expr (ConstExpr (showConstant x))
 
@@ -394,8 +400,15 @@ orderOp op rel attr = Expr (UnExpr op expr)
 	where
 	  (Expr expr) = rel ! attr
 
-asc,desc :: Rel r -> Attr f r a -> Expr Order
+-- | Use this together with the function 'order' to 
+-- create an query orderd ascending.
+asc :: Rel r -> Attr f r a -> Expr Order
 asc rel attr	= orderOp OpAsc rel attr
+
+
+-- | Use this together with the function 'order' to 
+-- create an query orderd descending.
+desc :: Rel r -> Attr f r a -> Expr Order
 desc rel attr	= orderOp OpDesc rel attr
 
 -- Maybe the above should take an expression instead of
@@ -413,6 +426,9 @@ asc 	= orderOp OpAsc
 desc	= orderOp OpDesc
 -}
 
+-- | HaskellDB countherpart to the SQL keyqword ORDER BY. 
+-- Use this with the 'asc' or 'desc' functions to create 
+-- an orderd 'Query'.
 order :: [Expr Order] -> Query ()
 order xs	= updatePrimQuery_ (Special (Order (map unExpr xs)))
 		where
