@@ -1,0 +1,10 @@
+Hugs incompatibilites in HSQL.ODBC
+
+- Uses Foreign.Concurrent for finalizers
+  * Use function pointers instead
+
+- Uses stdcall
+  * Use ccall instead
+
+- Derives Typeable
+  * Declare instance manually.
