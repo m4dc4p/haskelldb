@@ -30,7 +30,7 @@ q3 = do
 
 pp = putStrLn . show . showSql
 
-printIds = mapM (\r -> putStrLn (r!.xid))
+printIds = mapM (\r -> putStrLn (r!xid))
 
 tests db = do 
 	   putStrLn "top:"

@@ -34,13 +34,13 @@ t1 = Table "hdb_test_t1" [
 			  ("t1f17","double precision"),
 			  ("t1f18","double precision not null"),
 			  ("t1f19","date"),
-			  ("t1f20","date not null"),
+			  ("t1f20","date not null")
 -- Insertion doesn't work in Postgre
 --			  ("t1f21","time"),
 --			  ("t1f22","time not null"),
 -- Insertion doesn't work in Postgre
-			  ("t1f23","timestamp"),
-			  ("t1f24","timestamp not null")
+--			  ("t1f23","timestamp"),
+--			  ("t1f24","timestamp not null")
 			 ]
 
 t2 = Table "hdb_test_t2" [
@@ -63,13 +63,13 @@ t2 = Table "hdb_test_t2" [
 			  ("t2f17","double precision"),
 			  ("t2f18","double precision not null"),
 			  ("t2f19","date"),
-			  ("t2f20","date not null"),
+			  ("t2f20","date not null")
 -- Insertion doesn't work in Postgre
 --			  ("t2f21","time"),
 --			  ("t2f22","time not null"),
 -- Treated as strings in Postgre
-			  ("t2f23","timestamp"),
-			  ("t2f24","timestamp not null")
+--			  ("t2f23","timestamp"),
+--			  ("t2f24","timestamp not null")
 			 ]
 
 tableName :: Table -> String

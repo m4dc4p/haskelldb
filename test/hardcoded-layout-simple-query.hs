@@ -58,7 +58,7 @@ q = do
 
 newRec x y = c11 << constant x # c12 << constant y
 
-printResults rs = mapM_ (\row -> putStrLn (show (row!.c11) ++ " " ++ show (row!.c12))) rs
+printResults rs = mapM_ (\row -> putStrLn (show (row!c11) ++ " " ++ show (row!c12))) rs
 
 --
 -- Testing db layout functions

@@ -8,7 +8,7 @@ printTable db =
     t <- query db (table test_tb1)
     mapM_ (putStrLn . showRow) t
 
-showRow r = lpad 10 (show (r!.c11)) ++ lpad 10 (showNullable (r!.c12))
+showRow r = lpad 10 (show (r!c11)) ++ lpad 10 (showNullable (r!c12))
 
 showNullable :: Show a => Maybe a -> String
 showNullable = maybe "NULL" show

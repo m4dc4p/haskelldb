@@ -13,8 +13,8 @@ getUsers =
 	     email << users!email)
 
 
-showUser u = "<li>" ++ u!.first_name ++ " " ++ u!.last_name 
-		 ++ " (<tt>" ++ obfuscate (u!.email) 
+showUser u = "<li>" ++ u!first_name ++ " " ++ u!last_name 
+		 ++ " (<tt>" ++ obfuscate (u!email) 
 			++ "</tt>)</li>"
 
 obfuscate addr = name ++ " AT " ++ safeTail domain 

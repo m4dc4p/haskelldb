@@ -12,8 +12,8 @@ q n = do
       restrict (users!xid .==. constant (trunc n))
       project (first_name << users!first_name # last_name << users!last_name)
 
-printName r = putStrLn (fromBounded (r!.first_name) ++ " " 
-			++ fromBounded (r!.last_name))	      
+printName r = putStrLn (fromBounded (r!first_name) ++ " " 
+			++ fromBounded (r!last_name))	      
 
 main = do
        connArgs <- getArgs

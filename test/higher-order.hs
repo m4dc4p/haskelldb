@@ -53,6 +53,6 @@ test db =
     mapM_ (putStrLn . showRow) rs3
     
 
-showRow r = r!.userid ++ ": " ++ show (r!.hours)
+showRow r = r!userid ++ ": " ++ show (r!hours)
 
 main = argConnect test

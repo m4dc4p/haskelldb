@@ -19,9 +19,9 @@ getUsers =
 	     )
 
 
-showReport r = rpad 20 (r!.first_name ++ " " ++ r!.last_name) ++ " " 
-	       ++ calendarTimeToString (r!.day) ++ " "
-	       ++ calendarTimeToString (r!.reported)
+showReport r = rpad 20 (r!first_name ++ " " ++ r!last_name) ++ " " 
+	       ++ calendarTimeToString (r!day) ++ " "
+	       ++ calendarTimeToString (r!reported)
 
 rpad :: Int -> String -> String
 rpad x s = s ++ replicate (x - length s) ' '

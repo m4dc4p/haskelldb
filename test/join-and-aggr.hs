@@ -61,10 +61,10 @@ floatTest
 doFloatTest db
     = do 
       result <- query db floatTest
-      mapM_ (putStrLn . (\r -> show (r!.hours))) result
+      mapM_ (putStrLn . (\r -> show (r!hours))) result
 
 
-actToString r = r!.first_name ++ " " ++ r!.last_name ++ ": " ++ r!.activity
+actToString r = r!first_name ++ " " ++ r!last_name ++ ": " ++ r!activity
 
 printActivity username db 
     = do
@@ -77,7 +77,7 @@ printAvgWorkChunks db
     = do
       result <- query db avgWorkChunks 
       mapM_ (putStrLn . showRow) result
-      where showRow r = r!.first_name ++ " " ++ r!.last_name ++ ": " ++ show (r!.hours) ++ " h"
+      where showRow r = r!first_name ++ " " ++ r!last_name ++ ": " ++ show (r!hours) ++ " h"
 
 main = do
 --       putStrLn $ show $ runQuery avgWorkChunks

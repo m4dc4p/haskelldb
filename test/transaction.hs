@@ -5,7 +5,7 @@ import TestConnect
 import Control.Exception
 import Dp037.Test_tb1
 
-printRecord r = putStrLn $ show (r!.c11) ++ " " ++ show (r!.c12)
+printRecord r = putStrLn $ show (r!c11) ++ " " ++ show (r!c12)
 
 printRecords db = do
 		  rs <- query db (table test_tb1)

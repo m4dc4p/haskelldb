@@ -38,15 +38,15 @@ data1 = [(
 	 t1f17 << constant (Just 17.17) #
 	 t1f18 << constant 18.18 #
 	 t1f19 << constant (Just now) #
-	 t1f20 << constant now #
+	 t1f20 << constant now 
 -- Insertion doesn't work in Postgre
 --	 t1f21 << constant (Just now) #
 --	 t1f22 << constant now #
 -- MySQL makes this NOT NULL
 --	 t1f23 << constant now #
 -- Treated as strings in Postgre
-	 t1f23 << constant (Just now) #
-	 t1f24 << constant now
+--	 t1f23 << constant (Just now) #
+--	 t1f24 << constant now
 	)
 	]
 
@@ -70,15 +70,15 @@ data2 =  [(
 	 t2f17 << constant (Just 17.17) #
 	 t2f18 << constant 18.18 #
 	 t2f19 << constant (Just now) #
-	 t2f20 << constant now #
+	 t2f20 << constant now 
 -- Insertion doesn't work in Postgre
 --	 t2f21 << constant (Just now) #
 --	 t2f22 << constant now #
 -- MySQL makes this NOT NULL
 --	 t2f23 << constant now #
 -- Treated as strings in Postgre
-	 t2f23 << constant (Just now) #
-	 t2f24 << constant now
+--	 t2f23 << constant (Just now) 
+--	 t2f24 << constant now
 	)]
 
 insertData db = do
@@ -103,7 +103,7 @@ mkJoinOnQuery f1 f2 =
 joinOn db f1 f2 t1 t2 = 
     do
     rs <- query db (mkJoinOnQuery f1 f2)
-    if and [r!.t1 == r!.t2 | r <- rs] then
+    if and [r!t1 == r!t2 | r <- rs] then
        putStrLn "Join ok"
      else
        putStrLn "Join equality check FAILED"
@@ -112,32 +112,32 @@ formatDate = formatCalendarTime defaultTimeLocale fmt
 	where fmt = iso8601DateFormat (Just "%H:%M:%S")
 
 showAllFields1 r = [
-		    show $ r!.t1f01,
-		    show $ r!.t1f02,
-		    show $ r!.t1f03,
-		    show $ r!.t1f04,
-		    show $ r!.t1f05,
-		    show $ r!.t1f06,
-		    show $ r!.t1f07,
-		    show $ r!.t1f08,
-		    show $ r!.t1f09,
-		    show $ r!.t1f10,
-		    show $ r!.t1f11,
-		    show $ r!.t1f12,
-		    show $ r!.t1f13,
-		    show $ r!.t1f14,
-		    show $ r!.t1f15,
-		    show $ r!.t1f16,
-		    show $ r!.t1f17,
-		    show $ r!.t1f18,
-		    show $ r!.t1f19,
-		    show $ r!.t1f20
+		    show $ r!t1f01,
+		    show $ r!t1f02,
+		    show $ r!t1f03,
+		    show $ r!t1f04,
+		    show $ r!t1f05,
+		    show $ r!t1f06,
+		    show $ r!t1f07,
+		    show $ r!t1f08,
+		    show $ r!t1f09,
+		    show $ r!t1f10,
+		    show $ r!t1f11,
+		    show $ r!t1f12,
+		    show $ r!t1f13,
+		    show $ r!t1f14,
+		    show $ r!t1f15,
+		    show $ r!t1f16,
+		    show $ r!t1f17,
+		    show $ r!t1f18,
+		    show $ r!t1f19,
+		    show $ r!t1f20
 -- Insertion doesn't work in Postgre
---		    show $ r!.t1f21,
---		    show $ r!.t1f22,
+--		    show $ r!t1f21,
+--		    show $ r!t1f22,
 -- Treated as strings in Postgre
---		    show $ r!.t1f23,
---		    show $ r!.t1f24
+--		    show $ r!t1f23,
+--		    show $ r!t1f24
 		   ]
 
 showAll db = 
