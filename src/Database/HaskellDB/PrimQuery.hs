@@ -12,7 +12,7 @@
 -- PrimQuery defines the datatype of relational expressions
 -- ('PrimQuery') and some useful functions on PrimQuery\'s
 --
--- $Revision: 1.24 $
+-- $Revision: 1.25 $
 -----------------------------------------------------------
 module Database.HaskellDB.PrimQuery (
 		  -- * Type Declarations
@@ -108,6 +108,7 @@ data UnOp	= OpNot
 		| OpAsc | OpDesc
 		| OpIsNull | OpIsNotNull
 		| OpLength
+		| UnOpOther String
 		deriving (Show,Read)
 
 data AggrOp     = AggrCount | AggrSum | AggrAvg | AggrMin | AggrMax
@@ -300,6 +301,7 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
           tosquote c            = [c]
 -}	  
           isFun OpLength        = True
+	  isFun (UnOpOther _)   = True
 	  isFun _               = False
 
 	  isPrefixOp OpNot      = True
@@ -355,6 +357,7 @@ showUnOp  OpIsNotNull   = "IS NOT NULL"
 showUnOp  OpAsc         = "ASC"
 showUnOp  OpDesc        = "DESC"
 showUnOp  OpLength      = "LENGTH"
+showUnOp  (UnOpOther s) = s
 
 showBinOp :: BinOp -> String
 showBinOp  OpEq         = "=" 
