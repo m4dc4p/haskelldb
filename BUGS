@@ -59,11 +59,6 @@
 - Tables in unions may get the same table alias, which Not A Good
   Thing. This is a problem i Sql.ppSql.
 
-- The MS Access ODBC driver reports some system tables which have
-  empty names and not fields. DBDirect generates table descriptions
-  like 'baseTable "" $' for such tables, which is bad, mkay. 
-  Possibly fixed by Chucky, but not well tested.
-
 - When querying a Microsoft Access database using the ODBC driver,
   you can get the error "The field is too small to accept the 
   amount of data you attempted to add." if the query includes a

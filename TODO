@@ -18,15 +18,12 @@ Things that need to be done, in no particular order:
   (* maybe make it work on multi-processor systems using Concurrent Haskell?)
   (* try to compile with nhc98. It would be nice to support all three 
      available Haskell compilers)
-  (* Add features for adding and modifying tables /Added by Bjorn,
+  (* Add features for modifying tables /Added by Bjorn,
      suggested by Shae Erisson)
   (* use template haskell to compile queries to SQL at compile time 
      /Added by Bjorn, thanks to Anders Carlsson for inspiration )
 
 - DbDirect 
-  * Handle empty tables and tables with no name (probably by
-    ignoring them).
-  * Fix bug with DBInfo uppercase name.
   * Set sensible default values for all NOT NULL columns.
   (* add optional command line argument for selecting which
   tables to generate code for)
