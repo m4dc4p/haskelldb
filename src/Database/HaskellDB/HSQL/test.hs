@@ -4,8 +4,6 @@ import HaskellDB
 import Database.ODBC.HSQL (SqlError, seErrorMsg, handleSql)
 import HDBRec
 import HDBRecUtils
-import Database
-import Query
 
 ---------------------------------------------------------------------------
 -- Tables
