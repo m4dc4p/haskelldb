@@ -1,11 +1,11 @@
 dnl Run autoconf to generate configure from this file
 dnl Based on configure.ac from HSQL
 
-AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
+AC_INIT([HaskellDB],[0.7],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.32 $)
+AC_REVISION($Revision: 1.33 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
