@@ -1,5 +1,10 @@
 {-
  HSQL interface for HaskellDB
+
+ TODO:
+ - add tables and describe to Database
+ - add Haddock comments
+ - fix getField for all types
 -}
 
 module HSQL_driver (
