@@ -138,7 +138,7 @@ hsqlPrimQuery :: Connection -> String -> Scheme -> Rel r -> IO [HSQLRow r]
 hsqlPrimQuery connection sql scheme _ = 
     do
     -- FIXME: (DEBUG) remove
-    putStrLn sql
+    --putStrLn sql
     stmt <- HSQL.query connection sql
     -- FIXME: (DEBUG) remove
     -- putStrLn $ unlines $ map show $ getFieldsTypes stmt
