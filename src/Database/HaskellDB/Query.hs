@@ -40,40 +40,33 @@ infix   4 .==., .<>., .<., .<=., .>., .>=.
 infixr  3 .&&.
 infixr  2 .||.
 
-(!) :: Rel r -> Attr f r a -> Expr a
-rel ! attr      = select attr rel
-
 ----------------------------------------------------------
--- Data definitions. The ...Kind constructors are only
---		used to inform Hugs that the parameter is
---		a record kind.
---
--- data Rel	= type of relations, contains the attributes
---		of the relation and an 'alias' to which the
---		attributes are renamed in the PrimQuery.
--- data Expr	= type of expressions, contains the untyped
---		PrimExpr.
--- data Table   = basic tables, contains table name and an
---		association from attributes to attribute
---		names in the real table.
--- data Attr	= typed attributes
--- data QState  = a Query monad provides unique names (aliases)
---		and constructs a PrimQuery.
+-- Data definitions. 
 ----------------------------------------------------------
 
+-- | Type of relations, contains the attributes
+--   of the relation and an 'Alias' to which the
+--   attributes are renamed in the 'PrimQuery'.
 data Rel r      = Rel Alias Scheme
 
+-- | Type of expressions, contains the untyped PrimExpr.
 data Expr a     = Expr PrimExpr
 		deriving (Read, Show)
 
+-- | Basic tables, contains table name and an
+--   association from attributes to attribute
+--   names in the real table.
 data Table r    = Table TableName Assoc
 
-
+-- | Typed attributes
 data Attr f r a   = Attr Attribute
 
-
 type Alias      = Int
+
+-- | A Query monad provides unique names (aliases)
+--   and constructs a PrimQuery.
 type QState     = (Alias,PrimQuery)
+
 data Query a    = Query (QState -> (a,QState))
 
 
@@ -86,6 +79,9 @@ attributeName (Attr name) = name
 -----------------------------------------------------------
 -- Basic relational operators
 -----------------------------------------------------------
+
+(!) :: Rel r -> Attr f r a -> Expr a
+rel ! attr      = select attr rel
 
 select :: Attr f r a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)
@@ -210,22 +206,34 @@ notNull = unop OpIsNotNull
 
 -----------------------------------------------------------
 -- Constants
--- any showable thing is allowed now, which
--- is not very safe. We should change this
--- and allow only a very  basic set of constants
--- or change the set according to the database backend
+-- Maybe we should change the set according to the 
+-- database backend
 -----------------------------------------------------------
-showConstant :: Show a => a -> String
-showConstant x        = show x
 
--- needs overlapping instances
--- instance Show a => ShowConstant (Maybe a) where
---   showConstant x        = maybe "NULL" show x
+class ShowConstant a where
+    showConstant :: a -> String
 
-constant :: Show a => a -> Expr a
+instance ShowConstant String where
+    showConstant x = show x
+instance ShowConstant Int where
+    showConstant x = show x
+instance ShowConstant Integer where
+    showConstant x = show x
+instance ShowConstant Double where
+    showConstant x = show x
+instance ShowConstant Bool where
+    -- Bools probably correspond to some numeric type (like BIT),
+    -- so 0 and 1 seem reasonable to use.
+    showConstant False = show 0
+    showConstant True = show 1
+
+instance Show a => ShowConstant (Maybe a) where
+    showConstant x = maybe "NULL" show x
+
+constant :: ShowConstant a => a -> Expr a
 constant x      = Expr (ConstExpr (showConstant x))
 
-nullable        :: Show a => a -> Expr (Maybe a)
+nullable        :: ShowConstant a => a -> Expr (Maybe a)
 nullable x      = Expr (ConstExpr (showConstant x))
 
 
