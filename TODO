@@ -50,3 +50,16 @@ Things that need to be done, in no particular order:
 - Misc
   * Get an allocated name in the hierarchical library namespace 
     (Database.HaskellDB?)
+  * Figure out some sensible module naming strategy. E.g.:
+    Database.HaskellDB
+        (main module that users import)
+    Database.HaskellDB.{Query,Primquery,Sql, ...} 
+        (HaskellDB internals)
+    Database.HaskellDB.DbDirect
+	(DbDirect)
+    Database.HaskellDB.Drivers
+	(possibly some code for runtime driver selection)
+    Database.HaskellDB.Drivers.HSQL.Internals
+	(common code for talking to HSQL)
+    Database.HaskellDB.Drivers.HSQL.{ODBC,MySQL,PostgreSQL} 
+        (HSQL driver-specific code)
