@@ -51,9 +51,10 @@ Things that need to be done, in no particular order:
     run time /Bjorn
 
 - Installation
+  * Install targets should install DbDirect and the documentation.
   * Packages (separate binary packages for Hugs and GHC?))
     - Source tarball
-    - Linux binary and source RPMs 
+    - Linux binary and source RPMs (debs, ebuild?)
     - Windows installer (MSI?)
 
 - Build system 
