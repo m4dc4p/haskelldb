@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.30 $)
+AC_REVISION($Revision: 1.31 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -282,10 +282,11 @@ if test "$WITH_HSQL" = "yes"; then
   GHCFLAGS="$GHCFLAGS -package hsql"
 
   AC_HS_GHC_MODULE_IFELSE([Database.HSQL],[query],
-    AC_HS_HUGS_MODULE_IFELSE([Database.HSQL], [query],,
-       [AC_MSG_WARN([HSQL found but no support for HUGS])
-       HUGS=""
-       ENABLE_HUGS="no"]),
+    if test "$ENABLE_HUGS" = "yes"; then
+      [AC_HS_HUGS_MODULE_IFELSE([Database.HSQL], [query],,
+	 [AC_MSG_WARN([HSQL found but no support for HUGS])
+	 HUGS=""
+	 ENABLE_HUGS="no"])] fi,
     [AC_MSG_WARN([HSQL not found, not building HSQL support])
     WITH_HSQL="no"])
 
