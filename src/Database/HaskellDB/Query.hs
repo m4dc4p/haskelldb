@@ -3,14 +3,14 @@
 --
 -- Basic combinators for building type-safe queries.
 -- The "Query" monad constructs a relational expression
--- (PrimQuery). 
+-- (PrimQuery).
 -----------------------------------------------------------
 module Query (
 	      Rel(..), Attr(..), Table(..), Query, Expr(..)
 	     , runQuery, runQueryRel
 	     , attribute, project, baseTable
 	     , attributeName, exprs, labels
-	     , (!) 
+	     , (!)
 	     , restrict, table
 	     , union, intersect, divide, minus
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
@@ -84,12 +84,12 @@ data Expr a     = Expr PrimExpr
 		deriving (Read, Show)
 
 data Table r    = Table TableName Assoc
-                
+
 
 data Attr f r a   = Attr Attribute
 
-                
-type Alias      = Int                
+
+type Alias      = Int
 type QState     = (Alias,PrimQuery)
 data Query a    = Query (QState -> (a,QState))
 
@@ -101,25 +101,25 @@ scheme (Rel _ s)
 attributeName :: Attr f r a -> Attribute
 attributeName (Attr name)
 	= name
-	
+
 -----------------------------------------------------------
--- Basic relational operators 
+-- Basic relational operators
 -----------------------------------------------------------
 
 select :: (ShowRecRow r) => Attr f r a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
-        
-        
+
+
 project :: (ShowRecRow r) => HDBRec r -> Query (Rel r)
-project r       
+project r
         = do{ alias <- newAlias
-            ; let scheme        = labels r          
-                  assoc         = zip (map (fresh alias) scheme) (exprs r)                  
+            ; let scheme        = labels r
+                  assoc         = zip (map (fresh alias) scheme) (exprs r)
             ; updatePrimQuery (extend assoc)
             ; return (Rel alias scheme)
             }
-          
+
 restrict :: Expr Bool -> Query ()
 restrict (Expr primExpr)
         = do{ updatePrimQuery (Restrict primExpr)
@@ -133,50 +133,50 @@ restrict (Expr primExpr)
 
 binrel :: RelOp -> Query (Rel r) -> Query (Rel r) -> Query (Rel r)
 binrel op (Query q1) (Query q2)
-  = Query (\(i,primQ) ->                                                               
-      let (Rel a1 scheme1,(j,primQ1)) = q1 (i,primQ)                                                           
-          (Rel a2 scheme2,(k,primQ2)) = q2 (j,primQ)                                                       
-          
+  = Query (\(i,primQ) ->
+      let (Rel a1 scheme1,(j,primQ1)) = q1 (i,primQ)
+          (Rel a2 scheme2,(k,primQ2)) = q2 (j,primQ)
+
           alias	  = k
           scheme  = scheme1
-          
-          assoc1  = zip (map (fresh alias) scheme1) 
-          		(map (AttrExpr . fresh a1) scheme1)                      
-          assoc2  = zip (map (fresh alias) scheme2) 
-          		(map (AttrExpr . fresh a2) scheme2)                      
-          
-          r1      = Project assoc1 primQ1                                                              
-          r2      = Project assoc2 primQ2                                                              
-          r       = Binary op r1 r2                                                                
-      in                                                                                           
-          (Rel alias scheme,(k+1,times r primQ)) )                                         
-          
+
+          assoc1  = zip (map (fresh alias) scheme1)
+          		(map (AttrExpr . fresh a1) scheme1)
+          assoc2  = zip (map (fresh alias) scheme2)
+          		(map (AttrExpr . fresh a2) scheme2)
+
+          r1      = Project assoc1 primQ1
+          r2      = Project assoc2 primQ2
+          r       = Binary op r1 r2
+      in
+          (Rel alias scheme,(k+1,times r primQ)) )
+
 union,intersect,divide,minus :: Query (Rel r) -> Query (Rel r) -> Query (Rel r)
 union           = binrel Union
 intersect       = binrel Intersect
 divide          = binrel Divide
-minus           = binrel Difference        
+minus           = binrel Difference
 
 -----------------------------------------------------------
 -- Tables
------------------------------------------------------------        
+-----------------------------------------------------------
 table :: (ShowRecRow r) => Table r -> Query (Rel r)
 table (Table name assoc)
         = do{ alias <- newAlias
-            ; let newAssoc = map (\(attr,expr) -> (fresh alias attr,expr)) assoc 
+            ; let newAssoc = map (\(attr,expr) -> (fresh alias attr,expr)) assoc
                   scheme   = map fst assoc
                   q        = Project newAssoc (BaseTable name scheme)
             ; updatePrimQuery (times q)
             ; return (Rel alias scheme)
             }
-         
-         
+
+
 -- used in table definitions, see 'pubs.hs' for an example
-           
-baseTable :: ShowRecRow r => TableName -> HDBRec r -> Table r 
+
+baseTable :: ShowRecRow r => TableName -> HDBRec r -> Table r
 baseTable t r   = Table t (zip (labels r) (exprs r))
-                
-        
+
+
 attribute :: String -> Expr a
 attribute name  = Expr (AttrExpr name)
 
@@ -246,31 +246,31 @@ showConstant x        = show x
 -- needs overlapping instances
 -- instance Show a => ShowConstant (Maybe a) where
 --   showConstant x        = maybe "NULL" show x
-  
+
 constant :: Show a => a -> Expr a
 constant x      = Expr (ConstExpr (showConstant x))
 
 nullable        :: Show a => a -> Expr (Maybe a)
 nullable x      = Expr (ConstExpr (showConstant x))
-        
+
 
 -----------------------------------------------------------
 -- Aggregate operators
 -----------------------------------------------------------
-        
+
 aggregate :: ShowRecRow r => AggrOp -> Rel r -> Attr f r a -> Expr b
 aggregate op rel attr
 		= Expr (AggrExpr op primExpr)
-		where 
+		where
  	  	  (Expr primExpr)  = rel ! attr
-        
+
 count :: ShowRecRow r => Rel r -> Attr f r a -> Expr Int
 count x		= aggregate AggrCount x
 
 
-numAggregate :: (ShowRecRow r,Num a) => AggrOp -> Rel r -> Attr f r a -> Expr a        
-numAggregate	= aggregate		
-        
+numAggregate :: (ShowRecRow r,Num a) => AggrOp -> Rel r -> Attr f r a -> Expr a
+numAggregate	= aggregate
+
 _sum x          = numAggregate AggrSum x
 _max x          = numAggregate AggrMax x
 _min x          = numAggregate AggrMin x
@@ -280,18 +280,18 @@ stddev x        = numAggregate AggrStdDev x
 stddevP x       = numAggregate AggrStdDevP x
 variance x      = numAggregate AggrVar x
 varianceP x     = numAggregate AggrVarP x
-	
+
 -----------------------------------------------------------
 -- Special ops
------------------------------------------------------------	
+-----------------------------------------------------------
 
 top,topPercent :: Integer -> Query ()
 top n           = do { updatePrimQuery (Special (Top False n))
-		     ; return () 
+		     ; return ()
 		     }
-		
+
 topPercent n    = do { updatePrimQuery (Special (Top True perc))
-		     ; return () 
+		     ; return ()
 		     }
                 where
                   perc  | n < 0         = 0
@@ -303,10 +303,10 @@ topPercent n    = do { updatePrimQuery (Special (Top True perc))
 data Order	= OrderPhantom
 
 orderOp :: (ShowRecRow r) => UnOp -> Rel r -> Attr f r a -> Expr Order
-orderOp op rel attr	
+orderOp op rel attr
 	= Expr (UnExpr op expr)
 	where
-	  (Expr expr) = rel ! attr   
+	  (Expr expr) = rel ! attr
 
 asc, desc :: (ShowRecRow r) => Rel r -> Attr f r a -> Expr Order
 asc rel attr	= orderOp OpAsc rel attr
@@ -328,15 +328,15 @@ runQuery :: Query (Rel r) -> PrimQuery
 runQuery = fst . runQueryRel
 
 runQueryRel :: Query (Rel r) -> (PrimQuery,Rel r)
-runQueryRel (Query f)      
-        = let (Rel alias scheme,(i,primQuery)) = f (1,Empty)   
+runQueryRel (Query f)
+        = let (Rel alias scheme,(i,primQuery)) = f (1,Empty)
               assoc   = zip scheme (map (AttrExpr . fresh alias) scheme)
           in  (Project assoc primQuery, Rel 0 scheme)
 
 
 instance Functor Query where
   fmap f (Query g)      = Query (\q0 -> let (x,q1) = g q0  in (f x,q1))
-  
+
 instance Monad Query where
   return x              = Query (\q0 -> (x,q0))
   (Query g) >>= f       = Query (\q0 -> let (x,q1)    = g q0
@@ -357,7 +357,7 @@ fresh 0     attribute   = attribute
 fresh alias attribute   = (attribute ++ show alias)
 
 
-                            
+
 -----------------------------------------------------------
 -- Trex
 --
@@ -387,6 +387,6 @@ instance ToPrimExprs r => ToPrimExprs (HDBRecCons l (Expr a) r) where
 exprs :: ShowRecRow r => HDBRec r -> [PrimExpr]
 exprs r         = map (readPrimExpr . snd) (showRecRow r)
                 where
-                  readPrimExpr s   = case (reads (s "")) of 
+                  readPrimExpr s   = case (reads (s "")) of
                                     [(Expr qx,_)] -> qx
                                     _             -> error ("record with invalid expression value: " ++ (s ""))
