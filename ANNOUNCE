@@ -1,5 +1,5 @@
-We are pleased to announce the first beta release of our "remake" of
-HaskellDB, version 0.8.
+We are pleased to announce the second beta release of our "remake" of
+HaskellDB, version 0.9.
 HaskellDB is available for download from http://haskelldb.sourceforge.net
 
 HaskellDB is a Haskell library for expressing database queries and
@@ -13,15 +13,18 @@ available at http://www.haskell.org/haskellDB/. The implementation is
 based on his paper which can be found at:  
 http://www.cs.uu.nl/people/daan/download/papers/dsec.ps
 
-New in HaskellDB 0.8:
-- Improved compatibility with Microsoft Access
-- Internal restructuring of code
-- DBDirect generated files are now cleaner and probably more portable
-  across HaskellDB versions
-- More test programs
-
-NOTE: Due to changes in DBDirect, any files generated using the old 
-version of HaskellDB may have to be regenerated.
+New in HaskellDB 0.9:
+- HaskellDB is no longer an auto-package, since this would turn on
+  glasgow-exts even for programs that don't use HaskellDB.
+- Fixed various character escaping issues. There are still some
+  problems with escaping for SQLite.
+- Exposed dbInfoToModuleFiles for creating database description
+  modules from a DBInfo.
+- Added <<- operator to make creating constant records for insert
+  easier.
+- Added _length query operator for getting the length of a string.
+- Made record implementation more general.
+- Lots of smaller fixes to code and documentation.
 
 The developers can be reached at haskelldb-users@lists.sourceforge.net or
 on #haskelldb at irc.freenode.net.

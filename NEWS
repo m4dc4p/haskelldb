@@ -1,4 +1,24 @@
+HaskellDB 0.9: 2004-08-19
+
+- HaskellDB is no longer an auto-package, since this would turn on
+  glasgow-exts even for programs that don't use HaskellDB.
+- Fixed various character escaping issues. There are still some
+  problems with escaping for SQLite.
+- Exposed dbInfoToModuleFiles for creating database description
+  modules from a DBInfo.
+- Added <<- operator to make creating constant records for insert
+  easier.
+- Added _length query operator for getting the length of a string.
+- Made record implementation more general.
+- Lots of smaller fixes to code and documentation.
+
+HaskellDB Improved accepted to Haskell Workshop 2004: 2004-07-05
+
+The paper "HaskellDB Improved" has been accepted for publication as a
+Student Paper as Haskell Workshop 2004.
+
 HaskellDB 0.8: 2004-05-04
+
 - Improved compatibility with Microsoft Access
 - Internal restructuring of code
 - DBDirect generated files are now cleaner and more portable across 
