@@ -87,7 +87,9 @@ insertData db = do
 
 
 deleteData db = do
+		putStrLn "Deleting data from hdb_test_t1..."
 		delete db hdb_test_t1 (\r -> constant True)
+		putStrLn "Deleting data from hdb_test_t2..."
 		delete db hdb_test_t2 (\r -> constant True)
 
 mkJoinOnQuery f1 f2 = 
@@ -162,6 +164,7 @@ doQuery db q =
 
 testOps db =
     do
+    putStrLn "Testing UNION..."
     query db (union q1 q2)
 -- These don't work in MySQL:
 --    query db (intersect q1 q2)
