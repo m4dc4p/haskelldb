@@ -10,12 +10,12 @@
 -- Portability :  non portable
 -- 
 -- Basic combinators for building type-safe queries.
--- The "Query" monad constructs a relational expression
--- (PrimQuery). 
+-- The Query monad constructs a relational expression
+-- ('PrimQuery'). 
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data declarations
-			Rel(..), Attr(..), Table(..), Query, Expr(..)
+	      Rel(..), Attr(..), Table(..), Query, Expr(..)
 	      -- * Operators
 	     , ToPrimExprs
 	     , (!)
@@ -97,13 +97,17 @@ attributeName (Attr name) = name
 -- Basic relational operators
 -----------------------------------------------------------
 
+-- | Attribute selection operator. Given a relation and an 
+-- attribute name, it returns the attribute value expression.
 (!) :: HasField f r => Rel r -> Attr f r a -> Expr a
 rel ! attr      = select attr rel
+
 
 select :: HasField f r => Attr f r a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
 
+-- | Specifies a subset of the columns in the table.
 project :: (ShowRecRow r, ToPrimExprs r) => HDBRec r -> Query (Rel r)
 project r
         = do
@@ -113,6 +117,9 @@ project r
 	  updatePrimQuery (extend assoc)
           return (Rel alias scheme)
 
+
+-- | Restricts the records to only those who evaluates the 
+-- expression to True.
 restrict :: Expr Bool -> Query ()
 restrict (Expr primExpr) = updatePrimQuery_ (Restrict primExpr)
 
