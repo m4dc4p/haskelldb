@@ -1,6 +1,5 @@
 import Database.HaskellDB
 import Dp037.Test_tb1
-import Dp037.D3proj_time_reports
 
 import TestConnect
 
