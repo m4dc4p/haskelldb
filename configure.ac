@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.1],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.2 $)
+AC_REVISION($Revision: 1.3 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -309,7 +309,7 @@ AC_ARG_WITH(odbc-libs,
   [
   case $ac_cv_target_alias in
     i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
-	ODBC_LIB_DIR=""
+	ODBC_LIB_DIR="/cygdrive/c/program/Microsoft\ Data\ Access\ SDK/lib/x86"
         ;;
   esac
   ]
