@@ -131,9 +131,13 @@ update db (Table name assoc) criteria assignFun
 	  assigns	= assignFun rel
 	  rel		= Rel 0 (map fst assoc)
 	
-
-tables :: Database db row -> IO [TableName]
+-- | List all tables in the database
+tables :: Database db row -- ^ Database
+       -> IO [TableName] -- ^ Names of all tables in the database
 tables db = dbInvoke dbTables db
 
-describe :: Database db row -> TableName -> IO [(Attribute,FieldDef)]
+-- | List all columns in a table, along with their types
+describe :: Database db row -- ^ Database
+	 -> TableName -- ^ Name of the tables whose columns are to be listed
+	 -> IO [(Attribute,FieldDef)] -- ^ Name and type info for each column
 describe db = dbInvoke dbDescribe db

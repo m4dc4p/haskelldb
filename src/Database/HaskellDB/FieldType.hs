@@ -7,8 +7,10 @@ module FieldType where
 
 -}
 
+-- | The type and @nullable@ flag of a database column
 type FieldDef = (FieldType, Bool)
 
+-- | A database column type
 data FieldType = 
     StringT
     | IntT 
