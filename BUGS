@@ -18,7 +18,10 @@
 
 - When compiling DbDirect-generated code for tables with many columns,
   GHC may need the -fcontext-stackXX flag, where XX needs to be at
-  least around the number of columns in the largest table.
+  least around the number of columns in the largest table. Chucky tried
+  to fix this by adding it as an OPTIONS pragma at the top of every
+  generated file, but it turns out this is not currently supported by
+  GHC. The code remains in case the GHC team starts to support it.
 
 - When using lazyQuery with the MySQL driver and running a second
   query without retrieving all data from the first, you get the 
