@@ -37,9 +37,7 @@ showTable db = query db (table test_default_auto) >>= showResults
 last_insert_id :: Expr Int
 last_insert_id = Expr (ConstExpr "last_insert_id()")
 
-lid_q = do 
-	t <- table test_default_auto
-	project (def1 << last_insert_id # def2 << t!def2)
+lid_q = project (def1 << last_insert_id)
 
 test db = do
 	  putStrLn "Before:"

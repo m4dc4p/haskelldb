@@ -13,24 +13,21 @@ import TestConnect
 import Data.Maybe
 import System.Time
 
-q :: PrimQuery
-q = Project [("timefield", ConstExpr "NOW()")] Empty
-
-rel :: Rel (HDBRecCons Timefield (Expr CalendarTime) HDBRecTail)
-rel = Rel 0 ["timefield"]
+now :: Expr CalendarTime
+now = Expr (ConstExpr "NOW()")
 
 data Timefield = Timefield
 instance FieldTag Timefield where fieldName _ = "timefield"
 timefield = mkAttr Timefield :: Attr Timefield CalendarTime
 
+q = project (timefield << now)
+
 getTime :: Database -> IO CalendarTime
-getTime db = do
-	     (r:_) <- dbQuery db q rel
-	     return (Row r!timefield)
+getTime db = query db q
 
 printTime db = do
-	       putStrLn $ show $ ppSql $ toSql q
-	       t <- getTime db
-	       putStrLn $ calendarTimeToString t
+	       putStrLn $ show $ showSql qSimple
+	       (r:_) <- query db qSimple
+	       putStrLn $ calendarTimeToString (r!timefield)
 
 main = argConnect printTime

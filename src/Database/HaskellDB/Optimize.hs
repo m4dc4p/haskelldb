@@ -101,7 +101,9 @@ removeEmpty :: PrimQuery -> PrimQuery
 removeEmpty
         = foldPrimQuery (Empty, BaseTable, project, restrict, binary, special)
         where
-          project assoc Empty   = Empty
+          -- Messes up queries without a table, e.g. constant queries
+	  -- disabled by Bjorn Bringert 2004-04-08
+          --project assoc Empty   = Empty
           project assoc query   | null assoc    = Empty
                                 | otherwise     = Project assoc query
 
@@ -131,6 +133,9 @@ mergeProject
              	  newAssoc = subst assoc1 assoc2
 
 	  -- "hmm, is this always true ?" (Daan Leijen)
+	  -- "no, not true when assoc uses fields defined in only
+	  -- one of assoc1 or assoc2" (Bjorn Bringert)
+{-
           project assoc (Binary op (Project assoc1 query1)
           		           (Project assoc2 query2))
           	| safe newAssoc1 && safe newAssoc2
@@ -139,11 +144,13 @@ mergeProject
           		where
           		  newAssoc1  = subst assoc assoc1
           		  newAssoc2  = subst assoc assoc2
-
+-}
           project assoc query
                 = Project assoc query
-
-	  subst :: Assoc -> Assoc -> Assoc
+	 
+	  subst :: Assoc -- ^ Association that we want to change
+		-> Assoc -- ^ Association containing the substitutions
+		-> Assoc
           subst a1 a2
                 = map (\(attr,expr) -> (attr, substAttr a2 expr)) a1
 
