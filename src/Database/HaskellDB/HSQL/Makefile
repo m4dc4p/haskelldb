@@ -1,10 +1,9 @@
-include ../../config.mk
-include ../../rules.mk
+TOP_DIR = ../../..
 
-LDFLAGS += -L../.. -lHDB -lHSsql -lodbc 
-GHCFLAGS += -i../..
+include $(TOP_DIR)/config.mk
+include $(TOP_DIR)/rules.mk
 
-HUGSFLAGS += -P:$(HSQL_DIR)
+LDFLAGS += -lHDB -lHSsql -lodbc 
 
 .PHONY: clean hugsload hugstest ghciload
 
