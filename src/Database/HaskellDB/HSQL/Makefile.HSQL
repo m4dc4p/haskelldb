@@ -1,0 +1,33 @@
+HTOOLKIT_CVS=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/htoolkit
+
+UNIXODBC_DIR=/usr
+#UNIXODBC_DIR=/usr/local/dp03-7/unixODBC-2.2.6
+
+HUGS_DIR=/usr/lib/hugs
+#HUGS_DIR=/usr/local/dp03-7/hugs98-Nov2003/lib/hugs
+
+.PHONY: clean
+
+default all: HSQL/libHSsql.a
+
+HSQL HSQL/%:
+	cvs -d $(HTOOLKIT_CVS) co HSQL
+	patch -N -d HSQL -p0 < HSQL-hugs.patch
+	patch -N -d HSQL -p0 < HSQL-desc.patch
+
+HSQL/configure: HSQL/configure.ac
+	cd HSQL && autoconf
+
+HSQL/config.mk: HSQL/configure HSQL/config.mk.in
+	cd HSQL && ./configure --enable-odbc \
+	CPPFLAGS=-I$(UNIXODBC_DIR)/include LDFLAGS=-L$(UNIXODBC_DIR)/lib \
+	--enable-hugs --with-hugs-dir=$(HUGS_DIR)
+
+HSQL/libHSsql.a: HSQL/config.mk
+	$(MAKE) -C HSQL
+
+Database: HSQL
+	ln -s HSQL Database
+
+clean:
+	rm -rf HSQL Database

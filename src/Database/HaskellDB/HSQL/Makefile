@@ -1,6 +1,6 @@
 # in HSQL_DIR there should be a directory (or a symlink to a directory)
 # called Database that contains the compiled HSQL library
-HSQL_DIR=/users/dtek/d00/d00bring/d3proj
+HSQL_DIR=.
 
 LDFLAGS=-L$(HSQL_DIR)/Database -lHSsql -lodbc
 CFLAGS=
@@ -20,10 +20,10 @@ default all: test
 # HUGS
 #
 
-hugsload: 
+hugsload: $(HSQL_DIR)/Database/ODBC/HSQL.hs  $(HSQL_DIR)/Database/ODBC/HSQL.so
 	$(HUGS) $(HUGSFLAGS) HSQL_driver.hs
 
-hugstest: 
+hugstest: $(HSQL_DIR)/Database/ODBC/HSQL.hs  $(HSQL_DIR)/Database/ODBC/HSQL.so
 	$(RUNHUGS) $(HUGSFLAGS) test.hs
 
 #
@@ -36,14 +36,20 @@ hugstest:
 %.hi: %.o
 	@\:
 
+HSQL_driver.o: $(HSQL_DIR)/Database/ODBC/HSQL.hi
+
 test.o: HSQL_driver.hi
 
-test: test.o HSQL_driver.o
+test: $(HSQL_DIR)/Database/libHSsql.a test.o HSQL_driver.o
 	$(GHC) $(GHCFLAGS) -o $@ $^ $(LDFLAGS) -L../.. -lHDB
 
 #
 # Generic
 #
 
+HSQL/% Database/%: HSQL-desc.patch HSQL-hugs.patch
+	$(MAKE) -f Makefile.HSQL HSQL Database
+
 clean:
 	-rm -f test *.so *.o *.hi
+	$(MAKE) -f Makefile.HSQL clean
