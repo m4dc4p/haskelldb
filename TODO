@@ -12,6 +12,10 @@ Things that need to be done, in no particular order:
   * make {odbc,mysql,postgresql}Connect take a Database argument 
     instead of a HSQL argument. This would allow more general type
     signatures in user code. (Added by Bjorn)
+  (* strictness checking. In other words: optimize the code to sort out what
+     types and expressions are evaluated strictly, and explicitly tell the
+     compiler that they are strict)
+  (* maybe make it work on multi-processor systems using Concurrent Haskell?)
 
 - DbDirect 
   (* add optional command line argument for selecting which
