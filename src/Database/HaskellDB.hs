@@ -13,7 +13,7 @@ module HaskellDB
 	, ( << )
 
 	, (!)	
-	, restrict, table
+	, restrict, table, project
 	, union, intersect, divide, minus
 		
 	, (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
