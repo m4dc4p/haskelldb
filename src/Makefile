@@ -50,7 +50,6 @@ $(BUILD_DIR)/libHShdb.a: $(OBJS) $(DRIVER_DIRS)
 $(HASKELLDB_SRC): $(notdir $(HASKELLDB_SRC))
 	mkdir -p $(sort $(dir $@))
 	cp -f $^ $(sort $(dir $@))
-	echo Driver DIRS: $(DRIVER_DIRS)
 
 $(DATABASE_SRC): $(notdir $(DATABASE_SRC))
 	mkdir -p $(sort $(dir $@))
