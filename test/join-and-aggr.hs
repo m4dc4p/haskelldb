@@ -80,8 +80,8 @@ printAvgWorkChunks db
       where showRow r = r!.first_name ++ " " ++ r!.last_name ++ ": " ++ show (r!.hours) ++ " h"
 
 main = do
-       putStrLn $ show $ runQuery avgWorkChunks
-       putStrLn $ show $ showQ avgWorkChunks
-       putStrLn $ show $ showOpt avgWorkChunks
-       putStrLn $ show $ showOpt floatTest
+--       putStrLn $ show $ runQuery avgWorkChunks
+--       putStrLn $ show $ showQ avgWorkChunks
+--       putStrLn $ show $ showOpt avgWorkChunks
+--       putStrLn $ show $ showOpt floatTest
        argConnect printAvgWorkChunks
