@@ -42,6 +42,7 @@ import Database.HaskellDB.BoundedString
 import Database.HaskellDB.BoundedList
 
 import System.Time
+import System.Locale
 
 -----------------------------------------------------------
 -- Operators
@@ -307,11 +308,8 @@ instance ShowConstant Bool where
 -- this assumes that all databases accept both date and time even when they
 -- only want date.
 instance ShowConstant CalendarTime where
-    showConstant (CalendarTime {ctYear = y, ctMonth = mo, ctDay = d, 
-				ctHour = h, ctMin = mi, ctSec = s})
-       = (show y)++"-"++(show mo)++"-"++(show d)++" "++
-	 (show h)++":"++(show mi)++":"++(show s)
-	 
+    showConstant t = show (formatCalendarTime defaultTimeLocale fmt t)
+	where fmt = iso8601DateFormat (Just "%H:%M:%S")
 
 instance ShowConstant a => ShowConstant (Maybe a) where
     showConstant x = maybe "NULL" showConstant x
