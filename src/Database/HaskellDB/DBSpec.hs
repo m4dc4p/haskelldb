@@ -16,10 +16,15 @@
 
 module Database.HaskellDB.DBSpec 
     (DBInfo(..),TInfo(..),CInfo(..),DBOptions(..),makeDBSpec,makeTInfo,
-     makeCInfo,constructNonClashingDBInfo,dbInfoToDoc, finalizeSpec)
+     makeCInfo,constructNonClashingDBInfo,dbInfoToDoc,finalizeSpec,
+     dbToDBSpec,dbSpecToDatabase)
     where
 
 import Database.HaskellDB.FieldType
+
+import Database.HaskellDB.DBSpec.DatabaseToDBSpec
+import Database.HaskellDB.DBSpec.DBSpecToDatabase
+
 import Data.Char
 import Text.PrettyPrint.HughesPJ
 
