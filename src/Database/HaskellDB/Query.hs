@@ -321,8 +321,8 @@ instance ShowConstant Double where
 instance ShowConstant Bool where
     -- Bools probably correspond to some numeric type (like BIT),
     -- so 0 and 1 seem reasonable to use.
-    showConstant False = show 0
-    showConstant True = show 1
+    showConstant False = "FALSE"
+    showConstant True = "TRUE"
 
 -- this assumes that all databases accept both date and time even when they
 -- only want date.
