@@ -368,6 +368,22 @@ fresh alias attribute   = (attribute ++ show alias)
 labels :: ShowRecRow r => HDBRec r -> [String]
 labels r        = map fst (showRecRow r)
 
+{-
+-- Type safe version of exprs. If we use this, we must add
+--  ToPrimExprs r to a lot of functions
+exprs :: ToPrimExprs r => HDBRec r -> [PrimExpr]
+exprs (HDBRec r) = toPrimExprs r
+
+class ToPrimExprs r where
+    toPrimExprs :: r -> [PrimExpr]
+
+instance ToPrimExprs HDBRecTail where
+    toPrimExprs HDBRecTail = []
+
+instance ToPrimExprs r => ToPrimExprs (HDBRecCons l (Expr a) r) where
+    toPrimExprs (HDBRecCons _ (Expr x) r) = x : toPrimExprs r
+-}
+
 exprs :: ShowRecRow r => HDBRec r -> [PrimExpr]
 exprs r         = map (readPrimExpr . snd) (showRecRow r)
                 where
