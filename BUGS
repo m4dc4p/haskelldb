@@ -37,7 +37,7 @@
 - MySQL does case-insensitive comparison with LIKE, PostgreSQL does 
   case-sensititve. PostgreSQL uses ILIKE for case-insensitive
   matching. We need to make 'like' do the same for all backends.
-  Reproted by shapr.
+  Reported by shapr.
 
 - The following features are currently not supported:
   * default values
