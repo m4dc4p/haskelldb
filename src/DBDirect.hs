@@ -2,11 +2,10 @@
 -- |
 -- Module      :  Main
 -- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
---                HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
---                Bjorn Birngert (c) 2005, bjorn@bringert.net
+--                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
 -- License     :  BSD-style
 -- 
--- Maintainer  :  haskelldb-users@lists.sourceforge.net
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
 -- Portability :  portable
 --
@@ -15,72 +14,70 @@
 -- a 'Catalog' data type. After that it pretty prints that
 -- data structure in an appropiate Haskell module which
 -- can be used to perform queries on the database.
---
--- $Revision: 1.15 $
 -----------------------------------------------------------
 
 module Main where
 
-import Data.List
 import System.Environment (getArgs)
-import System.Exit (exitFailure)
-import System.IO
+import System.Directory
+import Text.PrettyPrint.HughesPJ
 
 import Database.HaskellDB
-import Database.HaskellDB.DynConnect
-import Database.HaskellDB.DBSpec
-import Database.HaskellDB.DBSpec.PPHelpers
 import Database.HaskellDB.DBSpec.DBSpecToDBDirect
+import Database.HaskellDB.DBSpec.PPHelpers
 
-createModules m useBStrT db = 
-    do
-    putStrLn "Getting database info..."
-    spec <- dbToDBSpec useBStrT m db
-    putStrLn "Writing modules..."
-    dbInfoToModuleFiles "." m spec
+import Database.HaskellDB.DBSpec.DatabaseToDBSpec
+import DBDirectCommon
 
 -- | Command line driver
 main = do
-       putStrLn "DB/Direct: Daan Leijen (c) 1999, HWT (c) 2003-2004,"
-       putStrLn "           Bjorn Bringert (c) 2005"
-       putStrLn ""
+       putStr "\nDB/Direct, Daan Leijen (c) 1999, HWT (c) 2003\n\n"
        args <- getArgs
-       let (flags,args') = partition ("-" `isPrefixOf`) args
-           useBStrT = "-b" `elem` flags
-       case args' of
-                  [m,d,o] -> 
-                      do
-                      let opts = splitOptions o
-		      putStrLn "Connecting to database..."
-                      dynConnect_ d opts (createModules m useBStrT)
-		      putStrLn "Done!"
-                  _ -> 
-                      do
-                      showHelp
-                      exitFailure
-
-splitOptions :: String -> [(String,String)]
-splitOptions = map (split2 '=') . split ','
-
-split :: Char -> String -> [String]
-split _ [] = []
-split g xs = y : split g ys
-  where (y,ys) = split2 g xs
-
-split2 :: Char -> String -> (String,String)
-split2 g xs = (ys, drop 1 zs)
-  where (ys,zs) = break (==g) xs
+       putStrLn "checking arguments..."
+       if (checkFlag $ args) then process True (tail args) 
+	  else process False args
+       where
+       process useBStrT args = 
+	   case checkArgs args of
+	    True -> do
+		    let f = createCatalogCommon (head args) (init $ tail args)
+		    putStrLn "creating database specification..."
+		    spec <- f (dbToDBSpec useBStrT $ last args)
+		    putStrLn "creating modules from specification..."
+		    let files = specToHDB spec
+		    putStrLn "writing modules..."
+		    createModules files
+		    putStrLn "done!"
+	    False -> showHelp
+       checkFlag []   = False
+       checkFlag args = head args == "-b"
+       checkArgs [] = False
+       checkArgs args
+	   = (head args == "ODBC" && (length args) == 5)
+	     || (head args == "MySQL" && (length args) == 6)
+             || (head args == "PostgreSQL" && (length args) == 6)
 
 -- | Shows usage information
-showHelp = mapM_ (hPutStrLn stderr) t
-    where
-    t = ["Usage: DBDirect [-b] <module> <driver> <options>",
-         "",
-         "-b         Use bounded string types",
-         "<driver>   One of: odbc, mysql, sqlite, postgresql, wx",
-         "<options>  Driver dependent:",
-         "           odbc:       dsn=<dsn>,uid=<uid>,pwd=<pwd>",
-         "           mysql:      server=<server>,db=<db>,uid=<uid>,pwd=<pwd>",
-         "           sqlite:     filepath=<path>,mode=r|rw",
-         "           postgresql: server=<server>,db=<db>,uid=<uid>,pwd=<pwd>",
-         "           wx:         dsn=<dsn>,uid=<uid>,pwd=<pwd>"]
+showHelp = putStr (unlines helpText)
+	   where
+	   helpText  = [ "Wrong number of arguments!",
+			 "We want:",
+			 "Enable BoundedString [-b],",
+			 "database type (ODBC, MySQL or PostgreSQL) and",
+			 "ODBC: dsn, userid, password, and output file",
+			 "MySQL: server, database, userid password and " ++
+			 "file",
+			 "PostgreSQL: server, database, userid, password " ++
+			 "and file",
+			 "as arguments"
+	  	       ]
+-- | Creates all modules
+createModules :: [(FilePath,Doc)] -> IO ()
+createModules files
+    = do 
+      let dbname = (fst . head) files
+	  dbnamenohs = reverse $ drop 3 $ reverse dbname
+      writeFile dbname (render $ (snd . head) files)
+      createDirectory dbnamenohs
+      mapM_ (\ (name,doc) -> writeFile name
+	     (render doc)) (tail files)
