@@ -27,7 +27,8 @@ instance HasField f (HDBRecCons f a r)
 instance HasField f r => HasField f (HDBRecCons g a r)
 
 
--- | A record must belong to this class to be showable.
+
+
 class ShowRecRow r where
     showRecRow :: r -> [(String,ShowS)]
 
@@ -37,8 +38,7 @@ instance ShowRecRow HDBRecTail where
 
 -- Recurse a record and produce a showable tuple.
 instance (HDBRecEntry a b, Show b, ShowRecRow c) => ShowRecRow (HDBRecCons a b c) where
-    showRecRow (HDBRecCons f x fs) = 
-	(fieldName f, const (show x)) : showRecRow fs
+    showRecRow (HDBRecCons f x fs) = (fieldName f, shows x) : showRecRow fs
 
 instance ShowRecRow r => ShowRecRow (HDBRec r) where
     showRecRow (HDBRec r) = showRecRow r
