@@ -1,8 +1,8 @@
-Things that must de done for the release:
+Things that must de done before the release:
   * Get date types working.
   * Change insert and insertNew names.
   * Get Windows build working without needing configure flags.
-  * Make sure there is a working relase of CVS snapshot of HSQL available.
+  * Make sure there is a working relase or CVS snapshot of HSQL available.
   * Convert all existing file headers to haddock format.
   * Make sure all source files have headers (with copyright notices).
   * Remove passwords from all test files.
@@ -12,11 +12,14 @@ Things that must de done for the release:
   * Finish website.
     - Describe requirements, and link to HSQL, unixODBC etc.
     - Add a simple example program, including db table layout.
+
+Doing the release:
   * Build haddock doc and put on website.
   * Build tarballs and put on website.
   * Put news item and release notes on website.
   * Announce on haskell@haskell.org.
   * Announce on #haskell.
+
 
 Things that need to be done, in no particular order:
 
