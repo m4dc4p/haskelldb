@@ -64,6 +64,16 @@ endif
 DRIVERS += HSQL
 
 #
+# BoundedString
+#
+
+WITH_BOUNDEDSTRING = @WITH_BOUNDEDSTRING@
+
+ifeq "$(WITH_BOUNDEDSTRING)" "yes"
+HSPP_FLAGS += -DWITH_BOUNDEDSTRING
+endif
+
+#
 # Preprocessing
 #
 

@@ -5,6 +5,7 @@ DRIVER_DIRS = drivers/hsql
 SUBDIRS = dbdirect $(DRIVER_DIRS)
 
 include $(TOP_DIR)/rules.mk
+include $(TOP_DIR)/config.mk
 
 GHCFLAGS += -package-name haskelldb
 
@@ -16,7 +17,12 @@ HASKELLDB_MODULES = \
 	  Database.HaskellDB.Query \
 	  Database.HaskellDB.HDBRecUtils \
 	  Database.HaskellDB.Optimize \
-	  Database.HaskellDB.Database
+	  Database.HaskellDB.Database 
+
+ifeq "$(WITH_BOUNDEDSTRING)" "yes"
+HASKELLDB_MODULES += Database.HaskellDB.BoundedString \
+	  Database.HaskellDB.BoundedList
+endif
 
 DATABASE_MODULES = Database.HaskellDB
 
@@ -58,7 +64,7 @@ $(BUILD_DIR)/Database/HaskellDB/%: %
 # cleaning up
 
 clean: 
-	-rm -f *.o *.hi .depend .depend.bak
+	-rm -f *.o *.hi .depend .depend.bak FieldType.hs
 
 # dependencies
 

@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.5],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.15 $)
+AC_REVISION($Revision: 1.16 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -15,7 +15,7 @@ dnl ***********************************************
 dnl Some defaults
 dnl ***********************************************
 
-GHCFLAGS="$GHCFLAGS -fglasgow-exts -fallow-overlapping-instances"
+GHCFLAGS="$GHCFLAGS -fglasgow-exts -fallow-overlapping-instances -fallow-undecidable-instances"
 
 HUGSFLAGS="$HUGSFLAGS -98 +o"
 
@@ -73,6 +73,19 @@ AC_HELP_STRING([--enable-hsql-postgresql],
 [WITH_HSQL_POSTGRESQL=yes]
 )
 AC_SUBST(WITH_HSQL_POSTGRESQL)
+
+dnl ***********************************************
+dnl Enable/Disable BoundedString extention
+dnl ***********************************************
+
+AC_ARG_ENABLE(boundedstring,
+AC_HELP_STRING([--enable-boundedstring],
+	       [Enable building BoundedString extention. 
+	        (default = yes)]),
+[WITH_BOUNDEDSTRING="$enableval"],
+[WITH_BOUNDEDSTRING=yes]
+)
+AC_SUBST(WITH_BOUNDEDSTRING)
 
 dnl ***********************************************
 dnl Enable/Disable building Hugs libraries
@@ -477,3 +490,4 @@ echo "MySql:          $WITH_HSQL_MYSQL"
 echo "PostgreSQL:     $WITH_HSQL_POSTGRESQL"
 echo "Hugs:           $ENABLE_HUGS"
 echo "GHC:            $ENABLE_GHC"
+echo "BoundedString:  $WITH_BOUNDEDSTRING"
