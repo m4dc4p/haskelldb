@@ -2,7 +2,7 @@ TOP_DIR = ..
 
 DRIVER_DIRS = drivers/hsql
 
-SUBDIRS = dbdirect $(DRIVER_DIRS)
+SUBDIRS = DBSpec $(DRIVER_DIRS) DBDirect
 
 include $(TOP_DIR)/rules.mk
 
@@ -40,7 +40,7 @@ ALL_COMPILERS = $(addprefix all-,$(COMPILERS))
 
 .PHONY: $(ALL_COMPILERS)
 
-all: $(ALL_COMPILERS) $(DRIVER_DIRS) dbdirect
+all: $(ALL_COMPILERS) $(SUBDIRS)
 
 all-ghc: $(BUILD_DIR)/libHShdb.a
 
