@@ -54,3 +54,7 @@ String. Chucky fixed this on 2004-02-08
 - Jeremy Shaw (stepcut), submitted patches on 2004-03-06 adding SQLite
   support and fixing the distclean target. The were added to CVS
   the same day.
+
+- Shae Erisson (shapr) reported on 2004-03-22 that the HSQL driver
+  only catches SqlErrors in connect. Should do it for each call. 
+  Bjorn fixed this in the HSQL and WX drivers on 2004-03-22.
