@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.27 $)
+AC_REVISION($Revision: 1.28 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -158,6 +158,7 @@ AC_HELP_STRING([--with-ghc=<ghc command>],
 [AC_PATH_PROG(GHC,ghc)]
 )
 
+if test ! -f "$GHC"; then AC_PATH_PROG(GHC, "$withval") fi
 if test "$GHC" = "" || test ! -f "$GHC"; then
    AC_MSG_ERROR([GHC not found. GHC is needed to build 
 	         HaskellDB even you are only building libraries for Hugs.])
@@ -227,6 +228,7 @@ AC_HELP_STRING([--with-hugs=<hugs command>],
 [AC_PATH_PROG(HUGS,hugs)]
 )
 
+if test ! -f "$HUGS"; then AC_PATH_PROG(HUGS, "$withval") fi
 if test "$ENABLE_HUGS" != "yes" || test "$HUGS" = "" || test ! -f "$HUGS"; then
   AC_MSG_RESULT([The build for HUGS will be skipped.])
   HUGS=""
