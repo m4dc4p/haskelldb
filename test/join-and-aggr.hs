@@ -1,13 +1,14 @@
+import System (getArgs)
 import Control.Monad (unless)
 
-import Database.HaskellDB
-import Database.HaskellDB.Query (runQuery) -- for debugging
-
-import TestConnect
-
+import HaskellDB
+import Query (runQuery) -- for debugging
+import HDBRec
 import Dp037.D3proj_time_reports hiding (xid)
 import qualified Dp037.D3proj_time_reports
 import Dp037.D3proj_users
+--import HSQL_PostgreSQL
+import HSQL_ODBC
 
 {-
 
@@ -15,7 +16,7 @@ Tables:
 
 CREATE TABLE d3proj_time_reports (
   id int NOT NULL,
-  userid varchar(8) NOT NULL,
+  username varchar(8) NOT NULL,
   day date NOT NULL,
   hours float NOT NULL,
   activity text NOT NULL,
@@ -33,11 +34,19 @@ CREATE TABLE d3proj_users (
 
 -}
 
-reports user
+
+
+opts = ODBCOptions{dsn="mysql-dp037", uid="dp037", pwd="teent333"}
+withDB f = odbcConnect opts f
+
+--opts = PostgreSQLOptions{server="localhost", db="dp037", uid="dp037", pwd="teent333"}
+--withDB f = postgresqlConnect opts f
+
+reports userid
     = do
       reports <- table d3proj_time_reports
       users <- table d3proj_users
-      restrict (reports!userid .==. users!xid .&&. reports!userid .==. constant user)
+      restrict (reports!username .==. users!xid .&&. reports!username .==. constant userid)
       project (first_name << users!first_name 
 	       # last_name << users!last_name
 	       # activity << reports!activity)
@@ -46,7 +55,7 @@ avgWorkChunks
     = do
       reports <- table d3proj_time_reports
       users <- table d3proj_users
-      restrict (reports!userid .==. users!xid)
+      restrict (reports!username .==. users!xid)
       r <- project (first_name << users!first_name 
 		    # last_name << users!last_name
 		    # hours << avg (reports!hours))
@@ -61,10 +70,10 @@ floatTest
 doFloatTest db
     = do 
       result <- query db floatTest
-      mapM_ (putStrLn . (\r -> show (r!hours))) result
+      mapM_ (putStrLn . (\r -> show (r!.hours))) result
 
 
-actToString r = r!first_name ++ " " ++ r!last_name ++ ": " ++ r!activity
+actToString r = r!.first_name ++ " " ++ r!.last_name ++ ": " ++ r!.activity
 
 printActivity username db 
     = do
@@ -77,12 +86,17 @@ printAvgWorkChunks db
     = do
       result <- query db avgWorkChunks 
       mapM_ (putStrLn . showRow) result
-      where showRow r = r!first_name ++ " " ++ r!last_name ++ ": " ++ show (r!hours) ++ " h"
+      where showRow r = r!.first_name ++ " " ++ r!.last_name ++ ": " ++ show (r!.hours) ++ " h"
 
 main = do
---       putStrLn $ show $ runQuery avgWorkChunks
---       putStrLn $ show $ showQ avgWorkChunks
---       putStrLn $ show $ showOpt avgWorkChunks
-       putStrLn $ show $ showSql avgWorkChunks
---       putStrLn $ show $ showOpt floatTest
-       argConnect printAvgWorkChunks
+--       args <- getArgs
+--       unless (length args == 1) (fail "Usage: test <username>")
+--       let (username:_) = args
+--       putStrLn $ show $ q username
+--       withDB (printActivity username)
+       putStrLn $ show $ runQuery avgWorkChunks
+       putStrLn $ show $ showQ avgWorkChunks
+       putStrLn $ show $ showOpt avgWorkChunks
+       putStrLn $ show $ showOpt floatTest
+       withDB printAvgWorkChunks
+--       withDB doFloatTest

@@ -1,10 +1,10 @@
-import Database.HaskellDB
-import Database.HaskellDB.DBLayout
-
-import TestConnect
-
+import HSQL_ODBC
+import HaskellDB
+import Query 
 import Random
 
+import HDBRec
+import HDBRecUtils
 
 -- create table test_tb1 (c11 int not null, c12 int null);
 
@@ -15,8 +15,8 @@ import Random
 -- Table test_tb1
 -------------------------------------
 test_tb1 :: Table
-    (RecCons C11 (Expr Int)
-     (RecCons C12 (Expr (Maybe Int)) RecNil))
+    (HDBRecCons C11 (Expr Int)
+     (HDBRecCons C12 (Expr (Maybe Int)) HDBRecTail))
 test_tb1 = baseTable "test_tb1" $
            hdbMakeEntry C11 #
            hdbMakeEntry C12 
@@ -24,15 +24,17 @@ test_tb1 = baseTable "test_tb1" $
 ---------------------------------------------------------------------------
 -- Fields
 ---------------------------------------------------------------------------
-
 -------------------------------------
 -- C11 Field
 -------------------------------------
 
 data C11 = C11
-instance FieldTag C11 where fieldName _ = "c11"
 
-c11 :: Attr C11 Int
+instance HDBRecEntry C11 (Expr Int) where
+    fieldTag = C11
+    fieldName _ = "c11"
+
+c11 :: HasField C11 r => Attr C11 r Int
 c11 = mkAttr C11
 
 -------------------------------------
@@ -40,11 +42,24 @@ c11 = mkAttr C11
 -------------------------------------
 
 data C12 = C12
-instance FieldTag C12 where fieldName _ = "c12"
 
-c12 :: Attr C12 (Maybe Int)
+instance HDBRecEntry C12 (Expr (Maybe Int)) where
+    fieldTag = C12
+    fieldName _ = "c12"
+
+c12 :: HasField C12 r => Attr C12 r (Maybe Int)
 c12 = mkAttr C12
 
+
+--
+-- Test utilites
+--
+
+opts :: ODBCOptions
+opts = ODBCOptions{dsn="mysql-dp037", uid="dp037", pwd="teent333"}
+
+-- run a test function
+runTest f = odbcConnect opts f
 
 --
 -- A simple query
@@ -56,20 +71,32 @@ q = do
 
 newRec x y = c11 << constant x # c12 << constant y
 
-printResults rs = mapM_ (\row -> putStrLn (show (row!c11) ++ " " ++ show (row!c12))) rs
+
+printResults :: (Row row Int, Row row (Maybe Int)) => 
+		[row (HDBRecCons C11 (Expr Int) (HDBRecCons C12 (Expr (Maybe Int)) HDBRecTail))] -> IO ()
+printResults = mapM_ (\row -> putStrLn (show (row!.c11) ++ " " ++ show (row!.c12)))
 
 --
 -- Testing db layout functions
 --
 
-listTables db = tables db >>= putStr . unlines
+-- run 'tables'
+listTables :: IO ()
+listTables = runTest tables >>= putStr . unlines
 
 -- run 'describe'
-describeTable table db = describe db table >>= putStr . unlines . map show
+describeTable :: String -> IO ()
+describeTable table = runTest (\db -> describe db table) 
+		      >>= putStr . unlines . map show
+
+
 
 bigTest db = do
+	     putStrLn ("Connected to: " ++ dsn opts ++ "\n")
+{-
 	     putStrLn "Tables:"
-	     listTables db
+	     ts <- tables db
+	     putStrLn (unlines ts)
 	     cols <- describe db "test_tb1"
 	     putStrLn "Columns in test_tb1"
 	     putStrLn (unlines (map show cols))
@@ -79,13 +106,13 @@ bigTest db = do
 	     (x::Int) <- randomIO
 	     (y::Int) <- randomIO
 	     let my = if even y then Just y else Nothing
---	     insertNew db test_tb1 (newRec x my)
+	     insertNew db test_tb1 (newRec x my)
 --	     insert db test_tb1 (project (newRec x my))
---	     putStrLn $ "Contents of test_tb1 after inserting " ++ show (x,my)
-
+	     putStrLn $ "Contents of test_tb1 after inserting " ++ show (x,my)
+-}
 	     putStrLn "Contents of test_tb1"
 	     res <- query db q 
 	     printResults res
 
-main = argConnect bigTest
+main = runTest bigTest
        
