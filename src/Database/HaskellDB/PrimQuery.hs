@@ -12,7 +12,7 @@
 -- PrimQuery defines the datatype of relational expressions
 -- ('PrimQuery') and some useful functions on PrimQuery\'s
 --
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 -----------------------------------------------------------
 module Database.HaskellDB.PrimQuery (
 		  -- * Type Declarations
@@ -23,6 +23,7 @@ module Database.HaskellDB.PrimQuery (
 		  -- ** Data types
 		 , PrimQuery(..), RelOp(..), SpecialOp(..) 
 		 , PrimExpr(..), BinOp(..), UnOp(..), AggrOp(..)
+	         , Literal(..)
 
 		  -- * Function declarations
 		 , extend, times
@@ -38,7 +39,8 @@ module Database.HaskellDB.PrimQuery (
 
 import Data.List ((\\), union)
 import Control.Exception (assert)
-
+import System.Time (CalendarTime, formatCalendarTime)
+import System.Locale (defaultTimeLocale, iso8601DateFormat)
 import Text.PrettyPrint.HughesPJ
 
 -----------------------------------------------------------
@@ -77,10 +79,19 @@ data PrimExpr   = AttrExpr  Attribute
                 | BinExpr   BinOp PrimExpr PrimExpr
                 | UnExpr    UnOp PrimExpr
                 | AggrExpr  AggrOp PrimExpr
-                | ConstExpr String
+                | ConstExpr Literal
 		| CaseExpr [(PrimExpr,PrimExpr)] PrimExpr
                 deriving (Read,Show)
 
+data Literal = NullLit
+	     | DefaultLit            -- ^ represents a default value
+	     | BoolLit Bool
+	     | StringLit String
+	     | IntegerLit Integer
+	     | DoubleLit Double
+	     | DateLit CalendarTime
+	     | OtherLit String       -- ^ used for hacking in custom SQL
+	       deriving (Read,Show)
 
 data BinOp      = OpEq | OpLt | OpLtEq | OpGt | OpGtEq | OpNotEq 
                 | OpAnd | OpOr
@@ -212,7 +223,7 @@ foldPrimQuery (empty,table,project,restrict,binary,special)
           fold (Special op query)
           		= special op (fold query)
 -- | Fold on 'PrimExpr'
-foldPrimExpr :: (Attribute -> t, String -> t, BinOp -> t -> t -> t,
+foldPrimExpr :: (Attribute -> t, Literal -> t, BinOp -> t -> t -> t,
                  UnOp -> t -> t, AggrOp -> t -> t, 
 		 [(t,t)] -> t -> t) -> PrimExpr -> t
 foldPrimExpr (attr,scalar,binary,unary,aggr,_case) 
@@ -264,7 +275,7 @@ ppPrimExpr :: PrimExpr -> Doc
 ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
         where
           attr          = text
-          scalar        = text -- . unquote 
+          scalar        = ppLiteral
           binary op x y = parens (x <+> ppBinOp op <+> y)
           -- paranthesis around ASC / desc exprs not allowed
           unary OpAsc x  = x <+> ppUnOp OpAsc
@@ -320,6 +331,10 @@ ppSpecialOp (Top False n)= text "LIMIT" <+> text (show n)
 -- FIXME: should we remove topPercent?
 -- doesn't seem to be any support for it in e.g.g MySQL and PostgreSQL
 ppSpecialOp (Top True n) = error "topPercent not supported"
+
+-- | Pretty prints a literal
+ppLiteral :: Literal -> Doc
+ppLiteral = text . showLiteral
 
 -----------------------------------------------------------
 -- Show expression operators, coincidently they show
@@ -377,3 +392,31 @@ showAggrOp AggrStdDevP  = "StdDevP"
 showAggrOp AggrVar      = "Var" 
 showAggrOp AggrVarP     = "VarP"                
 showAggrOp (AggrOther s)        = s
+
+showLiteral :: Literal -> String
+showLiteral NullLit = "NULL"
+showLiteral DefaultLit = "DEFAULT"		    
+showLiteral (BoolLit b) = if b then "TRUE" else "FALSE"
+showLiteral (StringLit s) = quote s
+showLiteral (IntegerLit i) = show i
+showLiteral (DoubleLit d) = show d
+showLiteral (DateLit t) = quote (formatCalendarTime defaultTimeLocale fmt t)
+	where fmt = iso8601DateFormat (Just "%H:%M:%S")
+showLiteral (OtherLit l) = l
+
+-- | Quote a string and escape characters that need escaping
+--   FIXME: this is backend dependent
+quote :: String -> String 
+quote s = "'" ++ concatMap escape s ++ "'"
+
+-- | Escape characters that need escaping
+escape :: Char -> String
+escape '\NUL' = "\\0"
+escape '\'' = "''"
+escape '"' = "\\\""
+escape '\b' = "\\b"
+escape '\n' = "\\n"
+escape '\r' = "\\r"
+escape '\t' = "\\t"
+escape '\\' = "\\\\"
+escape c = [c]

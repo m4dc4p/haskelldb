@@ -14,7 +14,7 @@ import Data.Maybe
 import System.Time
 
 now :: Expr CalendarTime
-now = Expr (ConstExpr "NOW()")
+now = Expr (ConstExpr (OtherLit "NOW()"))
 
 data Timefield = Timefield
 instance FieldTag Timefield where fieldName _ = "timefield"

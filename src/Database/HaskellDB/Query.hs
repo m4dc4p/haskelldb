@@ -13,7 +13,7 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.55 $
+-- $Revision: 1.56 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -48,8 +48,7 @@ import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.BoundedString
 import Database.HaskellDB.BoundedList
 
-import System.Time
-import System.Locale
+import System.Time (CalendarTime)
 
 -----------------------------------------------------------
 -- Operators
@@ -394,7 +393,7 @@ fromNull d x@(Expr px) = _case [(isNull x, d)] (Expr px)
 
 -- | The default value of the column. Only works with 'insert'.
 _default :: ExprDefault a
-_default = ExprDefault (ConstExpr "DEFAULT") -- FIXME: shouldn't have SQL here
+_default = ExprDefault (ConstExpr DefaultLit)
 
 -----------------------------------------------------------
 -- Constants
@@ -403,50 +402,29 @@ _default = ExprDefault (ConstExpr "DEFAULT") -- FIXME: shouldn't have SQL here
 -----------------------------------------------------------
 
 class ShowConstant a where
-    showConstant :: a -> String
+    showConstant :: a -> Literal
 
 instance ShowConstant String where
-    showConstant x = quote x
-
--- | Quote a string and escape characters that need escaping
---   FIXME: this might be backend dependent
-quote :: String -> String 
-quote s = "'" ++ concatMap escape s ++ "'"
-
--- | Escape characters that need escaping
-escape :: Char -> String
-escape '\NUL' = "\\0"
-escape '\'' = "''"
-escape '"' = "\\\""
-escape '\b' = "\\b"
-escape '\n' = "\\n"
-escape '\r' = "\\r"
-escape '\t' = "\\t"
-escape '\\' = "\\\\"
-escape c = [c]
-
-
+    showConstant = StringLit
 instance ShowConstant Int where
-    showConstant x = show x
+    showConstant = IntegerLit . fromIntegral
 instance ShowConstant Integer where
-    showConstant x = show x
+    showConstant = IntegerLit
 instance ShowConstant Double where
-    showConstant x = show x
+    showConstant = DoubleLit
 instance ShowConstant Bool where
-    showConstant False = "FALSE"
-    showConstant True = "TRUE"
+    showConstant = BoolLit
 
 -- this assumes that all databases accept both date and time even when they
 -- only want date.
 instance ShowConstant CalendarTime where
-    showConstant t = showConstant (formatCalendarTime defaultTimeLocale fmt t)
-	where fmt = iso8601DateFormat (Just "%H:%M:%S")
+    showConstant = DateLit
 
 instance ShowConstant a => ShowConstant (Maybe a) where
-    showConstant x = maybe "NULL" showConstant x
+    showConstant = maybe NullLit showConstant
 
 instance Size n => ShowConstant (BoundedString n) where
-    showConstant x = show x
+    showConstant = showConstant . fromBounded
 
 -- | Transform an a into an Expr a.  
 constant :: ShowConstant a => a -> Expr a

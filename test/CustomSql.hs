@@ -34,10 +34,10 @@ binop op (Expr e1) (Expr e2) = Expr (BinExpr (OpOther op) e1 e2)
 --
 
 now :: Expr CalendarTime
-now = Expr (ConstExpr "NOW()")
+now = Expr (ConstExpr (OtherLit "NOW()"))
 
 last_insert_id :: Expr Int
-last_insert_id = Expr (ConstExpr "LAST_INSERT_ID()")
+last_insert_id = Expr (ConstExpr (OtherLit "LAST_INSERT_ID()"))
 
 ilike :: Expr String -> Expr String -> Expr Bool
 ilike = binop "ILIKE"

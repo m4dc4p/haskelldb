@@ -36,7 +36,7 @@ showResults rs = mapM_ (putStrLn . unwords . map (($ "") . snd) . showRecRow) rs
 showTable db = query db (table test_default_auto) >>= showResults
 
 last_insert_id :: Expr Int
-last_insert_id = Expr (ConstExpr "last_insert_id()")
+last_insert_id = Expr (ConstExpr (OtherLit "last_insert_id()"))
 
 lid_q = project (def1 << last_insert_id)
 
