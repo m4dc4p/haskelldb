@@ -10,7 +10,7 @@
 -- 
 -- This is a replacement for some of TREX.
 --
--- $Revision: 1.31 $
+-- $Revision: 1.32 $
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec 
     (
@@ -21,7 +21,7 @@ module Database.HaskellDB.HDBRec
     -- * Labels
     , FieldTag(..)
     -- * Record predicates and operations
-    , HasField, Select(..), SetField(..)
+    , HasField, Select(..), SetField, setField
     -- * Showing and reading records
     , ShowRecRow(..), ReadRecRow(..)
     ) where
@@ -127,21 +127,24 @@ instance SelectField f r a => SelectField f (Record r) a where
 
 -- * Field update
 
+setField :: SetField f r a => l f a -> a -> r -> r
+setField (_::l f a) = setField_ (undefined::f)
+
 class SetField f r a where
     -- | Sets the value of a field in a record.
-    setField :: f -- ^ Field label
+    setField_ :: f -- ^ Field label
 	     -> a -- ^ New field value
 	     -> r -- ^ Record
 	     -> r -- ^ New record
 
 instance SetField f (RecCons f a r) a where
-    setField _ y (RecCons _ r) = RecCons y r
+    setField_  _ y (RecCons _ r) = RecCons y r
 
 instance SetField f r a => SetField f (RecCons g b r) a where
-    setField l y (RecCons f r) = RecCons f (setField l y r)
+    setField_ l y (RecCons f r) = RecCons f (setField_ l y r)
 
 instance SetField f r a => SetField f (Record r) a where
-    setField f y r = \e -> setField f y (r e)
+    setField_ f y r = \e -> setField_ f y (r e)
 
 -- * Equality and ordering
 
