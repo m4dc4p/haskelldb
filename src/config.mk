@@ -1,6 +1,6 @@
 GHC = ghc
 GHCI = ghci
-GHCFLAGS = -fglasgow-exts -fallow-overlapping-instances
+GHCFLAGS = -fglasgow-exts -fallow-overlapping-instances 
 
 HUGS=hugs
 RUNHUGS=runhugs
@@ -16,3 +16,8 @@ UNIXODBC_PREFIX=/usr/local/dp03-7/unixODBC-2.2.6
 endif
 
 UNIXODBC_LIBDIR = $(UNIXODBC_PREFIX)/lib
+
+GHCFLAGS += -i$(HSQL_DIR)
+LDFLAGS = -L$(HSQL_DIR)/Database -L$(UNIXODBC_LIBDIR)
+
+HUGSFLAGS = -P:$(HSQL_DIR)

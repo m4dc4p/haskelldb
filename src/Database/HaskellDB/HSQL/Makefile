@@ -1,13 +1,10 @@
 include ../../config.mk
 include ../../rules.mk
 
-LIBDIRS = ../.. $(HSQL_DIR)/Database $(UNIXODBC_LIBDIR)/lib
-LIBS = HDB HSsql odbc 
+LDFLAGS += -L../.. -lHDB -lHSsql -lodbc 
+GHCFLAGS += -i../..
 
-LDFLAGS += $(addprefix -L, $(LIBDIRS)) $(addprefix -l, $(LIBS))
-GHCFLAGS += -i../.. -i$(HSQL_DIR)
-
-HUGSFLAGS += -P:../..:$(HSQL_DIR)
+HUGSFLAGS += -P:$(HSQL_DIR)
 
 .PHONY: clean hugsload hugstest ghciload
 
@@ -36,9 +33,6 @@ ghciload:
 #
 # Generic
 #
-
-../../libHSsql.a: 
-	$(MAKE) -C ../.. libHSsql.a
 
 .depend: *.hs
 	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
