@@ -255,8 +255,10 @@ doQuery db q =
 testOps db =
     do
     putStrLn "Testing UNION..."
-    putStrLn $ show $ showSql $ union q1 q2
-    query db (union q1 q2)
+    let uq = union q1 q2
+    putStrLn $ show $ showOpt $ uq
+    putStrLn $ show $ showSql $ uq
+    query db uq
 -- These don't work in MySQL:
 --    query db (intersect q1 q2)
 --    query db (divide q1 q2)
