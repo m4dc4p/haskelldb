@@ -1,20 +1,12 @@
 Things that need to be done, in no particular order:
 
 - Code:
-  * Handle exceptions in a driver-independent way
-    (kind of fixed now, by catching driver exceptions and 
-    calling fail in the IO monad /Bjorn) 
   * Support all SQL datatypes
   * Make row retrieval lazy in HSQL driver
-  * Make Query.exprs type safe
   * switch ad-hoc assert to Control.Expcetion.assert
   * make {odbc,mysql,postgresql}Connect take a Database argument 
     instead of a HSQL argument. This would allow more general type
     signatures in user code. (Added by Bjorn)
-  * support transactions (i.e, things guaranteed to either not take 
-    place or take place). Essential for real world applications, and 
-    supported by HSQL. (Added by Chucky, suggested by stepcut on 
-    #haskell)
   * make SQL generation tweakable by the DB driver, since different
     DBs have different SQL syntax, for example TOP / LIMIT.
     Added by Bjorn, suggested by Shae Erisson.
