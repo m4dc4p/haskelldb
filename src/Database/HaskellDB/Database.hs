@@ -42,11 +42,21 @@ import Control.Monad
 
 infix 9 !. 
 
--- | The type of query results.
-newtype Row r = Row r
+-- | The type of query results. This is a simple wrapper
+--   around a record type in order to be able to overload !.
+newtype Row r = Row r deriving (Eq, Ord)
 
 instance ShowRecRow r => ShowRecRow (Row r) where
     showRecRow (Row r) = showRecRow r
+
+instance Show r => Show (Row r) where
+    showsPrec x (Row r) = showsPrec x r
+
+instance ReadRecRow r => ReadRecRow (Row r) where
+    readRecRow s = [(Row r, rs) | (r,rs) <- readRecRow s]
+
+instance Read r => Read (Row r) where
+    readsPrec x s = [(Row r, rs) | (r,rs) <- readsPrec x s]
 
 
 -- | The (!.) operator selects over returned records from
