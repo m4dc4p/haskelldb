@@ -43,36 +43,7 @@ data ODBCOptions = ODBCOptions {
                                uid :: String, --user id
                                pwd :: String  --password
                   	       }          
-{-         
-type Driver = String
-type DriverOpts = [(String,String)]                    
 
-drivers :: [(Driver, DriverOpts -> IO Connection)]
-drivers = [
-	   ("ODBC", ODBC.connect),
-	   ("MySQL", MySQL.connect),
-	   ("PostgreSQL", PostgreSQL.connect)
-	  ]
-
-connect :: Driver -> DriverOpts -> IO Connection
-connect driver opts = case lookup driver drivers of
-		      Just conn -> conn opts
-		      Nothing -> fail "No driver called: " ++ driver
-				      ++ ". Available drivers: " 
-				       ++ unwords (map fst drivers))
-
-hsqlConnect :: DriverOpts -> IO Connection
-hsqlConnect opts = do
-		   dsn  <- getOpt "dsn" opts
-		   user <- getOpt "user" opts
-		   pwd  <- getOpt "password" opts
-		   connect dsn user pwd
-
-getOpt :: DriverOpts -> String -> IO String
-getOpt opts opt = case lookup opt opts of
-		  Just val -> return val
-		  Nothing -> fail ("Option '" ++ opt ++ "' not set.")
--}
 odbcConnect :: ODBCOptions -> (ODBC -> IO a) -> IO a
 odbcConnect opts action = do
 			  conn <- ODBC.connect (dsn opts) (uid opts) (pwd opts)
