@@ -5,6 +5,7 @@ HSQL_DIR=.
 LDFLAGS=-L$(HSQL_DIR)/Database -lHSsql -lodbc
 CFLAGS=
 GHC=ghc
+GHCI=ghci
 GHCFLAGS=-fglasgow-exts -fallow-overlapping-instances -i../.. -i$(HSQL_DIR)
 
 HUGS=hugs
@@ -45,6 +46,9 @@ $(HSQL_DIR)/Database/libHSsql.a: HSQL
 
 test: $(HSQL_DIR)/Database/libHSsql.a test.o HSQL_driver.o
 	$(GHC) $(GHCFLAGS) -o $@ $^ $(LDFLAGS) -L../.. -lHDB
+
+ghciload: $(HSQL_DIR)/Database/ODBC/HSQL.hs
+	$(GHCI) $(GHCFLAGS) test.hs
 
 #
 # Generic
