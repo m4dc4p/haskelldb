@@ -17,4 +17,11 @@ data FieldType =
     | IntegerT
     | DoubleT
     | BoolT
-    deriving (Eq, Show)
+    deriving (Eq)
+
+instance Show FieldType where
+    show StringT = "String"
+    show IntT = "Int"
+    show IntegerT = "Integer"
+    show DoubleT = "Double"
+    show BoolT = "Bool"
