@@ -1,3 +1,15 @@
+Quick compile:
+
+autoconf    (only needed if compiling from CVS)
+./configure
+make
+
+On jackass (internal project server):
+
+autoconf
+./configure --with-hugs-dir=/usr/local/dp03-7/hugs98-Nov2003/lib/hugs
+make
+
 Requirements:
 
 - GHC 6.2
