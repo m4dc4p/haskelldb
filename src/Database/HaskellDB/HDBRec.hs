@@ -8,31 +8,41 @@
 -- Stability   :  experimental
 -- Portability :  non-portable
 -- 
--- This is replacement for some of TREX.
+-- This is a replacement for some of TREX.
 --
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 -----------------------------------------------------------
-module Database.HaskellDB.HDBRec where
+module Database.HaskellDB.HDBRec 
+    (
+    -- * Record types
+    RecNil(..), RecCons(..), Record
+    -- * Labels
+    , FieldTag(..)
+    -- * Record predicates and operations
+    , HasField, SelectField(..)
+    -- * Showing and reading records
+    , ShowRecRow(..), ReadRecRow(..)
+    ) where
 
 import Data.List
 
--- * Data declarations.
-
 -- | The empty record.
-data RecNil = RecNil deriving (Eq)
+data RecNil = RecNil deriving (Eq, Ord)
 
--- | Constructor that adds a field to a record
+-- | Constructor that adds a field to a record.
 -- f is the field tag, a is the field value and b is the rest of the record.
-data RecCons f a b = RecCons a b deriving (Eq)
+data RecCons f a b = RecCons a b deriving (Eq, Ord)
 
--- | The type used for records throughout HaskellDB. This is a function
+-- | The type used for records. This is a function
 --   that takes a 'RecNil' so that the user does not have to 
 --   put a 'RecNil' at the end of every record.
 type Record r = RecNil -> r
 
 -- * Class definitions.
 
+-- | Class for field labels.
 class FieldTag f where
+    -- | Gets the name of the label.
     fieldName :: f -> String
 
 -- | Get the label name of a record entry.
@@ -77,7 +87,7 @@ instance SelectField f r a => SelectField f (Record r) a where
 -- * Showing rows 
 
 
--- | A record must belong to this class to be showable.
+-- | Convert a record to a list of label names and field values.
 class ShowRecRow r where
     showRecRow :: r -> [(String,ShowS)]
 
@@ -112,8 +122,9 @@ instance  (FieldTag a, Show b, ShowRecRow c) => Show (RecCons a b c) where
 
 -- * Reading rows
 
--- | Corresponds to 'ShowRecRow'.
 class ReadRecRow r where
+    -- | Convert a list of labels and strins representating values
+    --   to a record.
     readRecRow :: [(String,String)] -> [(r,[(String,String)])]
 
 instance ReadRecRow RecNil where
