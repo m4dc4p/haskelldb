@@ -2,7 +2,7 @@ SUBDIRS = src doc
 
 SUBDIRS_CLEAN = $(addsuffix -clean, $(SUBDIRS))
 
-.PHONY = haskelldb doc clean $(SUBDIRS_CLEAN)
+.PHONY: haskelldb doc clean $(SUBDIRS_CLEAN)
 
 default haskelldb: 
 	$(MAKE) -C src
