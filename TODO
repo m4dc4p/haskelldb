@@ -12,7 +12,7 @@ Things that need to be done, in no particular order:
     Added by Bjorn, suggested by Shae Erisson.
   * add Read instance to records. Useful for saving state in for
     example WASH. Added by Bjorn, suggested by stepcut.
-  * removed r type parameter from Attr. It seems useless now. /Bjorn
+  * remove r type parameter from Attr. It seems useless now. /Bjorn
 
   (* strictness checking. In other words: optimize the code to sort out what
      types and expressions are evaluated strictly, and explicitly tell the
@@ -39,9 +39,6 @@ Things that need to be done, in no particular order:
     - Windows installer (MSI?)
 
 - Build system 
-  * Get it to work with GHCi. Currently there is a
-    problem with HSQL and GHCi: "can't load .so/.DLL for: c
-    (/usr/lib/libc.so: invalid ELF header)" (Added by Bjorn)
 
 - Database drivers
   * Add interface to HSQL.SQLite
