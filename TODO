@@ -1,6 +1,9 @@
 Things that need to be done, in no particular order:
 
 - Code:
+  * Patch HSQL to use column numbers instead of names for
+    SQLTables and SQLColumns.
+  * Handle exceptions in a driver-independent way
   * Support all SQL datatypes
     - DATE, TIME, TIMESTAMP
   * Make row retrieval lazy in HSQL driver
