@@ -86,7 +86,8 @@ tInfoToModule dbname tinfo@TInfo{tname=name,cols=col}
        $$ ppComment ["Table"]
        $$ ppTable tinfo       
        $$ ppComment ["Fields"]
-       $$ vcat (map ppField (columnNamesTypes tinfo)))
+       $$ if col == [] then empty -- no fields, don't do any weird shit
+             else vcat (map ppField (columnNamesTypes tinfo)))
 
 -- | Pretty prints a TableInfo
 ppTable :: TInfo -> Doc
