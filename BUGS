@@ -27,9 +27,6 @@
   query without retrieving all data from the first, you get the 
   error "Commands out of sync;  You can't run this command now".
 
-- Joins without a restrict generate SQL that uses non-existing 
-  field names. Reported by Thomas Bevan 2004-03-16.
-
 - WXHaskell _REQUIRES_ that all changes that we want committed are wrapped 
   in transactions. We currently do not do this, it is up to the user.
 

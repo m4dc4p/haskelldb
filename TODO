@@ -7,8 +7,6 @@ Things that need to be done, in no particular order:
     Added by Bjorn, suggested by Shae Erisson.
   * Figure out some intutive way of doing grouping.
   * Fix semantics of lazyQuery.
-  * See if we can queries without a table to work. For example constant
-    queries or things like getting the current time don't need a table.
   (* strictness checking. In other words: optimize the code to sort out what
      types and expressions are evaluated strictly, and explicitly tell the
      compiler that they are strict)
