@@ -11,7 +11,7 @@ endif
 
 .PHONY: clean
 
-default all: HSQL/libHSsql.a
+default all: HSQL Database HSQL/libHSsql.a
 
 HSQL:
 	cvs -d $(HTOOLKIT_CVS) co HSQL
