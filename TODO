@@ -1,7 +1,6 @@
 Things that must de done before the release:
   * Get date types working.
   * Test insert, delete and update.
-  * Fix SqlNoData error from ODBC when the connection fails.
   * Get Windows build working without needing configure flags.
   (* Make DbDirect support all drivers)
   * Make sure there is a working relase or CVS snapshot of HSQL available.
