@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.1],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.1 $)
+AC_REVISION($Revision: 1.2 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -78,7 +78,7 @@ dnl ***********************************************
 dnl GHC
 dnl ***********************************************
 AC_ARG_WITH(ghc,
-AC_HELP_STRING([--with-ghc=<ghc command>]
+AC_HELP_STRING([--with-ghc=<ghc command>],
                [Use a different command instead of 
                 'ghc' for the Haskell compiler.]),
 [GHC="$withval"],
@@ -99,7 +99,7 @@ dnl ***********************************************
 dnl GHC directory
 dnl ***********************************************
 AC_ARG_WITH(ghc-dir,
-AC_HELP_STRING([--with-ghc-dir=<ghc directory>],
+AC_HELP_STRING([--with-ghc-dir=DIR],
                [Install GHC libraries in the given GHC directory 
                 (default is "ghc --print-libdir")]),
 [GHC_DIR="$withval"],
@@ -120,7 +120,7 @@ dnl ***********************************************
 dnl ghc-pkg
 dnl ***********************************************
 AC_ARG_WITH(ghc-pkg,
-AC_HELP_STRING([  --with-ghc-pkg=<ghc-pkg command>],
+AC_HELP_STRING([--with-ghc-pkg=<ghc-pkg command>],
                [Use a different command instead of 'ghc-pkg']),
 [GHC_PKG="$withval"],
 [AC_PATH_PROG(GHC_PKG,ghc-pkg)]
@@ -166,7 +166,7 @@ dnl ***********************************************
 dnl Hugs directory
 dnl ***********************************************
 AC_ARG_WITH(hugs-dir,
-AC_HELP_STRING([--with-hugs-dir=<hugs directory>],
+AC_HELP_STRING([--with-hugs-dir=DIR],
                [Install Hugs libraries in the given Hugs directory 
                 (default is the Hugs libraries directory)]),
 [HUGS_DIR="$withval"],
@@ -192,8 +192,8 @@ dnl HSQL for all compilers
 dnl ***********************************************
 
 AC_ARG_WITH(hsql-dir,
-AC_HELP_STRING([--with-hsql-dir=<directory>]
-               [Look for HSQL for all compilers in <directory>.
+AC_HELP_STRING([--with-hsql-dir=DIR],
+               [Look for HSQL for all compilers in DIR.
 		(default: none)]),
 [GHC_HSQL_DIR="$withval"
 HUGS_HSQL_DIR="$withval"],
@@ -204,8 +204,8 @@ dnl HSQL for GHC
 dnl ***********************************************
 
 AC_ARG_WITH(ghc-hsql-dir,
-AC_HELP_STRING([--with-ghc-hsql-dir=<directory>]
-               [Look for HSQL for GHC in <directory>.
+AC_HELP_STRING([--with-ghc-hsql-dir=DIR],
+               [Look for HSQL for GHC in DIR.
 		(default: ghc-dir)]),
 [GHC_HSQL_DIR="$withval"],
 [if test "$GHC_HSQL_DIR" = ""; then
@@ -235,8 +235,8 @@ dnl HSQL for Hugs
 dnl ***********************************************
 
 AC_ARG_WITH(hugs-hsql-dir,
-AC_HELP_STRING([--with-hugs-hsql-dir=<directory>]
-               [Look for HSQL for Hugs in <directory>.
+AC_HELP_STRING([--with-hugs-hsql-dir=DIR],
+               [Look for HSQL for Hugs in DIR.
 		(default: hugs-dir)]),
 [HUGS_HSQL_DIR="$withval"],
 [if test "$HUGS_HSQL_DIR" = ""; then
@@ -302,6 +302,19 @@ dnl ***********************************************
 dnl check for ODBC module and libraries 
 dnl ***********************************************
 
+AC_ARG_WITH(odbc-libs,
+  AC_HELP_STRING([--with-odbc-libs=DIR],
+             [Look for ODBC libraries in DIR.]),
+  [ODBC_LIB_DIR="$withval"],
+  [
+  case $ac_cv_target_alias in
+    i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
+	ODBC_LIB_DIR=""
+        ;;
+  esac
+  ]
+)
+
 if test $WITH_HSQL_ODBC = yes; then
   AC_HS_MODULE_IFELSE([Database.HSQL.ODBC],[connect],,
     [AC_MSG_WARN([ODBC module not found, skipping ODBC])
@@ -309,10 +322,25 @@ if test $WITH_HSQL_ODBC = yes; then
 fi
 
 if test $WITH_HSQL_ODBC = yes; then
-  AC_CHECK_LIB(odbc,SQLAllocEnv,,
+
+  case $ac_cv_target_alias in
+    i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
+	libodbc=odbc32
+        ;;
+    *)  
+	libodbc=odbc
+        ;;
+  esac
+
+  if test "$ODBC_LIB_DIR" != ""; then
+    LDFLAGS="$LDFLAGS -L$ODBC_LIB_DIR"
+  fi
+
+  AC_CHECK_LIB($libodbc,SQLAllocEnv,,
     [AC_MSG_WARN([libodbc required to build ODBC programs, 
                   not building ODBC support])
      WITH_HSQL_ODBC=no])
+
 fi
 
 dnl ***********************************************
