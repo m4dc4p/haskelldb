@@ -1,3 +1,7 @@
+- Inserting values into TIME columns in PostgreSQL does not work,
+  since PostgreSQL doesn't like getting date and time as input to a 
+  TIME column. We're working on a general solution to date handling issues.
+
 - There is probably a memory leak somwhere, with 512 MB RAM
   you can do about 50000 database queries before you runs
   out of memory and get an SqlNoData user error.
