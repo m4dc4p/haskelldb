@@ -4,6 +4,11 @@ Things that need to be done, in no particular order:
   * Support all SQL datatypes
     - DATE, TIME, TIMESTAMP
   * Make row retrieval lazy in HSQL driver
+  * Make Query.exprs type safe
+
+- DbDirect 
+  (* add optional command line argument for selecting which
+  tables to generate code for)
 
 - Installation
   * GHC package specification
