@@ -8,3 +8,9 @@ Hugs incompatibilites in HSQL.ODBC
 
 - Derives Typeable
   * Declare instance manually.
+
+Building HSQL on jackass:
+
+./configure --enable-odbc \
+CPPFLAGS=-I/usr/local/dp03-7/unixODBC-2.2.6/include \
+LDFLAGS=-L/usr/local/dp03-7/unixODBC-2.2.6/lib

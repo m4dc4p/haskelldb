@@ -1,12 +1,15 @@
+# in HSQL_DIR there should be a directory (or a symlink to a directory)
+# called Database that contains the compiled HSQL library
 HSQL_DIR=/users/dtek/d00/d00bring/d3proj
-LDFLAGS=-L$(HSQL_DIR)/HSQL -lHSsql -lodbc
+
+LDFLAGS=-L$(HSQL_DIR)/Database -lHSsql -lodbc
 CFLAGS=
 GHC=ghc
 GHCFLAGS=-fglasgow-exts -fallow-overlapping-instances -i../.. -i$(HSQL_DIR)
+
 HUGS=hugs
 RUNHUGS=runhugs
-FFIHUGS=ffihugs
-HUGSFLAGS=-98 +o -P:../..
+HUGSFLAGS=-98 +o -P:../..:$(HSQL_DIR)
 
 
 .PHONY: clean
@@ -17,13 +20,10 @@ default all: test
 # HUGS
 #
 
-ODBC.so: ODBC.hs ODBCConst.hs
-	$(FFIHUGS) $(HUGSFLAGS) +G +L"$(CFLAGS)" +L"$(LDFLAGS)" ODBC.hs
+hugsload: 
+	$(HUGS) $(HUGSFLAGS) HSQL_driver.hs
 
-hugsload: ODBC.so
-	$(HUGS) $(HUGSFLAGS) ODBC.hs
-
-hugsrun: ODBC.so
+hugstest: 
 	$(RUNHUGS) $(HUGSFLAGS) test.hs
 
 #
