@@ -9,6 +9,9 @@
 module HaskellDB 
 	( Rel, Attr, Expr, Table, Query	-- abstract
 	
+	, ( # )
+
+
 	, (!)	
 	, restrict, table
 	, union, intersect, divide, minus
@@ -40,6 +43,7 @@ import Sql       (toSql, ppSql)
 import Optimize  (optimize)
 import Query
 import Database
+import HDBRecUtils
 
 -----------------------------------------------------------
 -- Show Queries, both as PrimQuery, Optimized PrimQuery and SQL
