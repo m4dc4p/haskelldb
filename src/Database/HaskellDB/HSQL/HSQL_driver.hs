@@ -15,7 +15,6 @@ module HSQL_driver (
 import Data.Dynamic
 import Maybe
 import Monad
-import Time
 
 import Database hiding (query)
 import Sql
@@ -131,7 +130,7 @@ toFieldType _                = StringT
 -----------------------------------------------------------
 
 odbcPrimQuery :: Connection -> String -> Scheme -> Rel r -> IO [ODBCRow r]
-odbcPrimQuery connection sql scheme r = 
+odbcPrimQuery connection sql scheme _ = 
     do
     -- FIXME: (DEBUG) remove
     --putStrLn sql
