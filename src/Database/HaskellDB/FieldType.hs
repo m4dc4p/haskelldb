@@ -42,4 +42,4 @@ mkCalendarTime :: ClockTime -> CalendarTime
 mkCalendarTime = toUTCTime
 
 instance Typeable CalendarTime where
-    typeOf _ = mkAppTy (mkTyCon "Database.HaskellDB.FieldType Error") []
+    typeOf _ = mkAppTy (mkTyCon "System.Time.CalendarTime") []
