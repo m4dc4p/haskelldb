@@ -58,6 +58,7 @@ genDocs dbinfo
        $$ vcat (map (text . (("import qualified " ++ 
 			      ((moduleName . dbname) dbinfo) ++ ".") ++)) 
 		tbnames)
+       <> newline
        $$ dbInfoToDoc dbinfo)
         : map (tInfoToModule ((moduleName . dbname) dbinfo)) (tbls dbinfo)
     where

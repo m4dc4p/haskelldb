@@ -20,21 +20,13 @@ import Database.HaskellDB.FieldType
 import Database.HaskellDB.DBSpec
 
 -- | Connects to a database and generates a specification from it
-dbToDBSpec :: Bool    -- ^ whether to use Bounded Strings or not
+dbToDBSpec :: Bool -- ^ Use bounded strings?
 	   -> String  -- ^ the name our database should have
 	   -> Database -- ^ the database connection
 	   -> IO DBInfo    -- ^ return a DBInfo
 dbToDBSpec useBStr name dbconn
     = do ts <- tables dbconn
-	 descs_ <- mapM (describe dbconn) ts
-	 let descs  = if useBStr 
-		        then descs_ 
-			else map (map stripBStrT) descs_
+	 descs <- mapM (describe dbconn) ts
          let cinfos = map (map $ uncurry makeCInfo) descs
 	 let tinfos = map (uncurry makeTInfo) (zip ts cinfos)
 	 return $ makeDBSpec name (DBOptions {useBString = useBStr}) tinfos
-    where
-    stripBStrT info@(name,(fname, fbool)) 
-	= case fname of
-		     BStrT _ -> (name, (StringT, fbool))
-		     _       -> info

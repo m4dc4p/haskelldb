@@ -47,7 +47,8 @@ main = do
 		    putStrLn "creating database specification..."
 		    spec <- f (dbToDBSpec useBStrT $ last args)
 		    putStrLn "creating modules from specification..."
-		    let files = specToHDB spec
+		    let spec' = finalizeSpec spec
+			files = specToHDB spec'
 		    putStrLn "writing modules..."
 		    createModules files
 		    putStrLn "done!"
@@ -61,6 +62,8 @@ main = do
              || (dbarg == "postgresql" || dbarg == "postgre") 
 		    && (length args) == 6
              || dbarg == "sqlite" && (length args) == 4
+             || (dbarg == "wxhaskell" || dbarg == "wx") 
+		    && (length args) == 5
 	   where dbarg = map toLower (head args)
 
 -- | Shows usage information
@@ -71,10 +74,11 @@ showHelp
 		   "We want:",
 		   "Enable BoundedString [-b],",
 		   "database type (ODBC, MySQL, PostgreSQL or SQLite) and",
-		   "ODBC: dsn, userid, password, and file",
+		   "ODBC: dsn, userid, password and file",
 		   "MySQL: server, database, userid password and file",
 		   "PostgreSQL: server, database, userid, password and file",
 		   "SQLite: filepath IOMode and file",
+		   "WXHaskell: dsn, userid, password and file",
 		   "as arguments"
 	          ]
 -- | Creates all modules
