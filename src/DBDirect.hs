@@ -18,6 +18,7 @@
 
 module Main where
 
+import Data.Char
 import System.Environment (getArgs)
 import System.Directory
 import Text.PrettyPrint.HughesPJ
@@ -31,7 +32,7 @@ import DBDirectCommon
 
 -- | Command line driver
 main = do
-       putStr "\nDB/Direct, Daan Leijen (c) 1999, HWT (c) 2003\n\n"
+       putStr "\nDB/Direct, Daan Leijen (c) 1999, HWT (c) 2003-2004\n\n"
        args <- getArgs
        putStrLn "checking arguments..."
        if (checkFlag $ args) then process True (tail args) 
@@ -40,7 +41,8 @@ main = do
        process useBStrT args = 
 	   case checkArgs args of
 	    True -> do
-		    let f = createCatalogCommon (head args) (init $ tail args)
+		    let f = createCatalogCommon (map toLower (head args)) 
+			       (init $ tail args)
 		    putStrLn "creating database specification..."
 		    spec <- f (dbToDBSpec useBStrT $ last args)
 		    putStrLn "creating modules from specification..."
@@ -53,24 +55,26 @@ main = do
        checkFlag args = head args == "-b"
        checkArgs [] = False
        checkArgs args
-	   = (head args == "ODBC" && (length args) == 5)
-	     || (head args == "MySQL" && (length args) == 6)
-             || (head args == "PostgreSQL" && (length args) == 6)
+	   = dbarg == "odbc" && (length args) == 5
+	     || dbarg == "mysql" && (length args) == 6
+             || dbarg == "postgresql" && (length args) == 6
+             || dbarg == "sqlite" && (length args) == 4
+	   where dbarg = map toLower (head args)
 
 -- | Shows usage information
-showHelp = putStr (unlines helpText)
-	   where
-	   helpText  = [ "Wrong number of arguments!",
-			 "We want:",
-			 "Enable BoundedString [-b],",
-			 "database type (ODBC, MySQL or PostgreSQL) and",
-			 "ODBC: dsn, userid, password, and output file",
-			 "MySQL: server, database, userid password and " ++
-			 "file",
-			 "PostgreSQL: server, database, userid, password " ++
-			 "and file",
-			 "as arguments"
-	  	       ]
+showHelp 
+    = putStr (unlines helpText)
+      where
+      helpText  = ["Wrong number of arguments!",
+		   "We want:",
+		   "Enable BoundedString [-b],",
+		   "database type (ODBC, MySQL, PostgreSQL or SQLite) and",
+		   "ODBC: dsn, userid, password, and file",
+		   "MySQL: server, database, userid password and file",
+		   "PostgreSQL: server, database, userid, password and file",
+		   "SQLite: filepath IOMode and file",
+		   "as arguments"
+	          ]
 -- | Creates all modules
 createModules :: [(FilePath,Doc)] -> IO ()
 createModules files
