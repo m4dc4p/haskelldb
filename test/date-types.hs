@@ -19,11 +19,14 @@ getUsers =
     restrict (users!xid .==. reports!userid)
     project (first_name << users!first_name # 
 	     last_name << users!last_name # 
-	     day << reports!day)
+	     day << reports!day #
+	     reported << reports!reported
+	     )
 
 
 showReport r = rpad 20 (r!.first_name ++ " " ++ r!.last_name) ++ " " 
-	       ++ calendarTimeToString (r!.day)
+	       ++ calendarTimeToString (r!.day) ++ " "
+	       ++ calendarTimeToString (r!.reported)
 
 rpad :: Int -> String -> String
 rpad x s = s ++ replicate (x - length s) ' '
