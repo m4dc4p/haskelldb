@@ -54,7 +54,7 @@ c12 = mkAttr C12
 --
 
 exError :: SqlError -> IO a
-exError = error . seErrorMsg
+exError = error . show
 
 opts :: ODBCOptions
 opts = ODBCOptions{dsn="mysql-dp037", uid="dp037", pwd="teent333"}
