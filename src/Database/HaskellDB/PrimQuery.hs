@@ -261,10 +261,12 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
           attr          = text
           scalar        = text . unquote 
           binary op x y = parens (x <+> ppBinOp op <+> y)
-          unary OpAsc x = x <+> text "ASC"
-          unary OpDesc x= x <+> text "DESC" 
-          unary op x    = parens (ppUnOp  op <+> x)
-          
+          -- paranthesis around ASC / desc exprs not allowed
+          unary OpAsc x  = x <+> ppUnOp OpAsc
+          unary OpDesc x = x <+> ppUnOp OpDesc
+	  unary op x | isPrefixOp op = parens (ppUnOp op <+> x)
+		     | otherwise     = parens (x <+> ppUnOp op)
+
           aggr op x	= ppAggrOp op <> parens x
           
           -- be careful when showing a SQL string
@@ -274,6 +276,9 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
           
           tosquote '\''         = "\\'"
           tosquote c            = [c]
+
+	  isPrefixOp OpNot      = True
+	  isPrefixOp _          = False
 
 -- PP on ops:
 -- | Pretty pints a 'RelOp'
@@ -309,11 +314,11 @@ showRelOp Intersect    	= "INTERSECT"
 showRelOp Divide       	= "DIVIDE"
 showRelOp Difference   	= "MINUS"
 
-showUnOp  OpNot         = "NOT" 
+showUnOp  OpNot         = "NOT"
 showUnOp  OpIsNull      = "IS NULL" 
 showUnOp  OpIsNotNull   = "IS NOT NULL" 
---showUnOp  OpAsc
---showUnOp  OpDesc  
+showUnOp  OpAsc         = "ASC"
+showUnOp  OpDesc        = "DESC"
 
 showBinOp  OpEq         = "=" 
 showBinOp  OpLt         = "<" 
