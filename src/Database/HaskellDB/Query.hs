@@ -7,7 +7,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non portable
 -- 
 -- Basic combinators for building type-safe queries.
 -- The "Query" monad constructs a relational expression
@@ -30,7 +30,7 @@ module Database.HaskellDB.Query (
 	     , union, intersect, divide, minus
 	     , _not, like, cat
 	     , isNull, notNull
-	     , constant, nullable
+	     , constant, constJust
 	     , count, _sum, _max, _min, avg
 	     , stddev, stddevP, variance, varianceP
 	     , asc, desc, order
@@ -97,6 +97,11 @@ attributeName (Attr name) = name
 -- Basic relational operators
 -----------------------------------------------------------
 
+--| Selects a field from a row. Usage typicly something like
+--
+-- > restrict (table_1!name .==. table_2!name)
+--
+-- where name is the selected field
 (!) :: HasField f r => Rel r -> Attr f r a -> Expr a
 rel ! attr      = select attr rel
 
@@ -140,9 +145,12 @@ binrel op (Query q1) (Query q2)
       in
           (Rel alias scheme,(k+1,times r primQ)) )
 
+-- | Return all records which are present in at least
+--   one of the relations.
 union :: Query (Rel r) -> Query (Rel r) -> Query (Rel r)
 union           = binrel Union
 
+-- | Return all records which are present in both relations.
 intersect :: Query (Rel r) -> Query (Rel r) -> Query (Rel r) 
 intersect       = binrel Intersect
 
@@ -159,7 +167,7 @@ minus           = binrel Difference
 -- Tables
 -----------------------------------------------------------
 
-
+-- | Return all records from a specific table.
 table :: (ShowRecRow r) => Table r -> Query (Rel r)
 table (Table name assoc)
         = do
@@ -240,14 +248,14 @@ _not   = unop OpNot
 
 -- | The HaskellDB counterpart to the SQL LIKE keyword.
 -- In the expresions, % is a wildcard representing any characters
--- in the same position relavtive to the given characters.
--- i.e.
--- 
--- > like (constant \"ABCDEF\") (constant \"AB%F\")
+-- in the same position relavtive to the given characters and
+-- _ is a wildcard representing one character e.g.
+--
+-- > like (constant "ABCDEFFF") (constant "AB%F_F")
 -- 
 -- is true while
 -- 
--- > like (constant \"ABCEDF\") (constant \"AC%F\") 
+-- > like (constant "ABCDEF") (constant "AC%F") 
 -- 
 -- is false.
 like :: Expr String -> Expr String -> Expr Bool
@@ -258,8 +266,7 @@ like   = binop OpLike
 cat :: Expr String -> Expr String -> Expr String
 cat = binop OpCat
 
--- | Concatenates two String-expressions. Is the same as  
--- 'cat'.
+-- | Concatenates two String-expressions. 
 (.++.) :: Expr String -> Expr String -> Expr String
 (.++.) = cat
 
@@ -333,8 +340,8 @@ constant x  = Expr (ConstExpr (showConstant x))
 
 -- | Turn constant data into a nullable expression. 
 --   Same as @constant . Just@
-nullable :: ShowConstant a => a -> Expr (Maybe a)
-nullable x = constant (Just x)
+constJust :: ShowConstant a => a -> Expr (Maybe a)
+constJust x = constant (Just x)
 
 -----------------------------------------------------------
 -- Aggregate operators
@@ -393,6 +400,7 @@ varianceP x     = aggregate AggrVarP x
 -- Special ops
 -----------------------------------------------------------
 
+-- | Return the n topmost records.
 top :: Integer -> Query ()
 top n           = updatePrimQuery_ (Special (Top False n))
 
