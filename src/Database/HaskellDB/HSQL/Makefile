@@ -2,17 +2,16 @@ TOP_DIR = ../../..
 
 include $(TOP_DIR)/rules.mk
 
-.PHONY: drivers $(HSQL_DRIVERS)
+SRC = $(addsuffix .hs, $(HSQL_DRIVERS))
+OBJS = $(patsubst %.hs,%.o, $(SRC))
+
+.PHONY: drivers
 
 all: drivers
 
-drivers: $(HSQL_DRIVERS)
+drivers: $(OBJS)
 
-HSQL_ODBC: HSQL_ODBC.o 
-HSQL_MySQL: HSQL_MySQL.o 
-HSQL_PostgreSQL: HSQL_PostgreSQL.o 
-
-.depend: *.hs
+.depend: $(SRC)
 
 clean:
 	-rm -f *.so *.o *.hi .depend .depend.bak
