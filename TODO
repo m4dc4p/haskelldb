@@ -18,6 +18,8 @@ Things that need to be done, in no particular order:
   * make SQL generation tweakable by the DB driver, since different
     DBs have different SQL syntax, for example TOP / LIMIT.
     Added by Bjorn, suggested by Shae Erisson.
+  * add Read instance to records. Useful for saving state in for
+    example WASH. Added by Bjorn, suggested by stepcut.
 
   (* strictness checking. In other words: optimize the code to sort out what
      types and expressions are evaluated strictly, and explicitly tell the
