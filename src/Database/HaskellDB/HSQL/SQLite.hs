@@ -7,7 +7,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable
 --
 -- Interface to the SQLite <http://www.hwaci.com/sw/sqlite/>
 -- databases.

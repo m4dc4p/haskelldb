@@ -7,7 +7,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable
 -- 
 -- Transform a PrimQuery (relational expression) to SQL
 -- and pretty print SQL

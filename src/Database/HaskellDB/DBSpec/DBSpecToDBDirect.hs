@@ -7,7 +7,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable
 --
 -- Converts a DBSpec-generated database to a set of
 -- (FilePath,Doc), that can be used to generate definition 

@@ -6,7 +6,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable
 --
 -- Defines the types of database columns, and functions
 -- for converting these between HSQL and internal formats

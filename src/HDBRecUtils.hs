@@ -6,7 +6,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable
 -- 
 -- This module contains utility functions for HDBRec.
 -----------------------------------------------------------

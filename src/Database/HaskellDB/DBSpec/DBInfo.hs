@@ -6,7 +6,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable
 --
 -- This is the "core" file of the DBSpec files. It defines
 -- a DBInfo and important functions on it.

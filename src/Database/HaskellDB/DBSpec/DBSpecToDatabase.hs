@@ -6,7 +6,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable
 --
 -- Connects to a database and generates stuff in it according
 -- to what's inside the DBSpec

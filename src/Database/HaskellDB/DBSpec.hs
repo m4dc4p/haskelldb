@@ -6,7 +6,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable
 --
 -- DBSpec is the new and improved way of specifying databases.
 -- It is designed to be able to describe a database in such a 
