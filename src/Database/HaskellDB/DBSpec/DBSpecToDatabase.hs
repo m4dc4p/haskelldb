@@ -15,26 +15,16 @@ module Database.HaskellDB.DBSpec.DBSpecToDatabase
     (dbSpecToDatabase)
     where
 
-import Database.HaskellDB
-import Database.HaskellDB.FieldType
+import Database.HaskellDB.Database
 import Database.HaskellDB.DBSpec
-import Data.List
-
--- | Prints a TInfo into an SQL statement
-tInfoToSql :: TInfo -> String
-tInfoToSql (TInfo {tname=n,cols=cs}) = "CREATE TABLE " ++ n ++ " ( " 
-			++ concat (intersperse "," 
-				   (map cInfoToSql cs))
-			++ ")"
-
--- | Prints a CInfo into an SQL statement
-cInfoToSql :: CInfo -> String
-cInfoToSql (CInfo {cname=n, descr=(ft,nullable)}) 
-    = n ++ " " ++ (sshow ft) ++	(if not nullable then " not null" else "")
 
 -- | Converts a DBInfo to a real life Database
 dbSpecToDatabase :: DBInfo -- ^ The DBInfo to generate from
 		 -> Database -- ^ A Database
 		 -> IO ()
-dbSpecToDatabase db dbinfo 
-    = return ()
+dbSpecToDatabase dbi db 
+    = do
+      createDB db (dbname dbi)
+      mapM (\t -> createTable db (tname t) (createAttFD t)) (tbls dbi) -- creates in the WRONG DATABASE!!!
+    where
+    createAttFD tbl = zip (map cname (cols tbl)) (map descr (cols tbl))
