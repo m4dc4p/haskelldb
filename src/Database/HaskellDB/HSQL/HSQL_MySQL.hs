@@ -3,7 +3,6 @@ module HSQL_MySQL (
 		  , mysqlConnect
 		  ) where
 
-import Database
 import HSQL_driver
 import qualified Database.HSQL.MySQL as MySQL (connect) 
 

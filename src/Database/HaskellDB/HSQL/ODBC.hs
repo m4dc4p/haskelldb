@@ -3,7 +3,6 @@ module HSQL_ODBC (
 		 , ODBCOptions(..)
 		 ) where
 
-import Database
 import HSQL_driver
 import qualified Database.HSQL.ODBC as ODBC (connect) 
 

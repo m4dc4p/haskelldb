@@ -3,7 +3,6 @@ module HSQL_PostgeSQL (
 		      , postgresqlConnect
 		      ) where
 
-import Database
 import HSQL_driver
 import qualified Database.HSQL.PostgreSQL as PostgreSQL (connect) 
 
