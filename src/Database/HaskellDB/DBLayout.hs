@@ -10,6 +10,8 @@
 -- 
 -- Exports every function needed by DBDirect generated 
 -- files
+--
+-- $Revision: 1.4 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBLayout
@@ -22,10 +24,10 @@ module Database.HaskellDB.DBLayout
      hdbMakeEntry,mkAttr,( # ))
     where
 
-import Database.HaskellDB.HDBRec(RecCons(..),RecNil,FieldTag,fieldName)
+import Database.HaskellDB.HDBRec(RecCons(..),RecNil,FieldTag,fieldName, ( # ))
 import Database.HaskellDB.BoundedString
 import System.Time (CalendarTime)
-import Database.HaskellDB.Query (Expr, Table, Attr(..), baseTable, attribute, ( # ))
+import Database.HaskellDB.Query (Expr, Table, Attr(..), baseTable, attribute)
 import Database.HaskellDB.DBSpec
 import Database.HaskellDB.FieldType
 

@@ -12,6 +12,8 @@
 -- Basic combinators for building type-safe queries.
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
+--
+-- $Revision: 1.45 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -23,7 +25,7 @@ module Database.HaskellDB.Query (
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
 	     , (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
-             , (<<), ( # )
+             , (<<)
 	      -- * Function declarations
 	     , runQuery, runQueryRel
 	     , attribute, project, baseTable
@@ -60,7 +62,6 @@ infixl  7 .*., ./., .%.
 infixl  6 .+.,.-.
 infix   6 <<
 infixr  5 .++.
-infixr  5 #
 infix   4 .==., .<>., .<., .<=., .>., .>=.
 infixr  3 .&&.
 infixr  2 .||.
@@ -154,10 +155,6 @@ instance (ProjectExpr e, ProjectRec r er) =>
        -> e a                        -- ^ Expression
        -> (b -> RecCons f (e a) b)
 _ << x = RecCons x
-
--- | Links two fields together.
-( # ) :: (b -> c) -> (a -> b) -> a -> c
-f1 # f2 = f1 . f2
 
 -----------------------------------------------------------
 -- Basic relational operators

@@ -20,6 +20,7 @@
 -- Conference on Domain-Specific Languages (DSL), Austin, 
 -- USA, October 1999 (<http://www.usenix.org/events/dsl99/>).
 --
+-- $Revision: 1.23 $
 -----------------------------------------------------------
 module Database.HaskellDB
 	( Rel, Attr, Expr, Table, Query	-- abstract
@@ -57,6 +58,7 @@ module Database.HaskellDB
 	, genericConnect
 	) where
 
+import Database.HaskellDB.HDBRec
 import Database.HaskellDB.PrimQuery (ppPrimQuery)
 import Database.HaskellDB.Sql       (toSql, ppSql)
 import Database.HaskellDB.Optimize  (optimize)

@@ -10,12 +10,14 @@
 -- 
 -- This is a replacement for some of TREX.
 --
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec 
     (
     -- * Record types
     RecNil(..), RecCons(..), Record
+    -- * Record construction
+    , ( # )
     -- * Labels
     , FieldTag(..)
     -- * Record predicates and operations
@@ -25,6 +27,8 @@ module Database.HaskellDB.HDBRec
     ) where
 
 import Data.List
+
+infixr  5 #
 
 -- | The empty record.
 data RecNil = RecNil deriving (Eq, Ord)
@@ -37,6 +41,12 @@ data RecCons f a b = RecCons a b deriving (Eq, Ord)
 --   that takes a 'RecNil' so that the user does not have to 
 --   put a 'RecNil' at the end of every record.
 type Record r = RecNil -> r
+
+-- * Record construction
+
+-- | Adds a field to a record.
+( # ) :: (b -> c) -> (a -> b) -> a -> c
+f1 # f2 = f1 . f2
 
 -- * Class definitions.
 
