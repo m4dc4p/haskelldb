@@ -2,9 +2,9 @@
   since PostgreSQL doesn't like getting date and time as input to a 
   TIME column. We're working on a general solution to date handling issues.
 
-- When using PostgreSQL with ODBC, TIMESTAMP columns are treated
-  as String fields. This seems to be a problem with the PostgreSQL
-  ODBC driver.
+- When using PostgreSQL with HSQL ODBC and wxHaskell, TIMESTAMP
+  columns are treated as String fields. This seems to be a problem
+  with the PostgreSQL ODBC driver.
 
 - Since SQLite is untyped, all columns in SQLite datbases are treated
   as having type String, even if some other type was used when the
