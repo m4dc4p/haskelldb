@@ -30,7 +30,8 @@ CREATE TABLE test_default_auto (
 )
 -}
 
-showResults = mapM_ (putStrLn . unwords . map (($ "") . snd) . showRecRow)
+
+showResults rs = mapM_ (putStrLn . unwords . map (($ "") . snd) . showRecRow) rs
 
 showTable db = query db (table test_default_auto) >>= showResults
 
