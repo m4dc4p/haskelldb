@@ -7,10 +7,12 @@ CVS_DATE="2004-01-24"
 UNIXODBC_DIR=/usr
 HUGS_DIR=/usr/lib/hugs
 
+
 HOST = $(shell hostname)
 ifeq ("$(HOST)", "jackass.tekno.chalmers.se")
 UNIXODBC_DIR=/usr/local/dp03-7/unixODBC-2.2.6
 HUGS_DIR=/usr/local/dp03-7/hugs98-Nov2003/lib/hugs
+CPPFLAGS += -I/usr/include/pgsql/server
 endif
 
 .PHONY: clean HSQL/libHSsql.a
@@ -25,7 +27,8 @@ HSQL/configure: HSQL/configure.ac
 
 HSQL/config.mk: HSQL/configure HSQL/config.mk.in
 	cd HSQL && ./configure --enable-odbc --enable-mysql --enable-postgres \
-	CPPFLAGS=-I$(UNIXODBC_DIR)/include LDFLAGS=-L$(UNIXODBC_DIR)/lib \
+	CPPFLAGS=$(CPPFLAGS) -I$(UNIXODBC_DIR)/include \
+	LDFLAGS=-L$(UNIXODBC_DIR)/lib \
 	--with-hugs-dir=$(HUGS_DIR)
 
 HSQL/libHSsql.a: HSQL/config.mk
