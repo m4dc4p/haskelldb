@@ -1,7 +1,6 @@
 Things that must be done before the release:
   * Get date types working. (working, but buggy due to HSQL bug!)
   * Get Windows build working without needing configure flags. (working?)
-  (* Make DbDirect support all drivers)
   * Remove passwords from all test files.
   * Finish website.
     - Describe requirements, and link to HSQL, unixODBC etc.
