@@ -1,0 +1,29 @@
+#!/bin/sh
+
+##
+## WARNING! This program will DROP the tables hdb_test_tb1 and hdb_test_tb2
+##
+
+echo "Compiling table creation program..."
+make big-test-create-tables || exit 1
+echo
+
+echo "Creating tables..."
+./big-test-create-tables "$@" || exit 1
+echo
+
+echo "Deleting old database definition..."
+rm -rf BigTestDB
+echo
+
+echo "Running DbDirect..."
+../build/DbDirect "$@" BigTestDB || exit 1
+echo
+
+echo "Compiling test program..."
+make big-test || exit 1
+echo
+
+echo "Running tests..."
+./big-test "$@" || exit 1
+echo

@@ -2,111 +2,25 @@
   A very disorganized set of tests using almost all SQL92 data types.
 -}
 
+import System.Environment
 import System.Time
 import System.Locale
 import System.IO.Unsafe
 
 import Database.HaskellDB
-import Database.HaskellDB.Database
-import Database.HaskellDB.DBSpec
-import Database.HaskellDB.FieldType
+import Database.HaskellDB.HDBRec
+import Database.HaskellDB.Query
 
-import TestConnect
+import Database.HaskellDB.HSQL.Common
+import Database.HaskellDB.HSQL.ODBC
+import Database.HaskellDB.HSQL.MySQL
+import Database.HaskellDB.HSQL.PostgreSQL
 
-import Dp037.Hdb_test_t1
-import Dp037.Hdb_test_t2
+import BigTestDB.Hdb_test_t1
+import BigTestDB.Hdb_test_t2
 
 now = unsafePerformIO (getClockTime >>= toCalendarTime)
 
-
-t1 = TInfo {tname = "hdb_test_t1",
-	    cols = [CInfo {cname = "t1f01",
-		      descr = (StringT, True)},
-		    CInfo {cname = "t1f02",
-			   descr = (StringT, False)},
-		    CInfo {cname = "t1f03",
-			   descr = (StringT, True)},
-		    CInfo {cname = "t1f04",
-			   descr = (StringT, False)},
-		    CInfo {cname = "t1f05",
-			   descr = (IntT, True)},
-		    CInfo {cname = "t1f06",
-			   descr = (IntT, False)},
-		    CInfo {cname = "t1f07",
-			   descr = (DoubleT, True)},
-		    CInfo {cname = "t1f08",
-			   descr = (DoubleT, False)},
-		    CInfo {cname = "t1f09",
-			   descr = (DoubleT, True)},
-		    CInfo {cname = "t1f10",
-			   descr = (DoubleT, False)},
-		    CInfo {cname = "t1f11",
-			   descr = (IntT, True)},
-		    CInfo {cname = "t1f12",
-			   descr = (IntT, False)},
-		    CInfo {cname = "t1f13",
-			   descr = (DoubleT, True)},
-		    CInfo {cname = "t1f14",
-			   descr = (DoubleT, False)},
-		    CInfo {cname = "t1f15",
-			   descr = (DoubleT, True)},
-		    CInfo {cname = "t1f16",
-			   descr = (DoubleT, False)},
-		    CInfo {cname = "t1f17",
-			   descr = (DoubleT, True)},
-		    CInfo {cname = "t1f18",
-			   descr = (DoubleT, False)},
-		    CInfo {cname = "t1f19",
-			   descr = (CalendarTimeT, True)},
-		    CInfo {cname = "t1f20",
-			   descr = (CalendarTimeT, False)}]}
-
-t2 = TInfo {tname = "hdb_test_t2",
-	    cols = [CInfo {cname = "t2f01",
-			   descr = (StringT, True)},
-		    CInfo {cname = "t2f02",
-			   descr = (StringT, False)},
-		    CInfo {cname = "t2f03",
-			   descr = (StringT, True)},
-		    CInfo {cname = "t2f04",
-			   descr = (StringT, False)},
-		    CInfo {cname = "t2f05",
-			   descr = (IntT, True)},
-		    CInfo {cname = "t2f06",
-			   descr = (IntT, False)},
-		    CInfo {cname = "t2f07",
-			   descr = (DoubleT, True)},
-		    CInfo {cname = "t2f08",
-			   descr = (DoubleT, False)},
-		    CInfo {cname = "t2f09",
-			   descr = (DoubleT, True)},
-		    CInfo {cname = "t2f10",
-			   descr = (DoubleT, False)},
-		    CInfo {cname = "t2f11",
-			   descr = (IntT, True)},
-		    CInfo {cname = "t2f12",
-			   descr = (IntT, False)},
-		    CInfo {cname = "t2f13",
-			   descr = (DoubleT, True)},
-		    CInfo {cname = "t2f14",
-			   descr = (DoubleT, False)},
-		    CInfo {cname = "t2f15",
-			   descr = (DoubleT, True)},
-		    CInfo {cname = "t2f16",
-			   descr = (DoubleT, False)},
-		    CInfo {cname = "t2f17",
-			   descr = (DoubleT, True)},
-		    CInfo {cname = "t2f18",
-			   descr = (DoubleT, False)},
-		    CInfo {cname = "t2f19",
-			   descr = (CalendarTimeT, True)},
-		    CInfo {cname = "t2f20",
-			   descr = (CalendarTimeT, False)}]}
-
-dbinfo :: DBInfo 
-dbinfo = DBInfo {dbname = "BigTestDB", 
-		 opts = DBOptions {useBString = False}, 
-		 tbls = [t1, t2]}
 
 data1 = [(
 	 t1f01 << constant (Just "bepa") #
@@ -128,15 +42,14 @@ data1 = [(
 	 t1f17 << constant (Just 17.17) #
 	 t1f18 << constant 18.18 #
 	 t1f19 << constant (Just now) #
-	 t1f20 << constant now 
+	 t1f20 << constant now #
 -- Insertion doesn't work in Postgre
 --	 t1f21 << constant (Just now) #
 --	 t1f22 << constant now #
 -- MySQL makes this NOT NULL
 --	 t1f23 << constant now #
--- Treated as strings in Postgre
---	 t1f23 << constant (Just now) #
---	 t1f24 << constant now
+	 t1f23 << constant (Just now) #
+	 t1f24 << constant now
 	)
 	]
 
@@ -160,74 +73,70 @@ data2 =  [(
 	 t2f17 << constant (Just 17.17) #
 	 t2f18 << constant 18.18 #
 	 t2f19 << constant (Just now) #
-	 t2f20 << constant now 
+	 t2f20 << constant now #
 -- Insertion doesn't work in Postgre
 --	 t2f21 << constant (Just now) #
 --	 t2f22 << constant now #
 -- MySQL makes this NOT NULL
 --	 t2f23 << constant now #
--- Treated as strings in Postgre
---	 t2f23 << constant (Just now) 
---	 t2f24 << constant now
+	 t2f23 << constant (Just now) #
+	 t2f24 << constant now
 	)]
 
 insertData db = do
 		mapM (insert db hdb_test_t1) data1
 		mapM (insert db hdb_test_t2) data2
 
-
-deleteData db = do
-		putStrLn "Deleting data from hdb_test_t1..."
-		delete db hdb_test_t1 (\r -> constant True)
-		putStrLn "Deleting data from hdb_test_t2..."
-		delete db hdb_test_t2 (\r -> constant True)
-
 mkJoinOnQuery f1 f2 = 
     do
     t1 <- table hdb_test_t1
     t2 <- table hdb_test_t2
     restrict (t1!f1 .==. t2!f2)
-    project (f1 << t1!f1 # f2 << t2!f2 # 
-	     t1f01 << t1!t1f01 # t2f01 << t2!t2f01)
+    project (t1f02 << t1!t1f02 
+	     # t2f02 << t2!t2f02 
+	     # t1f20 << t1!t1f20 
+--	     # t1f22 << t1!t1f22 
+	     # t1f24 << t1!t1f24)
 
-joinOn db f1 f2 t1 t2 = 
+joinOn db f1 f2 = 
     do
     rs <- query db (mkJoinOnQuery f1 f2)
-    if and [r!t1 == r!t2 | r <- rs] then
-       putStrLn "Join ok"
-     else
-       putStrLn "Join equality check FAILED"
+    mapM_ (putStrLn . unwords) [ [
+				  r!.t1f02, r!.t2f02, 
+				  formatDate (r!.t1f20),
+--				  formatDate (r!.t1f22),
+				  formatDate (r!.t1f24)
+				 ] | r <- rs ]
 
 formatDate = formatCalendarTime defaultTimeLocale fmt
 	where fmt = iso8601DateFormat (Just "%H:%M:%S")
 
 showAllFields1 r = [
-		    show $ r!t1f01,
-		    show $ r!t1f02,
-		    show $ r!t1f03,
-		    show $ r!t1f04,
-		    show $ r!t1f05,
-		    show $ r!t1f06,
-		    show $ r!t1f07,
-		    show $ r!t1f08,
-		    show $ r!t1f09,
-		    show $ r!t1f10,
-		    show $ r!t1f11,
-		    show $ r!t1f12,
-		    show $ r!t1f13,
-		    show $ r!t1f14,
-		    show $ r!t1f15,
-		    show $ r!t1f16,
-		    show $ r!t1f17,
-		    show $ r!t1f18,
-		    show $ r!t1f19,
-		    show $ r!t1f20
+		    show $ r!.t1f01,
+		    show $ r!.t1f02,
+		    show $ r!.t1f03,
+		    show $ r!.t1f04,
+		    show $ r!.t1f05,
+		    show $ r!.t1f06,
+		    show $ r!.t1f07,
+		    show $ r!.t1f08,
+		    show $ r!.t1f09,
+		    show $ r!.t1f10,
+		    show $ r!.t1f11,
+		    show $ r!.t1f12,
+		    show $ r!.t1f13,
+		    show $ r!.t1f14,
+		    show $ r!.t1f15,
+		    show $ r!.t1f16,
+		    show $ r!.t1f17,
+		    show $ r!.t1f18,
+		    show $ r!.t1f19,
+		    show $ r!.t1f20,
 -- Insertion doesn't work in Postgre
---		    show $ r!t1f21,
---		    show $ r!t1f22,
--- Treated as strings in Postgre
---		    show $ r!t1f23,
---		    show $ r!t1f24
+--		    show $ r!.t1f21,
+--		    show $ r!.t1f22,
+		    show $ r!.t1f23,
+		    show $ r!.t1f24
 		   ]
 
 showAll db = 
@@ -247,43 +156,42 @@ q2 = do
 
 printQuery = putStrLn . show . showSql
 
-doQuery db q =
-    do
-    --printQuery q
-    query db q
-
 testOps db =
     do
-    putStrLn "Testing UNION..."
-    let uq = union q1 q2
-    putStrLn $ show $ showOpt $ uq
-    putStrLn $ show $ showSql $ uq
-    query db uq
+--    printQuery $ union q1 q2
+    query db (union q1 q2)
 -- These don't work in MySQL:
---    query db (intersect q1 q2)
+--    printQuery $ intersect q1 q2
+    query db (intersect q1 q2)
+--    printQuery $ divide q1 q2
 --    query db (divide q1 q2)
---    query db (minus q1 q2)
+--    printQuery $ minus q1 q2
+    query db (minus q1 q2)
 
 runTests db =
     do
-    dropTable db "hdb_test_t1"
-    dropTable db "hdb_test_t2"
-    dbSpecToDatabase db dbinfo
     insertData db
-    putStrLn "After INSERT:"
     showAll db
-    joinOn db t1f01 t2f01 t1f01 t2f01
-    joinOn db t1f02 t2f02 t1f02 t2f02
-    joinOn db t1f03 t2f03 t1f03 t2f03
-    joinOn db t1f04 t2f04 t1f04 t2f04
-    joinOn db t1f05 t2f05 t1f05 t2f05
-    joinOn db t1f06 t2f06 t1f06 t2f06
+    joinOn db t1f01 t2f01
+    joinOn db t1f02 t2f02
+    joinOn db t1f03 t2f03
+    joinOn db t1f04 t2f04
+    joinOn db t1f05 t2f05
+    joinOn db t1f06 t2f06
     testOps db    
-    deleteData db
-    putStrLn "After DELETE:"
 
-startsWith x y = take (length y) x == y
+withDB ["ODBC",d,u,p] f = 
+    odbcConnect (ODBCOptions d u p) f
+withDB ["MySQL",h,d,u,p] f = 
+    mysqlConnect (MySQLOptions h d u p) f
+withDB ["PostgreSQL",h,d,u,p] f = 
+    postgresqlConnect (PostgreSQLOptions h d u p) f
+withDB _ _ = fail $ unlines ["Accepted options:",
+			     "ODBC dsn uid pwd",
+			     "MySQL server db uid pwd",
+			     "PostgreSQL server db uid pwd"]
 
 main = do
-       argConnect runTests
+       args <- getArgs
+       withDB args runTests
 --       putStrLn $ unlines $ [ v "" | (_,v) <- showRecRow data0]
