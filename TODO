@@ -1,18 +1,3 @@
-Things that must be done before the release:
-  * Get date types working. (working, but buggy due to HSQL bug!)
-  * Get Windows build working without needing configure flags. (working?)
-  * Finish website.
-    - Describe requirements, and link to HSQL, unixODBC etc.
-    - Add a simple example program, including db table layout.
-
-Doing the release:
-  * Build haddock doc and put on website.
-  * Build tarballs and put on website.
-  * Put news item and release notes on website.
-  * Announce on haskell@haskell.org.
-  * Announce on #haskell.
-
-
 Things that need to be done, in no particular order:
 
 - Code:
