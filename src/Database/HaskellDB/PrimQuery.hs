@@ -76,6 +76,7 @@ data PrimExpr   = AttrExpr  Attribute
                 | UnExpr    UnOp PrimExpr
                 | AggrExpr  AggrOp PrimExpr
                 | ConstExpr String
+		| CaseExpr [(PrimExpr,PrimExpr)] PrimExpr
                 deriving (Read,Show)
 
 
@@ -153,13 +154,14 @@ assocFromScheme scheme
 
 -- | Returns all attributes in an expression.
 attrInExpr :: PrimExpr -> Scheme
-attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr)
+attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
                 where
                   attr name     = [name]
                   scalar s      = []
                   binary op x y = x ++ y
                   unary op x    = x
                   aggr op x	= x
+		  _case cs el   = concat (uncurry (++) (unzip cs)) ++ el
 
 -- | Returns all attributes in a list of expressions.
 attrInOrder :: [PrimExpr] -> Scheme
@@ -168,7 +170,7 @@ attrInOrder  = concat . map attrInExpr
 -- | Substitute attribute names in an expression.
 substAttr :: Assoc -> PrimExpr -> PrimExpr           
 substAttr assoc 
-        = foldPrimExpr (attr,ConstExpr,BinExpr,UnExpr,AggrExpr)
+        = foldPrimExpr (attr,ConstExpr,BinExpr,UnExpr,AggrExpr,CaseExpr)
         where 
           attr name     = case (lookup name assoc) of
                             Just x      -> x 
@@ -181,11 +183,12 @@ nestedAggregate x	= countAggregate x > 1
 
 countAggregate :: PrimExpr -> Int
 countAggregate
-	= foldPrimExpr (const 0, const 0, binary, unary, aggr)
+	= foldPrimExpr (const 0, const 0, binary, unary, aggr, _case)
 	where
           binary op x y	 	= x + y
           unary op x		= x
           aggr op x		= x + 1
+	  _case cs el           = sum (map (uncurry (+)) cs) + el
 
 -- | Fold on 'PrimQuery'
 foldPrimQuery :: (t, TableName -> Scheme -> t, Assoc -> t -> t,
@@ -207,8 +210,9 @@ foldPrimQuery (empty,table,project,restrict,binary,special)
           		= special op (fold query)
 -- | Fold on 'PrimExpr'
 foldPrimExpr :: (Attribute -> t, String -> t, BinOp -> t -> t -> t,
-                 UnOp -> t -> t, AggrOp -> t -> t) -> PrimExpr -> t
-foldPrimExpr (attr,scalar,binary,unary,aggr) 
+                 UnOp -> t -> t, AggrOp -> t -> t, 
+		 [(t,t)] -> t -> t) -> PrimExpr -> t
+foldPrimExpr (attr,scalar,binary,unary,aggr,_case) 
         = fold
         where
           fold (AttrExpr name) = attr name
@@ -216,6 +220,9 @@ foldPrimExpr (attr,scalar,binary,unary,aggr)
           fold (BinExpr op x y)= binary op (fold x) (fold y)
           fold (UnExpr op x)   = unary op (fold x)
           fold (AggrExpr op x) = aggr op (fold x)
+	  fold (CaseExpr cs el) = _case (map (both fold) cs) (fold el)
+
+          both f (x,y) = (f x, f y)
 
 -----------------------------------------------------------
 -- Pretty print PrimQuery and PrimExpr.
@@ -251,7 +258,7 @@ ppNameExpr (attr,expr)          = text attr <> colon <+> ppPrimExpr expr
 
 -- | Pretty prints a 'PrimExpr'
 ppPrimExpr :: PrimExpr -> Doc
-ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
+ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
         where
           attr          = text
           scalar        = text . unquote 
@@ -263,7 +270,9 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
 		     | otherwise     = parens (x <+> ppUnOp op)
 
           aggr op x	= ppAggrOp op <> parens x
-          
+          _case cs el   = text "CASE" <+> vcat (map ppWhen cs) 
+			  <+> text "ELSE" <+> el <+> text "END"
+
           -- be careful when showing a SQL string
           unquote ('"':s)       = "'" ++ (concat (map tosquote (init s))) 
 		                  ++ "'"
@@ -274,6 +283,8 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
 
 	  isPrefixOp OpNot      = True
 	  isPrefixOp _          = False
+	  
+          ppWhen (w,t) = text "WHEN" <+> w <+> text "THEN" <+> t
 
 -- PP on ops:
 -- | Pretty pints a 'RelOp'

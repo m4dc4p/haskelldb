@@ -2,7 +2,7 @@ import Database.HaskellDB
 
 import TestConnect
 
-import Dp037.Hdb_test_t1
+import BigTestDB.Hdb_test_t1
 
 q1 = do
      t <- table hdb_test_t1

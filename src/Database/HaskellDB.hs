@@ -35,7 +35,7 @@ module Database.HaskellDB
 	, (.&&.) , (.||.)
 	, (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
 	, _not, like, cat
-	, isNull, notNull
+	, isNull, notNull, fromNull
 	, constant, constJust
 	
 	, count, _sum, _max, _min, avg
@@ -43,6 +43,8 @@ module Database.HaskellDB
 	
 	, asc, desc, order
 	, top --, topPercent
+
+        , _case
 	
 	, Database				-- abstract
 	, (!.)

@@ -30,11 +30,13 @@ module Database.HaskellDB.Query (
 	     , union, intersect, divide, minus
 	     , _not, like, cat
 	     , isNull, notNull
+	     , fromNull
 	     , constant, constJust
 	     , count, _sum, _max, _min, avg
 	     , stddev, stddevP, variance, varianceP
 	     , asc, desc, order
 	     , top --, topPercent
+             , _case
 	     ) where
 
 import Database.HaskellDB.HDBRec
@@ -313,6 +315,23 @@ isNull  = unop OpIsNull
 -- if the expression supplied is Null.
 notNull :: Expr a -> Expr Bool
 notNull = unop OpIsNotNull
+
+-- | Creates a conditional expression.
+--   Returns the value of the expression corresponding to the first 
+--   true condition. If none of the conditions are true, the value of
+--   the else-expression is returned.
+_case :: [(Expr Bool, Expr a)] -- ^ A list of conditions and expressions.
+      -> Expr a                -- ^ Else-expression. 
+      -> Expr a
+_case cs (Expr el) = Expr (CaseExpr [ (c,e) | (Expr c, Expr e) <- cs] el)
+
+-- | Takes a default value a and a nullable value. The value is NULL,
+--   the default value is returned, otherwise the value itself is returned.
+--   Simliar to 'fromMaybe'
+fromNull :: Expr a         -- ^ Default value (to be returned for 'Nothing')
+	 -> Expr (Maybe a) -- ^ A nullable expression
+	 -> Expr a
+fromNull d x@(Expr px) = _case [(isNull x, d)] (Expr px)
 
 -----------------------------------------------------------
 -- Constants
