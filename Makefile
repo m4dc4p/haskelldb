@@ -37,7 +37,7 @@ install-filesonly-ghc: all
 	cd build; tar -cf ghc-interfaces.tar `find Database -name '*.hi' -print`
 	cp build/ghc-interfaces.tar $(GHC_DIR)/imports
 	cd $(GHC_DIR)/imports; tar -xf ghc-interfaces.tar; rm -f ghc-interfaces.tar
-	cd build; cp libHShdb.a HShdb.o $(GHC_DIR)
+	cd build; cp libHShdb.a $(GHC_DIR)
 
 install-hugs: all
 	cd build; tar -cf hugs-libraries.tar `find Database -name '*.hs' -print`
@@ -48,7 +48,7 @@ uninstall: $(UNINSTALL_COMPILERS)
 
 uninstall-ghc:
 	cd $(GHC_DIR)/imports; rm -rf Database/HaskellDB*
-	cd $(GHC_DIR); rm -f libHShdb.a HShdb.o
+	cd $(GHC_DIR); rm -f libHShdb.a
 	$(GHC_PKG) -r haskelldb
 
 uninstall-hugs:
