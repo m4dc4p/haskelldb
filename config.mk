@@ -1,6 +1,10 @@
 GHC = ghc
 GHCI = ghci
-GHCFLAGS = -fglasgow-exts -fallow-overlapping-instances 
+
+# only used by warn-% targets
+GHC_VERBOSE_WARNINGS += -W # -fwarn-missing-signatures
+
+GHCFLAGS += -fglasgow-exts -fallow-overlapping-instances $(GHCFLAGS_WARN)
 
 HUGS = hugs
 RUNHUGS = runhugs

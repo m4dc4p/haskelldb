@@ -1,3 +1,8 @@
+TOP_DIR = .
+
+include $(TOP_DIR)/config.mk
+include $(TOP_DIR)/rules.mk
+
 SUBDIRS = src doc
 
 SUBDIRS_CLEAN = $(addsuffix -clean, $(SUBDIRS))
@@ -6,7 +11,6 @@ SUBDIRS_CLEAN = $(addsuffix -clean, $(SUBDIRS))
 
 default all: 
 	$(MAKE) -C src
-
 doc: 
 	$(MAKE) -C doc
 

@@ -8,16 +8,19 @@ OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o \
 
 DRIVER_OBJS = drivers/hsql/HSQL_driver.o
 
-
 SRC = $(patsubst %.o,%.hs, $(OBJS))
 
 DRIVER_DIRS = $(dir $(DRIVER_OBJS))
 DRIVERS_TEST = $(addsuffix -test, $(DRIVER_DIRS))
 DRIVERS_CLEAN = $(addsuffix -clean, $(DRIVER_DIRS))
 
-.PHONY: all clean drivers $(DRIVERS_CLEAN) dbdirect dbdirect-clean
+.PHONY: all clean drivers $(DRIVER_OBJS) $(DRIVERS_CLEAN) \
+	dbdirect dbdirect-clean test $(DRIVERS_TEST)
 
 default all: $(OBJS) drivers libHDB.a dbdirect
+
+
+warn-all: all
 
 libHDB.a: $(OBJS) $(DRIVER_OBJS)
 	$(AR) -rc $@ $^
