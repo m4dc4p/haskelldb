@@ -23,7 +23,7 @@ import Database.HaskellDB.HSQL.Common
 -- | Connects to a database and generates a specification from it
 dbToDBSpec :: Bool    -- ^ whether to use Bounded Strings or not
 	   -> String  -- ^ the name our database should have
-	   -> Database a b -- ^ the database connection
+	   -> Database -- ^ the database connection
 	   -> IO DBInfo    -- ^ return a DBInfo
 dbToDBSpec useBStr name dbconn
     = do ts <- tables dbconn

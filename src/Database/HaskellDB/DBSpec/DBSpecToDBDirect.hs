@@ -13,7 +13,7 @@
 -- files usable in HaskellDB (the generation itself is done 
 -- in DBDirect)
 -----------------------------------------------------------
-module DBSpecToDBDirect
+module Database.HaskellDB.DBSpec.DBSpecToDBDirect
     (specToHDB) 
     where
 import Database.HaskellDB.BoundedString
@@ -24,7 +24,6 @@ import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.DBSpec
 
 import Database.HaskellDB.DBSpec.PPHelpers
---import DbDirectCommon
 
 import Text.PrettyPrint.HughesPJ
 
