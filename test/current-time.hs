@@ -1,35 +1,25 @@
--- Nasty hack, demonstatrates how to use HaskellDB's internals to
--- access non-standard database features.
-
 import Database.HaskellDB
-import Database.HaskellDB.DBLayout
 import Database.HaskellDB.Database
 import Database.HaskellDB.Query
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Sql hiding (tables)
 
-import TestConnect
+import Database.HaskellDB.HSQL.ODBC
 
 import Data.Maybe
 import System.Time
 
-now :: Expr CalendarTime
-now = Expr (ConstExpr (OtherLit "NOW()"))
+opts = ODBCOptions{dsn="mysql-dp037", uid="dp037", pwd="teent333"}
+withDB f = odbcConnect opts f
 
-data Timefield = Timefield
-instance FieldTag Timefield where fieldName _ = "timefield"
-timefield = mkAttr Timefield :: Attr Timefield CalendarTime
+q = Project [("t",BinExpr (OpOther "NOW()") (ConstExpr "") (ConstExpr ""))] Empty
 
-q = project (timefield << now)
-
-getTime :: Database -> IO CalendarTime
 getTime db = do
-	     (r:_) <- query db q
-	     return (r!timefield)
-
+	     (r:_) <- (dbQuery db) (database db) q undefined
+	     return (fromJust (r!.(Attr "t")) :: CalendarTime)
+	     
 printTime db = do
-	       putStrLn $ show $ showSql q
 	       t <- getTime db
 	       putStrLn $ calendarTimeToString t
 
-main = argConnect printTime
+main = withDB printTime
