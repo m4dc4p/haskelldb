@@ -7,8 +7,9 @@ OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o PPrint.o \
 DRIVERS = hsql
 
 SRC = $(patsubst %.o,%.hs, $(OBJS))
+DRIVERS_CLEAN = $(addsuffix -clean, $(DRIVERS))
 
-.PHONY: all clean drivers $(DRIVERS)
+.PHONY: all clean dbdirect drivers $(DRIVERS) $(DRIVERS_CLEAN)
 
 default all: libHDB.a drivers
 
@@ -20,13 +21,16 @@ drivers: $(DRIVERS)
 $(DRIVERS):
 	   $(MAKE) -C $(addprefix drivers/, $@)
 
+dbdirect:
+	$(MAKE) -C dbdirect
+
 .depend: $(SRC)
 	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
 
-clean:
+clean: $(DRIVERS_CLEAN)
 	-rm -f *.o *.hi *.a .depend .depend.bak
-	for d in $(addprefix drivers/, $(DRIVERS)); do \
-	   $(MAKE) -C $$d clean; \
-	done
+
+$(DRIVERS_CLEAN):
+	make -C $(addprefix drivers/, $(subst -clean,,$@)) clean
 
 include .depend
