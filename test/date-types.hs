@@ -1,10 +1,15 @@
-import System.Time (calendarTimeToString)
+import System (getArgs)
+import Control.Monad (unless)
 
 import Database.HaskellDB
 import Dp037.D3proj_time_reports hiding (xid)
+import qualified Dp037.D3proj_time_reports
 import Dp037.D3proj_users
+--import Database.HaskellDB.HSQL.PostgreSQL
+import Database.HaskellDB.HSQL.ODBC
 
-import TestConnect
+opts = ODBCOptions { dsn = "mysql-dp037", uid = "dp037", pwd = "teent333" }
+withDB = odbcConnect opts
 
 getUsers = 
     do
@@ -14,21 +19,15 @@ getUsers =
     restrict (users!xid .==. reports!userid)
     project (first_name << users!first_name # 
 	     last_name << users!last_name # 
-	     day << reports!day #
-	     reported << reports!reported
-	     )
+	     day << reports!day)
 
 
-showReport r = rpad 20 (r!first_name ++ " " ++ r!last_name) ++ " " 
-	       ++ calendarTimeToString (r!day) ++ " "
-	       ++ calendarTimeToString (r!reported)
-
-rpad :: Int -> String -> String
-rpad x s = s ++ replicate (x - length s) ' '
+showReport r = r!.first_name ++ " " ++ r!.last_name ++ " " 
+	       ++ show (r!.day)
 
 printReports db = 
     do
     users <- query db getUsers
     mapM_ (putStrLn . showReport) users
 
-main = argConnect printReports
+main = withDB printReports
