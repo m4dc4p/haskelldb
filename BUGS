@@ -23,3 +23,6 @@
 
 - WXHaskell _REQUIRES_ that all changes that we want committed are wrapped 
   in transactions. We currently do not do this, it is up to our users.
+
+- Using aggregate functions outside of project (e.g. in restrict)
+  generates invalid SQL. Reported by viblo.
