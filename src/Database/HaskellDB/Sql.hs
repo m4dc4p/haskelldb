@@ -1,16 +1,24 @@
 -----------------------------------------------------------
--- Daan Leijen (c) 1999, daan@cs.uu.nl
---
--- module SQL:
+-- |
+-- Module      :  SQL
+-- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
+--                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- License     :  BSD-style
+-- 
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
+-- 
 -- Transform a PrimQuery (relational expression) to SQL
 -- and pretty print SQL
 -----------------------------------------------------------
 module Database.HaskellDB.Sql ( 
+		-- * Type Declarations
 	     SqlSelect(..) 
 	   , SqlUpdate(..) 
 	   , SqlDelete(..) 
 	   , SqlInsert(..)
-	   
+	   -- * Function Declarations
 	   , toSql, ppSql
 	   , toUpdate, ppUpdate
 	   , toDelete, ppDelete
@@ -136,7 +144,7 @@ toSqlOp Difference   = "MINUS"
 -----------------------------------------------------------
 -- SELECT, show & pretty print
 -----------------------------------------------------------
-
+ppSql :: SqlSelect -> Doc
 ppSql (SqlSelect options attrs tables criteria groupby orderby)
     = text "SELECT DISTINCT" <+> (hsep . map text) options <+> ppAttrs attrs
       $$ f "FROM " ppTables tables
@@ -188,6 +196,7 @@ toInsertNew table assoc
 	where
 	  showExpr (attr,expr)	= (attr,show (ppPrimExpr expr))
 
+ppInsert :: SqlInsert -> Doc
 ppInsert (SqlInsert table select)
 	= text "INSERT INTO" <+> text table
         $$ ppSql select
@@ -208,6 +217,7 @@ toDelete :: TableName -> [PrimExpr] -> SqlDelete
 toDelete name exprs
         = SqlDelete name (map toSqlExpr exprs)
 
+ppDelete :: SqlDelete -> Doc
 ppDelete (SqlDelete name exprs)
         | null exprs    =  text ""
         | otherwise     =  text "DELETE FROM" <+> text name
@@ -225,6 +235,7 @@ toUpdate name criteria assigns
           showAssign (attr,expr)
           	= attr ++ " = " ++ toSqlExpr expr
 
+ppUpdate :: SqlUpdate -> Doc
 ppUpdate (SqlUpdate name criteria assigns)
         = text "UPDATE" <+> text name
         $$ text "SET" <+> (vcat $ punctuate comma (map text assigns))
