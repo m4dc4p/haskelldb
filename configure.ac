@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.7],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.35 $)
+AC_REVISION($Revision: 1.36 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -393,10 +393,10 @@ dnl ***********************************************
 
 if test "$ENABLE_HUGS" = "yes" && test "$WITH_HUGS_HSQL" = "yes"; then
 
-  if test "$prefix" != ""; then
+  if test "$prefix" != "NONE"; then
     HUGSFLAGS="$HUGSFLAGS -P:$prefix/lib/HSQL/Hugs/libraries"
   else
-    HUGSFLAGS="$HUGSFLAGS $ac_default_prefix/lib/HSQL/Hugs/libraries"
+    HUGSFLAGS="$HUGSFLAGS -P:$ac_default_prefix/lib/HSQL/Hugs/libraries"
   fi
 
     AC_HS_HUGS_MODULE_IFELSE([Database.HSQL], [query],,
