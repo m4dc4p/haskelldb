@@ -251,7 +251,7 @@ instance GetValue (Maybe CalendarTime) where
     getValue stmt f = getFieldValueMB stmt f >>= mkIOMBCalendarTime
 
 instance Size n => GetValue (BoundedString n) where 
-    getValue stmt f = liftM trunc (getValue stmt f) 
+    getValue stmt f = liftM trunc (getFieldValue stmt f) 
 
 instance Size n => GetValue (Maybe (BoundedString n)) where 
-    getValue stmt f = liftM (fmap trunc) (getValue stmt f) 
+    getValue stmt f = liftM (fmap trunc) (getFieldValueMB stmt f) 
