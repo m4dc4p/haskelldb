@@ -304,17 +304,10 @@ topPercent n    = updatePrimQuery_ (Special (Top True perc))
 
 -----------------------------------------------------------
 -- Ordering results
---
--- I have changed these to take an expression instead of
--- a relation and an attribute, since that seemed 
--- unneccessarily restrictive. I have probably overlooked 
--- something in doing so, so I left the old code commented out.
--- Bjorn Bringert, 2004-01-10
 -----------------------------------------------------------
 
 data Order	= OrderPhantom
 
-{-
 orderOp :: UnOp -> Rel r -> Attr f r a -> Expr Order
 orderOp op rel attr = Expr (UnExpr op expr)
 	where
@@ -323,14 +316,21 @@ orderOp op rel attr = Expr (UnExpr op expr)
 asc,desc :: Rel r -> Attr f r a -> Expr Order
 asc rel attr	= orderOp OpAsc rel attr
 desc rel attr	= orderOp OpDesc rel attr
--}
 
+-- Maybe the above should take an expression instead of
+-- a relation and an attribute, since that seemes
+-- unneccessarily restrictive. However this is not really safe
+-- since, for example, in SQL you cannot ORDER BY an
+-- aggregate expression. Leaving the alternative code below.
+-- Bjorn Bringert, 2004-01-20
+{-
 orderOp :: UnOp -> Expr a -> Expr Order
 orderOp op (Expr expr) = Expr (UnExpr op expr)
 
 asc,desc :: Expr a -> Expr Order
 asc 	= orderOp OpAsc
 desc	= orderOp OpDesc
+-}
 
 order :: [Expr Order] -> Query ()
 order xs	= updatePrimQuery_ (Special (Order (map unExpr xs)))
