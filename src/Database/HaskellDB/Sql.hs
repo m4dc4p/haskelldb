@@ -303,6 +303,6 @@ ppDrop (SqlDropTable name xs)
     where
     ppF (fname,(ftype,nullable)) 
 	= text fname <+> text (sshow ftype)
-	  <+> if nullable then text "" else text "not null"
+	  <> if nullable then text "" else text " not null"
 
 -- FIXME: maybe ppDrop and ppCreate could be combined somehow?
