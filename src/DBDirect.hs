@@ -15,7 +15,7 @@
 -- data structure in an appropiate Haskell module which
 -- can be used to perform queries on the database.
 --
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -----------------------------------------------------------
 
 module Main where
@@ -58,7 +58,7 @@ main = do
 	     || dbarg == "mysql" && (length args) == 6
              || (dbarg == "postgresql" || dbarg == "postgre") 
 		    && (length args) == 6
-             || dbarg == "sqlite" && (length args) == 4
+             || dbarg == "sqlite" && (length args) == 3
              || (dbarg == "wxhaskell" || dbarg == "wx") 
 		    && (length args) == 5
 	   where dbarg = map toLower (head args)
