@@ -24,7 +24,8 @@ dbSpecToDatabase :: Database -- ^ A Database
 		 -> DBInfo -- ^ The DBInfo to generate from
 		 -> IO ()
 dbSpecToDatabase db dbi
-    = do
-      mapM_ (\t -> createTable db (tname t) (createAttFD t)) (tbls dbi)
+    = mapM_ (\t -> createTable db (tname t) (createAttFD t)) (tbls dbi)
     where
-    createAttFD tbl = zip (map cname (cols tbl)) (map descr (cols tbl))
+    createAttFD tbl = zip (filter hasName $ map cname (cols tbl)) 
+		          (map descr (cols tbl))
+    hasName a = a /= ""
