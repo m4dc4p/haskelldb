@@ -22,6 +22,7 @@ Things that need to be done, in no particular order:
 - DbDirect 
   * Handle empty tables and tables with no name (probably by
     ignoring them).
+  * Fix bug with DBInfo uppercase name.
   * Set sensible default values for all NOT NULL columns.
   (* add optional command line argument for selecting which
   tables to generate code for)
