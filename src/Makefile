@@ -11,7 +11,8 @@ DRIVERS = hsql
 # somewhere in each driver directory
 DRIVERS_OBJS = drivers/hsql/HSQL_driver.o \
                drivers/hsql/HSQL_ODBC.o \
-               drivers/hsql/HSQL_MySQL.o
+               drivers/hsql/HSQL_MySQL.o \
+               drivers/hsql/HSQL_PostgreSQL.o \
 
 SRC = $(patsubst %.o,%.hs, $(OBJS))
 
