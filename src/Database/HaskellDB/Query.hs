@@ -7,7 +7,7 @@
 -----------------------------------------------------------
 module Query where
 
-import Trex
+import HDBRec
 import PrimQuery
 
 -----------------------------------------------------------
@@ -59,16 +59,13 @@ rel ! attr      = select attr rel
 ----------------------------------------------------------
 
 data Rel r      = Rel Alias Scheme
-                | RelKind (Rec r)
 
 data Expr a     = Expr PrimExpr
-                deriving (Read,Show)
+		deriving (Read, Show)
 
 data Table r    = Table TableName Assoc
-                | TableKind (Rec r)
                 
 data Attr r a   = Attr Attribute
-                | AttrKind (Rec r)
 
                 
 type Alias      = Int                
@@ -93,7 +90,7 @@ select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
         
         
-project :: (ShowRecRow r) => Rec r -> Query (Rel r)
+project :: (ShowRecRow r) => HDBRec r -> Query (Rel r)
 project r       
         = do{ alias <- newAlias
             ; let scheme        = labels r          
@@ -155,7 +152,7 @@ table (Table name assoc)
          
 -- used in table definitions, see 'pubs.hs' for an example
            
-baseTable :: ShowRecRow r => TableName -> Rec r -> Table r 
+baseTable :: ShowRecRow r => TableName -> HDBRec r -> Table r 
 baseTable t r   = Table t (zip (labels r) (exprs r))
                 
         
@@ -222,20 +219,17 @@ notNull x       = unop OpIsNotNull x
 -- and allow only a very  basic set of constants
 -- or change the set according to the database backend
 -----------------------------------------------------------
-class ShowConstant a where
-  showConstant :: a -> String
-
-instance Show a => ShowConstant a where
-  showConstant x        = show x
+showConstant :: Show a => a -> String
+showConstant x        = show x
 
 -- needs overlapping instances
 -- instance Show a => ShowConstant (Maybe a) where
 --   showConstant x        = maybe "NULL" show x
   
-constant :: ShowConstant a => a -> Expr a
+constant :: Show a => a -> Expr a
 constant x      = Expr (ConstExpr (showConstant x))
 
-nullable        :: ShowConstant a => a -> Expr (Maybe a)
+nullable        :: Show a => a -> Expr (Maybe a)
 nullable x      = Expr (ConstExpr (showConstant x))
         
 
@@ -349,10 +343,10 @@ fresh alias attribute   = (attribute ++ show alias)
 -- define fold-like functions over records.
 -----------------------------------------------------------
 
-labels :: ShowRecRow r => Rec r -> [String]
+labels :: ShowRecRow r => HDBRec r -> [String]
 labels r        = map fst (showRecRow r)
 
-exprs :: ShowRecRow r => Rec r -> [PrimExpr]
+exprs :: ShowRecRow r => HDBRec r -> [PrimExpr]
 exprs r         = map (readPrimExpr . snd) (showRecRow r)
                 where
                   readPrimExpr s   = case (reads (s "")) of 

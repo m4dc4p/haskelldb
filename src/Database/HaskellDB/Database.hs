@@ -23,10 +23,11 @@ module Database ( (!.)
 		, insert, delete, update, insertNew
 		) where
 
-import Trex
+import HDBRec
+
 import PrimQuery
 import Optimize (optimize)
-import Query	(Rel, Attr, Table, Query, Expr
+import Query	(Rel(..), Attr, Table(..), Query, Expr(..)
 		,runQuery, runQueryRel, exprs, labels)
 
 -----------------------------------------------------------
@@ -96,7 +97,7 @@ insert :: ShowRecRow r => Database db row -> Table r -> Query (Rel r) -> IO ()
 insert db (Table name assoc) q
 	= (dbInvoke dbInsert db) name (optimize (runQuery q))
 
-insertNew :: ShowRecRow r => Database db row -> Table r -> Rec r -> IO ()
+insertNew :: ShowRecRow r => Database db row -> Table r -> HDBRec r -> IO ()
 insertNew db (Table name assoc) newrec	
 	= (dbInvoke dbInsertNew db) name (zip (attrs assoc) (exprs newrec))
 	where
@@ -110,7 +111,7 @@ delete db (Table name assoc) criteria
 	  rel		   = Rel 0 (map fst assoc)
 	  
 update :: (ShowRecRow s,ShowRecRow r) => Database db row -> Table r -> 
-		(Rel r -> Expr Bool) -> (Rel r -> Rec s) -> IO ()
+		(Rel r -> Expr Bool) -> (Rel r -> HDBRec s) -> IO ()
 update db (Table name assoc) criteria assignFun
 	= (dbInvoke dbUpdate db) name [substAttr assoc primExpr] newassoc			     
 	where

@@ -10,7 +10,7 @@ module HaskellDB
 	( Rel, Attr, Expr, Table, Query	-- abstract
 	
 	, (!)	
-	, project, restrict, table
+	, restrict, table
 	, union, intersect, divide, minus
 		
 	, (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)

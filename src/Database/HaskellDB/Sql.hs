@@ -118,7 +118,7 @@ toSelect sql    = case sql of
                     (SqlEmpty)          -> newSelect
                     (SqlTable name)     -> newSelect { tables = [("",sql)] }
                     (SqlBin op q1 q2)   -> newSelect { tables = [("",sql)] }
-                    (SqlSelect {attrs}) | null attrs -> sql
+                    s | null (attrs s) -> sql
                                         | otherwise  -> newSelect { tables = [("",sql)] }
 
 toSqlAssoc      = map (\(attr,expr) -> (attr, toSqlExpr expr))
@@ -137,7 +137,7 @@ toSqlOp Difference   = "MINUS"
 instance Pretty SqlSelect where
   pretty        = ppSql
 
-ppSql (SqlSelect { options, attrs, tables, criteria, groupby, orderby })
+ppSql (SqlSelect options attrs tables criteria groupby orderby)
         = indent $
           text "SELECT DISTINCT" <+> htext options <+> ppAttrs attrs
        $$ f "FROM " ppTables tables
