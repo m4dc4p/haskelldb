@@ -8,8 +8,6 @@ Things that need to be done, in no particular order:
   * Only allow aggregate functions in project, not in e.g. restrict.
     viblo reports that restrict (count(tbl!nick) .<. constant 5)
     compiles but generates SQL that is not accepted by MySQL.
-  * put all imports that DbDirect-generated files need in a module by
-    itself, so that generated code only needs to import that module. /Bjorn
   * Handle fields with default values and auto increment.
     This was found by stepcut.
   * Figure out some intutive way of doing grouping.
