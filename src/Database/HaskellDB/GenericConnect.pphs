@@ -1,0 +1,105 @@
+-----------------------------------------------------------
+-- |
+-- Module      :  GenericConnect
+-- Copyright   :  HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- License     :  BSD-style
+-- 
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
+--
+-- Loads the correct interface files during compile time,
+-- allowing us to do fake generic connects
+-----------------------------------------------------------
+module Database.HaskellDB.GenericConnect (genericConnect) where
+
+-- #define WITH_HSQL_ODBC
+-- #define WITH_HSQL_MYSQL
+-- #define WITH_HSQL_SQLITE
+-- #define WITH_HSQL_POSTGRESQL
+
+import Database.HaskellDB.Database
+
+#ifdef WITH_HSQL_ODBC
+import qualified Database.HaskellDB.HSQL.ODBC as OD
+#endif
+#ifdef WITH_HSQL_MYSQL
+import qualified Database.HaskellDB.HSQL.MySQL as MY
+#endif
+#ifdef WITH_HSQL_SQLITE
+import qualified Database.HaskellDB.HSQL.SQLite as LI
+import qualified System.IO as SIO
+#endif
+#ifdef WITH_HSQL_POSTGRESQL
+import qualified Database.HaskellDB.HSQL.PostgreSQL as PG
+#endif
+#ifdef WITH_WX
+import qualified Database.HaskellDB.WX as WX
+#endif
+
+genericConnect :: String -> [String] -> ((Database -> IO a) -> IO a)
+#ifdef WITH_HSQL_ODBC
+genericConnect "odbc" (a:b:c:[]) = connectODBC a b c
+#endif
+#ifdef WITH_HSQL_MYSQL
+genericConnect "mysql" (a:b:c:d:[]) = connectMySQL a b c d
+#endif
+#ifdef WITH_HSQL_SQLITE
+genericConnect "sqlite" (a:b:[]) = connectSQLite a b
+#endif
+#ifdef WITH_HSQL_POSTGRESQL
+genericConnect "postgresql" (a:b:c:d:[]) 
+    = connectPostgreSQL a b c d
+genericConnect "postgre" (a:b:c:d:[]) 
+    = connectPostgreSQL a b c d
+#endif
+#ifdef WITH_WX
+genericConnect "wx" (a:b:c:[]) = connectWXHaskell a b c
+genericConnect "wxhaskell" (a:b:c:[]) = connectWXHaskell a b c
+#endif
+connectCommon _ _ = error "Database driver not compiled in" 
+-- only used when no drivers, to make
+-- this compile anyway
+
+#ifdef WITH_HSQL_ODBC
+connectODBC :: String -> String -> String ->
+		     ((Database -> IO a) -> IO a)
+connectODBC dsn' uid' pwd'
+	= OD.odbcConnect (OD.ODBCOptions 
+				     {OD.dsn = dsn',OD.uid = uid',
+				      OD.pwd = pwd'})
+#endif
+#ifdef WITH_HSQL_MYSQL
+-- | Query the system catalog and write the Haskell module, MySQL version
+connectMySQL :: String -> String -> String -> String ->
+		      ((Database -> IO a) -> IO a)
+connectMySQL server' db' uid' pwd'
+	= MY.mysqlConnect (MY.MySQLOptions 
+				     {MY.server = server',MY.db = db', 
+				      MY.uid = uid',MY.pwd = pwd'})
+#endif
+#ifdef WITH_HSQL_SQLITE
+-- | Query the system catalog and write the Haskell module, MySQL version
+connectSQLite :: String -> String ->
+		      ((Database -> IO a) -> IO a)
+connectSQLite filepath' mode'
+    = LI.sqliteConnect (LI.SQLiteOptions {LI.filepath = filepath', 
+					  LI.mode = (read mode')})
+#endif
+#ifdef WITH_HSQL_POSTGRESQL
+-- | Query the system catalog and write the Haskell module, PostgreSQL version
+connectPostgreSQL :: String -> String -> String -> String ->
+			   ((Database -> IO a) -> IO a)
+connectPostgreSQL server' db' uid' pwd'
+	= PG.postgresqlConnect (PG.PostgreSQLOptions
+				     {PG.server = server',PG.db = db', 
+				      PG.uid = uid',PG.pwd = pwd'})
+#endif
+#ifdef WITH_WX
+connectWXHaskell :: String -> String -> String ->
+		     ((Database -> IO a) -> IO a)
+connectWXHaskell dsn' uid' pwd'
+	= WX.wxConnect (WX.WXOptions 
+				     {WX.dsn = dsn',WX.uid = uid',
+				      WX.pwd = pwd'})
+#endif
