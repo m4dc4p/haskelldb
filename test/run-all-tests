@@ -32,5 +32,5 @@ done
 # run tests with hugs
 for p in $PROG; do
 	echo "Hugs running: $p"
-	runhugs -98 +o $p.hs "$@" || exit 1
+	runhugs -98 +o -h1024K $p.hs "$@" || exit 1
 done
