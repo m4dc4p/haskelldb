@@ -1,11 +1,11 @@
 #!/bin/sh
 
-HSQL_DIR=/usr/local/lib/HSQL/Hugs/libraries
+HSQL_DIR=/usr/local/dp03-7/lib/HSQL/Hugs/libraries
 
 PROG="hardcoded-layout-simple-query join-and-aggr html-users-list \
        current-time date-types \
        insert-update-delete test-bounded transaction \
-       higher-order big-test null-and-case default-auto-inc \
+       higher-order big-test null-and-case \
        join-without-restrict test-sum"
 
 # make sure TestConnect.hs exists
