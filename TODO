@@ -3,7 +3,6 @@ Things that need to be done, in no particular order:
 - Code:
   * Handle exceptions in a driver-independent way
   * Support all SQL datatypes
-    - DATE, TIME, TIMESTAMP
   * Make row retrieval lazy in HSQL driver
   * Make Query.exprs type safe
   * switch ad-hoc assert to Control.Expcetion.assert
@@ -16,6 +15,8 @@ Things that need to be done, in no particular order:
      types and expressions are evaluated strictly, and explicitly tell the
      compiler that they are strict)
   (* maybe make it work on multi-processor systems using Concurrent Haskell?)
+  (* try to compile with nhc98. It would be nice to support all three 
+     available Haskell compilers)
 
 - DbDirect 
   (* add optional command line argument for selecting which
