@@ -1,16 +1,14 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  PPHelpers
--- Copyright   :  HWT Group (c) 2004, haskelldb-users@lists.sourceforge.net
+-- Copyright   :  HWT Group (c) 2004, dp03-7@mdstud.chalmers.se
 -- License     :  BSD-style
 -- 
--- Maintainer  :  haskelldb-users@lists.sourceforge.net
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  non-portable
+-- Portability :  portable
 --
 -- Various functions used when pretty printing stuff
---
--- $Revision: 1.4 $
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.PPHelpers where
 -- no explicit export, we want ALL of it
@@ -70,4 +68,4 @@ checkUpper s@(x:xs)	| isUpper x	= s
 checkLower ""           = error "Empty name from database?"	
 checkLower s@(x:xs)	| isLower x	= s
 			| isUpper x	= toLower x : xs
-			| otherwise	= 'x' : s -- isNumeric?
+			| otherwise	= 'x' : s -- isNumeric?	 
