@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.29 $)
+AC_REVISION($Revision: 1.30 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -154,12 +154,11 @@ AC_ARG_WITH(ghc,
 AC_HELP_STRING([--with-ghc=<ghc command>],
                [Use a different command instead of 
                 'ghc' for the Haskell compiler.]),
-[GHC="$withval"],
+[AC_CHECK_FILE("$withval",GHC="$withval",[AC_PATH_PROG(GHC,"$withval")])],
 [AC_PATH_PROG(GHC,ghc)]
 )
 
-if test ! -f "$GHC"; then AC_PATH_PROG(GHC, "$withval") fi
-if test "$GHC" = "" || test ! -f "$GHC"; then
+if test "$GHC" = "" || test ! -x "$GHC"; then
    AC_MSG_ERROR([GHC not found. GHC is needed to build 
 	         HaskellDB even you are only building libraries for Hugs.])
   GHC=""
@@ -205,12 +204,15 @@ dnl ***********************************************
 AC_ARG_WITH(ghc-pkg,
 AC_HELP_STRING([--with-ghc-pkg=<ghc-pkg command>],
                [Use a different command instead of 'ghc-pkg']),
-[GHC_PKG="$withval"],
-[AC_PATH_PROG(GHC_PKG,ghc-pkg)]
+[GHC_PKG="$withval"
+if test ! -x "$GHC_PKG"; then AC_PATH_PROG(GHC_PKG,"$withval") fi],
+[AC_CHECK_FILE("$(dirname $GHC)/ghc-pkg",
+	       GHC_PKG="$(dirname $GHC)/ghc-pkg",
+	       [AC_PATH_PROG(GHC_PKG,ghc-pkg)])]
 )
 
 if test "$ENABLE_GHC" = "yes" && test "$GHC" != ""; then
-	if test "$GHC_PKG" = "" || test ! -f "$GHC_PKG"; then
+	if test "$GHC_PKG" = "" || test ! -x "$GHC_PKG"; then
 	   AC_MSG_ERROR([ghc-pkg is required for GHC support])
 	fi
 fi
@@ -224,12 +226,11 @@ AC_ARG_WITH(hugs,
 AC_HELP_STRING([--with-hugs=<hugs command>],
                [Use a different command instead of 'hugs' 
 	        for the Hugs interpreter.]),
-[HUGS="$withval"],
+[AC_CHECK_FILE("$withval",HUGS="$withval",[AC_PATH_PROG(HUGS,"$withval")])],
 [AC_PATH_PROG(HUGS,hugs)]
 )
 
-if test ! -f "$HUGS"; then AC_PATH_PROG(HUGS, "$withval") fi
-if test "$ENABLE_HUGS" != "yes" || test "$HUGS" = "" || test ! -f "$HUGS"; then
+if test "$ENABLE_HUGS" != "yes" || test "$HUGS" = "" || test ! -x "$HUGS"; then
   AC_MSG_RESULT([The build for HUGS will be skipped.])
   HUGS=""
   ENABLE_HUGS="no"
@@ -317,11 +318,11 @@ AC_ARG_WITH(haddock,
 AC_HELP_STRING([--with-haddock=<haddock command>],
                [Use a different command instead of 'haddock' 
                 for the documentation builder.]),
-[HADDOCK="$withval"],
+[AC_CHECK_FILE("$withval",HADDOCK="$withval",[AC_PATH_PROG(HADDOCK,"$withval")])],
 [AC_PATH_PROG(HADDOCK,haddock)]
 )
 
-if test "$HADDOCK" = "" || test "$HADDOCK" = "no" || test ! -f "$HADDOCK"; then
+if test "$HADDOCK" = "" || test "$HADDOCK" = "no" || test ! -x "$HADDOCK"; then
   BUILD_DOC="no"
   AC_MSG_RESULT([HADDOCK is required to build the documentations])
 else
