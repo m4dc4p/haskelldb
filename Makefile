@@ -31,6 +31,7 @@ haskelldb.pkg: haskelldb.pkg.in config.status
 install: all $(INSTALL_COMPILERS)
 
 install-ghc: all haskelldb.pkg install-filesonly-ghc
+	-cd $(GHC_DIR); rm -f HShdb.o
 	$(GHC_PKG) -u --auto-ghci-libs -i haskelldb.pkg
 
 install-filesonly-ghc: all
@@ -47,12 +48,12 @@ install-hugs: all
 uninstall: $(UNINSTALL_COMPILERS)
 
 uninstall-ghc:
-	cd $(GHC_DIR)/imports; rm -rf Database/HaskellDB*
-	cd $(GHC_DIR); rm -f libHShdb.a
-	$(GHC_PKG) -r haskelldb
+	-cd $(GHC_DIR)/imports; rm -rf Database/HaskellDB*
+	-cd $(GHC_DIR); rm -f libHShdb.a HShdb.o
+	-$(GHC_PKG) -r haskelldb
 
 uninstall-hugs:
-	cd $(HUGS_DIR)/libraries; rm -rf Database/HaskellDB*
+	-cd $(HUGS_DIR)/libraries; rm -rf Database/HaskellDB*
 
 clean:
 	-rm -rf $(BUILD_DIR)/*
