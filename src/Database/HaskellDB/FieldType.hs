@@ -24,7 +24,7 @@ import Database.HaskellDB.BoundedString
  TODO:
 
  - add date / time type(s)
- DEVELOPMENT OF THIS HAS BEEN MOVED TO DateTypes.hs
+ DEVELOPMENT OF THIS HAS BEEN MOVED TO DateTypes.hs (only on Chucky's machine)
 
 -}
 

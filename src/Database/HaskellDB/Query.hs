@@ -38,6 +38,7 @@ module Database.HaskellDB.Query (
 
 import Database.HaskellDB.HDBRec
 import Database.HaskellDB.PrimQuery
+import System.Time
 
 -----------------------------------------------------------
 -- Operators
@@ -265,6 +266,15 @@ instance ShowConstant Bool where
     -- so 0 and 1 seem reasonable to use.
     showConstant False = show 0
     showConstant True = show 1
+
+-- this assumes that all databases accept both date and time even when they
+-- only want date.
+instance ShowConstant CalendarTime where
+    showConstant (CalendarTime {ctYear = y, ctMonth = mo, ctDay = d, 
+				ctHour = h, ctMin = mi, ctSec = s})
+       = (show y)++"-"++(show mo)++"-"++(show d)++" "++
+	 (show h)++":"++(show mi)++":"++(show s)
+	 
 
 instance ShowConstant a => ShowConstant (Maybe a) where
     showConstant x = maybe "NULL" showConstant x
