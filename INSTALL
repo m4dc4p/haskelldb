@@ -18,3 +18,21 @@ Requirements:
   > cp src/drivers/hsql/Makefile.HSQL ../HSQL-cvs/Makefile
   > make -C ../HSQL-cvs
 
+  HSQL should be built with ODBC support. The instructions above will
+  do that.
+
+- To build and use HSQL with ODBC on Unix you need to have unixODBC
+  installed.
+
+- For unixODBC you need the client libraries for your database system
+  and the ODBC libraries for that system.
+
+- You will need a database system to connect to (though that might of
+  course be on a different machine). 
+
+Database software support:
+
+- MySQL
+
+  HaskellDB does not work with MySQL version < 4.1 because of the
+  lack of support for nested subqueries. 
