@@ -25,6 +25,8 @@ Possible properties:
 
 -- creating a table and describing it gives the orginal spec
 
+-- same operations on different databases gie the same result
+
 -}
 
 -- FIXME: allow row permutations?
