@@ -1,3 +1,17 @@
+-----------------------------------------------------------
+-- |
+-- Module      :  FieldType
+-- Copyright   :  HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- License     :  BSD-style
+-- 
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
+--
+-- Defines the types of database columns, and functions
+-- for converting these between HSQL and internal formats
+--
+-----------------------------------------------------------
 module Database.HaskellDB.FieldType 
     (FieldDef, FieldType(..), mkCalendarTime) where
 
