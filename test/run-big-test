@@ -17,7 +17,7 @@ rm -rf BigTestDB
 echo
 
 echo "Running DbDirect..."
-../build/DbDirect "$@" BigTestDB || exit 1
+../build/DBDirect "$@" BigTestDB || exit 1
 echo
 
 echo "Creating TestConnect.hs..."

@@ -27,6 +27,12 @@ LDFLAGS = @LDFLAGS@
 PACKAGE_DEPS = @PACKAGE_DEPS@
 
 #
+# Documentation
+#
+
+BUILD_DOC=@BUILD_DOC@
+
+#
 # Which compilers to build libraries for
 #
 

@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.25 $)
+AC_REVISION($Revision: 1.26 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -158,7 +158,7 @@ AC_HELP_STRING([--with-ghc=<ghc command>],
 [AC_PATH_PROG(GHC,ghc)]
 )
 
-if test "$GHC" = "" || test ! -f $GHC; then
+if test "$GHC" = "" || test ! -f "$GHC"; then
    AC_MSG_ERROR([GHC not found. GHC is needed to build 
 	         HaskellDB even you are only building libraries for Hugs.])
   GHC=""
@@ -209,7 +209,7 @@ AC_HELP_STRING([--with-ghc-pkg=<ghc-pkg command>],
 )
 
 if test "$ENABLE_GHC" = "yes" && test "$GHC" != ""; then
-	if test "$GHC_PKG" = "" || test ! -f $GHC_PKG; then
+	if test "$GHC_PKG" = "" || test ! -f "$GHC_PKG"; then
 	   AC_MSG_ERROR([ghc-pkg is required for GHC support])
 	fi
 fi
@@ -227,7 +227,7 @@ AC_HELP_STRING([--with-hugs=<hugs command>],
 [AC_PATH_PROG(HUGS,hugs)]
 )
 
-if test "$ENABLE_HUGS" != "yes" || test "$HUGS" = "" || test ! -f $HUGS; then
+if test "$ENABLE_HUGS" != "yes" || test "$HUGS" = "" || test ! -f "$HUGS"; then
   AC_MSG_RESULT([The build for HUGS will be skipped.])
   HUGS=""
   ENABLE_HUGS="no"
@@ -263,7 +263,7 @@ AC_HELP_STRING([--with-hugs-dir=DIR],
 )
 
 if test "$HUGS" != ""; then
-	if test "$HUGS_DIR" = "" || test ! -d $HUGS_DIR; then
+	if test "$HUGS_DIR" = "" || test ! -d "$HUGS_DIR"; then
 	   AC_MSG_ERROR([HUGS_DIR $HUGS_DIR does not exist])
 	fi
 fi
@@ -315,10 +315,14 @@ AC_HELP_STRING([--with-haddock=<haddock command>],
 [AC_PATH_PROG(HADDOCK,haddock)]
 )
 
-if test "$HADDOCK" = "" || test ! -f $HADDOCK; then
+if test "$HADDOCK" = "" || test "$HADDOCK" = "no" || test ! -f "$HADDOCK"; then
+  BUILD_DOC="no"
   AC_MSG_RESULT([HADDOCK is required to build the documentations])
+else
+  BUILD_DOC="yes"
 fi
 
+AC_SUBST(BUILD_DOC)
 AC_SUBST(HADDOCK)
 
 dnl ***********************************************
