@@ -46,7 +46,7 @@ infix 9 !.
 --   the database (= rows)
 --   Non-overloaded version of '!'. For backwards compatibility.
 (!.) :: (SelectField f r a, HasField f r) => r -> Attr f a -> a
-row !. attr = row ! attr
+row !. attr = selectField attr row
 
 -- | '!' overloaded for selection of fields in query results.
 instance (SelectField f r a, HasField f r) => 
