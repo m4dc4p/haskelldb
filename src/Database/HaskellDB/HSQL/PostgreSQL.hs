@@ -10,15 +10,17 @@
 -- Portability :  portable
 --
 --
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -----------------------------------------------------------
 module Database.HaskellDB.HSQL.PostgreSQL (
-		      PostgreSQLOptions(..)
-		      , postgresqlConnect
+		      PostgreSQLOptions(..),
+		      postgresqlConnect,
+		      driver
 		      ) where
 
 import Database.HaskellDB.Database
 import Database.HaskellDB.HSQL.Common
+import Database.HaskellDB.DriverAPI
 import qualified Database.HSQL.PostgreSQL as PostgreSQL (connect) 
 
 data PostgreSQLOptions = PostgreSQLOptions { 
@@ -32,3 +34,12 @@ postgresqlConnect :: PostgreSQLOptions -> (Database -> IO a) -> IO a
 postgresqlConnect = 
     hsqlConnect (\opts -> PostgreSQL.connect 
 		            (server opts) (db opts) (uid opts) (pwd opts))
+postgresqlFlatConnect :: [String] -> (Database -> IO a) -> IO a
+postgresqlFlatConnect (a:b:c:d:[]) = postgresqlConnect 
+				   (PostgreSQLOptions {server = a,
+						       db = b,
+                                                       uid = c,
+                                                       pwd = d})
+postgresqlFlatConnect _ = error "postgresqlFlatConnect failed: Invalid number of arguments"
+
+driver = defaultdriver {connect = postgresqlFlatConnect}

@@ -11,12 +11,13 @@
 -- WxHaskell <http://wxhaskell.sourceforge.net/> 
 -- interface for HaskellDB
 --
--- $Revision: 1.11 $
+-- $Revision: 1.12 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.WX (
 			      wxConnect,
-			      WXOptions(..)
+			      WXOptions(..),
+			      driver
 			     ) where
 
 import Data.Maybe
@@ -27,6 +28,7 @@ import System.Time
 
 
 import Database.HaskellDB
+import Database.HaskellDB.DriverAPI
 import Database.HaskellDB.Database
 import Database.HaskellDB.Sql
 import Database.HaskellDB.PrimQuery
@@ -44,6 +46,14 @@ data WXOptions = WXOptions {
                             uid :: String, -- ^ user id
                             pwd :: String  -- ^ password
                   	   }
+
+wxFlatConnect :: [String] -> (Database -> IO a) -> IO a
+wxFlatConnect (a:b:c:[]) = wxConnect (WXOptions {dsn = a,
+                                                 uid = b,
+                                                 pwd = c})
+wxFlatConnect _ = error "wxFlatConnect failed: Invalid number of arguments"
+
+driver = defaultdriver {connect = wxFlatConnect}
 
 -- | Run an action and close the connection.
 wxConnect :: WXOptions -> (Database -> IO a) -> IO a

@@ -80,6 +80,12 @@ WITH_GHC_WX = @WITH_GHC_WX@
 WITH_HUGS_WX = @WITH_HUGS_WX@
 
 #
+# hs-plugins
+#
+
+WITH_GHC_PLUGINS = @WITH_GHC_PLUGINS@
+
+#
 # BoundedString
 #
 

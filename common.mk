@@ -3,6 +3,7 @@ TOP_DIR = .
 include $(TOP_DIR)/rules.mk
 
 MODULES = Database.HaskellDB \
+	  Database.HaskellDB.DriverAPI \
 	  Database.HaskellDB.HDBRec \
 	  Database.HaskellDB.FieldType \
 	  Database.HaskellDB.PrimQuery \
@@ -48,6 +49,10 @@ endif
 ifeq "$(WITH_WX)" "yes"
 MODULES += Database.HaskellDB.WX
 HSPP_FLAGS += -DWITH_WX
+endif
+
+ifeq "$(WITH_GHC_PLUGINS)" "yes"
+MODULES += Database.HaskellDB.DynConnect
 endif
 
 PROGRAM_MODULES = DBDirect

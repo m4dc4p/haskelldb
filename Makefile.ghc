@@ -9,6 +9,7 @@ WITH_WX = $(WITH_GHC_WX)
 
 include common.mk
 
+DBDIRECT_GHCFLAGS := $(GHCFLAGS) $(addprefix -i, $(COMPILER_DIR))
 GHCFLAGS += $(addprefix -i, $(COMPILER_DIR)) -package-name haskelldb
 
 LDFLAGS := -L$(COMPILER_DIR) -lHShdb $(LDFLAGS)
@@ -22,8 +23,14 @@ $(COMPILER_DIR)/libHShdb.a: $(OBJS)
 
 $(COMPILER_DIR)/Database/HaskellDB/BoundedList.o: GHCFLAGS += -fallow-undecidable-instances
 
+$(COMPILER_DIR)/Database/HaskellDB/DriverAPI.o: GHCFLAGS += -Onot
+
+$(COMPILER_DIR)/DBDirect: GHCFLAGS = $(DBDIRECT_GHCFLAGS)
+
+
 %: %.o
 	$(GHC) $(GHCFLAGS) $^ $(LDFLAGS) -o $@
+
 
 %.o: %.hs
 	$(GHC) $(GHCFLAGS) -c $^ -o $@

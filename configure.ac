@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.9],[haskelldb-users@lists.sourceforge.net],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.39 $)
+AC_REVISION($Revision: 1.40 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -222,6 +222,20 @@ WITH_HUGS_WX=no
 AC_SUBST(WITH_HUGS_WX)
 
 dnl ***********************************************
+dnl Enable/Disable using hs-plugins for ghc
+dnl ***********************************************
+
+AC_ARG_ENABLE(ghc-plugins,
+AC_HELP_STRING([--enable-ghc-plugins],
+               [Enable use of hs-plugins
+               for ghc. (default = yes)]),
+[WITH_GHC_PLUGINS="$enableval"],
+[WITH_GHC_PLUGINS=yes]
+)
+AC_SUBST(WITH_GHC_PLUGINS)
+
+
+dnl ***********************************************
 dnl C compiler
 dnl ***********************************************
 
@@ -436,6 +450,24 @@ else
 fi
 
 dnl ***********************************************
+dnl Check for hs-plugins for GHC
+dnl ***********************************************
+
+if test "$ENABLE_GHC" = "yes" && test "$WITH_GHC_PLUGINS" = "yes"; then
+
+  GHCFLAGS="$GHCFLAGS -package plugins"
+
+  AC_HS_GHC_MODULE_IFELSE([Plugins],[load],,
+                          [WITH_GHC_PLUGINS="no"])
+
+  if test "$WITH_GHC_PLUGINS" != "yes"; then
+    GHCFLAGS="`echo $GHCFLAGS | sed 's/-package plugins//'`"
+  fi
+else
+  WITH_GHC_PLUGINS="no"
+fi
+
+dnl ***********************************************
 dnl HADDOCK
 dnl ***********************************************
 AC_ARG_WITH(haddock,
@@ -640,6 +672,7 @@ echo "    MySql:         $WITH_GHC_HSQL_MYSQL"
 echo "    SQLite:        $WITH_GHC_HSQL_SQLITE"
 echo "    PostgreSQL:    $WITH_GHC_HSQL_POSTGRESQL"
 echo "  WxHaskell:       $WITH_GHC_WX"
+echo "  hs-plugins:      $WITH_GHC_PLUGINS"
 echo "Hugs:              $ENABLE_HUGS"
 echo "  HSQL:            $WITH_HUGS_HSQL"
 echo "    ODBC:          $WITH_HUGS_HSQL_ODBC"
