@@ -17,7 +17,8 @@ getUsers =
 
 
 showUser u = "<li>" ++ u!.first_name ++ " " ++ u!.last_name 
-		 ++ ", <tt>" ++ obfuscate (u!.email) ++ "</tt></li>"
+		 ++ " (<tt>" ++ obfuscate (u!.email) 
+			++ "</tt>)</li>"
 
 obfuscate addr = name ++ " AT " ++ safeTail domain 
     where 
