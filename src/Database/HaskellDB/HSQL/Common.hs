@@ -10,7 +10,7 @@
 --
 -- HSQL interface for HaskellDB
 --
--- $Revision: 1.46 $
+-- $Revision: 1.47 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.HSQL.Common (
@@ -120,6 +120,7 @@ toFieldType SqlFloat         = DoubleT
 toFieldType SqlDouble        = DoubleT
 -- toFieldType SqlBit           = BoolT
 toFieldType SqlTinyInt       = IntT
+toFieldType SqlMedInt        = IntT
 toFieldType SqlBigInt        = IntegerT
 toFieldType SqlDate          = CalendarTimeT
 toFieldType SqlTime          = CalendarTimeT
