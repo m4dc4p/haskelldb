@@ -176,6 +176,9 @@ getField s n =
 	    DoubleT  -> toVal (getFieldValueMB s n :: IO (Maybe Double))
 	    CalendarTimeT -> toVal $ mkIOMBCalendarTime
 			     (getFieldValueMB s n :: IO (Maybe ClockTime))
+	    -- FIXME: should wo do it like this?
+	    -- if so, must fix hsqlRowSelect to handle this
+	    BStrT _ -> toVal (getFieldValueMB s n :: IO (Maybe String))
 -- FIXME!!!
     where
     (t,_) = getFieldValueType s n
