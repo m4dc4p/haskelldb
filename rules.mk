@@ -1,23 +1,18 @@
 include $(TOP_DIR)/config.mk
 
-export GHCFLAGS_WARN
-
 SUBDIRS_CLEAN = $(addsuffix -clean, $(SUBDIRS))
 
-.PHONY: default all $(SUBDIRS) clean $(SUBDIRS_CLEAN) \
-	hugsload hugstest ghciload
+.PHONY: default all $(SUBDIRS) clean $(SUBDIRS_CLEAN)
 
 default: all
 
-warn-%: GHCFLAGS_WARN += $(GHC_VERBOSE_WARNINGS)
-
-hugsload: 
+hugsload-%: %.hs
 	$(HUGS) $(HUGSFLAGS) $^
 
-hugstest: 
+hugsrun-%: %.hs
 	$(RUNHUGS) $(HUGSFLAGS) $^
 
-ghciload: 
+ghciload-%: %.hs
 	$(GHCI) $(GHCFLAGS) $(LDFLAGS) $^
 
 %: %.o

@@ -24,11 +24,11 @@ DRIVERS_CLEAN = $(addsuffix -clean, $(DRIVER_DIRS))
 	dbdirect dbdirect-clean test $(DRIVERS_TEST) \
 	$(DRIVERS_CLEAN)
 
-all: $(OBJS) drivers libHDB.a dbdirect
+all: $(OBJS) drivers libHShdb.a dbdirect
 
 warn-all: all
 
-libHDB.a: $(OBJS) $(DRIVERS_OBJS)
+libHShdb.a: $(OBJS) $(DRIVERS_OBJS)
 	$(AR) -rc $@ $^
 
 drivers: $(DRIVER_DIRS)
@@ -43,11 +43,6 @@ test: $(DRIVERS_TEST)
 
 $(DRIVERS_TEST):
 	$(MAKE) -C $(subst -test,,$@) test
-
-# debugging 
-
-hugsload: HaskellDB.hs
-ghciload: HaskellDB.hs
 
 # cleaning up
 

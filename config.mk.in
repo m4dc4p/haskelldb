@@ -1,0 +1,54 @@
+# HaskellDB configuration file. configure will produce config.mk from this file
+# @configure_input@
+
+WITH_HSQL_ODBC = @WITH_HSQL_ODBC@
+WITH_HSQL_MYSQL = @WITH_HSQL_MYSQL@
+WITH_HSQL_POSTGRESQL = @WITH_HSQL_POSTGRESQL@
+
+GHC = @GHC@
+GHCI = @GHCI@
+GHC_PKG = @GHC_PKG@
+GHCFLAGS = @GHCFLAGS@
+GHC_DIR = @GHC_DIR@
+
+HUGS = @HUGS@
+RUNHUGS = @RUNHUGS@
+HUGSFLAGS = @HUGSFLAGS@
+HUGS_DIR = @HUGS_DIR@
+
+HADDOCK = @HADDOCK@
+
+SO_EXT = @SO_EXT@
+WIN32=@WIN32@
+AR = @AR@
+LD = @LD@
+INSTALL = @INSTALL@
+LDFLAGS = @LDFLAGS@
+
+#
+# Include local HaskellDB dirs
+#
+
+SRC_DIR = $(TOP_DIR)/src
+GHCFLAGS += -i$(SRC_DIR)
+HUGSFLAGS += -P$(SRC_DIR):
+# order is significant here
+LDFLAGS := -L$(SRC_DIR) -lHShdb $(LDFLAGS)
+
+#
+# HSQL, unixODBC, MySQL, PostgreSQL stuff
+#
+
+ifeq "$(WITH_HSQL_ODBC)" "yes"
+HSQL_DRIVERS += HSQL_ODBC
+endif
+
+ifeq "$(WITH_HSQL_MYSQL)" "yes"
+HSQL_DRIVERS += HSQL_MySQL
+endif
+
+ifeq "$(WITH_HSQL_POSTGRESQL)" "yes"
+HSQL_DRIVERS += HSQL_PostgreSQL
+endif
+
+
