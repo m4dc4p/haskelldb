@@ -15,14 +15,13 @@
 -- data structure in an appropiate Haskell module which
 -- can be used to perform queries on the database.
 --
--- $Revision: 1.7 $
+-- $Revision: 1.8 $
 -----------------------------------------------------------
 
 module Main where
 
 import Data.Char
 import System.Environment (getArgs)
-import System.Directory
 import Text.PrettyPrint.HughesPJ
 
 import Database.HaskellDB
@@ -47,10 +46,8 @@ main = do
 		    putStrLn "creating database specification..."
 		    spec <- db (dbToDBSpec useBStrT (last args))
 		    putStrLn "creating modules from specification..."
-		    let spec' = finalizeSpec spec
-			files = specToHDB spec'
 		    putStrLn "writing modules..."
-		    createModules files
+		    dbInfoToModuleFiles "." (last args) spec
 		    putStrLn "done!"
 	    False -> showHelp
        checkFlag []   = False
@@ -81,13 +78,3 @@ showHelp
 		   "WXHaskell: dsn, userid, password and file",
 		   "as arguments"
 	          ]
--- | Creates all modules
-createModules :: [(FilePath,Doc)] -> IO ()
-createModules files
-    = do 
-      let dbname = (fst . head) files
-	  dbnamenohs = reverse $ drop 3 $ reverse dbname
-      writeFile dbname (render $ (snd . head) files)
-      createDirectory dbnamenohs
-      mapM_ (\ (name,doc) -> writeFile name
-	     (render doc)) (tail files)

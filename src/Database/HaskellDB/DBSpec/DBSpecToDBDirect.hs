@@ -13,10 +13,10 @@
 -- files usable in HaskellDB (the generation itself is done 
 -- in DBDirect)
 --
--- $Revision: 1.18 $
+-- $Revision: 1.19 $
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DBSpecToDBDirect
-    (specToHDB) 
+    (specToHDB, dbInfoToModuleFiles) 
     where
 import Database.HaskellDB.BoundedString
 import Database.HaskellDB.FieldType
@@ -27,6 +27,7 @@ import Database.HaskellDB.DBSpec.DBInfo
 
 import Database.HaskellDB.DBSpec.PPHelpers
 
+import System.Directory (createDirectory)
 import Text.PrettyPrint.HughesPJ
 
 -- | Common header for all files
@@ -49,41 +50,72 @@ contextStackPragma dbi
 imports :: Doc
 imports = text "import Database.HaskellDB.DBLayout"
 
--- | Converts a database specification to a "finished" set of files
-specToHDB :: DBInfo -> [(FilePath,Doc)]
-specToHDB dbinfo = genDocs (constructNonClashingDBInfo dbinfo)
+-- | Create module files in the given directory for the given DBInfo
+dbInfoToModuleFiles :: FilePath -- ^ base directory
+		    -> String -- ^ top-level module name
+		    -> DBInfo -> IO ()
+dbInfoToModuleFiles d name = 
+    createModules d name . specToHDB name . finalizeSpec
+
+-- | Creates modules 
+createModules :: FilePath -- ^ Base directory
+	      -> String   -- ^ Name of directory and top-level module for the database modules
+	      -> [(String,Doc)] -- ^ Module names and module contents
+	      -> IO ()
+createModules basedir dbname files
+    = do 
+      let dir = withPrefix basedir dbname
+      createDirectory dir
+      mapM_ (\ (name,doc) -> writeFile (moduleNameToFile basedir name)
+	     (render doc)) files
+
+-- | Make a filename from a module name
+moduleNameToFile :: FilePath -> String -> FilePath
+moduleNameToFile base mod = withPrefix base f
+    where f = replace '.' '/' mod ++ ".hs"
+
+withPrefix :: FilePath -> String -> FilePath
+withPrefix base f | null base = f
+		  | otherwise = base ++ "/" ++ f
+
+replace :: Eq a => a -> a -> [a] -> [a]
+replace x y zs = [if z == x then y else z | z <- zs]
+
+-- | Converts a database specification to a set of module names 
+--   and module contents. The first element of the returned list
+--   is the top-level module.
+specToHDB :: String -- ^ Top level module name
+	  -> DBInfo -> [(String,Doc)]
+specToHDB name dbinfo = genDocs name (constructNonClashingDBInfo dbinfo)
 
 -- | Does the actual conversion work
-genDocs :: DBInfo -> [(FilePath,Doc)]
-genDocs dbinfo 
-    = ("./" ++ ((moduleName . dbname) dbinfo) ++ ".hs",
+genDocs :: String -- ^ Top-level module name
+	-> DBInfo -> [(String,Doc)]
+genDocs name dbinfo 
+    = (name,
 --       contextStackPragma dbinfo $$
        header
-       $$ text "module" <+> text ((moduleName . dbname) dbinfo) 
-       <+> text "where"
+       $$ text "module" <+> text name <+> text "where"
        <> newline
        $$ imports
        <> newline
-       $$ vcat (map (text . (("import qualified " ++ 
-			      ((moduleName . dbname) dbinfo) ++ ".") ++)) 
-		tbnames)
+       $$ vcat (map (text . ("import qualified " ++)) tbnames)
        <> newline
        $$ dbInfoToDoc dbinfo)
-        : map (tInfoToModule ((moduleName . dbname) dbinfo)) (filter hasName 
-							      $ tbls dbinfo)
+        : rest
     where
-    tbnames = map (moduleName . tname) (filter hasName $ tbls dbinfo)
+    rest = [tInfoToModule name t | t <- tbls dbinfo, hasName t]
     hasName TInfo{tname=name} = name /= ""
+    tbnames = map fst rest
       
 -- | Makes a module from a TInfo
 tInfoToModule :: String -- ^ The name of our main module
-	      -> TInfo -> (FilePath,Doc)
+	      -> TInfo 
+	      -> (String,Doc) -- ^ Module name and module contents
 tInfoToModule dbname tinfo@TInfo{tname=name,cols=col}
-    = ("./" ++ dbname ++ "/" ++ (moduleName name) ++ ".hs",
+    = (modname,
        header
-       $$ text "module" <+> 
-       text ((moduleName dbname) ++ "." ++ (moduleName name)) <+> 
-       text "where"
+       $$ text "module" <+> text modname <+> text "where"
        <> newline
        $$ imports
        <> newline
@@ -92,6 +124,7 @@ tInfoToModule dbname tinfo@TInfo{tname=name,cols=col}
        $$ ppComment ["Fields"]
        $$ if col == [] then empty -- no fields, don't do any weird shit
              else vcat (map ppField (columnNamesTypes tinfo)))
+    where modname = moduleName dbname ++ "." ++ moduleName name
 
 -- | Pretty prints a TableInfo
 ppTable :: TInfo -> Doc
