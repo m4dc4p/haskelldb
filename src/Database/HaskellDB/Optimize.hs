@@ -161,12 +161,15 @@ pushRestrict (Project assoc query)
         = Project assoc (pushRestrict query)
 
 -- restricts
+
 pushRestrict (Restrict x (Project assoc query))
-        = Project assoc (pushRestrict (Restrict expr query))
+	     | safe = Project assoc (pushRestrict (Restrict expr query))
         where
 	  -- since we passed a project, we need to replace all attributes
 	  -- with the expression they are bound to by the project
           expr  = substAttr assoc x
+	  -- aggregate expressions are not allowed in restricts
+	  safe = not (isAggregate expr)
 
 pushRestrict (Restrict x (Binary op query1 query2))
         | noneIn1   = Binary op query1 (pushRestrict (Restrict x query2))
