@@ -39,7 +39,7 @@
 -- Explicit shrink and\/or grow is needed before using (==).
 -- BoundedList does not have an instance of Ordering. (This might change)
 --
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -----------------------------------------------------------
 module Database.HaskellDB.BoundedList (shrink,
 		    grow,
@@ -1379,7 +1379,7 @@ instance (Size n, Eq a) => Eq (BoundedList a n) where
 -- | Shrinks the 'BoundedList' supplied if
 -- it can do so without truncating the list. Returns Nothing
 -- if the list inside was to long.
-shrink :: Size m => BoundedList a n -> Maybe (BoundedList a m)
+shrink :: (Size n, Size m) => BoundedList a n -> Maybe (BoundedList a m)
 shrink =  toBounded . fromBounded
 
 -- | Takes a 'BoundedList' add grows it size.
@@ -1387,7 +1387,7 @@ grow :: LessEq n m => BoundedList a n -> BoundedList a m
 grow (L xs) = (L xs)
 
 -- | Takes a 'BoundedList' and return the list inside.
-fromBounded :: BoundedList a n -> [a]
+fromBounded :: Size n => BoundedList a n -> [a]
 fromBounded (L xs) = xs
 
 
