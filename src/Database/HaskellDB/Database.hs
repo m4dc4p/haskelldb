@@ -63,7 +63,7 @@ data Database db row
   	  , database :: db
   	  }
   	  
-  	  
+dbInvoke :: (Database db row -> db -> a) -> Database db row -> a
 dbInvoke fun db		= (fun db) (database db)  	  
 
 -----------------------------------------------------------
