@@ -109,9 +109,9 @@ wxCreateTable conn name as
 wxDropDB :: Connection -> String -> IO ()
 wxDropDB conn name 
     = wxPrimExecute conn $ show $ ppDrop $ toDropDB name
-wxDropTable :: Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
-wxDropTable conn name as
-    = wxPrimExecute conn $ show $ ppDrop $ toDropTable name as
+wxDropTable :: Connection -> TableName -> IO ()
+wxDropTable conn name
+    = wxPrimExecute conn $ show $ ppDrop $ toDropTable name
 
 toFieldType :: Int -> SqlType -> FieldType
 toFieldType _ SqlDecimal   = DoubleT

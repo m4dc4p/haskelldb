@@ -99,9 +99,9 @@ hsqlCreateTable conn name as
 hsqlDropDB :: Connection -> String -> IO ()
 hsqlDropDB conn name 
     = hsqlPrimExecute conn $ show $ ppDrop $ toDropDB name
-hsqlDropTable :: Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
-hsqlDropTable conn name as
-    = hsqlPrimExecute conn $ show $ ppDrop $ toDropTable name as
+hsqlDropTable :: Connection -> TableName -> IO ()
+hsqlDropTable conn name
+    = hsqlPrimExecute conn $ show $ ppDrop $ toDropTable name
 
 
 toFieldType :: SqlType -> FieldType

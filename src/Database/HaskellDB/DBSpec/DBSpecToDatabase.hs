@@ -20,10 +20,10 @@ import Database.HaskellDB.DBSpec.DBInfo
 
 -- | Converts a DBInfo to a real life Database, note that the database must
 -- exist for this to work
-dbSpecToDatabase :: DBInfo -- ^ The DBInfo to generate from
-		 -> Database -- ^ A Database
+dbSpecToDatabase :: Database -- ^ A Database
+		 -> DBInfo -- ^ The DBInfo to generate from
 		 -> IO ()
-dbSpecToDatabase dbi db 
+dbSpecToDatabase db dbi
     = do
       mapM_ (\t -> createTable db (tname t) (createAttFD t)) (tbls dbi)
     where
