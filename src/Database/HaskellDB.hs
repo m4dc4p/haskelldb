@@ -1,9 +1,17 @@
 -----------------------------------------------------------
--- Daan Leijen (c) 1999, daan@cs.uu.nl
+-- |
+-- Module      :  HaskellDB
+-- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
+--                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- License     :  BSD-style
+-- 
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
 --
 -- HaskellDB is the main module that a user should 
 -- import. Beside this module, a user should import a
--- particular database binding (ie. Ado) and database
+-- particular database binding (ie. HSQL.ODBC) and database
 -- definitions (ie. Pubs).
 -----------------------------------------------------------
 module Database.HaskellDB 

@@ -1,16 +1,26 @@
 -----------------------------------------------------------
--- | 
--- Daan Leijen (c) 1999, daan\@cs.uu.nl
+-- |
+-- Module      :  Optimize
+-- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
+--                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- License     :  BSD-style
+-- 
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
 --
--- 	defines standard optimizations performed on PrimQuery's
+-- 	Defines standard optimizations performed on PrimQuery's
 --	(relational expressions).
 --
+-----------------------------------------------------------
+
+
 -- 'mergeProject' merges adjacent projections
 -- 'pushRestrict' pushes restrictions down the tree, ie.
 --		  perform restrictions as soon as possible.
 -- 'removeDead'   removes unused attributes from projections.
 -- 'removeEmpty'  removes unused branches of an expression.
------------------------------------------------------------
+
 module Database.HaskellDB.Optimize (optimize) where
 
 import Data.List (intersect)
@@ -100,6 +110,7 @@ removeEmpty
                                                Difference -> query
                                                _          -> Empty
           binary op query1 query2 = Binary op query1 query2
+
 
 -- | Collapse adjacent projections
 mergeProject :: PrimQuery -> PrimQuery

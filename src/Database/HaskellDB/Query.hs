@@ -1,21 +1,32 @@
 -----------------------------------------------------------
--- Daan Leijen (c) 1999, daan@cs.uu.nl
---
+-- |
+-- Module      :  Query
+-- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
+--                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- License     :  BSD-style
+-- 
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
+-- 
 -- Basic combinators for building type-safe queries.
 -- The "Query" monad constructs a relational expression
 -- (PrimQuery).
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
-	      Rel(..), Attr(..), Table(..), Query, Expr(..)
-	     , runQuery, runQueryRel
-	     , attribute, project, baseTable
-	     , attributeName, exprs, labels
+		 -- * Data declarations
+			Rel(..), Attr(..), Table(..), Query, Expr(..)
+	      -- * Operators
 	     , (!)
-	     , restrict, table
-	     , union, intersect, divide, minus
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
 	     , (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
+	      -- * Function declarations
+	     , runQuery, runQueryRel
+	     , attribute, project, baseTable
+	     , attributeName, exprs, labels
+	     , restrict, table
+	     , union, intersect, divide, minus
 	     , _not, like, cat
 	     , isNull, notNull
 	     , constant
