@@ -1,7 +1,5 @@
 import Database.HaskellDB
-
-import TestConnect
-
+import Database.HaskellDB.HSQL.ODBC
 import Dp037.D3proj_users
 
 -- victor said that top, topPercent and union produce SQL errors
@@ -30,7 +28,7 @@ q3 = do
 
 pp = putStrLn . show . showSql
 
-printIds = mapM (\r -> putStrLn (r!xid))
+printIds = mapM (\r -> putStrLn (r!.xid))
 
 tests db = do 
 	   putStrLn "top:"
@@ -48,4 +46,4 @@ tests db = do
 	   printIds rs
 	   putStrLn ""
 
-main = argConnect tests
+main = withDB $ tests
