@@ -56,7 +56,7 @@ uninstall-hugs:
 	-cd $(HUGS_DIR)/libraries; rm -rf Database/HaskellDB*
 
 clean:
-	-rm -rf $(BUILD_DIR)/*
+	-rm -rf $(BUILD_DIR)
 
 dist:
 	mkdir $(DIST_DIR)
@@ -68,7 +68,7 @@ dist:
 	rm -rf $(DIST_DIR)
 
 distclean: clean
-	-rm -f config.status config.mk config.log 
+	-rm -f config.status config.mk config.log haskelldb.pkg
 	-rm -rf autom4te.cache
 
 maintainer-clean: distclean
