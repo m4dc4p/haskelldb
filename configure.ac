@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.26 $)
+AC_REVISION($Revision: 1.27 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -348,62 +348,54 @@ esac
 AC_SUBST(WIN32)
 
 dnl ***********************************************
-dnl check for ODBC module and libraries 
+dnl check for ODBC module
 dnl ***********************************************
 
-if test "$WITH_HSQL" != "yes"; then
-	WITH_HSQL_ODBC="no"
-fi
-
-if test "$WITH_HSQL_ODBC" = "yes"; then
+if test "$WITH_HSQL" = "yes" && test "$WITH_HSQL_ODBC" = "yes"; then
   AC_HS_MODULE_IFELSE([Database.HSQL.ODBC],[connect],,
     [AC_MSG_WARN([ODBC module not found, skipping ODBC])
     WITH_HSQL_ODBC=no])
+else
+    WITH_HSQL_ODBC="no"
 fi
 
 dnl ***********************************************
-dnl check for PostgreSQL module and libraries
+dnl check for PostgreSQL module
 dnl ***********************************************
 
-if test "$WITH_HSQL" != "yes"; then
-	WITH_HSQL_POSTGRESQL="no"
-fi
-
-if test $WITH_HSQL_POSTGRESQL = yes; then
+if test "$WITH_HSQL" = "yes" && test "$WITH_HSQL_POSTGRESQL" = "yes"; then
   AC_HS_MODULE_IFELSE([Database.HSQL.PostgreSQL],[connect],,
     [AC_MSG_WARN([PostgreSQL module not found, 
 	          not building PostgreSQL support])
     WITH_HSQL_POSTGRESQL=no])
+else
+    WITH_HSQL_POSTGRESQL="no"
 fi
 
 dnl ***********************************************
-dnl check for MySQL module and libraries
+dnl check for MySQL module
 dnl ***********************************************
 
-if test "$WITH_HSQL" != "yes"; then
-	WITH_HSQL_MYSQL="no"
-fi
-
-if test $WITH_HSQL_MYSQL = yes; then
+if test "$WITH_HSQL" = "yes" && test "$WITH_HSQL_MYSQL" = "yes"; then
   AC_HS_MODULE_IFELSE([Database.HSQL.MySQL],[connect],,
     [AC_MSG_WARN([MySQL module not found, 
 	          not building MySQL support])
     WITH_HSQL_MYSQL=no])
+else
+    WITH_HSQL_MYSQL="no"
 fi
 
 dnl ***********************************************
-dnl check for SQLite module and libraries
+dnl check for SQLite module
 dnl ***********************************************
 
-if test "$WITH_HSQL" != "yes"; then
-	WITH_HSQL_SQLITE="no"
-fi
-
-if test $WITH_HSQL_SQLITE = yes; then
+if test "$WITH_HSQL" = "yes" && test $WITH_HSQL_SQLITE = yes; then
   AC_HS_MODULE_IFELSE([Database.HSQL.SQLite],[connect],,
     [AC_MSG_WARN([SQLite module not found, 
 	          not building SQLite support])
     WITH_HSQL_SQLITE=no])
+else
+    WITH_HSQL_SQLITE="no"
 fi
 
 dnl ***********************************************
