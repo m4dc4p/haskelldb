@@ -13,7 +13,7 @@
 -- primitive hooks that a particular database binding
 -- must provide.
 --
--- $Revision: 1.39 $ 
+-- $Revision: 1.40 $ 
 -----------------------------------------------------------
 module Database.HaskellDB.Database ( 
 		-- * Operators
@@ -117,7 +117,7 @@ instance (GetValue a, GetRec er vr)
 	do
 	x <- getValue vfs stmt f
 	r <- getRec vfs (undefined :: Rel er) fs stmt
-	return (undefined .=. x # r)
+	return (RecCons x . r)
 
 class GetValue a where
     getValue :: GetInstances s -> s -> String -> IO a
