@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.22 $)
+AC_REVISION($Revision: 1.23 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -275,9 +275,17 @@ dnl Check for HSQL
 dnl ***********************************************
 
 if test "$WITH_HSQL" = "yes"; then
+
+  GHCFLAGS="$GHCFLAGS -package hsql"
+
   AC_HS_MODULE_IFELSE([Database.HSQL],[query],,
     [AC_MSG_WARN([HSQL not found, not building HSQL support])
-    WITH_HSQL=no])
+    WITH_HSQL="no"])
+
+  if test "$WITH_HSQL" != "yes"; then
+    GHCFLAGS="echo $GHCFLAGS | sed 's/-package hsql//'"
+  fi
+
 fi
 
 dnl ***********************************************
@@ -286,7 +294,13 @@ dnl ***********************************************
 
 if test "$GHC" != "" && test "$WITH_WX" = "yes"; then
 
+  GHCFLAGS="$GHCFLAGS -package wxcore"
+
   AC_HS_GHC_MODULE_IFELSE([Graphics.UI.WXCore.Db],[dbQuery],,[WITH_WX="no"])
+
+  if test "$WITH_WX" != "yes"; then
+    GHCFLAGS="echo $GHCFLAGS | sed 's/-package wxcore//'"
+  fi
 
 fi
 
