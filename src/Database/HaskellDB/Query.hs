@@ -99,7 +99,7 @@ attributeName (Attr name) = name
 (!) :: HasField f r => Rel r -> Attr f r a -> Expr a
 rel ! attr      = select attr rel
 
-select :: Attr f r a -> Rel r -> Expr a
+select :: HasField f r => Attr f r a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
 
@@ -346,21 +346,21 @@ nullable x = constant (Just x)
 -----------------------------------------------------------
 
 {-
-aggregate :: AggrOp -> Rel r -> Attr f r a -> Expr b
+aggregate :: HasField f r => AggrOp -> Rel r -> Attr f r a -> Expr b
 aggregate op rel attr
 		= Expr (AggrExpr op primExpr)
 		where
  	  	  (Expr primExpr)  = rel ! attr
 
-count :: Rel r -> Attr f r a -> Expr Int
+count :: HasField f r => Rel r -> Attr f r a -> Expr Int
 count x		= aggregate AggrCount x
 
 
-numAggregate :: Num a => AggrOp -> Rel r -> Attr f r a -> Expr a
+numAggregate :: (Num a,HasField f r) => AggrOp -> Rel r -> Attr f r a -> Expr a
 numAggregate	= aggregate
 
 _sum,_max,_min,avg,stddev,stddevP,variance,varianceP 
-    :: Num a => Rel r -> Attr f r a -> Expr a
+    :: (Num a,HasField f r) => Rel r -> Attr f r a -> Expr a
 _sum x          = numAggregate AggrSum x
 _max x          = numAggregate AggrMax x
 _min x          = numAggregate AggrMin x

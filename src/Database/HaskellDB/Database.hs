@@ -51,7 +51,7 @@ row !. attr     = rowSelect attr row
 -- data type contains all the primitive functions that
 -- a particular database binding should provide.
 class Row row a where
-  rowSelect :: Attr f r a -> row r -> a
+  rowSelect :: HasField f r => Attr f r a -> row r -> a
   
 data Database db row
 	= Database  
