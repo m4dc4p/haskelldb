@@ -83,6 +83,7 @@ data SqlCreate = SqlCreateDB String -- ^ Create a database
 data SqlDrop = SqlDropDB String -- ^ Delete a database
 	     | SqlDropTable TableName -- ^ Delete a table named TableName
 
+newSelect :: SqlSelect
 newSelect       = SqlSelect { options   = []
 			    , attrs 	= []
 			    , tables 	= []
@@ -205,19 +206,29 @@ ppSql (SqlEmpty)                = text ""
 
 -- helpers
 
+ppAttrs :: [(Attribute,String)] -> Doc
 ppAttrs []	= text "*"
 ppAttrs xs      = vcat $ punctuate comma (map nameAs xs)
-                                                                 
+
+ppCriteria :: [String] -> Doc
 ppCriteria      = vcat . punctuate (text " AND ") . map text
+
 -- FIXME: table aliases start from 1 in every select, which means that
 -- with binary RelOps we can get table alias clashes.
+ppTables :: [(TableName,SqlSelect)] -> Doc
 ppTables        = vcat . punctuate comma . map ppTable . 
 		  zipWith tableAlias [1..]
+
+ppGroupBy :: [String] -> Doc
 ppGroupBy	= vcat . punctuate comma  . map text
+
+ppOrderBy :: [PrimExpr] -> Doc
 ppOrderBy ord	= ppSpecialOp (Order ord)
 
+tableAlias :: Int -> (TableName,SqlSelect) -> (TableName,SqlSelect)
 tableAlias i (_,sql)  		= ("T" ++ show i,sql)
 
+ppTable :: (TableName,SqlSelect) -> Doc
 ppTable (alias,(SqlTable name)) = ppAs alias (text name)
 ppTable (alias,sql)             = ppAs alias (parens (ppSql sql))
 
@@ -226,7 +237,8 @@ ppTable (alias,sql)             = ppAs alias (parens (ppSql sql))
 nameAs :: (Attribute,String) -> Doc
 nameAs (name,expr) | name == expr  = text name
                    | otherwise     = ppAs name (text expr)              
-                                                                     
+
+ppAs :: TableName -> Doc -> Doc
 ppAs alias expr    | null alias    = expr                               
                    | otherwise     = expr <+> (hsep . map text) ["as",alias]
 
