@@ -1,7 +1,6 @@
-We are pleased to announce the second alpha release of our "remake" of
-HaskellDB, version 0.6. The main feature of this release is our 
-implementation of bounded lists, which may even be interesting 
-outside of HaskellDB. Read on below for more information about it.
+We are pleased to announce the third alpha release of our "remake" of
+HaskellDB, version 0.7. The main feature of this release is support
+for wxHaskell. Read on below for more information about it.
 
 HaskellDB is a Haskell library for expressing database queries and
 operations in a type safe and declarative way. HaskellDB compiles a
@@ -14,24 +13,16 @@ available at http://www.haskell.org/haskellDB/. The implementation is
 based on his paper which can be found at:  
 http://www.cs.uu.nl/people/daan/download/papers/dsec.ps
 
-New in HaskellDB 0.6:
+New in HaskellDB 0.7:
 
-- Bounded lists and bounded strings (see below)
-- Vastly increased performance. On reasonably modern computers, I/O is now 
-  the limiting factor when doing database operations
-- Transactions are now supported
-- Some error messages (esp. some type errors) are easier to understand
-- Better documentation
+- Added functions for creating and dropping tables and databases.
+  Too be improved in future releases.
+- Support for wxHaskell when using ghc.
+- Overloaded (!) can be used for both (!) and (!.)
 - Many, many bug fixes
 
-About bounded lists:
-The main idea of bounded lists is to create lists with predetermined
-maximum sizes.
-
-BoundedList is a simple, fast and type safe approach to implementing this 
-idea. The implementation is based on inductive instances, making it very 
-easy to expand with new bounds. A new bound only requires one instance of 
-Size and two instances of Less.   
+About wxHaskell:
+Works only with GHC. Does not work with MySQL as far as we know.
       
 NOTE: Due to changes in DbDirect, any files generated using the old 
 version of HaskellDB should be regenerated.

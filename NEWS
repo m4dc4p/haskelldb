@@ -2,6 +2,8 @@ HaskellDB 0.7:
 
 - Added functions for creating and dropping tables and databases.
   Too be improved in future releases.
+- Support for wxHaskell when using ghc.
+- Overloaded (!) can be used for both (!) and (!.)
 
 HaskellDB 0.6:
 
