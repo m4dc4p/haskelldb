@@ -18,6 +18,7 @@ module Database.HaskellDB.Database (
 		-- * Operators
 	      	(!.)
 		-- * Type declarations
+		, Row(..)
 		, Database(..)
 		, GetRec(..), GetInstances(..)
 
@@ -42,23 +43,26 @@ import Control.Monad
 
 infix 9 !. 
 
+-- | The type of query results.
+newtype Row r = Row r
+
 -- | The (!.) operator selects over returned records from
 --   the database (= rows)
 --   Non-overloaded version of '!'. For backwards compatibility.
-(!.) :: (SelectField f r a, HasField f r) => r -> Attr f a -> a
-row !. attr = selectField attr row
+(!.) :: (SelectField f r a, HasField f r) => Row r -> Attr f a -> a
+(Row row) !. attr = selectField attr row
 
 -- | '!' overloaded for selection of fields in query results.
 instance (SelectField f r a, HasField f r) => 
-    Select (HDBRec r) (Attr f a) a where
-    row ! attr = selectField attr row
+    Select (Row r) (Attr f a) a where
+    (Row row) ! attr = selectField attr row
   
 data Database
 	= Database  
 	  { dbQuery  :: forall er vr. GetRec er vr => 
 	     PrimQuery 
 	     -> Rel er
-	     -> IO [HDBRec vr]
+	     -> IO [vr]
   	  , dbInsert :: TableName -> Assoc -> IO ()
 	  , dbInsertQuery :: TableName -> PrimQuery -> IO ()
   	  , dbDelete :: TableName -> [PrimExpr] -> IO ()
@@ -105,10 +109,10 @@ class GetRec er vr | er -> vr, vr -> er where
 	   -> Scheme       -- ^ Fields to get.
 	   -> s            -- ^ Driver-specific result data 
 	                   --   (for example a Statement object)
-           -> IO (HDBRec vr) -- ^ Result record.
+           -> IO vr        -- ^ Result record.
 
 instance GetRec HDBRecTail HDBRecTail where
-    getRec _ _ [] _ = return id
+    getRec _ _ [] _ = return HDBRecTail
     getRec _ _ fs _ = fail $ "Wanted empty record from scheme " ++ show fs
 
 
@@ -120,8 +124,7 @@ instance (GetValue a, GetRec er vr)
 	do
 	x <- getValue vfs stmt f
 	r <- getRec vfs (undefined :: Rel er) fs stmt
-	return (HDBRecCons x . r)
-
+	return (HDBRecCons x r)
 
 class GetValue a where
     getValue :: GetInstances s -> s -> String -> IO a
@@ -159,20 +162,19 @@ getNonNull fs s f =
 -----------------------------------------------------------  	    	  
 
 -- | performs a query on a database
-query :: GetRec er vr => Database -> Query (Rel er) -> IO [HDBRec vr]
+query :: GetRec er vr => Database -> Query (Rel er) -> IO [Row vr]
 query	= strictQuery
 
 -- | lazy query performs a lazy query on a database
-lazyQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [HDBRec vr]
-lazyQuery db q	
-	= (dbQuery db) (optimize primQuery) (rel)
+lazyQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [Row vr]
+lazyQuery db q = liftM (map Row) (dbQuery db (optimize primQuery) (rel))
 	where
 	  (primQuery,rel) = runQueryRel q
 
 
 -- | retrieves all the results directly in Haskell. This allows
 -- a connection to close as early as possible.
-strictQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [HDBRec vr]
+strictQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [Row vr]
 strictQuery db q
         = do xs <- lazyQuery db q
              let xs' = seqList xs

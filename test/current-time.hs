@@ -20,7 +20,7 @@ timefield = mkAttr Timefield
 
 getTime db = do
 	     (r:_) <- dbQuery db q (Rel 0 ["timefield"]::Rel (HDBRecCons Timefield (Expr CalendarTime) HDBRecTail))
-	     return (r!.timefield)
+	     return (Row r!.timefield)
 	     
 printTime db = do
 	       putStrLn $ show $ ppSql $ toSql q

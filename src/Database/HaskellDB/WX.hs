@@ -29,7 +29,6 @@ import Database.HaskellDB.Sql
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query
 import Database.HaskellDB.FieldType
-import Database.HaskellDB.HDBRec
 
 import Graphics.UI.WXCore.WxcClasses (Db)
 import Graphics.UI.WXCore.Db (DbRow, ColumnInfo(..),TableInfo(..),SqlType(..))
@@ -67,7 +66,7 @@ mkDatabase connection
 		 dbDropTable    = wxDropTable connection
 	       }
 
-wxQuery :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [HDBRec vr]
+wxQuery :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [vr]
 wxQuery connection qtree rel = wxPrimQuery connection sql scheme rel
     where
       sql = show (ppSql (toSql qtree))  
@@ -150,7 +149,7 @@ wxPrimQuery :: GetRec er vr =>
 	    -> String     -- ^ SQL query
 	    -> Scheme     -- ^ List of field names to retrieve
 	    -> Rel er     -- ^ Phantom argument to get the return type right.
-	    -> IO [HDBRec vr]    -- ^ Query results
+	    -> IO [vr]    -- ^ Query results
 wxPrimQuery connection sql scheme rel = 
     handleDbError $ WX.dbQuery connection sql getResults
 	where getResults = getRec wxGetInstances rel scheme
