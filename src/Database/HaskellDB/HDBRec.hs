@@ -10,7 +10,7 @@
 -- 
 -- This is a replacement for some of TREX.
 --
--- $Revision: 1.27 $
+-- $Revision: 1.28 $
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec 
     (
@@ -126,6 +126,13 @@ instance SetField f r a => SetField f (RecCons g b r) a where
 instance SetField f r a => SetField f (Record r) a where
     setField f y r = \e -> setField f y (r e)
 
+-- * Equality and ordering
+
+instance Eq r => Eq (Record r) where
+    r1 == r2 = r1 RecNil == r2 RecNil
+
+instance Ord r => Ord (Record r) where
+    r1 <= r2 = r1 RecNil <= r2 RecNil
 
 -- * Showing rows 
 
