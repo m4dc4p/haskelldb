@@ -13,7 +13,7 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.58 $
+-- $Revision: 1.59 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -495,11 +495,11 @@ _sum :: Num a => Expr a -> ExprAggr a
 _sum x = aggregate AggrSum x
 
 -- | Returns the highest value of a column.
-_max :: Num a => Expr a -> ExprAggr a
+_max :: Ord a => Expr a -> ExprAggr a
 _max x = aggregate AggrMax x
 
 -- | Returns the lowest value of a column.
-_min :: Num a => Expr a -> ExprAggr a
+_min :: Ord a => Expr a -> ExprAggr a
 _min x = aggregate AggrMin x
 
 -- | Returns the average of a column.
