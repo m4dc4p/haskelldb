@@ -14,10 +14,11 @@
 -- ('PrimQuery'). 
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
-	      -- * Data declarations
+	      -- * Data and class declarations
 	      Rel(..), Attr(..), Table(..), Query, Expr(..)
-	      -- * Operators
 	     , ToPrimExprs, Select
+	     , ExprC, ProjectRec, InsertRec
+	      -- * Operators
 	     , (!)
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
@@ -37,6 +38,7 @@ module Database.HaskellDB.Query (
 	     , asc, desc, order
 	     , top --, topPercent
              , _case
+	     , _default
 	     ) where
 
 import Database.HaskellDB.HDBRec
@@ -68,9 +70,15 @@ infixr  2 .||.
 --   attributes are renamed in the 'PrimQuery'.
 data Rel r      = Rel Alias Scheme
 
--- | Type of expressions, contains the untyped PrimExpr.
+-- | Type of normal expressions, contains the untyped PrimExpr.
 data Expr a     = Expr PrimExpr
 		deriving (Read, Show)
+
+-- | Type of aggregate expressions.
+data ExprAggr a = ExprAggr PrimExpr deriving (Read, Show)
+
+-- | The type of default expressions.
+data ExprDefault a = ExprDefault PrimExpr deriving (Read, Show)
 
 -- | Basic tables, contains table name and an
 --   association from attributes to attribute
@@ -94,6 +102,44 @@ scheme (Rel _ s) = s
 
 attributeName :: Attr f a -> Attribute
 attributeName (Attr name) = name
+
+-----------------------------------------------------------
+-- Expression and record classes.
+-----------------------------------------------------------
+
+-- | Class of expression types.
+class ExprC e where
+    -- | Get the underlying untyped 'PrimExpr'.
+    primExpr :: e a -> PrimExpr
+instance ExprC Expr where primExpr (Expr e) = e
+instance ExprC ExprAggr where primExpr (ExprAggr e) = e
+instance ExprC ExprDefault where primExpr (ExprDefault e) = e
+
+-- | Class of expressions that can be used with 'insert'.
+class ExprC e => InsertExpr e
+instance InsertExpr Expr
+instance InsertExpr ExprDefault
+
+-- | Class of records that can be used with 'insert'. 
+--   All all the values must be instances of 'InsertExpr' for the
+--   record to be an instance of 'InsertRec'.
+class InsertRec r er | r -> er
+instance InsertRec HDBRecTail HDBRecTail
+instance (InsertExpr e, InsertRec r er) => 
+    InsertRec (HDBRecCons f (e a) r) (HDBRecCons f (Expr a) er)
+
+-- | Class of expressions that can be used with 'project'.
+class ExprC e => ProjectExpr e
+instance ProjectExpr Expr
+instance ProjectExpr ExprAggr
+
+-- | Class of records that can be used with 'project'. 
+--   All all the values must be instances of 'ProjectExpr' for the
+--   record to be an instance of 'ProjectRec'.
+class ProjectRec r er | r -> er
+instance ProjectRec HDBRecTail HDBRecTail
+instance (ProjectExpr e, ProjectRec r er) => 
+    ProjectRec (HDBRecCons f (e a) r) (HDBRecCons f (Expr a) er)
 
 -----------------------------------------------------------
 -- Basic relational operators
@@ -123,7 +169,7 @@ select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
 
 -- | Specifies a subset of the columns in the table.
-project :: (ShowRecRow r, ToPrimExprs r) => HDBRec r -> Query (Rel r)
+project :: (ShowRecRow r, ToPrimExprs r, ProjectRec r er) => HDBRec r -> Query (Rel er)
 project r
         = do
 	  alias <- newAlias
@@ -334,6 +380,14 @@ fromNull :: Expr a         -- ^ Default value (to be returned for 'Nothing')
 fromNull d x@(Expr px) = _case [(isNull x, d)] (Expr px)
 
 -----------------------------------------------------------
+-- Default values
+-----------------------------------------------------------
+
+-- | The default value of the column. Only works with 'insert'.
+_default :: ExprDefault a
+_default = ExprDefault (ConstExpr "DEFAULT")
+
+-----------------------------------------------------------
 -- Constants
 -- Maybe we should change the set according to the 
 -- database backend
@@ -411,41 +465,41 @@ variance x      = numAggregate AggrVar x
 varianceP x     = numAggregate AggrVarP x
 -}
 
-aggregate :: AggrOp -> Expr a -> Expr b
-aggregate op (Expr primExpr) = Expr (AggrExpr op primExpr)
+aggregate :: AggrOp -> Expr a -> ExprAggr b
+aggregate op (Expr primExpr) = ExprAggr (AggrExpr op primExpr)
 
 -- | Returns the number of records (=rows) in a query.
-count :: Expr a -> Expr Int
+count :: Expr a -> ExprAggr Int
 count x		= aggregate AggrCount x
 
 -- | Returns the total sum of a column.
-_sum :: Num a => Expr a -> Expr a
+_sum :: Num a => Expr a -> ExprAggr a
 _sum x = aggregate AggrSum x
 
 -- | Returns the highest value of a column.
-_max :: Num a => Expr a -> Expr a
+_max :: Num a => Expr a -> ExprAggr a
 _max x = aggregate AggrMax x
 
 -- | Returns the lowest value of a column.
-_min :: Num a => Expr a -> Expr a
+_min :: Num a => Expr a -> ExprAggr a
 _min x = aggregate AggrMin x
 
 -- | Returns the average of a column.
-avg :: Num a => Expr a -> Expr a
+avg :: Num a => Expr a -> ExprAggr a
 avg x = aggregate AggrAvg x
 
 -- | Returns the standard deviation of a column.
-stddev :: Num a => Expr a -> Expr a
+stddev :: Num a => Expr a -> ExprAggr a
 stddev x = aggregate AggrStdDev x
 
-stddevP :: Num a => Expr a -> Expr a
+stddevP :: Num a => Expr a -> ExprAggr a
 stddevP x = aggregate AggrStdDevP x
 
 -- | Returns the standard variance of a column.
-variance :: Num a => Expr a -> Expr a
+variance :: Num a => Expr a -> ExprAggr a
 variance x = aggregate AggrVar x
 
-varianceP :: Num a => Expr a -> Expr a
+varianceP :: Num a => Expr a -> ExprAggr a
 varianceP x  = aggregate AggrVarP x
 
 -----------------------------------------------------------
@@ -557,8 +611,8 @@ class ToPrimExprs r where
 instance ToPrimExprs HDBRecTail where
     toPrimExprs HDBRecTail = []
 
-instance ToPrimExprs r => ToPrimExprs (HDBRecCons l (Expr a) r) where
-    toPrimExprs (HDBRecCons (Expr x) r) = x : toPrimExprs r
+instance (ExprC e, ToPrimExprs r) => ToPrimExprs (HDBRecCons l (e a) r) where
+    toPrimExprs (HDBRecCons e r) = primExpr e : toPrimExprs r
 
 {-
 

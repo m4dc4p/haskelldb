@@ -46,6 +46,10 @@ infix 9 !.
 -- | The type of query results.
 newtype Row r = Row r
 
+instance ShowRecRow r => ShowRecRow (Row r) where
+    showRecRow (Row r) = showRecRow r
+
+
 -- | The (!.) operator selects over returned records from
 --   the database (= rows)
 --   Non-overloaded version of '!'. For backwards compatibility.
@@ -190,7 +194,7 @@ insertQuery db (Table name assoc) q
 	= dbInsertQuery db name (optimize (runQuery q))
 
 -- | Inserts a record into a table
-insert :: (ToPrimExprs r, ShowRecRow r) => Database -> Table r -> HDBRec r -> IO ()
+insert :: (ToPrimExprs r, ShowRecRow r, InsertRec r er) => Database -> Table er -> HDBRec r -> IO ()
 insert db (Table name assoc) newrec	
 	= dbInsert db name (zip (attrs assoc) (exprs newrec))
 	where

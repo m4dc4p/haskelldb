@@ -45,6 +45,7 @@ module Database.HaskellDB
 	, top --, topPercent
 
         , _case
+	, _default
 	
 	, Database				-- abstract
 	, (!.)

@@ -62,3 +62,8 @@ String. Chucky fixed this on 2004-02-08
 - Shae Erisson (shapr) discovered on 2004-03-24 that there is no way
   to use a nullable expression with many of the functions (e.g. like).
   Bjorn fxed this by adding fromNull on 2004-03-24.
+
+- viblo reported that using aggregate functions outside of 
+  project (e.g. in restrict) generates invalid SQL. Bjorn
+  changed the type system to make this impossible on 2004-04-07.
+

@@ -33,9 +33,6 @@
 - WXHaskell _REQUIRES_ that all changes that we want committed are wrapped 
   in transactions. We currently do not do this, it is up to the user.
 
-- Using aggregate functions outside of project (e.g. in restrict)
-  generates invalid SQL. Reported by viblo.
-
 - There is no way to do grouping explicitly, and tricking HaskellDB
   into doing the right thing is not always easy. Currently, if a
   project contains aggregate expressions, the results are grouped
@@ -60,3 +57,5 @@
   * auto_increment columns
   * db-specific table options (such as the table type in MySQL)
 
+- PostgreSQL does not accept inserting default values into non-null
+  columns which do not have a set default value.

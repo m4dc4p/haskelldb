@@ -25,11 +25,14 @@ q1 r = do
        restrict (r!userid .==. constant "d00bring")
        return r
 
--- FIXME: exposes bug with aggregate functions in restrict
+{-
+-- shouldn't work, and with the new type system restrictions on 
+-- where aggregate functions can be used, it doesn't
 q2 r = do
        u <- project (userid << r!userid # hours << r!hours)
        restrict (_sum (u!hours) .>. constant 100.0)
-       return r
+       return 
+-}
 
 q3 r = do
        u <- project (userid << r!userid # hours << _sum(r!hours))

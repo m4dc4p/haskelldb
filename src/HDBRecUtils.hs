@@ -41,9 +41,9 @@ infix  6 <<
 infixr 5 #
 
 -- | Links together a type and a value into an entry.
-( << ) :: Attr f a 
-       -> Expr a
-       -> (b -> HDBRecCons f (Expr a) b)
+( << ) :: ExprC e => Attr f a 
+       -> e a
+       -> (b -> HDBRecCons f (e a) b)
 _ << x = HDBRecCons x
 
 -- | Links two fields together.
