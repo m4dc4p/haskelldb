@@ -23,7 +23,7 @@ module Database.HaskellDB.Sql (
 	   , toUpdate, ppUpdate
 	   , toDelete, ppDelete
 	   , toInsert, ppInsert
-	   , toInsertNew
+	   , toInsertQuery
 	   ) where
 
 import Data.List (intersect)
@@ -51,8 +51,8 @@ data SqlUpdate  = SqlUpdate TableName [String] [String]
 
 data SqlDelete  = SqlDelete TableName [String]
 
-data SqlInsert  = SqlInsertNew  TableName [(Attribute,String)]
-                | SqlInsert TableName SqlSelect
+data SqlInsert  = SqlInsert  TableName [(Attribute,String)]
+                | SqlInsertQuery TableName SqlSelect
 
 
 
@@ -186,22 +186,22 @@ ppAs alias expr    | null alias    = expr
 -----------------------------------------------------------
 -- INSERT
 -----------------------------------------------------------
-toInsert :: TableName -> PrimQuery -> SqlInsert
-toInsert table qtree
-	= SqlInsert table (toSql qtree)
+toInsertQuery :: TableName -> PrimQuery -> SqlInsert
+toInsertQuery table qtree
+	= SqlInsertQuery table (toSql qtree)
 
-toInsertNew :: TableName -> Assoc -> SqlInsert
-toInsertNew table assoc
-	= SqlInsertNew table (map showExpr assoc)
+toInsert :: TableName -> Assoc -> SqlInsert
+toInsert table assoc
+	= SqlInsert table (map showExpr assoc)
 	where
 	  showExpr (attr,expr)	= (attr,show (ppPrimExpr expr))
 
 ppInsert :: SqlInsert -> Doc
-ppInsert (SqlInsert table select)
+ppInsert (SqlInsertQuery table select)
 	= text "INSERT INTO" <+> text table
         $$ ppSql select
 
-ppInsert (SqlInsertNew table exprs)
+ppInsert (SqlInsert table exprs)
     = text "INSERT INTO" <+> text table 
       <+> parens (vcat $ punctuate comma (map text names))
       $$ text "VALUES"   <+> parens (vcat $ punctuate comma (map text values))

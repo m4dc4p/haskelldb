@@ -40,7 +40,7 @@ module Database.HaskellDB
 	, Row, Database				-- abstract
 	, (!.)
 	, query, lazyQuery, strictQuery
-	, insert, delete, update, insertNew
+	, insert, delete, update, insertQuery
 	, tables, describe
 	
 	, showQ, showOpt, showSql

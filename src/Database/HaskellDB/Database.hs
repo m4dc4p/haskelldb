@@ -23,7 +23,7 @@ module Database.HaskellDB.Database (
 		
 		-- * Function declarations
 		, query, lazyQuery, strictQuery
-		, insert, delete, update, insertNew
+		, insert, delete, update, insertQuery
 		, tables, describe
 		) where
 
@@ -57,8 +57,8 @@ class Row row a where
 data Database db row
 	= Database  
 	  { dbQuery  :: forall r. db -> PrimQuery -> Rel r -> IO [row r]
-	  , dbInsert :: db -> TableName -> PrimQuery -> IO ()
-  	  , dbInsertNew :: db -> TableName -> Assoc -> IO ()
+  	  , dbInsert :: db -> TableName -> Assoc -> IO ()
+	  , dbInsertQuery :: db -> TableName -> PrimQuery -> IO ()
   	  , dbDelete :: db -> TableName -> [PrimExpr] -> IO ()
   	  , dbUpdate :: db -> TableName -> [PrimExpr] -> Assoc -> IO ()
 	  , dbTables :: db -> IO [TableName]
@@ -77,7 +77,9 @@ dbInvoke fun db		= (fun db) (database db)
 query :: Database db row -> Query (Rel r) -> IO [(row r)]
 query	= lazyQuery
 
--- | lazy query performs a lazy query on a database	  
+-- | lazy query performs a lazy query on a database
+--   FIXME: this function is currently NOT lazy since
+--   we have not implemented lazy queries in the HSQL driver
 lazyQuery :: Database db row -> Query (Rel r) -> IO [(row r)]
 lazyQuery db q	
 	= (dbInvoke dbQuery db) (optimize primQuery) (rel)
@@ -98,15 +100,15 @@ strictQuery db q
 	  seqList (x:xs)  = let xs' = seqList xs
                   	    in  xs' `seq` x:xs'
 	
--- | inserts a bunch of records
-insert :: ShowRecRow r => Database db row -> Table r -> Query (Rel r) -> IO ()
-insert db (Table name assoc) q
-	= (dbInvoke dbInsert db) name (optimize (runQuery q))
+-- | Inserts values from a query into a table
+insertQuery :: ShowRecRow r => Database db row -> Table r -> Query (Rel r) -> IO ()
+insertQuery db (Table name assoc) q
+	= (dbInvoke dbInsertQuery db) name (optimize (runQuery q))
 
--- | inserts a new single record
-insertNew :: ShowRecRow r => Database db row -> Table r -> HDBRec r -> IO ()
-insertNew db (Table name assoc) newrec	
-	= (dbInvoke dbInsertNew db) name (zip (attrs assoc) (exprs newrec))
+-- | Inserts a record into a table
+insert :: ShowRecRow r => Database db row -> Table r -> HDBRec r -> IO ()
+insert db (Table name assoc) newrec	
+	= (dbInvoke dbInsert db) name (zip (attrs assoc) (exprs newrec))
 	where
 	  attrs   = map (\(attr,AttrExpr name) -> name)
 	  

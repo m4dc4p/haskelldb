@@ -68,7 +68,7 @@ newHSQL :: Connection -> HSQL
 newHSQL connection
     = Database { dbQuery	= hsqlQuery,
     		 dbInsert	= hsqlInsert,
-		 dbInsertNew 	= hsqlInsertNew,
+		 dbInsertQuery 	= hsqlInsertQuery,
 		 dbDelete	= hsqlDelete,
 		 dbUpdate	= hsqlUpdate,
 		 dbTables       = hsqlTables,
@@ -95,11 +95,11 @@ hsqlRowSelect attr vals = case (hsqlRowSelect' attr vals) of
 			    Nothing -> error ("Query.rowSelect: Null returned from non-nullable field")
 			    Just val -> val
 
-hsqlInsertNew conn table assoc = 
-    hsqlPrimExecute conn $ show $ ppInsert $ toInsertNew table assoc
-	  
 hsqlInsert conn table assoc = 
     hsqlPrimExecute conn $ show $ ppInsert $ toInsert table assoc
+	  
+hsqlInsertQuery conn table assoc = 
+    hsqlPrimExecute conn $ show $ ppInsert $ toInsertQuery table assoc
 	  
 hsqlDelete conn table exprs = 
     hsqlPrimExecute conn $ show $ ppDelete $ toDelete table exprs
