@@ -7,7 +7,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non portable
 -- 
 -- PrimQuery defines the datatype of relational expressions
 -- ('PrimQuery') and some useful functions on PrimQuery\'s
@@ -28,19 +28,20 @@ module Database.HaskellDB.PrimQuery (
 		 , substAttr
 		 , isAggregate, nestedAggregate
 		 , foldPrimQuery, foldPrimExpr
-		 , assert		 
+		 --, assert
 		 -- ** Pretty printers
-		 , ppPrimQuery, ppPrimExpr 
-		 , ppRelOp, ppBinOp, ppAggrOp, ppSpecialOp 
+		 , ppPrimQuery, ppPrimExpr
+		 , ppRelOp, ppBinOp, ppAggrOp, ppSpecialOp
 		 ) where
 
 import Data.List ((\\))
+import Control.Exception (assert)
 
 import Text.PrettyPrint.HughesPJ
 
 -----------------------------------------------------------
 -- data definitions
--- PrimQuery is the data type of relational expressions. 
+-- PrimQuery is the data type of relational expressions.
 -- Since 'Project' takes an association, it is actually a
 -- projection- and rename-operator at once.
 -----------------------------------------------------------
@@ -98,13 +99,15 @@ data AggrOp     = AggrCount | AggrSum | AggrAvg | AggrMin | AggrMax
                 | AggrStdDev | AggrStdDevP | AggrVar | AggrVarP
                 | AggrOther String
                 deriving (Show,Read)
-
--- | Assertions
+{- Use standard assert instead.
+--  Assertions
 assert :: String -> String -> String -> Bool -> a -> a
 assert moduleName functionName msg test x
  	| test      = x
-        | otherwise = error ("assert: " ++ moduleName ++ "." 
+        | otherwise = error ("assert: " ++ moduleName ++ "."
         		     ++ functionName ++ ": " ++ msg)
+
+-}
 
 -- | Creates a projection of some attributes while
 --   keeping all other attributes in the relation visible too. 
@@ -118,8 +121,7 @@ extend assoc query
 times :: PrimQuery -> PrimQuery -> PrimQuery
 times (Empty) query	= query
 times query (Empty)     = query
-times query1 query2     = assert "PrimQuery" "times" "overlapping attributes"
-                                 (length (attributes query1 \\ 
+times query1 query2     = assert (length (attributes query1 \\
 					  attributes query2) == 
 				  length (attributes query1))
                           Binary Times query1 query2

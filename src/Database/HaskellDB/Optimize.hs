@@ -7,15 +7,16 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non portable
 --
--- 	Defines standard optimizations performed on PrimQuery's
---	(relational expressions).
+-- Defines standard optimizations performed on PrimQuery's
+-- (relational expressions).
 --
 -----------------------------------------------------------
 
 module Database.HaskellDB.Optimize (optimize) where
 
+import Control.Exception (assert)
 import Data.List (intersect)
 import Database.HaskellDB.PrimQuery
 
@@ -36,20 +37,14 @@ removeD :: Scheme -- ^ All live attributes (i.e. all attributes
 	-> PrimQuery
 	-> PrimQuery
 removeD live (Binary op query1 query2)
-        = assert "OptPrimQuery" "removeD.Binary"
-	         "attribute live but is not in query"
-		 (all (`elem` (live1 ++ live2)) live)
+        = assert (all (`elem` (live1 ++ live2)) live)
 		 Binary op (removeD live1 query1) (removeD live2 query2)
 	  where
           live1 = live `intersect` attributes query1
 	  live2 = live `intersect` attributes query2
 
 removeD live (Project assoc query)
-        = assert "OptPrimQuery" "removeD"
-                 ("attribute refers through project"
-                  ++ "\nlive: " ++ show live
-                  ++ "\nnew: " ++ show newAssoc)
-                 (all (`elem` (map fst newAssoc)) live)
+        = assert (all (`elem` (map fst newAssoc)) live)
           Project newAssoc (removeD newLive query)
         where
 	  -- The live attributes in the nested query.
