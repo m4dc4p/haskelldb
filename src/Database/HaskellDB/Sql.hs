@@ -158,7 +158,9 @@ ppSql (SqlSelect options attrs tables criteria groupby orderby limit)
     f clause action xs    | null xs       = empty
 			  | otherwise     = text clause <+> action xs
 
-ppSql (SqlBin op sql1 sql2)     = ppSql sql1 $$ text op $$ ppSql sql2
+ppSql (SqlBin op sql1 sql2)     = parens (ppSql sql1) 
+				  $$ text op 
+				  $$ parens (ppSql sql2)
 ppSql (SqlTable name)           = text name
 ppSql (SqlEmpty)                = text ""
 
