@@ -11,7 +11,7 @@
 -- Defines the types of database columns, and functions
 -- for converting these between HSQL and internal formats
 --
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 -----------------------------------------------------------
 module Database.HaskellDB.FieldType 
     (FieldDesc, FieldType(..), PrimShow(..), 
@@ -61,7 +61,7 @@ instance SQLShow FieldType where
     sshow IntegerT = "bigint"
     sshow DoubleT = "double precision"
 --    sshow BoolT = "bit"
-    sshow CalendarTimeT = "date"
+    sshow CalendarTimeT = "timestamp"
     sshow (BStrT a) = "varchar(" ++ show a ++ ")"
 
 -- | Creates a CalendarTime from a ClockTime
