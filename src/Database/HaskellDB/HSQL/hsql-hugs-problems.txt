@@ -13,4 +13,5 @@ Building HSQL on jackass:
 
 ./configure --enable-odbc \
 CPPFLAGS=-I/usr/local/dp03-7/unixODBC-2.2.6/include \
-LDFLAGS=-L/usr/local/dp03-7/unixODBC-2.2.6/lib
+LDFLAGS=-L/usr/local/dp03-7/unixODBC-2.2.6/lib \
+--enable-hugs --with-hugs-dir=/usr/local/dp03-7/hugs98-Nov2003/lib/hugs
