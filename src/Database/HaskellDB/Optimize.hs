@@ -134,9 +134,10 @@ mergeProject
 
 	  -- "hmm, is this always true ?" (Daan Leijen)
 	  -- "no, not true when assoc uses fields defined in only
-	  -- one of assoc1 or assoc2" (Bjorn Bringert)
-{-
-          project assoc (Binary op (Project assoc1 query1)
+	  -- one of assoc1 or assoc2, which happens
+	  -- when op == Times" (Bjorn Bringert)
+	  project assoc query@(Binary Times _ _) = Project assoc query
+	  project assoc (Binary op (Project assoc1 query1)
           		           (Project assoc2 query2))
           	| safe newAssoc1 && safe newAssoc2
           		= Binary op (Project newAssoc1 query1)
@@ -144,7 +145,7 @@ mergeProject
           		where
           		  newAssoc1  = subst assoc assoc1
           		  newAssoc2  = subst assoc assoc2
--}
+
           project assoc query
                 = Project assoc query
 	 
