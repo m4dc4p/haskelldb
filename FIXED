@@ -36,3 +36,10 @@ String. Chucky fixed this on 2004-02-08
 - Jeremy Shaw (stepcut), reported 2004-02-29 that dates were not
   formatted correctly, and were not quoted (e.g. 2004-February-27
   12:0:0). Bjorn had already fixed this problem 2004-02-26.
+
+- viblo reported a memory leak of about 10k per query on 2004-02-18?.
+  Bjorn patched HSQL 2004-02-28 to fix it.
+
+- Bjorn found 2004-02-26 that HSQL didn't handle DECIMAL fields as
+  Doubles. Bjorn fixed that 2004-02-26.
+
