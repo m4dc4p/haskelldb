@@ -499,7 +499,7 @@ instance ToPrimExprs HDBRecTail where
     toPrimExprs HDBRecTail = []
 
 instance ToPrimExprs r => ToPrimExprs (HDBRecCons l (Expr a) r) where
-    toPrimExprs (HDBRecCons _ (Expr x) r) = x : toPrimExprs r
+    toPrimExprs (HDBRecCons (Expr x) r) = x : toPrimExprs r
 
 {-
 
