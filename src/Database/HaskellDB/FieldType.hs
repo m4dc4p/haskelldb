@@ -3,8 +3,7 @@ module FieldType where
 {-
  TODO:
 
- - add datae / time type(s)
-
+ - add date / time type(s)
 
 -}
 
@@ -16,3 +15,4 @@ data FieldType =
     | IntegerT
     | DoubleT
     | BoolT
+    deriving (Eq, Show)
