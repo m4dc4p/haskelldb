@@ -28,6 +28,9 @@ data HDBRecCons f a b = HDBRecCons f a b
 --   put a 'HDBRecTail' at the end of every record.
 type HDBRec r = HDBRecTail -> r
 
+mkRec :: HDBRec r -> r
+mkRec f = f HDBRecTail
+
 -- * Class definitions.
 
 -- | Each entry in a record needs to be an instance of this class.
@@ -58,16 +61,28 @@ instance (HDBRecEntry a b, Show b, ShowRecRow c) => ShowRecRow (HDBRecCons a b c
 instance ShowRecRow r => ShowRecRow (HDBRec r) where
     showRecRow r = showRecRow (r HDBRecTail)
 
-{-
--- Quite likely to be totally useless. We'd actually like 
--- something like instance Row r => Show / Read r /Bjorn
 
-instance ShowRecRow r => Show (HDBRec r) where
-    showsPrec _ r = 
-	showChar '[' . punct (showChar ',') (fields r) . showChar ']'
-	    where fields = map (\ (x,y) -> showString x . 
-				showChar '=' . y) . showRecRow
-		  punct p ss r = foldr ($) r (intersperse p ss)
+--
+-- Show 
+--
+
+instance Show r => Show (HDBRec r) where
+    showsPrec x r = showsPrec x (r HDBRecTail)
+
+-- probably not terribly efficient
+showsShowRecRow :: ShowRecRow r => r -> ShowS 
+showsShowRecRow r = shows $ [(f,v "") | (f,v) <- showRecRow r]
+
+instance Show HDBRecTail where
+    showsPrec _ r = showsShowRecRow r
+
+instance  (HDBRecEntry a b, Show b, ShowRecRow c) => 
+    Show (HDBRecCons a b c) where
+    showsPrec _ r = showsShowRecRow r
+
+--
+-- ReadRecRow
+--
 
 class ReadRecRow r where
     readRecRow :: [(String,String)] -> [(r,[(String,String)])]
@@ -87,4 +102,30 @@ instance (HDBRecEntry a b, Read b, ReadRecRow c) =>
 		                          null v']
             else []
 
+--
+-- Read
+--
+
+instance ReadRecRow r => Read (HDBRec r) where
+    readsPrec _ s = [(const r, rs) | (r,rs) <- readsReadRecRow s]
+
+readsReadRecRow :: ReadRecRow r => ReadS r
+readsReadRecRow s = [(r,"") | (l,"") <- reads s, (r,[]) <- readRecRow l]
+
+instance Read HDBRecTail where
+   readsPrec _ = readsReadRecRow
+
+instance (HDBRecEntry a b, Read b, ReadRecRow c) => 
+    Read (HDBRecCons a b c) where
+    readsPrec _ = readsReadRecRow
+
+{-
+
+
+instance ShowRecRow r => Show (HDBRec r) where
+    showsPrec _ r = 
+	showChar '[' . punct (showChar ',') (fields r) . showChar ']'
+	    where fields = map (\ (x,y) -> showString x . 
+				showChar '=' . y) . showRecRow
+		  punct p ss rest = foldr ($) rest (intersperse p ss)
 -}
