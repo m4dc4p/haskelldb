@@ -1,4 +1,16 @@
--- | Utility functions for HDBRec.
+-----------------------------------------------------------
+-- |
+-- Module      :  HDBRecUtils
+-- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
+--                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- License     :  BSD-style
+-- 
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
+-- 
+-- This module contains utility functions for HDBRec.
+-----------------------------------------------------------
 module HDBRecUtils (hdbMakeEntry, 
 		    mkAttr,
 		    ( << ),
