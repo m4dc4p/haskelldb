@@ -5,3 +5,7 @@
 - There is probably a memory leak somwhere, with 512 MB RAM
   you can do about 50000 database queries before you runs
   out of memory and get an SqlNoData user error.
+
+- When compiling DbDirect-generated code for tables with many columns,
+  GHC may need the -fcontext-stackXX flag, where XX needs to be at
+  least around the number of columns in the largest table.
