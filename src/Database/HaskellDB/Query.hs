@@ -239,8 +239,15 @@ nullable x      = Expr (ConstExpr (showConstant x))
 
 -----------------------------------------------------------
 -- Aggregate operators
+--
+-- I have changed these to take an expression instead of
+-- a relation and an attribute, since that seemed 
+-- unneccessarily restrictive. I have probably overlooked 
+-- something in doing so, so I left the old code commented out.
+-- Bjorn Bringert, 2004-01-10
 -----------------------------------------------------------
 
+{-
 aggregate :: AggrOp -> Rel r -> Attr f r a -> Expr b
 aggregate op rel attr
 		= Expr (AggrExpr op primExpr)
@@ -264,6 +271,24 @@ stddev x        = numAggregate AggrStdDev x
 stddevP x       = numAggregate AggrStdDevP x
 variance x      = numAggregate AggrVar x
 varianceP x     = numAggregate AggrVarP x
+-}
+
+aggregate :: AggrOp -> Expr a -> Expr b
+aggregate op (Expr primExpr) = Expr (AggrExpr op primExpr)
+
+count :: Expr a -> Expr Int
+count x		= aggregate AggrCount x
+
+_sum,_max,_min,avg,stddev,stddevP,variance,varianceP 
+    :: Num a => Expr a -> Expr a
+_sum x          = aggregate AggrSum x
+_max x          = aggregate AggrMax x
+_min x          = aggregate AggrMin x
+avg x           = aggregate AggrAvg x
+stddev x        = aggregate AggrStdDev x
+stddevP x       = aggregate AggrStdDevP x
+variance x      = aggregate AggrVar x
+varianceP x     = aggregate AggrVarP x
 
 -----------------------------------------------------------
 -- Special ops
@@ -277,8 +302,19 @@ topPercent n    = updatePrimQuery_ (Special (Top True perc))
                         | n > 100       = 100
                         | otherwise     = n
 
+-----------------------------------------------------------
+-- Ordering results
+--
+-- I have changed these to take an expression instead of
+-- a relation and an attribute, since that seemed 
+-- unneccessarily restrictive. I have probably overlooked 
+-- something in doing so, so I left the old code commented out.
+-- Bjorn Bringert, 2004-01-10
+-----------------------------------------------------------
+
 data Order	= OrderPhantom
 
+{-
 orderOp :: UnOp -> Rel r -> Attr f r a -> Expr Order
 orderOp op rel attr = Expr (UnExpr op expr)
 	where
@@ -287,6 +323,14 @@ orderOp op rel attr = Expr (UnExpr op expr)
 asc,desc :: Rel r -> Attr f r a -> Expr Order
 asc rel attr	= orderOp OpAsc rel attr
 desc rel attr	= orderOp OpDesc rel attr
+-}
+
+orderOp :: UnOp -> Expr a -> Expr Order
+orderOp op (Expr expr) = Expr (UnExpr op expr)
+
+asc,desc :: Expr a -> Expr Order
+asc 	= orderOp OpAsc
+desc	= orderOp OpDesc
 
 order :: [Expr Order] -> Query ()
 order xs	= updatePrimQuery_ (Special (Order (map unExpr xs)))
