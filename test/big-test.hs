@@ -42,14 +42,15 @@ data1 = [(
 	 t1f17 << constant (Just 17.17) #
 	 t1f18 << constant 18.18 #
 	 t1f19 << constant (Just now) #
-	 t1f20 << constant now #
+	 t1f20 << constant now 
 -- Insertion doesn't work in Postgre
 --	 t1f21 << constant (Just now) #
 --	 t1f22 << constant now #
 -- MySQL makes this NOT NULL
 --	 t1f23 << constant now #
-	 t1f23 << constant (Just now) #
-	 t1f24 << constant now
+-- Treated as strings in Postgre
+--	 t1f23 << constant (Just now) #
+--	 t1f24 << constant now
 	)
 	]
 
@@ -73,40 +74,37 @@ data2 =  [(
 	 t2f17 << constant (Just 17.17) #
 	 t2f18 << constant 18.18 #
 	 t2f19 << constant (Just now) #
-	 t2f20 << constant now #
+	 t2f20 << constant now 
 -- Insertion doesn't work in Postgre
 --	 t2f21 << constant (Just now) #
 --	 t2f22 << constant now #
 -- MySQL makes this NOT NULL
 --	 t2f23 << constant now #
-	 t2f23 << constant (Just now) #
-	 t2f24 << constant now
+-- Treated as strings in Postgre
+--	 t2f23 << constant (Just now) #
+--	 t2f24 << constant now
 	)]
 
 insertData db = do
 		mapM (insert db hdb_test_t1) data1
 		mapM (insert db hdb_test_t2) data2
 
+
 mkJoinOnQuery f1 f2 = 
     do
     t1 <- table hdb_test_t1
     t2 <- table hdb_test_t2
     restrict (t1!f1 .==. t2!f2)
-    project (t1f02 << t1!t1f02 
-	     # t2f02 << t2!t2f02 
-	     # t1f20 << t1!t1f20 
---	     # t1f22 << t1!t1f22 
-	     # t1f24 << t1!t1f24)
+    project (f1 << t1!f1 # f2 << t2!f2 # 
+	     t1f01 << t1!t1f01 # t2f01 << t2!t2f01)
 
-joinOn db f1 f2 = 
+joinOn db f1 f2 t1 t2 = 
     do
     rs <- query db (mkJoinOnQuery f1 f2)
-    mapM_ (putStrLn . unwords) [ [
-				  r!.t1f02, r!.t2f02, 
-				  formatDate (r!.t1f20),
---				  formatDate (r!.t1f22),
-				  formatDate (r!.t1f24)
-				 ] | r <- rs ]
+    if and [r!.t1 == r!.t2 | r <- rs] then
+       putStrLn "Join ok"
+     else
+       putStrLn "Join equality check FAILED"
 
 formatDate = formatCalendarTime defaultTimeLocale fmt
 	where fmt = iso8601DateFormat (Just "%H:%M:%S")
@@ -131,12 +129,13 @@ showAllFields1 r = [
 		    show $ r!.t1f17,
 		    show $ r!.t1f18,
 		    show $ r!.t1f19,
-		    show $ r!.t1f20,
+		    show $ r!.t1f20
 -- Insertion doesn't work in Postgre
 --		    show $ r!.t1f21,
 --		    show $ r!.t1f22,
-		    show $ r!.t1f23,
-		    show $ r!.t1f24
+-- Treated as strings in Postgre
+--		    show $ r!.t1f23,
+--		    show $ r!.t1f24
 		   ]
 
 showAll db = 
@@ -172,12 +171,12 @@ runTests db =
     do
     insertData db
     showAll db
-    joinOn db t1f01 t2f01
-    joinOn db t1f02 t2f02
-    joinOn db t1f03 t2f03
-    joinOn db t1f04 t2f04
-    joinOn db t1f05 t2f05
-    joinOn db t1f06 t2f06
+    joinOn db t1f01 t2f01 t1f01 t2f01
+    joinOn db t1f02 t2f02 t1f02 t2f02
+    joinOn db t1f03 t2f03 t1f03 t2f03
+    joinOn db t1f04 t2f04 t1f04 t2f04
+    joinOn db t1f05 t2f05 t1f05 t2f05
+    joinOn db t1f06 t2f06 t1f06 t2f06
     testOps db    
 
 withDB ["ODBC",d,u,p] f = 

@@ -96,7 +96,7 @@ attributeName (Attr name) = name
 -- Basic relational operators
 -----------------------------------------------------------
 
-(!) :: Rel r -> Attr f r a -> Expr a
+(!) :: HasField f r => Rel r -> Attr f r a -> Expr a
 rel ! attr      = select attr rel
 
 select :: Attr f r a -> Rel r -> Expr a
@@ -411,20 +411,20 @@ topPercent n    = updatePrimQuery_ (Special (Top True perc))
 
 data Order	= OrderPhantom
 
-orderOp :: UnOp -> Rel r -> Attr f r a -> Expr Order
+orderOp :: HasField f r => UnOp -> Rel r -> Attr f r a -> Expr Order
 orderOp op rel attr = Expr (UnExpr op expr)
 	where
 	  (Expr expr) = rel ! attr
 
 -- | Use this together with the function 'order' to 
 -- create an query orderd ascending.
-asc :: Rel r -> Attr f r a -> Expr Order
+asc :: HasField f r => Rel r -> Attr f r a -> Expr Order
 asc rel attr	= orderOp OpAsc rel attr
 
 
 -- | Use this together with the function 'order' to 
 -- create an query orderd descending.
-desc :: Rel r -> Attr f r a -> Expr Order
+desc :: HasField f r => Rel r -> Attr f r a -> Expr Order
 desc rel attr	= orderOp OpDesc rel attr
 
 -- | HaskellDB counterpart to the SQL keyword ORDER BY. 

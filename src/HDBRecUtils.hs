@@ -28,7 +28,7 @@ hdbMakeEntry :: HDBRecEntry f (Expr a) =>
 hdbMakeEntry f = HDBRecCons fieldTag (attribute (fieldName f))
 
 -- | Make an 'Attr' for a field.
-mkAttr :: (HDBRecEntry f (Expr a), HasField f r) => 
+mkAttr :: (HDBRecEntry f (Expr a)) => 
 	  f -- ^ Field tag
        -> Attr f r a
 mkAttr = Attr . fieldName
@@ -39,8 +39,10 @@ infix  6 <<
 infixr 5 #
 
 -- | Links together a type and a value into an entry.
-( << ) :: HDBRecEntry f (Expr a) => (forall r. HasField f r => Attr f r a) 
-     -> Expr a -> (b -> HDBRecCons f (Expr a) b)
+( << ) :: HDBRecEntry f (Expr a) => 
+	  Attr f r a 
+       -> Expr a
+       -> (b -> HDBRecCons f (Expr a) b)
 _ << x = HDBRecCons fieldTag x
 
 -- | Links two fields together.
