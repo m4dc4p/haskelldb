@@ -227,8 +227,8 @@ instance ShowConstant Bool where
     showConstant False = show 0
     showConstant True = show 1
 
-instance Show a => ShowConstant (Maybe a) where
-    showConstant x = maybe "NULL" show x
+instance ShowConstant a => ShowConstant (Maybe a) where
+    showConstant x = maybe "NULL" showConstant x
 
 constant :: ShowConstant a => a -> Expr a
 constant x      = Expr (ConstExpr (showConstant x))
