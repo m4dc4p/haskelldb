@@ -6,7 +6,7 @@
   columns are treated as String fields. This seems to be a problem
   with the PostgreSQL ODBC driver.
 
-- Since SQLite is untyped, all columns in SQLite datbases are treated
+- Since SQLite is untyped, all columns in SQLite databases are treated
   as having type String, even if some other type was used when the
   table was created.
 
@@ -22,7 +22,7 @@
   field names. Reported by Thomas Bevan 2004-03-16.
 
 - WXHaskell _REQUIRES_ that all changes that we want committed are wrapped 
-  in transactions. We currently do not do this, it is up to our users.
+  in transactions. We currently do not do this, it is up to the user.
 
 - Using aggregate functions outside of project (e.g. in restrict)
   generates invalid SQL. Reported by viblo.
@@ -32,9 +32,7 @@
   project contains aggregate expressions, the results are grouped
   by all non-aggregate fields in the project.
 
-- The wxHaskell backend doesn't work in Hugs. If HaskellDB is
-  configured with wxHaskell support, DbDirect and the test programs
-  won't work in Hugs for this reason.
+- The wxHaskell backend doesn't work in Hugs.
 
 - The following features are currently not supported:
   * default values
