@@ -13,7 +13,7 @@
 -- primitive hooks that a particular database binding
 -- must provide.
 --
--- $Revision: 1.37 $ 
+-- $Revision: 1.38 $ 
 -----------------------------------------------------------
 module Database.HaskellDB.Database ( 
 		-- * Operators
@@ -270,7 +270,8 @@ transaction = dbTransaction
 -----------------------------------------------------------
 -- Functions that edit the database layout
 -----------------------------------------------------------
-
+-- | Is not very useful. You need to be root to use it. 
+--   We suggest you solve this in another way
 createDB :: Database -- ^ Database
 	 -> String -- ^ Name of database to create 
 	 -> IO ()
