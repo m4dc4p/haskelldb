@@ -1,4 +1,4 @@
-module FieldType where
+module FieldType (FieldDef, FieldType(..)) where
 
 {-
  TODO:
