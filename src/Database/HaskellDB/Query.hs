@@ -13,7 +13,7 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.47 $
+-- $Revision: 1.48 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -394,7 +394,7 @@ fromNull d x@(Expr px) = _case [(isNull x, d)] (Expr px)
 
 -- | The default value of the column. Only works with 'insert'.
 _default :: ExprDefault a
-_default = ExprDefault (ConstExpr "DEFAULT")
+_default = ExprDefault (ConstExpr "DEFAULT") -- FIXME: shouldn't have SQL here
 
 -----------------------------------------------------------
 -- Constants
