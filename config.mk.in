@@ -24,6 +24,8 @@ LD = @LD@
 INSTALL = @INSTALL@
 LDFLAGS = @LDFLAGS@
 
+PACKAGE_DEPS = @PACKAGE_DEPS@
+
 #
 # Which compilers to build libraries for
 #
@@ -40,9 +42,14 @@ COMPILERS += hugs
 endif
 
 #
-# HSQL, unixODBC, MySQL, PostgreSQL stuff
+# HSQL stuff
 #
 
+WITH_HSQL = @WITH_HSQL@
+
+ifeq "$(WITH_HSQL)" "yes"
+DRIVERS += HSQL
+endif
 
 WITH_HSQL_ODBC = @WITH_HSQL_ODBC@
 WITH_HSQL_MYSQL = @WITH_HSQL_MYSQL@
@@ -69,7 +76,16 @@ HSQL_DRIVERS += PostgreSQL
 HSPP_FLAGS += -DWITH_HSQL_POSTGRESQL
 endif
 
-DRIVERS += HSQL
+#
+# WxHaskell stuff
+#
+
+WITH_WX = @WITH_WX@
+
+ifeq "$(WITH_WX)" "yes"
+DRIVERS += WX
+HSPP_FLAGS += -DWITH_WX
+endif
 
 #
 # BoundedString
@@ -99,3 +115,6 @@ GHCFLAGS += $(addprefix -i, $(BUILD_DIR))
 HUGSFLAGS += $(patsubst %, -P%:, $(BUILD_DIR))
 # order is significant here
 LDFLAGS := -L$(BUILD_DIR) -lHShdb $(LDFLAGS)
+
+GHCFLAGS += $(shell echo $(PACKAGE_DEPS) | sed 's/,/ -package /g')
+

@@ -2,7 +2,7 @@ TOP_DIR = ../../..
 
 include $(TOP_DIR)/rules.mk
 
-GHCFLAGS += -package-name haskelldb
+GHCFLAGS += -package-name haskelldb -package hsql
 
 SRC_HERE = Common.hs $(addsuffix .hs, $(HSQL_DRIVERS))
 

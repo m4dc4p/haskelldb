@@ -83,5 +83,6 @@ main = do
 --       putStrLn $ show $ runQuery avgWorkChunks
 --       putStrLn $ show $ showQ avgWorkChunks
 --       putStrLn $ show $ showOpt avgWorkChunks
+       putStrLn $ show $ showSql avgWorkChunks
 --       putStrLn $ show $ showOpt floatTest
        argConnect printAvgWorkChunks

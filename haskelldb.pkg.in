@@ -8,7 +8,7 @@ Package
      extra_libraries = [@DEP_LIBS@],
      include_dirs = [],
      c_includes = [],
-     package_deps = ["base","hsql"],
+     package_deps = ["base"@PACKAGE_DEPS@],
      extra_ghc_opts = ["-fglasgow-exts", "-fallow-overlapping-instances"],
      extra_cc_opts = [],
      extra_ld_opts = [],

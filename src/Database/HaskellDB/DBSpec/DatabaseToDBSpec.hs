@@ -18,7 +18,6 @@ module Database.HaskellDB.DBSpec.DatabaseToDBSpec
 import Database.HaskellDB
 import Database.HaskellDB.FieldType
 import Database.HaskellDB.DBSpec
-import Database.HaskellDB.HSQL.Common
 
 -- | Connects to a database and generates a specification from it
 dbToDBSpec :: Bool    -- ^ whether to use Bounded Strings or not

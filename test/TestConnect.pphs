@@ -17,6 +17,10 @@ import System.IO
 import qualified Database.HaskellDB.HSQL.PostgreSQL as PG
 #endif
 
+#ifdef WITH_WX
+import qualified Database.HaskellDB.WX as WX
+#endif
+
 connect :: [String] -> (Database -> IO a) -> IO a
 #ifdef WITH_HSQL_ODBC
 connect ["ODBC",d,u,p] = OD.odbcConnect OD.ODBCOptions 
@@ -36,10 +40,17 @@ connect ["PostgreSQL",s,d,u,p] = PG.postgresqlConnect PG.PostgreSQLOptions
 			               {PG.server = s,PG.db = d, 
 					PG.uid = u,PG.pwd = p}
 #endif
+
+#ifdef WITH_WX
+connect ["WX",d,u,p] = WX.wxConnect WX.WXOptions 
+					{WX.dsn = d,WX.uid = u,WX.pwd = p}
+#endif
+
 connect _ = error $ unlines ["Accepted options:",
 			     "ODBC dsn uid pwd",
 			     "MySQL server db uid pwd",
-			     "PostgreSQL server db uid pwd"]
+			     "PostgreSQL server db uid pwd",
+			     "WX dsn uid pwd"]
 
 argConnect :: (Database -> IO a) -> IO a
 argConnect f = do

@@ -17,4 +17,4 @@ all: $(PROG)
 	ghc --make -fcontext-stack30 -o $@ $<
 
 clean:
-	-rm -f $(PROG) *.o *.hi 
+	-rm -f $(PROG) TestConnect.hs *.o *.hi 

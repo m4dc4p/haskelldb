@@ -1,10 +1,9 @@
 TOP_DIR = ..
 
-DRIVER_DIRS = drivers/hsql
 SPEC_DIRS = DBSpec
 DBDIRECT_DIRS = DBDirect
 
-SUBDIRS = $(SPEC_DIRS) $(DRIVER_DIRS) $(DBDIRECT_DIRS)
+SUBDIRS = $(SPEC_DIRS) $(DBDIRECT_DIRS)
 
 include $(TOP_DIR)/rules.mk
 
@@ -37,13 +36,19 @@ SRC = $(HASKELLDB_SRC) $(DATABASE_SRC)
 
 OBJS = $(patsubst %.hs, %.o, $(SRC))
 
-DRIVERS_OBJS = $(patsubst %, $(BUILD_DIR)/Database/HaskellDB/%/*.o, $(DRIVERS))
+
+ifeq "$(WITH_HSQL)" "yes"
+DRIVERS_OBJS += $(BUILD_DIR)/Database/HaskellDB/HSQL/*.o
+endif
+ifeq "$(WITH_WX)" "yes"
+DRIVERS_OBJS += $(BUILD_DIR)/Database/HaskellDB/WX.o
+endif
 
 SPEC_OBJS = $(BUILD_DIR)/Database/HaskellDB/DBSpec/*.o
 
 ALL_COMPILERS = $(addprefix all-,$(COMPILERS))
 
-.PHONY: $(ALL_COMPILERS)
+.PHONY: $(ALL_COMPILERS) $(DRIVERS)
 
 all: $(ALL_COMPILERS) $(SUBDIRS)
 
@@ -51,7 +56,7 @@ all-ghc: $(BUILD_DIR)/libHShdb.a
 
 all-hugs: $(SRC) 
 
-$(BUILD_DIR)/libHShdb.a: $(OBJS) $(SPEC_DIRS) $(DRIVER_DIRS)
+$(BUILD_DIR)/libHShdb.a: $(OBJS) $(SPEC_DIRS) $(DRIVERS)
 	$(AR) -rc $@ $(filter %.o, $^) $(DRIVERS_OBJS) $(SPEC_OBJS)
 
 $(BUILD_DIR)/Database/%: %
@@ -63,6 +68,12 @@ $(BUILD_DIR)/Database/HaskellDB/%: %
 	cp -f $^ $(sort $(dir $@))
 
 $(BUILD_DIR)/Database/HaskellDB/BoundedList.o: GHCFLAGS += -fallow-undecidable-instances
+
+HSQL:
+	make -C drivers/hsql
+
+WX:
+	make -C drivers/wxhaskell
 
 # cleaning up
 
