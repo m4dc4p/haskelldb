@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.20 $)
+AC_REVISION($Revision: 1.21 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -15,8 +15,8 @@ dnl ***********************************************
 dnl Some defaults
 dnl ***********************************************
 
-ghc_required_major_verison=6
-ghc_required_minor_verison=2
+ghc_req_major_verison=6
+ghc_req_minor_verison=2
 
 GHCFLAGS="$GHCFLAGS -fglasgow-exts -fallow-overlapping-instances"
 
@@ -143,12 +143,15 @@ else
 fi
 
 if test "$GHC" != ""; then
-  AC_HS_CHECK_GHC_VERSION([$ghc_required_major_verison],
-			  [$ghc_required_minor_verison])
+  AC_HS_CHECK_GHC_VERSION_IFELSE([$ghc_req_major_verison],
+    [$ghc_req_minor_verison],,[
+      AC_MSG_ERROR([ghc >= $ghc_req_major_verison.$ghc_req_minor_verison
+	            is required to build HaskellDB.]) ])
 fi
 
 AC_SUBST(GHC)
 AC_SUBST(GHCI)
+AC_SUBST(GHC_VERSION)
 
 dnl ***********************************************
 dnl GHC directory

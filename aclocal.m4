@@ -75,8 +75,9 @@ if test "$HUGS" != ""; then
 fi
 ])
 
-# AC_HS_MODULE_IFELSE(minimum major, mininum minor)
-AC_DEFUN([AC_HS_CHECK_GHC_VERSION],[
+# AC_HS_CHECK_GHC_VERSION_IFELSE(minimum major, mininum minor, 
+#                                action-if-true, action-if-false)
+AC_DEFUN([AC_HS_CHECK_GHC_VERSION_IFELSE],[
   if test "$GHC" == ""; then
     AC_MSG_ERROR([GHC not found])
   fi
@@ -87,9 +88,11 @@ AC_DEFUN([AC_HS_CHECK_GHC_VERSION],[
   GHC_VERSION_MAJOR=[`echo $GHC_VERSION | sed 's/^\([^.]*\)\..*/\1/'`]
   GHC_VERSION_MINOR=[`echo $GHC_VERSION | sed 's/^[^.]*\.\([^.]*\).*/\1/'`]
 
-  if test "$GHC_VERSION_MAJOR" -lt [$1] || (test "$GHC_VERSION_MAJOR" = [$1] && test "$GHC_VERSION_MINOR" -lt [$2]); then
-    AC_MSG_ERROR([GHC version >= $1.$2 required. Found $GHC_VERSION])
+  if test "$GHC_VERSION_MAJOR" -gt [$1] || (test "$GHC_VERSION_MAJOR" = [$1] && test "$GHC_VERSION_MINOR" -ge [$2]); then
+	AC_MSG_RESULT([ok, $GHC_VERSION])
+	m4_default([$3],:)
+  else
+	AC_MSG_RESULT([failed, $GHC_VERSION])
+	m4_default([$4],:)
   fi
-
-  AC_MSG_RESULT([$GHC_VERSION])
 ])
