@@ -15,7 +15,7 @@
 -- data structure in an appropiate Haskell module which
 -- can be used to perform queries on the database.
 --
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -----------------------------------------------------------
 
 module Main where
@@ -74,7 +74,7 @@ showHelp
 		   "ODBC: dsn, userid, password and file",
 		   "MySQL: server, database, userid password and file",
 		   "PostgreSQL: server, database, userid, password and file",
-		   "SQLite: filepath IOMode and file",
+		   "SQLite: filepath and IOMode",
 		   "WXHaskell: dsn, userid, password and file",
 		   "as arguments"
 	          ]
