@@ -60,7 +60,7 @@ clean: $(CLEAN_COMPILERS)
 
 dist:
 	mkdir $(DIST_DIR)
-	cvs export -d $(DIST_DIR) -rHEAD hwt_haskelldb
+	cvs export -d $(DIST_DIR) -rHEAD haskelldb
 	cd $(DIST_DIR) && autoconf && rm -rf autom4te.cache
 	find $(DIST_DIR) -name .cvsignore -exec rm -f {} ';'
 	tar -zcf $(DIST_DIR).tar.gz $(DIST_DIR)

@@ -24,8 +24,6 @@ LD = @LD@
 INSTALL = @INSTALL@
 LDFLAGS = @LDFLAGS@
 
-PACKAGE_DEPS = @PACKAGE_DEPS@
-
 #
 # Installation directories
 #

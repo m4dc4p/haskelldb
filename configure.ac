@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.9],[haskelldb-users@lists.sourceforge.net],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.40 $)
+AC_REVISION($Revision: 1.41 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -18,7 +18,7 @@ dnl ***********************************************
 ghc_req_major_verison=6
 ghc_req_minor_verison=2
 
-GHCFLAGS="$GHCFLAGS -fglasgow-exts -fallow-overlapping-instances"
+GHCFLAGS="$GHCFLAGS -O2 -fglasgow-exts -fallow-overlapping-instances"
 
 HUGSFLAGS="$HUGSFLAGS -98 +o"
 
@@ -396,18 +396,10 @@ dnl Check for HSQL for ghc
 dnl ***********************************************
 
 if test "$ENABLE_GHC" = "yes" && test "$WITH_GHC_HSQL" = "yes"; then
-
-  GHCFLAGS="$GHCFLAGS -package hsql"
-
-  AC_HS_GHC_MODULE_IFELSE([Database.HSQL],[query],,
+  AC_HS_GHC_MODULE_IFELSE([hsql],[Database.HSQL],[query],,
     [AC_MSG_WARN([HSQL for ghc not found, not 
                  building ghc HSQL support])
     WITH_GHC_HSQL="no"])
-
-  if test "$WITH_GHC_HSQL" != "yes"; then
-    GHCFLAGS="`echo $GHCFLAGS | sed 's/-package hsql//'`"
-  fi
-
 else
   WITH_GHC_HSQL="no"
 fi
@@ -436,15 +428,8 @@ dnl Check for wxHaskell for GHC
 dnl ***********************************************
 
 if test "$ENABLE_GHC" = "yes" && test "$WITH_GHC_WX" = "yes"; then
-
-  GHCFLAGS="$GHCFLAGS -package wxcore"
-
-  AC_HS_GHC_MODULE_IFELSE([Graphics.UI.WXCore.Db],[dbQuery],,
+  AC_HS_GHC_MODULE_IFELSE([wxcore],[Graphics.UI.WXCore.Db],[dbQuery],,
                           [WITH_GHC_WX="no"])
-
-  if test "$WITH_GHC_WX" != "yes"; then
-    GHCFLAGS="`echo $GHCFLAGS | sed 's/-package wxcore//'`"
-  fi
 else
   WITH_GHC_WX="no"
 fi
@@ -454,15 +439,8 @@ dnl Check for hs-plugins for GHC
 dnl ***********************************************
 
 if test "$ENABLE_GHC" = "yes" && test "$WITH_GHC_PLUGINS" = "yes"; then
-
-  GHCFLAGS="$GHCFLAGS -package plugins"
-
-  AC_HS_GHC_MODULE_IFELSE([Plugins],[load],,
+  AC_HS_GHC_MODULE_IFELSE([plugins],[Plugins],[load],,
                           [WITH_GHC_PLUGINS="no"])
-
-  if test "$WITH_GHC_PLUGINS" != "yes"; then
-    GHCFLAGS="`echo $GHCFLAGS | sed 's/-package plugins//'`"
-  fi
 else
   WITH_GHC_PLUGINS="no"
 fi
@@ -516,7 +494,7 @@ dnl check for ODBC module for ghc
 dnl ***********************************************
 
 if test "$WITH_GHC_HSQL" = "yes" && test "$WITH_GHC_HSQL_ODBC" = "yes"; then
-  AC_HS_GHC_MODULE_IFELSE([Database.HSQL.ODBC],[connect],,
+  AC_HS_GHC_MODULE_IFELSE([hsql],[Database.HSQL.ODBC],[connect],,
     [AC_MSG_WARN([ODBC module for ghc not found, skipping ODBC])
     WITH_GHC_HSQL_ODBC=no])
 else
@@ -540,7 +518,7 @@ dnl check for PostgreSQL module for ghc
 dnl ***********************************************
 
 if test "$WITH_GHC_HSQL" = "yes" && test "$WITH_GHC_HSQL_POSTGRESQL" = "yes"; then
-  AC_HS_GHC_MODULE_IFELSE([Database.HSQL.PostgreSQL],[connect],,
+  AC_HS_GHC_MODULE_IFELSE([hsql],[Database.HSQL.PostgreSQL],[connect],,
     [AC_MSG_WARN([PostgreSQL module for ghc not found, 
 	          not building PostgreSQL support])
     WITH_GHC_HSQL_POSTGRESQL=no])
@@ -566,7 +544,7 @@ dnl check for MySQL module for ghc
 dnl ***********************************************
 
 if test "$WITH_GHC_HSQL" = "yes" && test "$WITH_GHC_HSQL_MYSQL" = "yes"; then
-  AC_HS_GHC_MODULE_IFELSE([Database.HSQL.MySQL],[connect],,
+  AC_HS_GHC_MODULE_IFELSE([hsql],[Database.HSQL.MySQL],[connect],,
     [AC_MSG_WARN([MySQL module for ghc not found, 
 	          not building MySQL support])
     WITH_GHC_HSQL_MYSQL=no])
@@ -592,7 +570,7 @@ dnl check for SQLite module for ghc
 dnl ***********************************************
 
 if test "$WITH_GHC_HSQL" = "yes" && test $WITH_GHC_HSQL_SQLITE = yes; then
-  AC_HS_GHC_MODULE_IFELSE([Database.HSQL.SQLite],[connect],,
+  AC_HS_GHC_MODULE_IFELSE([hsql],[Database.HSQL.SQLite],[connect],,
     [AC_MSG_WARN([SQLite module for ghc not found, 
 	          not building SQLite support])
     WITH_GHC_HSQL_SQLITE=no])
@@ -648,6 +626,10 @@ fi
 
 if test "$WITH_GHC_WX" = "yes"; then
 	PACKAGE_DEPS="$PACKAGE_DEPS,\"wxcore\""
+fi
+
+if test "$WITH_GHC_PLUGINS" = "yes"; then
+	PACKAGE_DEPS="$PACKAGE_DEPS,\"plugins\""
 fi
 
 AC_SUBST(PACKAGE_DEPS)

@@ -2,17 +2,17 @@
 # By Bjorn Bringert, 2004
 
 
-# AC_HS_GHC_COMPILE_IFELSE(program, action-if-true, action-if-false)
+# AC_HS_GHC_COMPILE_IFELSE(program, extra flags, action-if-true, action-if-false)
 # try to compile a program with GHC
 AC_DEFUN([AC_HS_GHC_COMPILE_IFELSE],
 [rm -f conftest.hs conftest.hi conftest.o
 cat << \EOF > conftest.hs 
 [$1]
 EOF
-if test "$GHC" != "" && AC_TRY_COMMAND($GHC $GHCFLAGS -c conftest.hs) && test -f conftest.o; then
-	m4_default([$2],:)
-else
+if test "$GHC" != "" && AC_TRY_COMMAND($GHC $GHCFLAGS $2 -c conftest.hs) && test -f conftest.o; then
 	m4_default([$3],:)
+else
+	m4_default([$4],:)
 fi
 rm -f conftest.hs conftest.hi conftest.o
 ])
@@ -43,14 +43,15 @@ main :: IO ()
 main = return ()
 ])
 
-# AC_HS_GHC_MODULE_IFELSE(module, function, action-if-true, action-if-false)
+# AC_HS_GHC_MODULE_IFELSE(package, module, function, action-if-true, action-if-false)
 AC_DEFUN([AC_HS_GHC_MODULE_IFELSE],[
-AC_MSG_CHECKING([for module $1 for GHC])
-AC_HS_GHC_COMPILE_IFELSE(AC_HS_MODULE_TEST([$1],[$2]),
+AC_MSG_CHECKING([for module $2 in package $1 for GHC])
+AC_HS_GHC_COMPILE_IFELSE(AC_HS_MODULE_TEST([$2],[$3]),
+  [-package $1],
   AC_MSG_RESULT([ok])
-  [$3],
+  [$4],
   AC_MSG_RESULT([failed])
-  [$4]
+  [$5]
   )
 ])
 
@@ -63,16 +64,6 @@ AC_HS_HUGS_RUN_IFELSE(AC_HS_MODULE_TEST([$1],[$2]),
   AC_MSG_RESULT([failed])
   [$4]
   )
-])
-
-# AC_HS_MODULE_IFELSE(module, function, action-if-true, action-if-false)
-AC_DEFUN([AC_HS_MODULE_IFELSE],[
-if test "$GHC" != ""; then
-  AC_HS_GHC_MODULE_IFELSE([$1],[$2],[$3],[$4])
-fi
-if test "$HUGS" != ""; then
-  AC_HS_HUGS_MODULE_IFELSE([$1],[$2],[$3],[$4])
-fi
 ])
 
 # AC_HS_CHECK_GHC_VERSION_IFELSE(minimum major, mininum minor, 

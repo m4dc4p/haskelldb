@@ -10,26 +10,17 @@ WITH_PLUGINS = $(WITH_GHC_PLUGINS)
 
 include common.mk
 
-#this should likely be done somewhere else, and in a nicer way!
-#we strip all -package from GHCFLAGS so we can redefine it later...
-GHCFLAGS := $(subst -package hsql,,$(GHCFLAGS))
-GHCFLAGS := $(subst -package wxcore,,$(GHCFLAGS))
-GHCFLAGS := $(subst -package plugins,,$(GHCFLAGS))
-
-GHCFLAGS += $(addprefix -i, $(COMPILER_DIR))
-
-#this is so ugly...
-DBDIRECT_GHCFLAGS := $(GHCFLAGS)
 ifeq "$(WITH_HSQL)" "yes"
-DBDIRECT_GHCFLAGS += -package hsql
+PACKAGE_FLAGS += -package hsql
 endif
 ifeq "$(WITH_WX)" "yes"
-DBDIRECT_GHCFLAGS += -package wxcore
+PACKAGE_FLAGS += -package wxcore
 endif
 ifeq "$(WITH_PLUGINS)" "yes"
-DBDIRECT_GHCFLAGS += -package plugins
+PACKAGE_FLAGS += -package plugins
 endif
 
+GHCFLAGS += $(addprefix -i, $(COMPILER_DIR))
 GHCFLAGS += -package-name haskelldb
 
 LDFLAGS := -L$(COMPILER_DIR) -lHShdb $(LDFLAGS)
@@ -55,7 +46,7 @@ $(COMPILER_DIR)/$(OBJ_WX): GHCFLAGS += -package wxcore
 
 $(COMPILER_DIR)/$(OBJ_PLUGINS): GHCFLAGS += -package plugins
 
-$(COMPILER_DIR)/DBDirect: GHCFLAGS = $(DBDIRECT_GHCFLAGS)
+$(COMPILER_DIR)/DBDirect: GHCFLAGS += $(PACKAGE_FLAGS)
 
 %: %.o
 	$(GHC) $(GHCFLAGS) $^ $(LDFLAGS) -o $@
@@ -85,30 +76,12 @@ uninstall:
 # cleaning up
 
 clean: 
-	-rm -f .depend*
+	-rm -f .depend
 
 # dependencies
 
-depend: .depend.nodep .depend.hsql .depend.wx .depend.plugins
+depend: .depend
 
-.depend.nodep: $(SRC_NODEP) $(PROG_SRC)
-	$(GHC) -M -optdep-f -optdep.depend.nodep $(GHCFLAGS) $^
-include .depend.nodep
-
-ifeq "$(WITH_HSQL)" "yes"
-.depend.hsql: $(SRC_HSQL)
-	$(GHC) -M -optdep-f -optdep.depend.hsql -package hsql $(GHCFLAGS) $^
-include .depend.hsql
-endif
-
-ifeq "$(WITH_WX)" "yes"
-.depend.wx: $(SRC_WX)
-	$(GHC) -M -optdep-f -optdep.depend.wx -package wxcore $(GHCFLAGS) $^
-include .depend.wx
-endif
-
-ifeq "$(WITH_PLUGINS)" "yes"
-.depend.plugins: $(SRC_PLUGINS)
-	$(GHC) -M -optdep-f -optdep.depend.plugins -package plugins $(GHCFLAGS) $^
-include .depend.plugins
-endif
+.depend: $(SRC) $(PROG_SRC)
+	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $(PACKAGE_FLAGS) $^
+include .depend
