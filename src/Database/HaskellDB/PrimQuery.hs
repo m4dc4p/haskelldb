@@ -34,7 +34,7 @@ module Database.HaskellDB.PrimQuery (
 		 , ppRelOp, ppBinOp, ppAggrOp, ppSpecialOp
 		 ) where
 
-import Data.List ((\\))
+import Data.List ((\\), union)
 import Control.Exception (assert)
 
 import Text.PrettyPrint.HughesPJ
@@ -135,7 +135,7 @@ attributes (Project assoc q)    = map fst assoc
 attributes (Restrict expr q)    = attributes q
 attributes (Special op q)	= attributes q
 attributes (Binary op q1 q2)    = case op of
-                                    Times       -> attr1 ++ attr2
+                                    Times       -> attr1 `union` attr2
                                     Union       -> attr1
                                     Intersect   -> attr1 \\ attr2
                                     Divide      -> attr1 
