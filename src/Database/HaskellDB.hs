@@ -13,8 +13,15 @@
 -- import. Beside this module, a user should import a
 -- particular database binding (ie. "Database.HaskellDB.HSQL.ODBC") 
 -- and database definitions.
+--
+-- HaskellDB was originally written by Daan Leijen and it's 
+-- design is described in the paper Domain Specific Embedded 
+-- Compilers, Daan Leijen and Erik Meijer. 2nd USENIX 
+-- Conference on Domain-Specific Languages (DSL), Austin, 
+-- USA, October 1999 (<http://www.usenix.org/events/dsl99/>).
+--
 -----------------------------------------------------------
-module Database.HaskellDB 
+module Database.HaskellDB
 	( Rel, Attr, Expr, Table, Query	-- abstract
 	
 	, ( # )
