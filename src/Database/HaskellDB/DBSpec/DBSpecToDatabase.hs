@@ -34,8 +34,7 @@ cInfoToSql (CInfo {cname=n, descr=(ft,nullable)})
 
 -- | Converts a DBInfo to a real life Database
 dbSpecToDatabase :: DBInfo -- ^ The DBInfo to generate from
-		 -> ((Database -> IO a) -> IO a) -- ^ A function that connects
-						 -- to a Database
+		 -> Database -- ^ A Database
 		 -> IO ()
-dbSpecToDatabase dbfunc dbinfo 
-    = return () --dbfunc (return ()) -- här borde stoppas in något som tar en Database som sista argument
+dbSpecToDatabase db dbinfo 
+    = return ()

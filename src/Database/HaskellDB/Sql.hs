@@ -24,10 +24,13 @@ module Database.HaskellDB.Sql (
 	   , toDelete, ppDelete
 	   , toInsert, ppInsert
 	   , toInsertQuery
+	   , toCreateDB, toCreateTable, ppCreate
+	   , toDropDB, toDropTable, ppDrop
 	   ) where
 
 import Data.List (intersect)
 import Database.HaskellDB.PrimQuery
+import Database.HaskellDB.FieldType
 
 import Text.PrettyPrint.HughesPJ
 
@@ -55,7 +58,11 @@ data SqlDelete  = SqlDelete TableName [String]
 data SqlInsert  = SqlInsert  TableName [(Attribute,String)]
                 | SqlInsertQuery TableName SqlSelect
 
+data SqlCreate = SqlCreateDB String
+		   | SqlCreateTable TableName [(Attribute,FieldDesc)]
 
+data SqlDrop = SqlDropDB String
+	     | SqlDropTable TableName [(Attribute,FieldDesc)]
 
 newSelect       = SqlSelect { options   = []
 			    , attrs 	= []
@@ -257,3 +264,45 @@ ppUpdate (SqlUpdate name criteria assigns)
         where
            f clause action xs   | null xs    = empty
                                 | otherwise  = text clause <+> action xs
+
+-----------------------------------------------------------
+-- CREATE
+-----------------------------------------------------------
+
+toCreateDB :: String -> SqlCreate
+toCreateDB name = SqlCreateDB name
+
+toCreateTable :: TableName -> [(Attribute,FieldDesc)] -> SqlCreate
+toCreateTable name xs = SqlCreateTable name xs
+
+ppCreate :: SqlCreate -> Doc
+ppCreate (SqlCreateDB name) = text "CREATE DATABASE" <+> text name
+ppCreate (SqlCreateTable name xs) 
+    = text "CREATE TABLE" <+> text name 
+      <+> parens (vcat $ punctuate comma (map ppF xs))
+    where
+    ppF (fname,(ftype,nullable)) 
+	= text fname <+> text (sshow ftype)
+	  <+> if nullable then text "" else text "not null"
+
+-----------------------------------------------------------
+-- DROP
+-----------------------------------------------------------
+
+toDropDB :: String -> SqlDrop
+toDropDB name = SqlDropDB name
+
+toDropTable :: TableName -> [(Attribute,FieldDesc)] -> SqlDrop
+toDropTable name xs = SqlDropTable name xs
+
+ppDrop :: SqlDrop -> Doc
+ppDrop (SqlDropDB name) = text "DROP DATABASE" <+> text name
+ppDrop (SqlDropTable name xs) 
+    = text "DROP TABLE" <+> text name 
+      <+> parens (vcat $ punctuate comma (map ppF xs))
+    where
+    ppF (fname,(ftype,nullable)) 
+	= text fname <+> text (sshow ftype)
+	  <+> if nullable then text "" else text "not null"
+
+-- FIXME: maybe ppDrop and ppCreate could be combined somehow?

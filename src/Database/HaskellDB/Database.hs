@@ -25,6 +25,7 @@ module Database.HaskellDB.Database (
 		, query, lazyQuery, strictQuery
 		, insert, delete, update, insertQuery
 		, tables, describe, transaction
+		, createDB, createTable, dropDB, dropTable
 		) where
 
 import Database.HaskellDB.HDBRec
@@ -61,6 +62,10 @@ data Database
 	  , dbTables :: IO [TableName]
 	  , dbDescribe :: TableName -> IO [(Attribute,FieldDesc)]
 	  , dbTransaction :: forall a. IO a -> IO a
+	  , dbCreateDB :: String -> IO ()
+	  , dbCreateTable :: TableName -> [(Attribute,FieldDesc)] -> IO ()
+	  , dbDropDB :: String -> IO ()
+	  , dbDropTable :: TableName -> [(Attribute,FieldDesc)] -> IO ()
   	  }
 
 
@@ -176,12 +181,12 @@ strictQuery db q
 -- | Inserts values from a query into a table
 insertQuery :: ShowRecRow r => Database -> Table r -> Query (Rel r) -> IO ()
 insertQuery db (Table name assoc) q
-	= (dbInsertQuery db) name (optimize (runQuery q))
+	= dbInsertQuery db name (optimize (runQuery q))
 
 -- | Inserts a record into a table
 insert :: (ToPrimExprs r, ShowRecRow r) => Database -> Table r -> HDBRec r -> IO ()
 insert db (Table name assoc) newrec	
-	= (dbInsert db) name (zip (attrs assoc) (exprs newrec))
+	= dbInsert db name (zip (attrs assoc) (exprs newrec))
 	where
 	  attrs   = map (\(attr,AttrExpr name) -> name)
 	  
@@ -192,7 +197,7 @@ delete :: ShowRecRow r =>
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to delete
        -> IO ()
 delete db (Table name assoc) criteria
-	= (dbDelete db) name [substAttr assoc primExpr]
+	= dbDelete db name [substAttr assoc primExpr]
 	where
 	  (Expr primExpr)  = criteria rel
 	  rel		   = Rel 0 (map fst assoc)
@@ -205,7 +210,7 @@ update :: (ToPrimExprs s, ShowRecRow s,ShowRecRow r) =>
        -> (Rel r -> HDBRec s)  -- ^ Function used to modify selected records
        -> IO ()
 update db (Table name assoc) criteria assignFun
-	= (dbUpdate db) name [substAttr assoc primExpr] newassoc			     
+	= dbUpdate db name [substAttr assoc primExpr] newassoc
 	where
 	  (Expr primExpr)= criteria rel
 	  	
@@ -223,13 +228,13 @@ update db (Table name assoc) criteria assignFun
 -- | List all tables in the database
 tables :: Database  -- ^ Database
        -> IO [TableName]  -- ^ Names of all tables in the database
-tables db = dbTables db
+tables = dbTables
 
 -- | List all columns in a table, along with their types
 describe :: Database  -- ^ Database
 	 -> TableName       -- ^ Name of the tables whose columns are to be listed
 	 -> IO [(Attribute,FieldDesc)] -- ^ Name and type info for each column
-describe db = dbDescribe db
+describe = dbDescribe
 
 
 -- | Performs some database action in a transaction. If no exception is thrown,
@@ -237,4 +242,30 @@ describe db = dbDescribe db
 transaction :: Database -- ^ Database
 	    -> IO a -- ^ Action to run
 	    -> IO a 
-transaction db = dbTransaction db
+transaction = dbTransaction
+
+-----------------------------------------------------------
+-- Functions that edit the database layout
+-----------------------------------------------------------
+
+createDB :: Database -- ^ Database
+	 -> String -- ^ Name of database to create 
+	 -> IO ()
+createDB = dbCreateDB
+
+createTable :: Database -- ^ Database
+	    -> TableName -- ^ Name of table to create 
+	    -> [(Attribute,FieldDesc)] -- ^ The fields of the table
+	    -> IO ()
+createTable = dbCreateTable
+
+dropDB :: Database -- ^ Database
+       -> String -- ^ Name of database to drop
+       -> IO ()
+dropDB = dbDropDB
+
+dropTable :: Database -- ^ Database
+	  -> TableName -- ^ Name of table to drop
+	  -> [(Attribute,FieldDesc)] -- ^ The fields of the table
+	  -> IO ()
+dropTable = dbDropTable

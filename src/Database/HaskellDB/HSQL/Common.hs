@@ -52,7 +52,11 @@ newHSQL connection
 		 dbUpdate	= hsqlUpdate connection,
 		 dbTables       = hsqlTables connection,
 		 dbDescribe     = hsqlDescribe connection,
-		 dbTransaction  = hsqlTransaction connection
+		 dbTransaction  = hsqlTransaction connection,
+		 dbCreateDB     = hsqlCreateDB connection,
+		 dbCreateTable  = hsqlCreateTable connection,
+		 dbDropDB       = hsqlDropDB connection,
+		 dbDropTable    = hsqlDropTable connection
 	       }
 
 hsqlQuery :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [vr]
@@ -80,6 +84,20 @@ hsqlDescribe :: Connection -> TableName -> IO [(Attribute,FieldDesc)]
 hsqlDescribe conn table = liftM (map toFieldDesc) (HSQL.describe conn table)
    where
    toFieldDesc (name,sqlType,nullable) = (name,(toFieldType sqlType, nullable))
+
+hsqlCreateDB :: Connection -> String -> IO ()
+hsqlCreateDB conn name 
+    = hsqlPrimExecute conn $ show $ ppCreate $ toCreateDB name
+hsqlCreateTable :: Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
+hsqlCreateTable conn name as
+    = hsqlPrimExecute conn $ show $ ppCreate $ toCreateTable name as
+hsqlDropDB :: Connection -> String -> IO ()
+hsqlDropDB conn name 
+    = hsqlPrimExecute conn $ show $ ppDrop $ toDropDB name
+hsqlDropTable :: Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
+hsqlDropTable conn name as
+    = hsqlPrimExecute conn $ show $ ppDrop $ toDropTable name as
+
 
 toFieldType :: SqlType -> FieldType
 toFieldType (SqlDecimal _ _) = DoubleT
