@@ -1,11 +1,8 @@
 import Database.HaskellDB
-import Database.HaskellDB.HSQL.ODBC
 
-import Dp037
+import TestConnect
+
 import Dp037.D3proj_users
-
-opts = ODBCOptions { dsn = "", uid = "", pwd = "" }
-withDB = odbcConnect opts
 
 getUsers = 
     do
@@ -33,4 +30,4 @@ printUserList db =
     mapM_ (putStrLn . showUser) users
     putStrLn "</ul>"
 
-main = withDB printUserList
+main = argConnect printUserList

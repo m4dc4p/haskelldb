@@ -1,9 +1,9 @@
-import Database.HaskellDB.HSQL.ODBC
 import Database.HaskellDB
 import Database.HaskellDB.Query 
-
 import Database.HaskellDB.HDBRec
 import Database.HaskellDB.HDBRecUtils
+
+import TestConnect
 
 import Random
 
@@ -26,15 +26,16 @@ test_tb1 = baseTable "test_tb1" $
 ---------------------------------------------------------------------------
 -- Fields
 ---------------------------------------------------------------------------
+
 -------------------------------------
 -- C11 Field
 -------------------------------------
 
 data C11 = C11
 
-instance HDBRecEntry C11 (Expr Int) where
-    fieldTag = C11
-    fieldName _ = "c11"
+instance HDBRecEntry C11 (Expr Int)
+
+instance FieldTag C11 where fieldName _ = "c11"
 
 c11 :: Attr C11 r Int
 c11 = mkAttr C11
@@ -45,23 +46,13 @@ c11 = mkAttr C11
 
 data C12 = C12
 
-instance HDBRecEntry C12 (Expr (Maybe Int)) where
-    fieldTag = C12
-    fieldName _ = "c12"
+instance HDBRecEntry C12 (Expr (Maybe Int))
+
+instance FieldTag C12 where fieldName _ = "c12"
 
 c12 :: Attr C12 r (Maybe Int)
 c12 = mkAttr C12
 
-
---
--- Test utilites
---
-
-opts :: ODBCOptions
-opts = ODBCOptions{dsn="", uid="", pwd=""}
-
--- run a test function
-runTest f = odbcConnect opts f
 
 --
 -- A simple query
@@ -82,23 +73,14 @@ printResults = mapM_ (\row -> putStrLn (show (row!.c11) ++ " " ++ show (row!.c12
 -- Testing db layout functions
 --
 
--- run 'tables'
-listTables :: IO ()
-listTables = runTest tables >>= putStr . unlines
+listTables db = tables db >>= putStr . unlines
 
 -- run 'describe'
-describeTable :: String -> IO ()
-describeTable table = runTest (\db -> describe db table) 
-		      >>= putStr . unlines . map show
-
-
+describeTable table db = describe db table >>= putStr . unlines . map show
 
 bigTest db = do
-	     putStrLn ("Connected to: " ++ dsn opts ++ "\n")
-{-
 	     putStrLn "Tables:"
-	     ts <- tables db
-	     putStrLn (unlines ts)
+	     listTables db
 	     cols <- describe db "test_tb1"
 	     putStrLn "Columns in test_tb1"
 	     putStrLn (unlines (map show cols))
@@ -108,13 +90,13 @@ bigTest db = do
 	     (x::Int) <- randomIO
 	     (y::Int) <- randomIO
 	     let my = if even y then Just y else Nothing
-	     insertNew db test_tb1 (newRec x my)
+--	     insertNew db test_tb1 (newRec x my)
 --	     insert db test_tb1 (project (newRec x my))
-	     putStrLn $ "Contents of test_tb1 after inserting " ++ show (x,my)
--}
+--	     putStrLn $ "Contents of test_tb1 after inserting " ++ show (x,my)
+
 	     putStrLn "Contents of test_tb1"
 	     res <- query db q 
 	     printResults res
 
-main = runTest bigTest
+main = argConnect bigTest
        

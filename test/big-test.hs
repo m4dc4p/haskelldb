@@ -2,7 +2,6 @@
   A very disorganized set of tests using almost all SQL92 data types.
 -}
 
-import System.Environment
 import System.Time
 import System.Locale
 import System.IO.Unsafe
@@ -11,10 +10,7 @@ import Database.HaskellDB
 import Database.HaskellDB.HDBRec
 import Database.HaskellDB.Query
 
-import Database.HaskellDB.HSQL.Common
-import Database.HaskellDB.HSQL.ODBC
-import Database.HaskellDB.HSQL.MySQL
-import Database.HaskellDB.HSQL.PostgreSQL
+import TestConnect
 
 import BigTestDB.Hdb_test_t1
 import BigTestDB.Hdb_test_t2
@@ -179,18 +175,5 @@ runTests db =
     joinOn db t1f06 t2f06 t1f06 t2f06
     testOps db    
 
-withDB ["ODBC",d,u,p] f = 
-    odbcConnect (ODBCOptions d u p) f
-withDB ["MySQL",h,d,u,p] f = 
-    mysqlConnect (MySQLOptions h d u p) f
-withDB ["PostgreSQL",h,d,u,p] f = 
-    postgresqlConnect (PostgreSQLOptions h d u p) f
-withDB _ _ = fail $ unlines ["Accepted options:",
-			     "ODBC dsn uid pwd",
-			     "MySQL server db uid pwd",
-			     "PostgreSQL server db uid pwd"]
-
-main = do
-       args <- getArgs
-       withDB args runTests
+main = argConnect runTests
 --       putStrLn $ unlines $ [ v "" | (_,v) <- showRecRow data0]

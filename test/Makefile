@@ -1,3 +1,7 @@
+TOP_DIR = ..
+
+include ../config.mk
+
 PROG = hardcoded-layout-simple-query join-and-aggr html-users-list \
        big-test big-test-create-tables current-time date-types \
        insert-update-delete test-bounded transaction
@@ -6,8 +10,11 @@ PROG = hardcoded-layout-simple-query join-and-aggr html-users-list \
 
 all: $(PROG)
 
-%: %.hs
-	ghc --make -fcontext-stack30 -o $@ $^
+%: %.hs TestConnect.hs
+	ghc --make -fcontext-stack30 -o $@ $<
+
+%.hs: %.pphs
+	$(TOP_DIR)/preprocess $(HSPP_FLAGS) $^ > $@
 
 clean:
 	-rm -f $(PROG) *.o *.hi 

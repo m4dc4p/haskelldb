@@ -1,5 +1,7 @@
 import Database.HaskellDB
-import Database.HaskellDB.HSQL.ODBC
+
+import TestConnect
+
 import Dp037.D3proj_users
 
 -- victor said that top, topPercent and union produce SQL errors
@@ -46,4 +48,4 @@ tests db = do
 	   printIds rs
 	   putStrLn ""
 
-main = withDB $ tests
+main = argConnect tests

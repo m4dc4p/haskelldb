@@ -1,12 +1,7 @@
 import Database.HaskellDB
 import Dp037.Test_tb1
 
---import Database.HaskellDB.HSQL.PostgreSQL
-import Database.HaskellDB.HSQL.ODBC
-
-opts = ODBCOptions { dsn = "", uid = "", pwd = "" }
-withDB = odbcConnect opts
-
+import TestConnect
 
 printTable db =
     do
@@ -50,4 +45,4 @@ test db =
     putStrLn "After delete:"
     printTable db
 
-main = withDB test
+main = argConnect test

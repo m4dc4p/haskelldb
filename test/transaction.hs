@@ -1,13 +1,9 @@
 import Database.HaskellDB
-import Database.HaskellDB.HSQL.MySQL
+
+import TestConnect
+
 import Control.Exception
 import Dp037.Test_tb1
-
---opts = ODBCOptions{dsn="", uid="", pwd=""}
---withDB f = odbcConnect opts f
-
-opts = MySQLOptions{server="localhost", db="", uid="", pwd=""}
-withDB f = mysqlConnect opts f
 
 printRecord r = putStrLn $ show (r!.c11) ++ " " ++ show (r!.c12)
 
@@ -27,4 +23,4 @@ test db = do
 	  printRecords db
 
 
-main = withDB test
+main = argConnect test

@@ -4,12 +4,7 @@ import Database.HaskellDB
 import Dp037.D3proj_time_reports hiding (xid)
 import Dp037.D3proj_users
 
-
---import Database.HaskellDB.HSQL.PostgreSQL
-import Database.HaskellDB.HSQL.ODBC
-
-opts = ODBCOptions { dsn = "", uid = "", pwd = "" }
-withDB = odbcConnect opts
+import TestConnect
 
 getUsers = 
     do
@@ -36,4 +31,4 @@ printReports db =
     users <- query db getUsers
     mapM_ (putStrLn . showReport) users
 
-main = withDB printReports
+main = argConnect printReports

@@ -1,13 +1,13 @@
-import System (getArgs)
 import Control.Monad (unless)
 
 import Database.HaskellDB
 import Database.HaskellDB.Query (runQuery) -- for debugging
+
+import TestConnect
+
 import Dp037.D3proj_time_reports hiding (xid)
 import qualified Dp037.D3proj_time_reports
 import Dp037.D3proj_users
---import Database.HaskellDB.HSQL.PostgreSQL
-import Database.HaskellDB.HSQL.ODBC
 
 {-
 
@@ -32,14 +32,6 @@ CREATE TABLE d3proj_users (
 )
 
 -}
-
-
-
-opts = ODBCOptions{dsn="", uid="", pwd=""}
-withDB f = odbcConnect opts f
-
---opts = PostgreSQLOptions{server="localhost", db="", uid="", pwd=""}
---withDB f = postgresqlConnect opts f
 
 reports user
     = do
@@ -88,14 +80,8 @@ printAvgWorkChunks db
       where showRow r = r!.first_name ++ " " ++ r!.last_name ++ ": " ++ show (r!.hours) ++ " h"
 
 main = do
---       args <- getArgs
---       unless (length args == 1) (fail "Usage: test <username>")
---       let (username:_) = args
---       putStrLn $ show $ q username
---       withDB (printActivity username)
        putStrLn $ show $ runQuery avgWorkChunks
        putStrLn $ show $ showQ avgWorkChunks
        putStrLn $ show $ showOpt avgWorkChunks
        putStrLn $ show $ showOpt floatTest
-       withDB printAvgWorkChunks
---       withDB doFloatTest
+       argConnect printAvgWorkChunks
