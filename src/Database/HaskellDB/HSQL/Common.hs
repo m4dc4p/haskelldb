@@ -5,7 +5,6 @@
  - add Haddock comments
  - figure out date / time types
  - make odbcPrimQuery lazy
- - make sure NULL columns are handled correctly
 -}
 
 module HSQL_driver (
@@ -134,10 +133,9 @@ toFieldType _                = StringT
 odbcPrimQuery :: Connection -> String -> Scheme -> Rel r -> IO [ODBCRow r]
 odbcPrimQuery connection sql scheme r = 
     do
-    -- DEBUG:
-    putStrLn sql
+    -- FIXME: (DEBUG) remove
+    --putStrLn sql
     stmt <- query connection sql
-    -- FIXME: not lazy?
     collectRows (getRow scheme) stmt
 
 getRow :: Scheme -> Statement -> IO (ODBCRow r)
