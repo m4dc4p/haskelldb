@@ -4,6 +4,8 @@
  TODO:
  - add Haddock comments
  - figure out date / time types
+ - make odbcPrimQuery lazy
+ - make sure NULL columns are handled correctly
 -}
 
 module HSQL_driver (
@@ -12,6 +14,7 @@ module HSQL_driver (
 		   ) where
 
 import Data.Dynamic
+import Maybe
 import Monad
 import Time
 
@@ -25,7 +28,7 @@ import Database.ODBC.HSQL as HSQL
 
 type ODBC = Database Connection (ODBCRow)
 
-data ODBCRow r = ODBCRow [(Attribute,ODBCValue)]
+data ODBCRow r = ODBCRow [(Attribute,ODBCValue)] deriving Show
 
 type ODBCValue = Dynamic
 
@@ -67,7 +70,8 @@ odbcRowSelect attr (ODBCRow vals)
         = case lookup (attributeName attr) vals of
             Nothing  -> error "Query.rowSelect: invalid attribute used ??"
             Just dyn -> case fromDynamic dyn of
-	                  Nothing -> error "Query.rowSelect: type mismatch"
+	                  Nothing -> 
+			      error ("Query.rowSelect: type mismatch: " ++ show dyn)
 			  Just val -> val
 
 odbcInsertNew connection table assoc = execute connection sql
@@ -88,7 +92,11 @@ odbcUpdate connection table criteria assigns = execute connection sql
 
 odbcQuery :: Connection -> PrimQuery -> Rel r -> IO [ODBCRow r]
 odbcQuery connection qtree rel
-    = odbcPrimQuery connection sql scheme rel
+    = do
+      rows <- odbcPrimQuery connection sql scheme rel
+      -- FIXME: remove
+      --putStrLn (unlines (map show rows))
+      return rows
     where
       sql = show (ppSql (toSql qtree))  
       scheme = attributes qtree
@@ -140,10 +148,14 @@ getRow scheme stmt =
 
 getField :: Statement -> Attribute -> IO ODBCValue
 getField s n = 
-    case ft of
-	    StringT  -> liftM toDyn (getFieldValue s n :: IO String)
-	    IntT     -> liftM toDyn (getFieldValue s n :: IO Int)
-	    IntegerT -> liftM toDyn (getFieldValue s n :: IO Integer)
-	    DoubleT  -> liftM toDyn (getFieldValue s n :: IO Double)
-    where (t,nullable) = getFieldValueType s n
-	  ft = toFieldType t
+    case toFieldType t of
+	    StringT  -> toVal (getFieldValueMB s n :: IO (Maybe String))
+	    IntT     -> toVal (getFieldValueMB s n :: IO (Maybe Int))
+	    IntegerT -> toVal (getFieldValueMB s n :: IO (Maybe Integer))
+	    DoubleT  -> toVal (getFieldValueMB s n :: IO (Maybe Double))
+    where
+    (t,nullable) = getFieldValueType s n
+    toVal :: Typeable a => IO (Maybe a) -> IO ODBCValue
+    toVal m | nullable = liftM toDyn m
+	    -- FIXME: what if we have Nothing?
+	    | otherwise = liftM (toDyn . fromJust) m
