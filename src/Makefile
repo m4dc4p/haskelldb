@@ -10,10 +10,15 @@ OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o PPrint.o \
 
 .SUFFIXES: .hs .hi .o
 
+.PHONY: clean odbc-driver
+
 default all: libHDB.a
 
 libHDB.a: $(OBJS)
 	$(AR) -rc $@ $^
+
+odbc-driver:
+	cd drivers/odbc; $(MAKE)
 
 .depend: *.hs
 	$(HC) -M -optdep-f -optdep.depend $(HCFLAGS) *.hs
