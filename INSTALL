@@ -21,7 +21,7 @@ Requirements:
 
 - Hugs November 2003 (if you want Hugs support)
 
-- HSQL 1.2  (http://htoolkit.sourceforge.net/)
+- HSQL 1.2 or later (preferably later) (http://htoolkit.sourceforge.net/)
 
   It is preferrable to have HSQL installed
   in the GHC and Hugs library directories, but it is possible to build
