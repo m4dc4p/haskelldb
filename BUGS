@@ -20,3 +20,6 @@
 
 - Joins without a restrict generate SQL that uses non-existing 
   field names. Reported by Thomas Bevan 2004-03-16.
+
+- WXHaskell _REQUIRES_ that all changes that we want committed are wrapped 
+  in transactions. We currently do not do this, it is up to our users.
