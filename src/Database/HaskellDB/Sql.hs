@@ -115,11 +115,13 @@ toSql   = foldPrimQuery (empty,table,project,restrict,binary,special)
 	  	= sql { orderby = newOrder ++ oldOrder }  
 		where
 		  sql 	    = toSelect q
-		  
+
+		  -- all ordering expressions only in the old order
 		  oldOrder  = filter notdup (orderby sql)
-		  notdup x  = null (attrInExpr x `intersect` attrInOrder 
-				    newOrder)
-		  
+		  -- order expressions can only be Asc t.f or Desc t.f,
+		  -- thus attrInExpr will give [f] for every expression
+		  notdup x  = disjoint (attrInExpr x) (attrInOrder newOrder)
+		  disjoint x y = null (x `intersect` y)
 		  	    
 		  	    
           special op@(Top _ _) q
@@ -127,6 +129,7 @@ toSql   = foldPrimQuery (empty,table,project,restrict,binary,special)
           	where
                   sql	    = toSelect q
 
+toSelect :: SqlSelect -> SqlSelect
 toSelect sql    = case sql of
                     (SqlEmpty)          -> newSelect
                     (SqlTable name)     -> newSelect { tables = [("",sql)] }
@@ -134,9 +137,13 @@ toSelect sql    = case sql of
                     s | null (attrs s) -> sql
                       | otherwise  -> newSelect { tables = [("",sql)] }
 
+toSqlAssoc :: Assoc -> [(Attribute,String)]
 toSqlAssoc      = map (\(attr,expr) -> (attr, toSqlExpr expr))
+
+toSqlExpr :: PrimExpr -> String
 toSqlExpr       = show . ppPrimExpr
 
+toSqlOp :: RelOp -> String
 toSqlOp Union        = "UNION"
 toSqlOp Intersect    = "INTERSECT"
 toSqlOp Divide       = "DIVIDE"
@@ -181,7 +188,9 @@ tableAlias i (_,sql)  		= ("T" ++ show i,sql)
 ppTable (alias,(SqlTable name)) = ppAs alias (text name)
 ppTable (alias,sql)             = ppAs alias (parens (ppSql sql))
 
-
+-- | Print a name-value binding, or just the name if
+--   name and value are the same.
+nameAs :: (Attribute,String) -> Doc
 nameAs (name,expr) | name == expr  = text name
                    | otherwise     = ppAs name (text expr)              
                                                                      

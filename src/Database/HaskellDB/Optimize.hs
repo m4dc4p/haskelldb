@@ -38,6 +38,10 @@ removeDead :: PrimQuery -> PrimQuery
 removeDead query
         = removeD (attributes query) query
 
+removeD :: Scheme -- ^ All live attributes (i.e. all attributes 
+		  -- that are in the result of the query)
+	-> PrimQuery
+	-> PrimQuery
 removeD live (Binary op query1 query2)
         = assert "OptPrimQuery" "removeD.Binary"
 	         "attribute live but is not in query"
@@ -55,27 +59,43 @@ removeD live (Project assoc query)
                  (all (`elem` (map fst newAssoc)) live)
           Project newAssoc (removeD newLive query)
         where
+	  -- The live attributes in the nested query.
+	  newLive :: Scheme
           newLive       = concat (map (attrInExpr . snd) newAssoc)
 
+	  -- All associations that define attributes that are live
+	  -- or that will be put in a GROUP BY clause.
+	  -- These are the associations that will be kept.
+	  newAssoc :: Assoc
           newAssoc      | hasAggregate  = groupAssoc ++ liveAssoc
           		| otherwise	= liveAssoc
           		where
           		  -- when an aggregate expression is in the
           		  -- association we check
-          		  -- if an attribute is not already live
-          		  -- and explicitly added by the user
+          		  -- if an attribute is explicitly added by the user
+			  -- and not already live
           		  -- (ie. "extend" is called), if so we should
           		  -- keep it live to be added in a GROUP BY
           		  -- clause.
           		  groupAssoc	    = filter (not.isLive)
           		  		    $ filter newAttr assoc
-
+			  -- Does the association define a new attribute?
+			  -- (i.e. not just pass on an existing one
+			  -- from the nested query)
+			  newAttr :: (Attribute,PrimExpr) -> Bool
           		  newAttr (attr,AttrExpr name)  = (attr /= name)
           		  newAttr _   		  	= True
 
+          -- Is any live attribute is bound to a an aggregate expression?
+	  hasAggregate :: Bool
 	  hasAggregate  = any (isAggregate.snd) liveAssoc
 
+	  -- All associations that define live attributes.
+	  liveAssoc :: Assoc
           liveAssoc          = filter isLive assoc
+
+	  -- Is the attribute defined by the association live?
+	  isLive :: (Attribute,PrimExpr) -> Bool
           isLive (attr,expr) = attr `elem` live
 
 removeD live (Restrict x query)
@@ -135,9 +155,11 @@ mergeProject
           project assoc query
                 = Project assoc query
 
+	  subst :: Assoc -> Assoc -> Assoc
           subst a1 a2
                 = map (\(attr,expr) -> (attr, substAttr a2 expr)) a1
 
+          safe :: Assoc -> Bool
           safe assoc
           	= not (any (nestedAggregate.snd) assoc)
 
@@ -154,9 +176,11 @@ pushRestrict (Project assoc query)
 pushRestrict (Restrict x (Project assoc query))
         = Project assoc (pushRestrict (Restrict expr query))
         where
+	  -- since we passed a project, we need to replace all attributes
+	  -- with the expression they are bound to by the project
           expr  = substAttr assoc x
 
-pushRestrict (Restrict x (query@(Binary op query1 query2)))
+pushRestrict (Restrict x (Binary op query1 query2))
         | noneIn1   = Binary op query1 (pushRestrict (Restrict x query2))
         | noneIn2   = Binary op (pushRestrict (Restrict x query2)) query1
         -- otherwise fall through
@@ -165,7 +189,7 @@ pushRestrict (Restrict x (query@(Binary op query1 query2)))
           noneIn1   = null (attrs `intersect` attributes query1)
           noneIn2   = null (attrs `intersect` attributes query2)
 
-pushRestrict (Restrict x (query@(Restrict y _)))
+pushRestrict (Restrict x (query@(Restrict _ _)))
         = case (pushed) of
             (Restrict _ _)    -> Restrict x pushed
             _                 -> pushRestrict (Restrict x pushed)
@@ -181,9 +205,9 @@ pushRestrict (Restrict x query)
 
 -- also push specials
 
--- This can cause the argument of ORDER
+-- This can cause the argument of ORDER BY
 -- to become something other than an attribute.
--- Replaced this by the version below.
+-- Replaced this by the version below. /Bjorn
 {-
 pushRestrict (Special op (Project assoc query))
 	= Project assoc (pushRestrict (Special (subst op) query))
@@ -217,7 +241,3 @@ pushRestrict (Special op query)
 -- otherwise do nothing
 pushRestrict query
         = query
-
-
-
-                                    
