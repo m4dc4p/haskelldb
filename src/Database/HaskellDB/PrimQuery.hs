@@ -316,18 +316,21 @@ ppSpecialOp (Top True n) = error "topPercent not supported"
 -- exactly the SQL equivalents 
 -----------------------------------------------------------
 
+showRelOp :: RelOp -> String
 showRelOp Times		= "TIMES"
 showRelOp Union        	= "UNION"
 showRelOp Intersect    	= "INTERSECT"
 showRelOp Divide       	= "DIVIDE"
 showRelOp Difference   	= "MINUS"
 
+showUnOp :: UnOp -> String
 showUnOp  OpNot         = "NOT"
 showUnOp  OpIsNull      = "IS NULL" 
 showUnOp  OpIsNotNull   = "IS NOT NULL" 
 showUnOp  OpAsc         = "ASC"
 showUnOp  OpDesc        = "DESC"
 
+showBinOp :: BinOp -> String
 showBinOp  OpEq         = "=" 
 showBinOp  OpLt         = "<" 
 showBinOp  OpLtEq       = "<=" 
@@ -352,6 +355,7 @@ showBinOp  OpBitOr      = "|"
 showBinOp  OpBitXor     = "^"
 showBinOp  OpAsg        = "="
 
+showAggrOp :: AggrOp -> String
 showAggrOp AggrCount    = "COUNT" 
 showAggrOp AggrSum      = "SUM" 
 showAggrOp AggrAvg      = "AVG" 
