@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.24 $)
+AC_REVISION($Revision: 1.25 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -351,41 +351,10 @@ if test "$WITH_HSQL" != "yes"; then
 	WITH_HSQL_ODBC="no"
 fi
 
-AC_ARG_WITH(odbc-libs,
-  AC_HELP_STRING([--with-odbc-libs=DIR],
-             [Look for ODBC libraries in DIR.]),
-  [ODBC_LIB_DIR="$withval"],
-  [
-  case $ac_cv_target_alias in
-    i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
-	ODBC_LIB_DIR="/cygdrive/c/program/Microsoft\ Data\ Access\ SDK/lib/x86"
-        ;;
-  esac
-  ]
-)
-
 if test "$WITH_HSQL_ODBC" = "yes"; then
   AC_HS_MODULE_IFELSE([Database.HSQL.ODBC],[connect],,
     [AC_MSG_WARN([ODBC module not found, skipping ODBC])
     WITH_HSQL_ODBC=no])
-fi
-
-if test "$WITH_HSQL_ODBC" = "yes" && test "$HSQL_AUTO_PACKAGE" != "yes"; then
-
-  if test "$ODBC_LIB_DIR" != ""; then
-    LDFLAGS="$LDFLAGS -L$ODBC_LIB_DIR"
-  fi
-
-  case $ac_cv_target_alias in
-    i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
-	# FIXME: not checking for libodbc on win32
-        LIBS="$LIBS -lodbc32"
-        ;;
-    *)  AC_CHECK_LIB(odbc,SQLAllocEnv,,AC_MSG_ERROR(
-	[libodbc required to build ODBC programs. Skipping ODBC support.]))
-        ;;
-  esac
-
 fi
 
 dnl ***********************************************
@@ -403,32 +372,6 @@ if test $WITH_HSQL_POSTGRESQL = yes; then
     WITH_HSQL_POSTGRESQL=no])
 fi
 
-if test "$WITH_HSQL_POSTGRESQL" = "yes" && test "$HSQL_AUTO_PACKAGE" != "yes"; then
-  AC_PATH_PROG(PG_CONFIG, pg_config)
-
-  if test "$PG_CONFIG" = "" || test ! -f $PG_CONFIG; then
-    AC_MSG_WARN([pg_config is required for PostgreSQL, 
-	          skipping PostgreSQL])
-    WITH_HSQL_POSTGRESQL=no
-  fi
-
-  if test $WITH_HSQL_POSTGRESQL = yes; then
-    libdir=`$PG_CONFIG --libdir`
-    case $ac_cv_target_alias in
-      i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
-	libdir=`cygpath -m "$libdir"`
-        ;;
-    esac
-
-    LDFLAGS="$LDFLAGS -L$libdir"
-
-    AC_CHECK_LIB(pq,PQsetdbLogin,,[
-	AC_MSG_WARN([libpq library not found])
-        WITH_HSQL_POSTGRESQL=no
-    ])
-  fi
-fi
-
 dnl ***********************************************
 dnl check for MySQL module and libraries
 dnl ***********************************************
@@ -444,17 +387,6 @@ if test $WITH_HSQL_MYSQL = yes; then
     WITH_HSQL_MYSQL=no])
 fi
 
-if test $WITH_HSQL_MYSQL = yes && test "$HSQL_AUTO_PACKAGE" != "yes"; then
-  AC_PATH_PROG(MYSQL_CONFIG, mysql_config)
-
-  if test "$MYSQL_CONFIG" = "" || test ! -f $MYSQL_CONFIG; then
-    AC_MSG_WARN([mysql_config is required to build MySQL binding])
-   WITH_HSQL_MYSQL=no
-  fi
-
-  LDFLAGS="$LDFLAGS `$MYSQL_CONFIG --libs`"
-fi
-
 dnl ***********************************************
 dnl check for SQLite module and libraries
 dnl ***********************************************
@@ -468,11 +400,6 @@ if test $WITH_HSQL_SQLITE = yes; then
     [AC_MSG_WARN([SQLite module not found, 
 	          not building SQLite support])
     WITH_HSQL_SQLITE=no])
-fi
-
-if test "$WITH_HSQL_SQLITE" = "yes" && test "$HSQL_AUTO_PACKAGE" != "yes"; then
-   AC_CHECK_LIB(sqlite,sqlite_open,,
-	AC_MSG_ERROR([libsqlite required to build SQLite building.]))
 fi
 
 dnl ***********************************************
