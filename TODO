@@ -2,7 +2,6 @@ Things that need to be done, in no particular order:
 
 - Code:
   * Support all SQL datatypes
-  * switch ad-hoc assert to Control.Expcetion.assert
   * make SQL generation tweakable by the DB driver, since different
     DBs have different SQL syntax, for example TOP / LIMIT.
     Added by Bjorn, suggested by Shae Erisson.
@@ -41,7 +40,6 @@ Things that need to be done, in no particular order:
 
 - Database drivers
   * Add more drivers:
-    - wxHaskell
   * Make SQLite report more useful types. Make HSQL parse the original
     create query from the meta-table?
 
