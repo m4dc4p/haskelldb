@@ -13,12 +13,12 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.52 $
+-- $Revision: 1.53 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
 	      Rel(..), Attr(..), Table(..), Query, Expr(..)
-	     , ToPrimExprs
+	     , ToPrimExprs, ShowConstant
 	     , ExprC, ProjectRec, InsertRec
 	      -- * Operators
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
