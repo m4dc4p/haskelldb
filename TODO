@@ -1,5 +1,4 @@
 Things that must de done before the release:
-  * BUG FIXED IN HSQL, MAKE NEW SNAPSHOT BEFORE RELEASE!
   * Get date types working. (working, but buggy due to HSQL bug!)
   * Test insert, delete and update.
   * Get Windows build working without needing configure flags.
