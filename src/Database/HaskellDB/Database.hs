@@ -37,7 +37,7 @@ import Query	(Rel(..), Attr, Table(..), Query, Expr(..)
 -----------------------------------------------------------
 infix 9 !. 
 
-(!.) :: Row row a => row r -> Attr r a -> a
+(!.) :: Row row a => row r -> Attr f r a -> a
 row !. attr     = rowSelect attr row
 
 -----------------------------------------------------------
@@ -49,7 +49,7 @@ row !. attr     = rowSelect attr row
 -- Look in the 'Ado' module for an example of a database binding.
 -----------------------------------------------------------
 class Row row a where
-  rowSelect :: Attr r a -> row r -> a
+  rowSelect :: Attr f r a -> row r -> a
   
 data Database db row
 	= Database  

@@ -64,7 +64,7 @@ newODBC connection
 	       }
 
 
-odbcRowSelect :: Typeable a => Attr r a -> ODBCRow r -> a
+odbcRowSelect :: Typeable a => Attr f r a -> ODBCRow r -> a
 odbcRowSelect attr (ODBCRow vals)
         = case lookup (attributeName attr) vals of
             Nothing  -> error "Query.rowSelect: invalid attribute used ??"

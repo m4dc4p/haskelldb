@@ -22,6 +22,7 @@ infix   4 .==., .<>., .<., .<=., .>., .>=.
 infixr  3 .&&.
 infixr  2 .||.
 
+(!) :: (ShowRecRow r) => Rel r -> Attr f r a -> Expr a
 rel ! attr      = select attr rel
 (.==.) x y      = eq x y
 (.<>.) x y      = neq x y
@@ -65,7 +66,8 @@ data Expr a     = Expr PrimExpr
 
 data Table r    = Table TableName Assoc
                 
-data Attr r a   = Attr Attribute
+
+data Attr f r a   = Attr Attribute
 
                 
 type Alias      = Int                
@@ -77,7 +79,7 @@ scheme :: Rel r -> Scheme
 scheme (Rel _ s)
 	= s
 
-attributeName :: Attr r a -> Attribute
+attributeName :: Attr f r a -> Attribute
 attributeName (Attr name)
 	= name
 	
@@ -85,7 +87,7 @@ attributeName (Attr name)
 -- Basic relational operators 
 -----------------------------------------------------------
 
-select :: (ShowRecRow r) => Attr r a -> Rel r -> Expr a
+select :: (ShowRecRow r) => Attr f r a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
         
@@ -237,17 +239,17 @@ nullable x      = Expr (ConstExpr (showConstant x))
 -- Aggregate operators
 -----------------------------------------------------------
         
-aggregate :: ShowRecRow r => AggrOp -> Rel r -> Attr r a -> Expr b
+aggregate :: ShowRecRow r => AggrOp -> Rel r -> Attr f r a -> Expr b
 aggregate op rel attr
 		= Expr (AggrExpr op primExpr)
 		where 
  	  	  (Expr primExpr)  = rel ! attr
         
-count :: ShowRecRow r => Rel r -> Attr r a -> Expr Int
+count :: ShowRecRow r => Rel r -> Attr f r a -> Expr Int
 count x		= aggregate AggrCount x
 
 
-numAggregate :: (ShowRecRow r,Num a) => AggrOp -> Rel r -> Attr r a -> Expr a        
+numAggregate :: (ShowRecRow r,Num a) => AggrOp -> Rel r -> Attr f r a -> Expr a        
 numAggregate	= aggregate		
         
 _sum x          = numAggregate AggrSum x
@@ -281,12 +283,13 @@ topPercent n    = do { updatePrimQuery (Special (Top True perc))
 
 data Order	= OrderPhantom
 
-orderOp :: (ShowRecRow r) => UnOp -> Rel r -> Attr r a -> Expr Order
+orderOp :: (ShowRecRow r) => UnOp -> Rel r -> Attr f r a -> Expr Order
 orderOp op rel attr	
 	= Expr (UnExpr op expr)
 	where
 	  (Expr expr) = rel ! attr   
 
+asc, desc :: (ShowRecRow r) => Rel r -> Attr f r a -> Expr Order
 asc rel attr	= orderOp OpAsc rel attr
 desc rel attr	= orderOp OpDesc rel attr
 
