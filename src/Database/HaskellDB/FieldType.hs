@@ -13,7 +13,7 @@
 --
 -----------------------------------------------------------
 module Database.HaskellDB.FieldType 
-    (FieldDef, FieldType(..), mkCalendarTime) where
+    (FieldDesc, FieldType(..), mkCalendarTime) where
 
 import Data.Dynamic
 import System.Time
@@ -21,7 +21,7 @@ import System.Time
 import Database.HaskellDB.BoundedString
 
 -- | The type and @nullable@ flag of a database column
-type FieldDef = (FieldType, Bool)
+type FieldDesc = (FieldType, Bool)
 
 -- | A database column type
 data FieldType = 

@@ -61,7 +61,7 @@ data Database db row
   	  , dbDelete :: TableName -> [PrimExpr] -> IO ()
   	  , dbUpdate :: TableName -> [PrimExpr] -> Assoc -> IO ()
 	  , dbTables :: IO [TableName]
-	  , dbDescribe :: TableName -> IO [(Attribute,FieldDef)]
+	  , dbDescribe :: TableName -> IO [(Attribute,FieldDesc)]
 	  , dbTransaction :: forall a. IO a -> IO a
   	  }
   	  
@@ -154,7 +154,7 @@ tables db = dbTables db
 -- | List all columns in a table, along with their types
 describe :: Database db row -- ^ Database
 	 -> TableName       -- ^ Name of the tables whose columns are to be listed
-	 -> IO [(Attribute,FieldDef)] -- ^ Name and type info for each column
+	 -> IO [(Attribute,FieldDesc)] -- ^ Name and type info for each column
 describe db = dbDescribe db
 
 
