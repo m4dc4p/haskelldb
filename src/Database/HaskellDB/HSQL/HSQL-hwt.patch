@@ -1,10 +1,10 @@
 Index: ODBC/HSQL.hsc
 ===================================================================
 RCS file: /cvsroot/htoolkit/HSQL/ODBC/HSQL.hsc,v
-retrieving revision 1.10
-diff -u -u -r1.10 HSQL.hsc
---- ODBC/HSQL.hsc	4 Jan 2004 13:14:58 -0000	1.10
-+++ ODBC/HSQL.hsc	4 Jan 2004 21:57:39 -0000
+retrieving revision 1.12
+diff -u -u -r1.12 HSQL.hsc
+--- ODBC/HSQL.hsc	4 Jan 2004 16:43:29 -0000	1.12
++++ ODBC/HSQL.hsc	4 Jan 2004 22:14:54 -0000
 @@ -31,6 +31,9 @@
  		, forEachRow        -- :: (Statement -> s -> IO s) -> Statement -> s -> IO s
  		, forEachRow'       -- :: (Statement -> IO ()) -> Statement -> IO ()
@@ -15,7 +15,7 @@ diff -u -u -r1.10 HSQL.hsc
  		) where
  
  import Data.Word(Word32, Word16)
-@@ -256,9 +259,9 @@
+@@ -277,9 +280,9 @@
  	sqlFreeStmt hSTMT 0 >>= handleSqlResult (#const SQL_HANDLE_STMT) hSTMT
  	free pFIELD
  
@@ -28,7 +28,7 @@ diff -u -u -r1.10 HSQL.hsc
  	pFIELD <- mallocBytes (#const sizeof(FIELD))	
  	res <- sqlAllocStmt hDBC ((#ptr FIELD, hSTMT) pFIELD)
  	unless (sqlSuccess res) (free pFIELD)
-@@ -267,10 +270,7 @@
+@@ -288,10 +291,7 @@
  	let handleResult res = do
  		unless (sqlSuccess res) (free pFIELD)
  		handleSqlResult (#const SQL_HANDLE_STMT) hSTMT res
@@ -40,7 +40,7 @@ diff -u -u -r1.10 HSQL.hsc
  	sqlNumResultCols hSTMT ((#ptr FIELD, fieldsCount) pFIELD) >>= handleResult
  	count <- (#peek FIELD, fieldsCount) pFIELD
  	(fields, bufSize) <- getFieldDefs hSTMT pFIELD 1 count
-@@ -295,25 +295,32 @@
+@@ -316,25 +316,32 @@
  				(fields, fullBufSize) <- getFieldDefs hSTMT pFIELD (n+1) count
  				return ((name,sqlType,toBool nullable):fields, max bufSize fullBufSize)
  				
@@ -92,7 +92,7 @@ diff -u -u -r1.10 HSQL.hsc
  
  
  {-# NOINLINE fetch #-}
-@@ -577,3 +584,57 @@
+@@ -598,3 +605,57 @@
  					xs <- loop
  					return (x:xs)
  				else return []
