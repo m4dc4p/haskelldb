@@ -5,6 +5,7 @@ Things that need to be done, in no particular order:
     - DATE, TIME, TIMESTAMP
   * Make row retrieval lazy in HSQL driver
   * Make Query.exprs type safe
+  * switch ad-hoc assert to Control.Expcetion.assert
 
 - DbDirect 
   (* add optional command line argument for selecting which
