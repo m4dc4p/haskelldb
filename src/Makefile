@@ -25,5 +25,8 @@ drivers:
 
 clean:
 	-rm -f *.o *.hi *.a .depend .depend.bak
+	for d in $(addprefix drivers/, $(DRIVERS)); do \
+	   $(MAKE) -C $$d clean; \
+	done
 
 include .depend
