@@ -45,7 +45,7 @@ consFieldName (_::HDBRecCons f a r) = fieldName (undefined::f)
 class HasField f r
 instance HasField f (HDBRecCons f a r)
 instance HasField f r => HasField f (HDBRecCons g a r)
-
+instance HasField f r => HasField f (HDBRec r)
 
 --
 -- Showing rows 

@@ -61,3 +61,5 @@ instance SelectField f (HDBRecCons f a r) a where
 instance SelectField f r a => SelectField f (HDBRecCons g b r) a where
     selectField f (HDBRecCons _ r) = selectField f r
 
+instance SelectField f r a => SelectField f (HDBRec r) a where
+    selectField f r = selectField f (r HDBRecTail)

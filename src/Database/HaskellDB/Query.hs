@@ -17,7 +17,7 @@ module Database.HaskellDB.Query (
 	      -- * Data declarations
 	      Rel(..), Attr(..), Table(..), Query, Expr(..)
 	      -- * Operators
-	     , ToPrimExprs
+	     , ToPrimExprs, Select
 	     , (!)
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
@@ -97,11 +97,24 @@ attributeName (Attr name) = name
 -- Basic relational operators
 -----------------------------------------------------------
 
+class Select r f a | r f -> a where
+    -- | Field selection operator. It is overloaded to work for both
+    --   relations in a query and the result of a query.
+    --   That is, it corresponds to both '!' and '!.' from the original
+    --   HaskellDB. An overloaded operator was selected because users
+    --   (and the developers) always forgot to use !. instead of !
+    --   on query results.
+    (!) :: r -> f -> a
+
+instance HasField f r => Select (Rel r) (Attr f a) (Expr a) where
+    rel ! attr = select attr rel
+
+{-
 -- | Attribute selection operator. Given a relation and an 
 -- attribute name, it returns the attribute value expression.
 (!) :: HasField f r => Rel r -> Attr f a -> Expr a
 rel ! attr      = select attr rel
-
+-}
 
 select :: HasField f r => Attr f a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)
@@ -444,8 +457,7 @@ data Order	= OrderPhantom
 
 orderOp :: HasField f r => UnOp -> Rel r -> Attr f a -> Expr Order
 orderOp op rel attr = Expr (UnExpr op expr)
-	where
-	  (Expr expr) = rel ! attr
+    where Expr expr = select attr rel
 
 -- | Use this together with the function 'order' to 
 -- create an query orderd ascending.

@@ -27,6 +27,7 @@ import Database.HaskellDB.Sql
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query
 import Database.HaskellDB.FieldType
+import Database.HaskellDB.HDBRec
 
 import Database.HSQL as HSQL
 
@@ -59,7 +60,11 @@ newHSQL connection
 		 dbDropTable    = hsqlDropTable connection
 	       }
 
-hsqlQuery :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [vr]
+hsqlQuery :: GetRec er vr => 
+	     Connection 
+	  -> PrimQuery 
+	  -> Rel er 
+	  -> IO [HDBRec vr]
 hsqlQuery connection qtree rel = hsqlPrimQuery connection sql scheme rel
     where
       sql = show (ppSql (toSql qtree))  
@@ -134,7 +139,7 @@ hsqlPrimQuery :: GetRec er vr =>
 	      -> String     -- ^ SQL query
 	      -> Scheme     -- ^ List of field names to retrieve
 	      -> Rel er     -- ^ Phantom argument to get the return type right.
-	      -> IO [vr]    -- ^ Query results
+	      -> IO [HDBRec vr]    -- ^ Query results
 hsqlPrimQuery connection sql scheme rel = 
     do
     stmt <- handleSqlError $ HSQL.query connection sql
