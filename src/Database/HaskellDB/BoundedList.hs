@@ -73,7 +73,7 @@ module Database.HaskellDB.BoundedList (shrink,
 		    N220, N221, N222, N223, N224, N225, N226, N227, N228, N229,
 		    N230, N231, N232, N233, N234, N235, N236, N237, N238, N239,
 		    N240, N241, N242, N243, N244, N245, N246, N247, N248, N249,
-		    N250, N251, N252, N253, N254, N255)
+		    N250, N251, N252, N253, N254, N255, N65535)
 where
 		    
 class Size n where
@@ -1361,6 +1361,11 @@ data N255 = N255
 instance Size N255 where size _ = 255
 instance Less N254 N255
 instance Less a N254 => Less a N255
+
+data N65535 = N65535
+instance Size N65535 where size _ = 65535
+instance Less N255 N65535
+instance Less a N255 => Less a N65535
 
 newtype BoundedList a n = L [a]
 

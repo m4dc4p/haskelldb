@@ -11,7 +11,7 @@
 --
 -- BoundedString represents the sql types; CHARACTER and CHARACTER VARYING 
 -- both defined in SQL 1992.
--- BoundedString supports sizes in the range [0,255].
+-- BoundedString supports sizes in the range [0,255] and 65535.
 -- Greater sizes and the sql type SQL_TEXT (SQL 1992) will might be 
 -- supported in the future.
 
@@ -284,3 +284,4 @@ type BStr252 = BoundedString N252
 type BStr253 = BoundedString N253
 type BStr254 = BoundedString N254
 type BStr255 = BoundedString N255
+type BStr65535 = BoundedString N65535

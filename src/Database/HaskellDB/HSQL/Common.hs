@@ -36,15 +36,15 @@ hsqlConnect :: (opts -> IO Connection) -- ^ HSQL connection function, e.g.
 hsqlConnect connect opts action = 
     do
     conn <- handleSqlError (connect opts)
-    x <- action (newHSQL conn)
+    x <- action (mkDatabase conn)
     handleSqlError (disconnect conn)
     return x
 
 handleSqlError :: IO a -> IO a
 handleSqlError io = handleSql (\err -> fail (show err)) io
 
-newHSQL :: Connection -> Database
-newHSQL connection
+mkDatabase :: Connection -> Database
+mkDatabase connection
     = Database { dbQuery	= hsqlQuery connection,
     		 dbInsert	= hsqlInsert connection,
 		 dbInsertQuery 	= hsqlInsertQuery connection,
@@ -119,7 +119,10 @@ toFieldType SqlDate          = CalendarTimeT
 toFieldType SqlTime          = CalendarTimeT
 toFieldType SqlTimeStamp     = CalendarTimeT
 toFieldType SqlDateTime      = CalendarTimeT
-toFieldType (SqlVarChar a)   = BStrT a
+toFieldType (SqlChar n)      = BStrT n
+toFieldType (SqlVarChar n)   = BStrT n
+toFieldType (SqlBinary n)    = BStrT n
+toFieldType (SqlVarBinary n) = BStrT n
 toFieldType _                = StringT
 
 -- | HSQL implementation of 'Database.dbTransaction'.
