@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.5],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.13 $)
+AC_REVISION($Revision: 1.14 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -175,6 +175,7 @@ AC_HELP_STRING([--with-hugs=<hugs command>],
 if test "$ENABLE_HUGS" != "yes" || test "$HUGS" = "" || test ! -f $HUGS; then
   AC_MSG_RESULT([The build for HUGS will be skipped.])
   HUGS=""
+  ENABLE_HUGS="no"
 else
   RUNHUGS=$(dirname $HUGS)/runhugs
 fi
