@@ -1,4 +1,4 @@
-HaskellDB 0.5, changes from Daan Leijen's HaskellDB
+HaskellDB 0.5, changes from Daan Leijen's HaskellDB:
 - Support for both GHC and Hugs
 - Redesigned type system to remove dependency on Typed Record Extensions
 - Uses HSQL to access ODBC, MySQL and PostgreSQL databases
@@ -9,3 +9,6 @@ HaskellDB 0.5, changes from Daan Leijen's HaskellDB
 - Dbdirect now uses metadata functions to generate database info
 - Dbdirect produces files in a new format
 - Proper build system (using autoconf/configure/GNU make)
+- Uses new notation compared to Leijen's HaskellDB
+- Two old HaskellDB functions have been changed. The old insert is now
+  insertQuery. The old insertNew is now insert
