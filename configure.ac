@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.23 $)
+AC_REVISION($Revision: 1.24 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -283,7 +283,7 @@ if test "$WITH_HSQL" = "yes"; then
     WITH_HSQL="no"])
 
   if test "$WITH_HSQL" != "yes"; then
-    GHCFLAGS="echo $GHCFLAGS | sed 's/-package hsql//'"
+    GHCFLAGS="`echo $GHCFLAGS | sed 's/-package hsql//'`"
   fi
 
 fi
@@ -299,7 +299,7 @@ if test "$GHC" != "" && test "$WITH_WX" = "yes"; then
   AC_HS_GHC_MODULE_IFELSE([Graphics.UI.WXCore.Db],[dbQuery],,[WITH_WX="no"])
 
   if test "$WITH_WX" != "yes"; then
-    GHCFLAGS="echo $GHCFLAGS | sed 's/-package wxcore//'"
+    GHCFLAGS="`echo $GHCFLAGS | sed 's/-package wxcore//'`"
   fi
 
 fi
