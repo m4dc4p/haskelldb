@@ -113,7 +113,11 @@ insert db (Table name assoc) newrec
 	  attrs   = map (\(attr,AttrExpr name) -> name)
 	  
 -- | deletes a bunch of records	  
-delete :: ShowRecRow r => Database db row -> Table r -> (Rel r -> Expr Bool) -> IO ()
+delete :: ShowRecRow r => 
+	  Database db row -- ^ The database
+       -> Table r -- ^ The table to delete records from
+       -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to delete
+       -> IO ()
 delete db (Table name assoc) criteria
 	= (dbInvoke dbDelete db) name [substAttr assoc primExpr]
 	where
@@ -121,9 +125,13 @@ delete db (Table name assoc) criteria
 	  rel		   = Rel 0 (map fst assoc)
 	  
 	  
--- | updates a bunch of records	  
-update :: (ShowRecRow s,ShowRecRow r) => Database db row -> Table r -> 
-		(Rel r -> Expr Bool) -> (Rel r -> HDBRec s) -> IO ()
+-- | Updates records
+update :: (ShowRecRow s,ShowRecRow r) => 
+	  Database db row -- ^ The database
+       -> Table r -- ^ The table to update
+       -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to update
+       -> (Rel r -> HDBRec s) -- ^ Function used to modify selected records
+       -> IO ()
 update db (Table name assoc) criteria assignFun
 	= (dbInvoke dbUpdate db) name [substAttr assoc primExpr] newassoc			     
 	where
