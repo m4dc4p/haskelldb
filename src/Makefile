@@ -14,8 +14,10 @@ DRIVER_DIRS = $(dir $(DRIVER_OBJS))
 DRIVERS_TEST = $(addsuffix -test, $(DRIVER_DIRS))
 DRIVERS_CLEAN = $(addsuffix -clean, $(DRIVER_DIRS))
 
-.PHONY: all clean drivers $(DRIVER_OBJS) $(DRIVERS_CLEAN) \
-	dbdirect dbdirect-clean test $(DRIVERS_TEST)
+.PHONY: all drivers $(DRIVER_OBJS)  \
+	dbdirect dbdirect-clean test $(DRIVERS_TEST) \
+	ghciload \
+	clean $(DRIVERS_CLEAN)
 
 default all: $(OBJS) drivers libHDB.a dbdirect
 
@@ -33,13 +35,17 @@ $(DRIVER_OBJS):
 dbdirect:
 	$(MAKE) -C dbdirect
 
-.depend: $(SRC)
-	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
-
 test: $(DRIVERS_TEST)
 
 $(DRIVERS_TEST):
 	$(MAKE) -C $(subst -test,,$@) test
+
+# debugging 
+
+ghciload: 
+	$(GHCI) $(GHCFLAGS) HaskellDB.hs
+
+# cleaning up
 
 clean: dbdirect-clean $(DRIVERS_CLEAN)
 	-rm -f *.o *.hi *.a .depend .depend.bak
@@ -49,5 +55,10 @@ dbdirect-clean:
 
 $(DRIVERS_CLEAN):
 	$(MAKE) -C $(subst -clean,,$@) clean
+
+# dependencies
+
+.depend: $(SRC)
+	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
 
 include .depend
