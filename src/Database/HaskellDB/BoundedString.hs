@@ -15,13 +15,13 @@
 -- Greater sizes and the sql type SQL_TEXT (SQL 1992) will might be 
 -- supported in the future.
 --
--- $Revision: 1.8 $
-
 -- The use of BoundedString together with HaskellDB enables feedback when
 -- the length of a string exceeds the bound of a certain database field.
--- BoundedString also provides a layer of type safety against loss of data 
--- due to sql string truncation when extracting and re-insert data into fields 
+-- BoundedString also provides a layer of type safety against loss of data
+-- due to sql string truncation when extracting and re-insert data into fields
 -- with smaller bound.
+--
+-- $Revision: 1.9 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.BoundedString where
