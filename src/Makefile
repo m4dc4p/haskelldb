@@ -1,6 +1,5 @@
 TOP_DIR = ..
 
-include $(TOP_DIR)/config.mk
 include $(TOP_DIR)/rules.mk
 
 OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o \
@@ -14,13 +13,11 @@ DRIVER_DIRS = $(dir $(DRIVER_OBJS))
 DRIVERS_TEST = $(addsuffix -test, $(DRIVER_DIRS))
 DRIVERS_CLEAN = $(addsuffix -clean, $(DRIVER_DIRS))
 
-.PHONY: all drivers $(DRIVER_OBJS)  \
+.PHONY: drivers $(DRIVER_OBJS)  \
 	dbdirect dbdirect-clean test $(DRIVERS_TEST) \
-	ghciload \
-	clean $(DRIVERS_CLEAN)
+	$(DRIVERS_CLEAN)
 
-default all: $(OBJS) drivers libHDB.a dbdirect
-
+all: $(OBJS) drivers libHDB.a dbdirect
 
 warn-all: all
 
@@ -30,7 +27,7 @@ libHDB.a: $(OBJS) $(DRIVER_OBJS)
 drivers: $(DRIVER_OBJS)
 
 $(DRIVER_OBJS):
-	   $(MAKE) -C $(dir $@) $(notdir $@)
+	$(MAKE) -C $(dir $@) $(notdir $@)
 
 dbdirect:
 	$(MAKE) -C dbdirect
@@ -42,8 +39,8 @@ $(DRIVERS_TEST):
 
 # debugging 
 
-ghciload: 
-	$(GHCI) $(GHCFLAGS) HaskellDB.hs
+hugsload: HaskellDB.hs
+ghciload: HaskellDB.hs
 
 # cleaning up
 
@@ -59,6 +56,5 @@ $(DRIVERS_CLEAN):
 # dependencies
 
 .depend: $(SRC)
-	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
 
 include .depend
