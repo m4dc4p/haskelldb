@@ -46,7 +46,6 @@
   Reported by shapr.
 
 - The following features are currently not supported:
-  * default values
   * stored procedures
   * natural joins (just use restrict)
   * db-specific types and functions
@@ -54,8 +53,8 @@
     the number of results)
   * db-specific quoting rules
   * db-specific restrictions on column and database names
-  * auto_increment columns
   * db-specific table options (such as the table type in MySQL)
+  * getting the value inserted into an auto_increment column.
 
 - PostgreSQL does not accept inserting default values into non-null
   columns which do not have a set default value.

@@ -5,8 +5,6 @@ Things that need to be done, in no particular order:
   * make SQL generation tweakable by the DB driver, since different
     DBs have different SQL syntax, for example TOP / LIMIT.
     Added by Bjorn, suggested by Shae Erisson.
-  * Handle fields with default values and auto increment.
-    This was found by stepcut.
   * Figure out some intutive way of doing grouping.
   * Fix semantics of lazyQuery.
   (* strictness checking. In other words: optimize the code to sort out what
