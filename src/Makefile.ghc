@@ -1,0 +1,27 @@
+COMPILER_DIR=$(BUILD_DIR)/ghc
+
+include common.mk
+
+GHCFLAGS += $(addprefix -i, $(COMPILER_DIR)) -package-name haskelldb
+
+LDFLAGS := -L$(COMPILER_DIR) -lHShdb $(LDFLAGS)
+
+OBJS = $(patsubst %.hs, %.o, $(SRC))
+
+all: $(COMPILER_DIR)/libHShdb.a $(PROGRAMS)
+
+$(COMPILER_DIR)/libHShdb.a: $(OBJS)
+	$(AR) -rc $@ $(filter %.o, $^)
+
+$(COMPILER_DIR)/Database/HaskellDB/BoundedList.o: GHCFLAGS += -fallow-undecidable-instances
+
+# cleaning up
+
+clean: 
+	-rm -f .depend .depend.bak
+
+# dependencies
+
+.depend: $(SRC) $(PROG_SRC)
+
+include .depend

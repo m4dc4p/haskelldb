@@ -1,0 +1,10 @@
+COMPILER_DIR=$(BUILD_DIR)/hugs
+
+HUGSFLAGS += $(patsubst %, -P%:, $(COMPILER_DIR))
+
+include common.mk
+
+
+all: $(SRC) $(PROG_SRC)
+
+clean:

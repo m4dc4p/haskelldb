@@ -117,9 +117,5 @@ SRC_DIR = $(TOP_DIR)/src
 
 BUILD_DIR = $(TOP_DIR)/build
 
-GHCFLAGS += $(addprefix -i, $(BUILD_DIR))
-HUGSFLAGS += $(patsubst %, -P%:, $(BUILD_DIR))
-# order is significant here
-LDFLAGS := -L$(BUILD_DIR) -lHShdb $(LDFLAGS)
 
 
