@@ -49,7 +49,7 @@ ghciload: $(HSQL_DIR)/Database/ODBC/HSQL.hs
 #
 
 ../../libHSsql.a: 
-	make -C ../.. libHSsql.a
+	$(MAKE) -C ../.. libHSsql.a
 
 .depend: $(SRC) 
 	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^

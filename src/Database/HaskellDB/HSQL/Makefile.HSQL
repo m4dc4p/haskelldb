@@ -31,4 +31,4 @@ Database: HSQL
 	ln -s HSQL Database
 
 clean:
-	make -C HSQL distclean
+	$(MAKE) -C HSQL distclean
