@@ -16,7 +16,7 @@
 
 module Database.HaskellDB.DBSpec 
     (DBInfo(..),TInfo(..),CInfo(..),DBOptions(..),makeDBSpec,makeTInfo,
-     makeCInfo,constructNonClashingDBInfo,dbInfoToDoc)
+     makeCInfo,constructNonClashingDBInfo,dbInfoToDoc, finalizeSpec)
     where
 
 import Database.HaskellDB.FieldType
@@ -43,10 +43,29 @@ data CInfo = CInfo {cname :: String, -- ^ The name of this column
 data DBOptions = DBOptions {useBString :: Bool -- ^ Use Bounded Strings?
 			   }
 		 deriving (Eq,Show)
+
+-- | Creates a valid declaration of a DBInfo. The variable name will be the
+--   same as the database name
 dbInfoToDoc :: DBInfo -> Doc
 dbInfoToDoc dbi@(DBInfo {dbname=n}) 
     = text n <+> text ":: DBInfo"
       $$ text n <+> text "=" <+> text (show dbi)
+
+-- | Does a final "touching up" of a DBInfo before it is used by i.e DBDirect.
+-- This converts any Bounded Strings to ordinary strings if that flag is set.
+finalizeSpec :: DBInfo -> DBInfo
+finalizeSpec dbi = stripBStr dbi
+
+-- | Converts all BStrings to ordinary Strings
+stripBStr :: DBInfo -> DBInfo
+stripBStr dbi = fixTables dbi
+    where
+    fixTables dbi = dbi{tbls=map fixCols (tbls dbi)}
+    fixCols tbl = tbl{cols=map oneCol (cols tbl)}
+    oneCol col = col{descr = fixDescr (descr col)}
+    fixDescr col = case fst col of
+		       BStrT _ -> (StringT,snd col)
+		       _       -> col
 
 -- | Creates a DBInfo
 makeDBSpec :: String -- ^ The name of the Database
