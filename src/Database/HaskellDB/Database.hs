@@ -1,24 +1,27 @@
 -----------------------------------------------------------
--- Daan Leijen (c) 1999, daan@cs.uu.nl
+-- |
+-- Module      :  Database
+-- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
+--                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- License     :  BSD-style
+-- 
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
 --
--- module Database.
--- 	defines standard database operations and the
---	primitive hooks that a particular database binding
---	must provide.
+-- Defines standard database operations and the
+-- primitive hooks that a particular database binding
+-- must provide.
 --
--- "(lazy)query" performs a (lazy) query on a database
--- "strictQuery" retrieves all the results directly in Haskell. This allows
---		a connection to close as early as possible.
--- "insert"	inserts a bunch of records
--- "insertNew"  inserts a new single record
--- "delete"	deletes a bunch of records
--- "update"	updates a bunch of records
 -----------------------------------------------------------
-module Database.HaskellDB.Database ( (!.)
-		
+module Database.HaskellDB.Database ( 
+			-- * Operators
+			(!.)
+		-- * Type declarations
 		, Row, rowSelect
 		, Database(..)
 		
+		-- * Function declarations
 		, query, lazyQuery, strictQuery
 		, insert, delete, update, insertNew
 		, tables, describe
@@ -31,23 +34,23 @@ import Database.HaskellDB.Optimize (optimize)
 import Database.HaskellDB.Query	(Rel(..), Attr, Table(..), Query, Expr(..)
 		,runQuery, runQueryRel, exprs, labels)
 
------------------------------------------------------------
--- The (!.) operator selects over returned records from
--- the database (= rows)
------------------------------------------------------------
+
+
 infix 9 !. 
+
+--| The (!.) operator selects over returned records from
+--  the database (= rows)
 
 (!.) :: Row row a => row r -> Attr f r a -> a
 row !. attr     = rowSelect attr row
 
------------------------------------------------------------
--- 'Row' and 'Database' abstract away over any particular
+
+-- | 'Row' and 'Database' abstract away over any particular
 -- database. The 'Row' class enables selection over rows
 -- that are returned from a database query. The 'Database'
 -- data type contains all the primitive functions that
 -- a particular database binding should provide.
 -- Look in the 'Ado' module for an example of a database binding.
------------------------------------------------------------
 class Row row a where
   rowSelect :: Attr f r a -> row r -> a
   
@@ -70,16 +73,21 @@ dbInvoke fun db		= (fun db) (database db)
 -- Database operations
 -----------------------------------------------------------  	    	  
 
-query,lazyQuery,strictQuery :: Database db row -> Query (Rel r) -> IO [(row r)]
-
+-- | performs a query on a database
+query :: Database db row -> Query (Rel r) -> IO [(row r)]
 query	= lazyQuery
 
+-- | lazy query performs a lazy query on a database	  
+lazyQuery :: Database db row -> Query (Rel r) -> IO [(row r)]
 lazyQuery db q	
 	= (dbInvoke dbQuery db) (optimize primQuery) (rel)
 	where
 	  (primQuery,rel) = runQueryRel q
-	  
 
+
+-- | retrieves all the results directly in Haskell. This allows
+-- a connection to close as early as possible.
+strictQuery :: Database db row -> Query (Rel r) -> IO [(row r)]
 strictQuery db q
         = do{ xs <- lazyQuery db q
             ; let xs' = seqList xs
@@ -90,22 +98,19 @@ strictQuery db q
 	  seqList (x:xs)  = let xs' = seqList xs
                   	    in  xs' `seq` x:xs'
 	
-	
-	
------------------------------------------------------------
--- 
------------------------------------------------------------
-
+-- | inserts a bunch of records
 insert :: ShowRecRow r => Database db row -> Table r -> Query (Rel r) -> IO ()
 insert db (Table name assoc) q
 	= (dbInvoke dbInsert db) name (optimize (runQuery q))
 
+-- | inserts a new single record
 insertNew :: ShowRecRow r => Database db row -> Table r -> HDBRec r -> IO ()
 insertNew db (Table name assoc) newrec	
 	= (dbInvoke dbInsertNew db) name (zip (attrs assoc) (exprs newrec))
 	where
 	  attrs   = map (\(attr,AttrExpr name) -> name)
 	  
+-- | deletes a bunch of records	  
 delete :: ShowRecRow r => Database db row -> Table r -> (Rel r -> Expr Bool) -> IO ()
 delete db (Table name assoc) criteria
 	= (dbInvoke dbDelete db) name [substAttr assoc primExpr]
@@ -113,6 +118,8 @@ delete db (Table name assoc) criteria
 	  (Expr primExpr)  = criteria rel
 	  rel		   = Rel 0 (map fst assoc)
 	  
+	  
+-- | updates a bunch of records	  
 update :: (ShowRecRow s,ShowRecRow r) => Database db row -> Table r -> 
 		(Rel r -> Expr Bool) -> (Rel r -> HDBRec s) -> IO ()
 update db (Table name assoc) criteria assignFun
