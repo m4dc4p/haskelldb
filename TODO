@@ -4,14 +4,9 @@ Things that need to be done, in no particular order:
   * Support all SQL datatypes
   * Make row retrieval lazy in HSQL driver
   * switch ad-hoc assert to Control.Expcetion.assert
-  * make {odbc,mysql,postgresql}Connect take a Database argument 
-    instead of a HSQL argument. This would allow more general type
-    signatures in user code. (Added by Bjorn)
   * make SQL generation tweakable by the DB driver, since different
     DBs have different SQL syntax, for example TOP / LIMIT.
     Added by Bjorn, suggested by Shae Erisson.
-  * add Read instance to records. Useful for saving state in for
-    example WASH. Added by Bjorn, suggested by stepcut.
   * remove r type parameter from Attr. It seems useless now. /Bjorn
 
   (* strictness checking. In other words: optimize the code to sort out what

@@ -1,5 +1,5 @@
-This is where we keep track of reported and fixed bugs, mostly for 
-bragging rights at the end of the project:
+This is where we keep track of reported and fixed bugs and feature
+requests, mostly for bragging rights at the end of the project:
 
 - Krasimir Angelov reported these two bugs 2004-02-04:
 
@@ -43,3 +43,10 @@ String. Chucky fixed this on 2004-02-08
 - Bjorn found 2004-02-26 that HSQL didn't handle DECIMAL fields as
   Doubles. Bjorn fixed that 2004-02-26.
 
+- We all thought that make {odbc,mysql,postgresql}Connect should take
+  a Database argument instead of a HSQL argument. This would allow
+  more general type signatures in user code. Bjorn fixed that 2004-03-06.
+
+- Jeremy Shaw (stepcut), suggested on 2004-02-24 that there should
+  be Show and Read instances for database records. This is useful 
+  for saving state in for example WASH. Bjorn fixed that 2004-03-06.
