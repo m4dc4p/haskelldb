@@ -202,6 +202,7 @@ hsqlPrimExecute connection sql =
     --putStrLn sql
     execute connection sql
 
+{-
 
 --
 -- New way of getting data, does not use Dynamic. Not used yet.
@@ -256,3 +257,5 @@ instance Size n => GetValue (BoundedString n) where
 
 instance Size n => GetValue (Maybe (BoundedString n)) where 
     getValue stmt f = liftM (fmap trunc) (getFieldValueMB stmt f) 
+
+-}

@@ -68,6 +68,10 @@ instance (FieldTag a, Show b, ShowRecRow c) => ShowRecRow (HDBRecCons a b c) whe
 instance ShowRecRow r => ShowRecRow (HDBRec r) where
     showRecRow r = showRecRow (r HDBRecTail)
 
+{-
+
+-- reading and showing rows. these are not used yet and do not type check
+-- in Hugs.
 
 --
 -- Show 
@@ -102,7 +106,7 @@ instance (FieldTag a, Read b, ReadRecRow c) =>
     readRecRow ((f,v):xs) | consFieldName (fst (head res)) == f = res
 			  | otherwise = []
 	where
-	res :: [(HDBRecCons a b c,[(String,String)])]
+	res :: ReadRecRow (HDBRecCons a b c) => [(HDBRecCons a b c,[(String,String)])]
 	res = [(HDBRecCons x r, xs') | (x,v') <- reads v, 
 	                               (r,xs') <- readRecRow xs, 
 		                       null v']
@@ -123,13 +127,4 @@ instance Read HDBRecTail where
 instance (FieldTag a, Read b, ReadRecRow c) => Read (HDBRecCons a b c) where
     readsPrec _ s = readsReadRecRow s
 
-{-
-
-
-instance ShowRecRow r => Show (HDBRec r) where
-    showsPrec _ r = 
-	showChar '[' . punct (showChar ',') (fields r) . showChar ']'
-	    where fields = map (\ (x,y) -> showString x . 
-				showChar '=' . y) . showRecRow
-		  punct p ss rest = foldr ($) rest (intersperse p ss)
 -}
