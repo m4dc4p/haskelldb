@@ -30,6 +30,8 @@ Things that need to be done, in no particular order:
 
 - Build system
   * Automatic configuration (autoconf or something)
+  * Get it to work with GHCi. There is s problem where
+    GHCi is looking for libHSsql.so, which does not exist. (Added by Bjorn)
 
 - More database drivers
   * wxHaskell
