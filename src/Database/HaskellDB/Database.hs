@@ -21,6 +21,7 @@ module Database ( (!.)
 		
 		, query, lazyQuery, strictQuery
 		, insert, delete, update, insertNew
+		, tables, describe
 		) where
 
 import HDBRec

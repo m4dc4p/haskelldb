@@ -33,6 +33,7 @@ module HaskellDB
 	, (!.)
 	, query, lazyQuery, strictQuery
 	, insert, delete, update, insertNew
+	, tables, describe
 	
 	, showQ, showOpt, showSql
 	
