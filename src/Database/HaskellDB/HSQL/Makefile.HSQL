@@ -1,4 +1,8 @@
 HTOOLKIT_CVS=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/htoolkit
+CVS_DATE="2004-01-06"
+
+#commented out, just get the latest version for now
+#CVS_CHECKOUT_FLAGS= -D $(CVS_DATE)
 
 UNIXODBC_DIR=/usr
 HUGS_DIR=/usr/lib/hugs
@@ -9,18 +13,18 @@ UNIXODBC_DIR=/usr/local/dp03-7/unixODBC-2.2.6
 HUGS_DIR=/usr/local/dp03-7/hugs98-Nov2003/lib/hugs
 endif
 
-.PHONY: clean
+.PHONY: clean HSQL/libHSsql.a
 
 default all: HSQL Database HSQL/libHSsql.a
 
 HSQL:
-	cvs -d $(HTOOLKIT_CVS) co -D "2004-01-06" HSQL
+	cvs -d $(HTOOLKIT_CVS) co $(CVS_CHECKOUT_FLAGS) HSQL
 
 HSQL/configure: HSQL/configure.ac
 	cd HSQL && autoconf
 
 HSQL/config.mk: HSQL/configure HSQL/config.mk.in
-	cd HSQL && ./configure --enable-odbc \
+	cd HSQL && ./configure --enable-odbc --enable-mysql --enable-postgres \
 	CPPFLAGS=-I$(UNIXODBC_DIR)/include LDFLAGS=-L$(UNIXODBC_DIR)/lib \
 	--with-hugs-dir=$(HUGS_DIR)
 
@@ -32,3 +36,11 @@ Database: HSQL
 
 clean:
 	$(MAKE) -C HSQL distclean
+
+
+test: test.hs HSQL/libHSsql.a
+	ghc -o test test.hs -iHSQL/build -LHSQL/build -LHSQL -lHSsql -lodbc
+
+
+mysqltest: mysqltest.hs HSQL/libHSsql.a
+	ghc -o mysqltest mysqltest.hs -LHSQL -lHSsql `mysql_config --libs`
