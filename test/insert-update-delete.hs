@@ -1,5 +1,6 @@
 import Database.HaskellDB
 import Dp037.Test_tb1
+import Dp037.D3proj_time_reports
 
 import TestConnect
 
@@ -26,7 +27,7 @@ testUpdate db =
     do
     update db test_tb1 (\r -> r!c11 .==. constant 157) (setC12 (Just 18))
     where
-    setC12 x r = c11 << r!c11 # c12 << constant x
+    setC12 x r = c12 << constant x
 testDelete db = 
     do
     delete db test_tb1 (\r -> r!c11 .==. constant 157 .||. isNull (r!c12))
