@@ -32,7 +32,7 @@ import Database.HaskellDB.FieldType
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Optimize (optimize)
 import Database.HaskellDB.Query	(Rel(..), Attr, Table(..), Query, Expr(..)
-		,runQuery, runQueryRel, exprs, labels)
+		,ToPrimExprs, runQuery, runQueryRel, exprs, labels)
 
 
 
@@ -105,7 +105,7 @@ insertQuery db (Table name assoc) q
 	= (dbInsertQuery db) name (optimize (runQuery q))
 
 -- | Inserts a record into a table
-insert :: ShowRecRow r => Database db row -> Table r -> HDBRec r -> IO ()
+insert :: (ToPrimExprs r, ShowRecRow r) => Database db row -> Table r -> HDBRec r -> IO ()
 insert db (Table name assoc) newrec	
 	= (dbInsert db) name (zip (attrs assoc) (exprs newrec))
 	where
@@ -124,7 +124,7 @@ delete db (Table name assoc) criteria
 	  rel		   = Rel 0 (map fst assoc)
 	  
 -- | Updates records
-update :: (ShowRecRow s,ShowRecRow r) => 
+update :: (ToPrimExprs s, ShowRecRow s,ShowRecRow r) => 
 	  Database db row      -- ^ The database
        -> Table r              -- ^ The table to update
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to update

@@ -17,6 +17,7 @@ module Database.HaskellDB.Query (
 	      -- * Data declarations
 			Rel(..), Attr(..), Table(..), Query, Expr(..)
 	      -- * Operators
+	     , ToPrimExprs
 	     , (!)
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
@@ -103,7 +104,7 @@ select :: HasField f r => Attr f r a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
 
-project :: (ShowRecRow r) => HDBRec r -> Query (Rel r)
+project :: (ShowRecRow r, ToPrimExprs r) => HDBRec r -> Query (Rel r)
 project r
         = do
 	  alias <- newAlias
@@ -171,7 +172,7 @@ table (Table name assoc)
 
 -- used in table definitions
 
-baseTable :: ShowRecRow r => TableName -> HDBRec r -> Table r
+baseTable :: (ShowRecRow r, ToPrimExprs r) => TableName -> HDBRec r -> Table r
 baseTable t r   = Table t (zip (labels r) (exprs r))
 
 
@@ -485,11 +486,11 @@ fresh alias attribute   = (attribute ++ show alias)
 labels :: ShowRecRow r => HDBRec r -> [String]
 labels r        = map fst (showRecRow r)
 
-{-
+
 -- Type safe version of exprs. If we use this, we must add
 --  ToPrimExprs r to a lot of functions
 exprs :: ToPrimExprs r => HDBRec r -> [PrimExpr]
-exprs (HDBRec r) = toPrimExprs r
+exprs r = toPrimExprs (r HDBRecTail)
 
 class ToPrimExprs r where
     toPrimExprs :: r -> [PrimExpr]
@@ -499,7 +500,8 @@ instance ToPrimExprs HDBRecTail where
 
 instance ToPrimExprs r => ToPrimExprs (HDBRecCons l (Expr a) r) where
     toPrimExprs (HDBRecCons _ (Expr x) r) = x : toPrimExprs r
--}
+
+{-
 
 exprs :: ShowRecRow r => HDBRec r -> [PrimExpr]
 exprs r         = map (readPrimExpr . snd) (showRecRow r)
@@ -507,3 +509,4 @@ exprs r         = map (readPrimExpr . snd) (showRecRow r)
                   readPrimExpr s   = case (reads (s "")) of
                                     [(Expr qx,_)] -> qx
                                     _             -> error ("record with invalid expression value: " ++ (s ""))
+-}
