@@ -6,6 +6,8 @@ HUGS = hugs
 RUNHUGS = runhugs
 HUGSFLAGS = -98 +o
 
+HADDOCK = haddock
+
 SRC_DIR = $(TOP_DIR)/src
 
 HSQL_DIR = $(TOP_DIR)/../HSQL-cvs
