@@ -76,7 +76,8 @@ q = do
 ins = hdbMakeRec $ HDBRecSep (C11 (constant 42)) 
                    # HDBRecSep (C12 (constant 7))
 
-
+-- weird type signature required by Hugs
+handleQuery :: (HasC11 r, HasC12 r, Row row Int, Row row String) => [row r] -> IO ()
 handleQuery = mapM_ (\row -> putStrLn (show (row!.c11) ++ " " ++ show (row!.c12)))
 
 main = handleSql exError $ odbcConnect opts $ \db ->
