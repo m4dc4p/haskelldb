@@ -2,9 +2,9 @@ Index: Makefile
 ===================================================================
 RCS file: /cvsroot/htoolkit/HSQL/Makefile,v
 retrieving revision 1.5
-diff -u -r1.5 Makefile
+diff -u -u -r1.5 Makefile
 --- Makefile	7 Sep 2003 22:56:18 -0000	1.5
-+++ Makefile	23 Dec 2003 14:49:00 -0000
++++ Makefile	4 Jan 2004 03:14:13 -0000
 @@ -14,6 +14,15 @@
  
  OBJS    = $(patsubst %.hs,%.o, $(HS_SRC))
@@ -85,9 +85,9 @@ Index: config.mk.in
 ===================================================================
 RCS file: /cvsroot/htoolkit/HSQL/config.mk.in,v
 retrieving revision 1.1
-diff -u -r1.1 config.mk.in
+diff -u -u -r1.1 config.mk.in
 --- config.mk.in	5 Sep 2003 11:37:55 -0000	1.1
-+++ config.mk.in	23 Dec 2003 14:49:00 -0000
++++ config.mk.in	4 Jan 2004 03:14:13 -0000
 @@ -12,3 +12,8 @@
  exec_prefix = @exec_prefix@
  CPPFLAGS = @CPPFLAGS@
@@ -101,9 +101,9 @@ Index: configure.ac
 ===================================================================
 RCS file: /cvsroot/htoolkit/HSQL/configure.ac,v
 retrieving revision 1.5
-diff -u -r1.5 configure.ac
+diff -u -u -r1.5 configure.ac
 --- configure.ac	7 Sep 2003 09:09:47 -0000	1.5
-+++ configure.ac	23 Dec 2003 14:49:00 -0000
++++ configure.ac	4 Jan 2004 03:14:13 -0000
 @@ -96,6 +96,56 @@
  AC_SUBST(GHC_PKG)
  
@@ -173,9 +173,9 @@ Index: MySQL/HSQL.hsc
 ===================================================================
 RCS file: /cvsroot/htoolkit/HSQL/MySQL/HSQL.hsc,v
 retrieving revision 1.10
-diff -u -r1.10 HSQL.hsc
+diff -u -u -r1.10 HSQL.hsc
 --- MySQL/HSQL.hsc	27 Sep 2003 09:49:19 -0000	1.10
-+++ MySQL/HSQL.hsc	23 Dec 2003 14:49:00 -0000
++++ MySQL/HSQL.hsc	4 Jan 2004 03:14:14 -0000
 @@ -107,7 +107,13 @@
     | SqlFetchNull
  		{ seFieldName :: String
@@ -195,10 +195,20 @@ Index: ODBC/HSQL.hsc
 ===================================================================
 RCS file: /cvsroot/htoolkit/HSQL/ODBC/HSQL.hsc,v
 retrieving revision 1.8
-diff -u -r1.8 HSQL.hsc
+diff -u -u -r1.8 HSQL.hsc
 --- ODBC/HSQL.hsc	27 Sep 2003 09:49:19 -0000	1.8
-+++ ODBC/HSQL.hsc	23 Dec 2003 14:49:01 -0000
-@@ -39,7 +39,6 @@
++++ ODBC/HSQL.hsc	4 Jan 2004 03:14:14 -0000
+@@ -31,6 +31,9 @@
+ 		, forEachRow        -- :: (Statement -> s -> IO s) -> Statement -> s -> IO s
+ 		, forEachRow'       -- :: (Statement -> IO ()) -> Statement -> IO ()
+ 		, collectRows       -- :: (Statement -> IO s) -> Statement -> IO [s]
++
++		, tables            -- :: Connection -> IO [String]
++		, describe          -- :: Connection -> String -> IO [(String, SqlType, Bool)]
+ 		) where
+ 
+ import Data.Word(Word32, Word16)
+@@ -39,7 +42,6 @@
  import Data.Dynamic
  import Foreign
  import Foreign.C
@@ -206,7 +216,7 @@ diff -u -r1.8 HSQL.hsc
  import Control.Monad(when,unless)
  import Control.Exception (throwDyn, catchDyn, dynExceptions, Exception(..), finally)
  import System.IO.Unsafe
-@@ -62,23 +61,23 @@
+@@ -62,23 +64,23 @@
  type SQLLEN       = SQLINTEGER
  type SQLULEN      = SQLINTEGER
  
@@ -247,7 +257,7 @@ diff -u -r1.8 HSQL.hsc
  
  
  -- | A 'Connection' type represents a connection to a data source, through which you can operate on the data source. 
-@@ -138,7 +137,13 @@
+@@ -138,7 +140,13 @@
     | SqlFetchNull
     		{ seFieldName :: String
  		}
@@ -262,7 +272,7 @@ diff -u -r1.8 HSQL.hsc
     
  -----------------------------------------------------------------------------------------
  -- routines for handling exceptions
-@@ -191,7 +196,7 @@
+@@ -191,7 +199,7 @@
  	hEnv <- peek phEnv
  	free phEnv
  	handleSqlResult 0 nullPtr res
@@ -271,13 +281,148 @@ diff -u -r1.8 HSQL.hsc
  
  -----------------------------------------------------------------------------------------
  -- Connect/Disconnect
+@@ -247,9 +255,9 @@
+ 	sqlFreeStmt hSTMT 0 >>= handleSqlResult (#const SQL_HANDLE_STMT) hSTMT
+ 	free pFIELD
+ 
+--- | Executes the statement and returns a 'Statement' value which represents the result set
+-query :: Connection -> String -> IO Statement
+-query conn@(Connection {hDBC=hDBC}) query = do
++-- ^ Allocates a statement and calls the given function on it.
++withStatement :: Connection -> (HSTMT -> IO SQLRETURN) -> IO Statement
++withStatement conn@(Connection {hDBC=hDBC}) f = do
+ 	pFIELD <- mallocBytes (#const sizeof(FIELD))	
+ 	res <- sqlAllocStmt hDBC ((#ptr FIELD, hSTMT) pFIELD)
+ 	unless (sqlSuccess res) (free pFIELD)
+@@ -258,10 +266,7 @@
+ 	let handleResult res = do
+ 		unless (sqlSuccess res) (free pFIELD)
+ 		handleSqlResult (#const SQL_HANDLE_STMT) hSTMT res
+-	pQuery <- newCString query
+-	res <- sqlExecDirect hSTMT pQuery (length query)
+-	free pQuery
+-	handleResult res
++	res <- f hSTMT
+ 	sqlNumResultCols hSTMT ((#ptr FIELD, fieldsCount) pFIELD) >>= handleResult
+ 	count <- (#peek FIELD, fieldsCount) pFIELD
+ 	(fields, bufSize) <- getFieldDefs hSTMT pFIELD 1 count
+@@ -286,25 +291,32 @@
+ 				(fields, fullBufSize) <- getFieldDefs hSTMT pFIELD (n+1) count
+ 				return ((name,sqlType,toBool nullable):fields, max bufSize fullBufSize)
+ 				
+-		mkSqlType :: SQLSMALLINT -> SQLULEN -> SQLSMALLINT -> (SqlType, SQLINTEGER)
+-		mkSqlType (#const SQL_CHAR)         size    _    = (SqlChar (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
+-		mkSqlType (#const SQL_VARCHAR)      size    _    = (SqlVarChar (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
+-		mkSqlType (#const SQL_LONGVARCHAR)  size    _    = (SqlLongVarChar (fromIntegral size), 1) -- dummy bufSize
+-		mkSqlType (#const SQL_DECIMAL)      size    prec = (SqlDecimal (fromIntegral size) (fromIntegral prec), (#const sizeof(SQLDOUBLE)))
+-		mkSqlType (#const SQL_NUMERIC)      size    prec = (SqlNumeric (fromIntegral size) (fromIntegral prec), (#const sizeof(SQLDOUBLE)))
+-		mkSqlType (#const SQL_SMALLINT)     _       _    = (SqlSmallInt, (#const sizeof(SQLSMALLINT)))
+-		mkSqlType (#const SQL_INTEGER)      _       _    = (SqlInteger, (#const sizeof(SQLINTEGER)))
+-		mkSqlType (#const SQL_REAL)         _       _    = (SqlReal, (#const sizeof(SQLDOUBLE)))
+-		mkSqlType (#const SQL_DOUBLE)		_    	_    = (SqlDouble, (#const sizeof(SQLDOUBLE)))
+-		mkSqlType (#const SQL_BIT)          _    	_    = (SqlBit, (#const sizeof(SQLINTEGER)))
+-		mkSqlType (#const SQL_TINYINT)      _    	_    = (SqlTinyInt, (#const sizeof(SQLSMALLINT)))
+-		mkSqlType (#const SQL_BIGINT)       _    	_    = (SqlBigInt, (#const sizeof(SQLINTEGER)))
+-		mkSqlType (#const SQL_BINARY)       size    _    = (SqlBinary (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
+-		mkSqlType (#const SQL_VARBINARY)    size    _    = (SqlVarBinary (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
+-		mkSqlType (#const SQL_LONGVARBINARY)size    _    = (SqlLongVarBinary (fromIntegral size), 1) -- dummy bufSize
+-		mkSqlType (#const SQL_DATE)         _    	_    = (SqlDate, (#const sizeof(SQL_DATE_STRUCT)))
+-		mkSqlType (#const SQL_TIME)         _    	_    = (SqlTime, (#const sizeof(SQL_TIME_STRUCT)))
+-		mkSqlType (#const SQL_TIMESTAMP)	_    	_    = (SqlTimeStamp, (#const sizeof(SQL_TIMESTAMP_STRUCT)))
++
++-- | Executes the statement and returns a 'Statement' value which represents the result set
++query :: Connection -> String -> IO Statement
++query conn q = withStatement conn doQuery
++    where doQuery hSTMT = withCStringLen q (uncurry (sqlExecDirect hSTMT))
++
++				
++mkSqlType :: SQLSMALLINT -> SQLULEN -> SQLSMALLINT -> (SqlType, SQLINTEGER)
++mkSqlType (#const SQL_CHAR)         size    _    = (SqlChar (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
++mkSqlType (#const SQL_VARCHAR)      size    _    = (SqlVarChar (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
++mkSqlType (#const SQL_LONGVARCHAR)  size    _    = (SqlLongVarChar (fromIntegral size), 1) -- dummy bufSize
++mkSqlType (#const SQL_DECIMAL)      size    prec = (SqlDecimal (fromIntegral size) (fromIntegral prec), (#const sizeof(SQLDOUBLE)))
++mkSqlType (#const SQL_NUMERIC)      size    prec = (SqlNumeric (fromIntegral size) (fromIntegral prec), (#const sizeof(SQLDOUBLE)))
++mkSqlType (#const SQL_SMALLINT)     _       _    = (SqlSmallInt, (#const sizeof(SQLSMALLINT)))
++mkSqlType (#const SQL_INTEGER)      _       _    = (SqlInteger, (#const sizeof(SQLINTEGER)))
++mkSqlType (#const SQL_REAL)         _       _    = (SqlReal, (#const sizeof(SQLDOUBLE)))
++mkSqlType (#const SQL_DOUBLE)		_    	_    = (SqlDouble, (#const sizeof(SQLDOUBLE)))
++mkSqlType (#const SQL_BIT)          _    	_    = (SqlBit, (#const sizeof(SQLINTEGER)))
++mkSqlType (#const SQL_TINYINT)      _    	_    = (SqlTinyInt, (#const sizeof(SQLSMALLINT)))
++mkSqlType (#const SQL_BIGINT)       _    	_    = (SqlBigInt, (#const sizeof(SQLINTEGER)))
++mkSqlType (#const SQL_BINARY)       size    _    = (SqlBinary (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
++mkSqlType (#const SQL_VARBINARY)    size    _    = (SqlVarBinary (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
++mkSqlType (#const SQL_LONGVARBINARY)size    _    = (SqlLongVarBinary (fromIntegral size), 1) -- dummy bufSize
++mkSqlType (#const SQL_DATE)         _    	_    = (SqlDate, (#const sizeof(SQL_DATE_STRUCT)))
++mkSqlType (#const SQL_TIME)         _    	_    = (SqlTime, (#const sizeof(SQL_TIME_STRUCT)))
++mkSqlType (#const SQL_TIMESTAMP)	_    	_    = (SqlTimeStamp, (#const sizeof(SQL_TIMESTAMP_STRUCT)))
+ 
+ 
+ {-# NOINLINE fetch #-}
+@@ -568,3 +580,57 @@
+ 					xs <- loop
+ 					return (x:xs)
+ 				else return []
++
++-----------------------------------------------------------------------------------------
++-- getting table and column info
++-----------------------------------------------------------------------------------------
++
++foreign import ccall "sqlext.h SQLTables" sqlTables 
++    :: HSTMT -> CString -> SQLSMALLINT -> CString -> SQLSMALLINT 
++    -> CString -> SQLSMALLINT -> CString -> SQLSMALLINT 
++    -> IO SQLRETURN
++
++foreign import ccall "sqlext.h SQLColumns" sqlColumns
++    :: HSTMT -> CString -> SQLSMALLINT -> CString -> SQLSMALLINT 
++    -> CString -> SQLSMALLINT -> CString -> SQLSMALLINT 
++    -> IO SQLRETURN
++
++-- | List all tables in the database.
++tables :: Connection -- ^ Database connection
++	  -> IO [String] -- ^ The names of all tables in the database.
++tables conn = do  
++      stmt <- withStatement conn sqlTable'
++      -- SQLTable returns:
++      -- Column name     #   Type
++      -- TABLE_NAME      3   VARCHAR
++      collectRows (\s -> getFieldValue' s "TABLE_NAME" "") stmt
++      where sqlTable' hSTMT = sqlTables hSTMT nullPtr 0 nullPtr 0 nullPtr 0 nullPtr 0
++
++-- | List all columns in a table along with their types and @nullable@ flags
++describe :: Connection -- ^ Database connection
++	   -> String -- ^ Name of a database table
++	   -> IO [(String, SqlType, Bool)] -- ^ @[(name, type, nullable)]@
++describe conn table = do
++      stmt <- withStatement conn (\hSTMT -> sqlColumns' hSTMT table)
++      collectRows getColumnInfo stmt
++      where
++      sqlColumns' hSTMT table = 
++	  withCStringLen table (\(pTable,len) -> 
++	      sqlColumns hSTMT nullPtr 0 nullPtr 0 pTable (fromIntegral len) nullPtr 0)
++      -- SQLColumns returns:
++      -- Column name     #   Type
++      -- COLUMN_NAME     4   Varchar not NULL
++      -- DATA_TYPE       5   Smallint not NULL
++      -- COLUMN_SIZE     7   Integer
++      -- DECIMAL_DIGITS  9   Smallint
++      -- NULLABLE       11   Smallint not NULL
++      getColumnInfo stmt = 
++	  do
++	  name <- getFieldValue stmt "COLUMN_NAME"
++	  (t::Int) <- getFieldValue stmt "DATA_TYPE"
++	  (size::Int) <- getFieldValue' stmt "COLUMN_SIZE" 0
++	  (prec::Int) <- getFieldValue' stmt "DECIMAL_DIGITS" 0
++	  (n::Int) <- getFieldValue stmt "NULLABLE"
++	  let (sqlType,_) = mkSqlType (fromIntegral t) (fromIntegral size) (fromIntegral prec)
++	      nullable = n /= (#const SQL_NO_NULLS)
++	  return (name, sqlType, nullable)
 Index: PostgreSQL/HSQL.hsc
 ===================================================================
 RCS file: /cvsroot/htoolkit/HSQL/PostgreSQL/HSQL.hsc,v
 retrieving revision 1.10
-diff -u -r1.10 HSQL.hsc
+diff -u -u -r1.10 HSQL.hsc
 --- PostgreSQL/HSQL.hsc	27 Sep 2003 09:49:19 -0000	1.10
-+++ PostgreSQL/HSQL.hsc	23 Dec 2003 14:49:01 -0000
++++ PostgreSQL/HSQL.hsc	4 Jan 2004 03:14:14 -0000
 @@ -140,7 +140,14 @@
     | SqlFetchNull
  		{ seFieldName :: String
