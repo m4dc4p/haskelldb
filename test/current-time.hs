@@ -9,7 +9,7 @@ import Database.HaskellDB.HSQL.ODBC
 import Data.Maybe
 import System.Time
 
-opts = ODBCOptions{dsn="mysql-dp037", uid="dp037", pwd="teent333"}
+opts = ODBCOptions{dsn="", uid="", pwd=""}
 withDB f = odbcConnect opts f
 
 q = Project [("t",BinExpr (OpOther "NOW()") (ConstExpr "") (ConstExpr ""))] Empty
