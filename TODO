@@ -1,6 +1,7 @@
 Things that need to be done, in no particular order:
 
 - Code:
+  * Handle dates before 1970 correctly.
   * Support all SQL datatypes
   * make SQL generation tweakable by the DB driver, since different
     DBs have different SQL syntax, for example TOP / LIMIT.

@@ -78,3 +78,6 @@
   table layout to prented that the field has type String and use
   the date as a string.
   Reported by Esa Ilari Vuokko on 2004-04-27.
+
+- Dates before 1970 are not handled correctly. 
+  Reported by Mary on 2004-05-02.
