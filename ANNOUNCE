@@ -1,5 +1,5 @@
-We are pleased to announce the third alpha release of our "remake" of
-HaskellDB, version 0.7. 
+We are pleased to announce the first beta release of our "remake" of
+HaskellDB, version 0.8.
 HaskellDB is available for download from http://haskelldb.sourceforge.net
 
 HaskellDB is a Haskell library for expressing database queries and
@@ -13,21 +13,14 @@ available at http://www.haskell.org/haskellDB/. The implementation is
 based on his paper which can be found at:  
 http://www.cs.uu.nl/people/daan/download/papers/dsec.ps
 
-New in HaskellDB 0.7:
+New in HaskellDB 0.8:
+- Improved compatibility with Microsoft Access
+- Internal restructuring of code
+- DBDirect generated files are now cleaner and probably more portable
+  across HaskellDB versions
+- More test programs
 
-- Added functions for creating and dropping tables and databases.
-  Too be improved in future releases.
-- Support for wxHaskell with GHC.
-- Untyped support for SQLite, thanks to a patch from Jeremy Shaw.
-- Overloaded (!) can be used for both (!) and (!.).
-- Compiling for Hugs does not require GHC.
-- Added function for converting from nullable types. Suggested by Shae Erisson.
-- Added case construct.
-- A GenericConnect is now available. Uses similar syntax to DBDirect.
-- Backend interface changed to make function types backend independent.
-- Queries now return records instead of backend specific types.
-
-NOTE: Due to changes in DbDirect, any files generated using the old 
+NOTE: Due to changes in DBDirect, any files generated using the old 
 version of HaskellDB may have to be regenerated.
 
 The developers can be reached at haskelldb-users@lists.sourceforge.net or

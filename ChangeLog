@@ -1,3 +1,30 @@
+2004-05-04 15:50  forester
+
+	* BUGS, TODO, configure.ac: updates for 0.8
+
+2004-05-03 13:15  d00bring
+
+	* TODO: Added operator NULL handling issue.
+
+2004-05-02 18:50  chucky
+
+	* src/DBSpec/DBSpecToDatabase.hs: Fixed so that Databases generated
+	  do not try to create tables with empty names
+
+2004-05-02 16:15  d00bring
+
+	* BUGS, TODO: added pre-1970 bug
+
+2004-05-02 15:43  d00bring
+
+	* ChangeLog: Updated ChangeLog
+
+2004-05-02 15:39  d00bring
+
+	* src/DBSpec/DBSpecToDBDirect.hs: Inverted hasName condition. It
+	  caused only nameless tables to be printed, not the other way
+	  around.
+
 2004-05-01 19:38  d00bring
 
 	* test/THField.hs: Added template haskell field creation module.

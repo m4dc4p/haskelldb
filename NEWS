@@ -1,3 +1,10 @@
+HaskellDB 0.8: 2004-05-04
+- Improved compatibility with Microsoft Access
+- Internal restructuring of code
+- DBDirect generated files are now cleaner and probably more portable 
+  across HaskellDB versions
+- More test programs
+
 HaskellDB 0.7: 2004-03-31
 
 - Added functions for creating and dropping tables and databases.
