@@ -24,7 +24,7 @@ module Database ( (!.)
 		) where
 
 import HDBRec
-
+import FieldType
 import PrimQuery
 import Optimize (optimize)
 import Query	(Rel(..), Attr, Table(..), Query, Expr(..)
@@ -57,6 +57,8 @@ data Database db row
   	  , dbInsertNew :: db -> TableName -> Assoc -> IO ()
   	  , dbDelete :: db -> TableName -> [PrimExpr] -> IO ()
   	  , dbUpdate :: db -> TableName -> [PrimExpr] -> Assoc -> IO ()
+	  , dbTables :: db -> IO [TableName]
+	  , dbDescribe :: db -> TableName -> IO [(Attribute,FieldDef)]
   	  , database :: db
   	  }
   	  
@@ -128,3 +130,9 @@ update db (Table name assoc) criteria assignFun
 	  assigns	= assignFun rel
 	  rel		= Rel 0 (map fst assoc)
 	
+
+tables :: Database db row -> IO [TableName]
+tables db = dbInvoke dbTables db
+
+describe :: Database db row -> TableName -> IO [(Attribute,FieldDef)]
+describe db = dbInvoke dbDescribe db

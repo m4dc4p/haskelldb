@@ -2,9 +2,8 @@
  HSQL interface for HaskellDB
 
  TODO:
- - add tables and describe to Database
  - add Haddock comments
- - fix getField for all types
+ - figure out date / time types
 -}
 
 module HSQL_driver (
@@ -20,6 +19,7 @@ import Database hiding (query)
 import Sql
 import PrimQuery
 import Query
+import FieldType
 
 import Database.ODBC.HSQL as HSQL
 
@@ -56,6 +56,8 @@ newODBC connection
 		 dbInsertNew 	= odbcInsertNew,
 		 dbDelete	= odbcDelete,
 		 dbUpdate	= odbcUpdate,
+		 dbTables       = odbcTables,
+		 dbDescribe     = odbcDescribe,
 		 database	= connection
 	       }
 
@@ -91,11 +93,29 @@ odbcQuery connection qtree rel
       sql = show (ppSql (toSql qtree))  
       scheme = attributes qtree
 
-odbcTables :: Connection -> IO [String]
+odbcTables :: Connection -> IO [TableName]
 odbcTables = HSQL.tables
 
-odbcDescribe :: Connection -> String -> IO [(String,SqlType,Bool)]
-odbcDescribe = describe
+odbcDescribe :: Connection -> TableName -> IO [(Attribute,FieldDef)]
+odbcDescribe conn table = liftM (map toFieldDef) (HSQL.describe conn table)
+    where
+    toFieldDef (name,sqlType,nullable) = (name,(toFieldType sqlType, nullable))
+
+toFieldType :: SqlType -> FieldType
+toFieldType (SqlDecimal _ _) = DoubleT
+toFieldType (SqlNumeric _ _) = DoubleT
+toFieldType SqlSmallInt      = IntT
+toFieldType SqlInteger       = IntT
+toFieldType SqlReal          = DoubleT
+toFieldType SqlDouble        = DoubleT
+--toFieldType SqlBit           = ?
+toFieldType SqlTinyInt       = IntT
+toFieldType SqlBigInt        = IntegerT
+--toFieldType SqlDate          = ?
+--toFieldType SqlTime          = ?
+--toFieldType SqlTimeStamp     = ?
+toFieldType _                = StringT
+
 
 -----------------------------------------------------------
 -- Primitive Query
@@ -120,26 +140,10 @@ getRow scheme stmt =
 
 getField :: Statement -> Attribute -> IO ODBCValue
 getField s n = 
-    case t of
-	   SqlChar _ -> liftM toDyn (getFieldValue s n::IO String)
-	   SqlVarChar _ -> liftM toDyn (getFieldValue s n::IO String)
-	   SqlLongVarChar _ -> liftM toDyn (getFieldValue s n::IO String)
-	   SqlDecimal _ _ -> liftM toDyn (getFieldValue s n::IO Double)
-	   SqlNumeric _ _ -> liftM toDyn (getFieldValue s n::IO Double)
-	   SqlSmallInt -> liftM toDyn (getFieldValue s n::IO Int)
-	   SqlInteger -> liftM toDyn (getFieldValue s n::IO Int)
-	   SqlReal -> liftM toDyn (getFieldValue s n::IO Double)
-	   SqlDouble -> liftM toDyn (getFieldValue s n::IO Double)
-	   --SqlBit -> liftM toDyn (getFieldValue s n::IO Bool?)
-	   --SqlTinyInt -> liftM toDyn (getFieldValue s n::IO Int?)
-	   SqlBigInt -> liftM toDyn (getFieldValue s n::IO Int)
-	   --SqlBinary _ -> liftM toDyn (getFieldValue s n::IO ?)
-	   --SqlVarBinary _ -> liftM toDyn (getFieldValue s n::IO ?)
-	   --SqlLongVarBinary _ -> liftM toDyn (getFieldValue s n::IO ?)
-	   -- FIXME: no instance Typeable ClockTime
-	   --SqlDate -> liftM toDyn (getFieldValue s n::IO ClockTime)
-	   --SqlTime -> liftM toDyn (getFieldValue s n::IO ?)
-	   --SqlTimeStamp -> liftM toDyn (getFieldValue s n::IO ?)
-	where (t,nullable) = getFieldValueType s n
-
-
+    case ft of
+	    StringT  -> liftM toDyn (getFieldValue s n :: IO String)
+	    IntT     -> liftM toDyn (getFieldValue s n :: IO Int)
+	    IntegerT -> liftM toDyn (getFieldValue s n :: IO Integer)
+	    DoubleT  -> liftM toDyn (getFieldValue s n :: IO Double)
+    where (t,nullable) = getFieldValueType s n
+	  ft = toFieldType t
