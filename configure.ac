@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.9],[haskelldb-users@lists.sourceforge.net],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.41 $)
+AC_REVISION($Revision: 1.42 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -384,7 +384,9 @@ if test "$ENABLE_HUGS" = "yes"; then
    esac])
 
 	if test "$HUGS_DIR" = "" || test ! -d "$HUGS_DIR"; then
-	   AC_MSG_ERROR([HUGS_DIR $HUGS_DIR does not exist])
+	   AC_MSG_WARN([HUGS_DIR $HUGS_DIR does not exist,
+                        skipping hugs build.])
+           ENABLE_HUGS="no"
 	fi
 fi
 
