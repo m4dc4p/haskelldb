@@ -21,6 +21,9 @@ ghciload-%: %.hs
 %.o: %.hs
 	$(GHC) $(GHCFLAGS) -c $<
 
+%.hs: %.hspp
+	$(GHC) $(GHCFLAGS) -E $<
+
 %.hi: %.o
 	@:
 
