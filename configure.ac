@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.5],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.11 $)
+AC_REVISION($Revision: 1.12 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -235,19 +235,23 @@ AC_HELP_STRING([--with-ghc-hsql-dir=DIR],
                [Look for HSQL for GHC in DIR.
 		(default: ghc-dir)]),
 [GHC_HSQL_DIR="$withval"],
-[if test "$GHC_HSQL_DIR" = ""; then
-	GHC_HSQL_DIR="$GHC_DIR"
-fi]
+[]
 )
 
 if test "$GHC" != ""; then
 
-  AC_MSG_NOTICE([Checking if HSQL is available automatically])
-  AC_HS_GHC_MODULE_IFELSE([Database.HSQL],[query],[HSQL_AUTO_PACKAGE="yes"],)
+  if test "$GHC_HSQL_DIR" = ""; then
+    AC_MSG_NOTICE([Checking if HSQL is available automatically])
+    AC_HS_GHC_MODULE_IFELSE([Database.HSQL],[query],[HSQL_AUTO_PACKAGE="yes"],)
+  fi
 
   if test "$HSQL_AUTO_PACKAGE" = "yes"; then
 	GHCFLAGS="$GHCFLAGS -package hsql"
   else
+        if test "$GHC_HSQL_DIR" = ""; then
+	   GHC_HSQL_DIR="$GHC_DIR"
+        fi
+
 	if test "$GHC_HSQL_DIR" = "" || test ! -d $GHC_HSQL_DIR; then
 	   AC_MSG_ERROR([ghc-hsql-dir $GHC_HSQL_DIR does not exist])
 	fi
