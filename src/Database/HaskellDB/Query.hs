@@ -5,7 +5,25 @@
 -- The "Query" monad constructs a relational expression
 -- (PrimQuery). 
 -----------------------------------------------------------
-module Query where
+module Query (
+	      Rel, Attr(..), Table, Query, Expr
+	     , runQuery, runQueryRel
+	     , attribute, project, baseTable
+	     , attributeName, exprs, labels
+	     , (!) 
+	     , restrict, table
+	     , union, intersect, divide, minus
+	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
+	     , (.&&.) , (.||.)
+	     , (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
+	     , _not, like, cat
+	     , isNull, notNull
+	     , constant
+	     , count, _sum, _max, _min, avg
+	     , stddev, stddevP, variance, varianceP
+	     , asc, desc, order
+	     , top, topPercent
+	     ) where
 
 import HDBRec
 import PrimQuery
@@ -24,6 +42,7 @@ infixr  2 .||.
 
 (!) :: (ShowRecRow r) => Rel r -> Attr f r a -> Expr a
 rel ! attr      = select attr rel
+
 (.==.) x y      = eq x y
 (.<>.) x y      = neq x y
 (.<.) x y       = lt x y
@@ -132,7 +151,7 @@ binrel op (Query q1) (Query q2)
       in                                                                                           
           (Rel alias scheme,(k+1,times r primQ)) )                                         
           
-          
+union,intersect,divide,minus :: Query (Rel r) -> Query (Rel r) -> Query (Rel r)
 union           = binrel Union
 intersect       = binrel Intersect
 divide          = binrel Divide
