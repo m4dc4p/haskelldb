@@ -26,3 +26,9 @@
 
 - Using aggregate functions outside of project (e.g. in restrict)
   generates invalid SQL. Reported by viblo.
+
+- There is no way to do grouping explicitly, and tricking HaskellDB
+  into doing the right thing is not always easy. Currently, if a
+  project contains aggregate expressions, the results are grouped
+  by all non-aggregate fields in the project.
+  
