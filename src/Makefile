@@ -4,23 +4,26 @@ include rules.mk
 OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o PPrint.o \
        PrimQuery.o Query.o Sql.o FieldType.o
 
-DRIVERS = hsql
+DRIVER_OBJS = drivers/hsql/HSQL_driver.o
+
 
 SRC = $(patsubst %.o,%.hs, $(OBJS))
-DRIVERS_CLEAN = $(addsuffix -clean, $(DRIVERS))
 
-.PHONY: all clean dbdirect dbdirect-clean drivers $(DRIVERS) $(DRIVERS_CLEAN)
+DRIVER_DIRS = $(dir $(DRIVER_OBJS))
+DRIVERS_CLEAN = $(addsuffix -clean, $(DRIVER_DIRS))
 
-default all: libHDB.a drivers dbdirect
+.PHONY: all clean drivers $(DRIVERS_CLEAN) dbdirect dbdirect-clean
 
+default all: $(OBJS) drivers libHDB.a dbdirect
 
-libHDB.a: $(OBJS)
+libHDB.a: $(OBJS) $(DRIVER_OBJS)
 	$(AR) -rc $@ $^
 
-drivers: $(DRIVERS)
+drivers: $(DRIVER_OBJS)
 
-$(DRIVERS):
-	   $(MAKE) -C $(addprefix drivers/, $@)
+$(DRIVER_OBJS):
+	   $(MAKE) -C $(dir $@) $(notdir $@)
+
 dbdirect:
 	$(MAKE) -C dbdirect
 
@@ -34,6 +37,6 @@ dbdirect-clean:
 	$(MAKE) -C dbdirect clean
 
 $(DRIVERS_CLEAN):
-	make -C $(addprefix drivers/, $(subst -clean,,$@)) clean
+	make -C $(subst -clean,,$@) clean
 
 include .depend

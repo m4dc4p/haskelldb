@@ -1,14 +1,13 @@
 include ../../config.mk
 include ../../rules.mk
 
-LDFLAGS += -L$(HSQL_DIR)/Database -L$(UNIXODBC_LIBDIR)/lib -lHSsql -lodbc -lHDB
+LIBDIRS = ../.. $(HSQL_DIR)/Database $(UNIXODBC_LIBDIR)/lib
+LIBS = HDB HSsql odbc 
+
+LDFLAGS += $(addprefix -L, $(LIBDIRS)) $(addprefix -l, $(LIBS))
 GHCFLAGS += -i../.. -i$(HSQL_DIR)
 
 HUGSFLAGS += -P:../..:$(HSQL_DIR)
-
-OBJS = HSQL_driver.o test.o
-
-SRC = $(patsubst %.o,%.hs, $(OBJS))
 
 .PHONY: clean hugsload hugstest ghciload
 
@@ -28,8 +27,8 @@ hugstest:
 # GHC
 #
 
-test: $(OBJS)
-	$(GHC) $(GHCFLAGS) -o $@ $^ $(LDFLAGS) -L../..
+test: test.o
+	$(GHC) $(GHCFLAGS) -o $@ $^ $(LDFLAGS)
 
 ghciload: 
 	$(GHCI) $(GHCFLAGS) test.hs
@@ -41,7 +40,7 @@ ghciload:
 ../../libHSsql.a: 
 	$(MAKE) -C ../.. libHSsql.a
 
-.depend: $(SRC) 
+.depend: *.hs
 	$(GHC) -M -optdep-f -optdep.depend $(GHCFLAGS) $^
 
 clean:
