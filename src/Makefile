@@ -5,20 +5,11 @@ include $(TOP_DIR)/rules.mk
 OBJS = Database.o HaskellDB.o HDBRec.o HDBRecUtils.o Optimize.o \
        PrimQuery.o Query.o Sql.o FieldType.o
 
-DRIVERS = hsql
-
-# FIXME: we shouldn't have to list these here, do it 
-# somewhere in each driver directory
-DRIVERS_OBJS = drivers/hsql/HSQL_driver.o \
-               drivers/hsql/HSQL_ODBC.o \
-               drivers/hsql/HSQL_MySQL.o \
-               drivers/hsql/HSQL_PostgreSQL.o \
-
 SRC = $(patsubst %.o,%.hs, $(OBJS))
 
-DRIVER_DIRS = $(addprefix drivers/, $(DRIVERS))
 DRIVERS_TEST = $(addsuffix -test, $(DRIVER_DIRS))
 DRIVERS_CLEAN = $(addsuffix -clean, $(DRIVER_DIRS))
+DRIVERS_OBJS = $(addsuffix /*.o, $(DRIVER_DIRS))
 
 .PHONY: drivers $(DRIVER_DIRS) $(DRIVERS_OBJS) \
 	dbdirect dbdirect-clean test $(DRIVERS_TEST) \

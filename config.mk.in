@@ -1,6 +1,9 @@
 # HaskellDB configuration file. configure will produce config.mk from this file
 # @configure_input@
 
+# FIXME: this should probably be set by configure in the future
+DRIVERS = hsql
+
 WITH_HSQL_ODBC = @WITH_HSQL_ODBC@
 WITH_HSQL_MYSQL = @WITH_HSQL_MYSQL@
 WITH_HSQL_POSTGRESQL = @WITH_HSQL_POSTGRESQL@
@@ -26,16 +29,6 @@ INSTALL = @INSTALL@
 LDFLAGS = @LDFLAGS@
 
 #
-# Include local HaskellDB dirs
-#
-
-SRC_DIR = $(TOP_DIR)/src
-GHCFLAGS += -i$(SRC_DIR)
-HUGSFLAGS += -P$(SRC_DIR):
-# order is significant here
-LDFLAGS := -L$(SRC_DIR) -lHShdb $(LDFLAGS)
-
-#
 # HSQL, unixODBC, MySQL, PostgreSQL stuff
 #
 
@@ -50,5 +43,21 @@ endif
 ifeq "$(WITH_HSQL_POSTGRESQL)" "yes"
 HSQL_DRIVERS += HSQL_PostgreSQL
 endif
+
+
+#
+# Include local HaskellDB dirs
+#
+
+SRC_DIR = $(TOP_DIR)/src
+
+DRIVER_DIRS = $(addprefix $(SRC_DIR)/drivers/, $(DRIVERS))
+IMPORT_DIRS = $(SRC_DIR) $(DRIVER_DIRS)
+
+GHCFLAGS += $(addprefix -i, $(IMPORT_DIRS))
+HUGSFLAGS += $(pathsubst %, -P%:, $(IMPORT_DIRS)
+# order is significant here
+LDFLAGS := -L$(SRC_DIR) -lHShdb $(LDFLAGS)
+
 
 
