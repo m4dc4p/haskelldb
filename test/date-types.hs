@@ -1,10 +1,10 @@
-import System (getArgs)
-import Control.Monad (unless)
+import System.Time (calendarTimeToString)
 
 import Database.HaskellDB
 import Dp037.D3proj_time_reports hiding (xid)
-import qualified Dp037.D3proj_time_reports
 import Dp037.D3proj_users
+
+
 --import Database.HaskellDB.HSQL.PostgreSQL
 import Database.HaskellDB.HSQL.ODBC
 
@@ -22,8 +22,11 @@ getUsers =
 	     day << reports!day)
 
 
-showReport r = r!.first_name ++ " " ++ r!.last_name ++ " " 
-	       ++ show (r!.day)
+showReport r = rpad 20 (r!.first_name ++ " " ++ r!.last_name) ++ " " 
+	       ++ calendarTimeToString (r!.day)
+
+rpad :: Int -> String -> String
+rpad x s = s ++ replicate (x - length s) ' '
 
 printReports db = 
     do
