@@ -16,7 +16,7 @@ import Data.List
 
 -- * Data declarations.
 
--- | Last entry in each record.
+-- | The empty record.
 data HDBRecTail = HDBRecTail deriving (Eq)
 
 -- | Constructor that adds a field to a record
@@ -46,7 +46,7 @@ instance HasField f r => HasField f (HDBRecCons g a r)
 instance HasField f r => HasField f (HDBRec r)
 
 -- | Class for getting the value of a field from a record.
-class SelectField f r a where
+class SelectField f r a | f r -> a where
     -- | Gets the value of a field from a record.
     selectField :: f -- ^ Field label
 		-> r -- ^ Record 
