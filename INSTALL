@@ -17,6 +17,8 @@ Requirements:
 
 - GHC 6.2
 
+- GNU Make 3.79.1
+
 - Hugs November 2003 (if you want Hugs support)
 
 - HSQL 1.2  (http://htoolkit.sourceforge.net/)
