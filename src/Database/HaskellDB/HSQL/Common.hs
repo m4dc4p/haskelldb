@@ -7,6 +7,20 @@
  - make odbcPrimQuery lazy
 -}
 
+
+-----------------------------------------------------------
+-- |
+-- Module      :  HaskellDB
+-- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
+--                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- License     :  BSD-style
+-- 
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
+--
+-- HSQL interface for HaskellDB
+-----------------------------------------------------------
 module Database.HaskellDB.HSQL.Common (
 		     hsqlConnect
 		   , HSQL
