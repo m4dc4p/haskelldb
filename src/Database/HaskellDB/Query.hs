@@ -13,7 +13,7 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.54 $
+-- $Revision: 1.55 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -416,7 +416,7 @@ quote s = "'" ++ concatMap escape s ++ "'"
 -- | Escape characters that need escaping
 escape :: Char -> String
 escape '\NUL' = "\\0"
-escape '\'' = "\\'"
+escape '\'' = "''"
 escape '"' = "\\\""
 escape '\b' = "\\b"
 escape '\n' = "\\n"
