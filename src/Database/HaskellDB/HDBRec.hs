@@ -10,7 +10,7 @@
 -- 
 -- This is a replacement for some of TREX.
 --
--- $Revision: 1.30 $
+-- $Revision: 1.31 $
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec 
     (
@@ -52,18 +52,12 @@ type Record r = RecNil -> r
        -> Record (RecCons f a RecNil)  -- ^ New record
 _ .=. x = RecCons x
 
-class RecCat r1 r2 r3 | r1 r2 -> r3 where
-    -- | Concatenates two records.
-    ( # ) :: r1 -> r2 -> r3
+-- | Adds the field from a one-field record to another record.
+( # ) :: Record (RecCons f a RecNil) -- ^ Field to add
+      -> (b -> c)                    -- ^ Rest of record
+      -> (b -> RecCons f a c)        -- ^ New record
+f # r = let RecCons x _ = f RecNil in RecCons x . r
 
-instance RecCat RecNil r r where
-    RecNil # r = r
-
-instance RecCat r1 r2 r3 => RecCat (RecCons f a r1) r2 (RecCons f a r3) where
-    RecCons x r1 # r2 = RecCons x (r1 # r2)
-
-instance RecCat r1 r2 r3 => RecCat (Record r1) (Record r2) (Record r3) where
-    r1 # r2 = \n -> r1 n # r2 n
 
 -- | The empty record
 emptyRecord :: Record RecNil
@@ -84,6 +78,22 @@ instance HasField f (RecCons f a r)
 instance HasField f r => HasField f (RecCons g a r)
 instance HasField f r => HasField f (Record r)
 
+-- * Record concatenation
+
+class RecCat r1 r2 r3 | r1 r2 -> r3 where
+    -- | Concatenates two records.
+    cat :: r1 -> r2 -> r3
+
+instance RecCat RecNil r r where
+    cat RecNil r = r
+
+instance RecCat r1 r2 r3 => RecCat (RecCons f a r1) r2 (RecCons f a r3) where
+    cat (RecCons x r1) r2 = RecCons x (cat r1 r2)
+
+instance RecCat r1 r2 r3 => RecCat (Record r1) (Record r2) (Record r3) where
+    cat r1 r2 = \n -> cat (r1 n) (r2 n)
+
+-- * Field selection
 
 infix   9 !
 
@@ -114,6 +124,8 @@ instance SelectField f r a => SelectField f (RecCons g b r) a where
 
 instance SelectField f r a => SelectField f (Record r) a where
     selectField f r = selectField f (r RecNil)
+
+-- * Field update
 
 class SetField f r a where
     -- | Sets the value of a field in a record.
