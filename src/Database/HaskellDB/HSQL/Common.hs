@@ -2,7 +2,10 @@
  HSQL interface for HaskellDB
 -}
 
-module HSQL_driver where
+module HSQL_driver (
+		    ODBCOptions(..)
+		   , odbcConnect
+		   ) where
 
 import Data.Dynamic
 import Monad
@@ -13,7 +16,7 @@ import Sql
 import PrimQuery
 import Query
 
-import Database.ODBC.HSQL 
+import Database.ODBC.HSQL as HSQL
 
 type ODBC = Database Connection (ODBCRow)
 
@@ -83,6 +86,12 @@ odbcQuery connection qtree rel
       sql = show (ppSql (toSql qtree))  
       scheme = attributes qtree
 
+odbcTables :: Connection -> IO [String]
+odbcTables = HSQL.tables
+
+odbcDescribe :: Connection -> String -> IO [(String,SqlType,Bool)]
+odbcDescribe = describe
+
 -----------------------------------------------------------
 -- Primitive Query
 -- The "Rel r" argument is a phantom argument to get
@@ -127,3 +136,5 @@ getField s n =
 	   --SqlTime -> liftM toDyn (getFieldValue s n::IO ?)
 	   --SqlTimeStamp -> liftM toDyn (getFieldValue s n::IO ?)
 	where (t,nullable) = getFieldValueType s n
+
+
