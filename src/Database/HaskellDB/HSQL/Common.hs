@@ -9,6 +9,8 @@
 -- Portability :  portable
 --
 -- HSQL interface for HaskellDB
+--
+-- $Revision: 1.45 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.HSQL.Common (
@@ -20,7 +22,6 @@ import Control.Exception (catch, throwIO)
 import Control.Monad
 import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Time
-
 
 import Database.HaskellDB.Database
 import Database.HaskellDB.Sql
@@ -69,15 +70,19 @@ hsqlQuery connection qtree rel = hsqlPrimQuery connection sql scheme rel
       sql = show (ppSql (toSql qtree))  
       scheme = attributes qtree
 
+hsqlInsert :: Connection -> TableName -> Assoc -> IO ()
 hsqlInsert conn table assoc = 
     hsqlPrimExecute conn $ show $ ppInsert $ toInsert table assoc
-	  
+
+hsqlInsertQuery :: Connection -> TableName -> PrimQuery -> IO ()
 hsqlInsertQuery conn table assoc = 
     hsqlPrimExecute conn $ show $ ppInsert $ toInsertQuery table assoc
-	  
+
+hsqlDelete :: Connection -> TableName -> [PrimExpr] -> IO ()
 hsqlDelete conn table exprs = 
     hsqlPrimExecute conn $ show $ ppDelete $ toDelete table exprs
 
+hsqlUpdate :: Connection -> TableName -> [PrimExpr] -> Assoc -> IO ()
 hsqlUpdate conn table criteria assigns = 
     hsqlPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
 
