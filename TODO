@@ -12,7 +12,8 @@ Things that need to be done, in no particular order:
     - Linux binary and source RPMs 
     - Windows installer (MSI?)
 
-- Automatic configuration (autoconf or something)
+- Build system
+  * Automatic configuration (autoconf or something)
 
 - More database drivers
   * wxHaskell
