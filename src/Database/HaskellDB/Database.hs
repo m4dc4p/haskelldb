@@ -73,7 +73,7 @@ data Database
 	  , dbCreateDB :: String -> IO ()
 	  , dbCreateTable :: TableName -> [(Attribute,FieldDesc)] -> IO ()
 	  , dbDropDB :: String -> IO ()
-	  , dbDropTable :: TableName -> [(Attribute,FieldDesc)] -> IO ()
+	  , dbDropTable :: TableName -> IO ()
   	  }
 
 
@@ -272,6 +272,5 @@ dropDB = dbDropDB
 
 dropTable :: Database -- ^ Database
 	  -> TableName -- ^ Name of table to drop
-	  -> [(Attribute,FieldDesc)] -- ^ The fields of the table
 	  -> IO ()
 dropTable = dbDropTable

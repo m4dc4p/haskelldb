@@ -62,7 +62,7 @@ data SqlCreate = SqlCreateDB String
 		   | SqlCreateTable TableName [(Attribute,FieldDesc)]
 
 data SqlDrop = SqlDropDB String
-	     | SqlDropTable TableName [(Attribute,FieldDesc)]
+	     | SqlDropTable TableName
 
 newSelect       = SqlSelect { options   = []
 			    , attrs 	= []
@@ -292,17 +292,10 @@ ppCreate (SqlCreateTable name xs)
 toDropDB :: String -> SqlDrop
 toDropDB name = SqlDropDB name
 
-toDropTable :: TableName -> [(Attribute,FieldDesc)] -> SqlDrop
-toDropTable name xs = SqlDropTable name xs
+toDropTable :: TableName -> SqlDrop
+toDropTable name = SqlDropTable name
 
 ppDrop :: SqlDrop -> Doc
 ppDrop (SqlDropDB name) = text "DROP DATABASE" <+> text name
-ppDrop (SqlDropTable name xs) 
+ppDrop (SqlDropTable name) 
     = text "DROP TABLE" <+> text name 
-      <+> parens (vcat $ punctuate comma (map ppF xs))
-    where
-    ppF (fname,(ftype,nullable)) 
-	= text fname <+> text (sshow ftype)
-	  <> if nullable then text "" else text " not null"
-
--- FIXME: maybe ppDrop and ppCreate could be combined somehow?

@@ -19,6 +19,7 @@ module Database.HaskellDB.GenericConnect (genericConnect) where
 -- #define WITH_HSQL_POSTGRESQL
 
 import Database.HaskellDB.Database
+import Data.Char
 
 #ifdef WITH_HSQL_ODBC
 import qualified Database.HaskellDB.HSQL.ODBC as OD
@@ -38,26 +39,29 @@ import qualified Database.HaskellDB.WX as WX
 #endif
 
 genericConnect :: String -> [String] -> ((Database -> IO a) -> IO a)
+genericConnect a b = genericConnect' (map toLower a) b
+
+genericConnect' :: String -> [String] -> ((Database -> IO a) -> IO a)
 #ifdef WITH_HSQL_ODBC
-genericConnect "odbc" (a:b:c:[]) = connectODBC a b c
+genericConnect' "odbc" (a:b:c:[]) = connectODBC a b c
 #endif
 #ifdef WITH_HSQL_MYSQL
-genericConnect "mysql" (a:b:c:d:[]) = connectMySQL a b c d
+genericConnect' "mysql" (a:b:c:d:[]) = connectMySQL a b c d
 #endif
 #ifdef WITH_HSQL_SQLITE
-genericConnect "sqlite" (a:b:[]) = connectSQLite a b
+genericConnect' "sqlite" (a:b:[]) = connectSQLite a b
 #endif
 #ifdef WITH_HSQL_POSTGRESQL
-genericConnect "postgresql" (a:b:c:d:[]) 
+genericConnect' "postgresql" (a:b:c:d:[]) 
     = connectPostgreSQL a b c d
-genericConnect "postgre" (a:b:c:d:[]) 
+genericConnect' "postgre" (a:b:c:d:[]) 
     = connectPostgreSQL a b c d
 #endif
 #ifdef WITH_WX
-genericConnect "wx" (a:b:c:[]) = connectWXHaskell a b c
-genericConnect "wxhaskell" (a:b:c:[]) = connectWXHaskell a b c
+genericConnect' "wx" (a:b:c:[]) = connectWXHaskell a b c
+genericConnect' "wxhaskell" (a:b:c:[]) = connectWXHaskell a b c
 #endif
-genericConnect _ _ = error "Database driver not compiled in" 
+genericConnect' _ _ = error "Database driver not compiled in" 
 -- only used when no drivers, to make
 -- this compile anyway
 
