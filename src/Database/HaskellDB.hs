@@ -7,7 +7,7 @@
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non portable
 --
 -- HaskellDB is the main module that a user should 
 -- import. Beside this module, a user should import a
@@ -29,7 +29,7 @@ module Database.HaskellDB
 	, (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
 	, _not, like, cat
 	, isNull, notNull
-	, constant, nullable
+	, constant, constJust
 	
 	, count, _sum, _max, _min, avg
 	, stddev, stddevP, variance, varianceP

@@ -12,7 +12,7 @@ printRecords db = do
 		  mapM printRecord rs
 
 testTrans db = do
-	       insert db test_tb1 (c11 << constant 2 # c12 << nullable (-67))
+	       insert db test_tb1 (c11 << constant 2 # c12 << constJust (-67))
 	       fail "oops, that didn't work out"
 
 test db = do
