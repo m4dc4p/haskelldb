@@ -1,10 +1,13 @@
 import HSQL_driver
 import HaskellDB
 import Query 
+import Random
 
-import Database.ODBC.HSQL (SqlError, seErrorMsg, handleSql)
+import Database.ODBC.HSQL (SqlError, handleSql)
 import HDBRec
 import HDBRecUtils
+
+-- create table test_tb1 (c11 int not null, c12 int null);
 
 ---------------------------------------------------------------------------
 -- Tables
@@ -70,11 +73,11 @@ q = do
     tb1 <- table test_tb1
     project (c11 << tb1!c11 # c12 << tb1!c12)
 
-ins = c11 << constant 42 # c12 << constant (Just 7)
+newRec x y = c11 << constant x # c12 << constant y
 
 
-handleQuery :: (HasField C11 r, HasField C12 r, Row row Int, Row row (Maybe Int)) => [row r] -> IO ()
-handleQuery = mapM_ (\row -> putStrLn (show (row!.c11) ++ " " ++ show (row!.c12)))
+--printResults :: (HasField C11 r, HasField C12 r, Row row Int, Row row (Maybe Int)) => [row r] -> IO ()
+printResults = mapM_ (\row -> putStrLn (show (row!.c11) ++ " " ++ show (row!.c12)))
 
 --
 -- Testing db layout functions
@@ -94,15 +97,26 @@ describeTable table = runTest (\db -> describe db table)
 
 bigTest db = do
 	     putStrLn ("Connected to: " ++ dsn opts ++ "\n")
+{-
 	     putStrLn "Tables:"
 	     ts <- tables db
 	     putStrLn (unlines ts)
 	     cols <- describe db "test_tb1"
 	     putStrLn "Columns in test_tb1"
 	     putStrLn (unlines (map show cols))
+	     putStrLn "Contents of test_tb1"
 	     res <- query db q 
-	     handleQuery res
---       insertNew db test_tb1 ins
+	     printResults res
+	     (x::Int) <- randomIO
+	     (y::Int) <- randomIO
+	     let my = if even y then Just y else Nothing
+	     insertNew db test_tb1 (newRec x my)
+--	     insert db test_tb1 (project (newRec x my))
+	     putStrLn $ "Contents of test_tb1 after inserting " ++ show (x,my)
+-}
+	     putStrLn "Contents of test_tb1"
+	     res <- query db q 
+	     printResults res
 
 main = runTest bigTest
        

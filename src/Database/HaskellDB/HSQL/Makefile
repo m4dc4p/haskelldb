@@ -11,7 +11,7 @@ hugstest: test.hs
 ghciload: LDFLAGS = -lodbc 
 ghciload: test.hs
 
-test: test.o
+test: test.o $(SRC_DIR)/libHDB.a
 
 .depend: *.hs
 
