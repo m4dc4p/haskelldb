@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.7],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.33 $)
+AC_REVISION($Revision: 1.34 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -37,6 +37,32 @@ AC_HELP_STRING([--enable-verbose-warnings],
 	GHCFLAGS="$GHCFLAGS -W -fwarn-missing-signatures"
 fi],
 )
+
+dnl ***********************************************
+dnl Enable/Disable building Hugs libraries
+dnl ***********************************************
+
+AC_ARG_ENABLE(hugs,
+AC_HELP_STRING([--enable-hugs],
+	       [Enable builing Hugs libraries. 
+	        (default = yes)]),
+[ENABLE_HUGS="$enableval"],
+[ENABLE_HUGS=yes]
+)
+AC_SUBST(ENABLE_HUGS)
+
+dnl ***********************************************
+dnl Enable/Disable building GHC libraries
+dnl ***********************************************
+
+AC_ARG_ENABLE(ghc,
+AC_HELP_STRING([--enable-ghc],
+	       [Enable builing GHC libraries. 
+	        (default = yes)]),
+[ENABLE_GHC="$enableval"],
+[ENABLE_GHC=yes]
+)
+AC_SUBST(ENABLE_GHC)
 
 dnl ***********************************************
 dnl Enable/Disable HSQL for ghc
@@ -187,32 +213,6 @@ WITH_HUGS_WX=no
 AC_SUBST(WITH_HUGS_WX)
 
 dnl ***********************************************
-dnl Enable/Disable building Hugs libraries
-dnl ***********************************************
-
-AC_ARG_ENABLE(hugs,
-AC_HELP_STRING([--enable-hugs],
-	       [Enable builing Hugs libraries. 
-	        (default = yes)]),
-[ENABLE_HUGS="$enableval"],
-[ENABLE_HUGS=yes]
-)
-AC_SUBST(ENABLE_HUGS)
-
-dnl ***********************************************
-dnl Enable/Disable building GHC libraries
-dnl ***********************************************
-
-AC_ARG_ENABLE(ghc,
-AC_HELP_STRING([--enable-ghc],
-	       [Enable builing GHC libraries. 
-	        (default = yes)]),
-[ENABLE_GHC="$enableval"],
-[ENABLE_GHC=yes]
-)
-AC_SUBST(ENABLE_GHC)
-
-dnl ***********************************************
 dnl C compiler
 dnl ***********************************************
 
@@ -222,26 +222,27 @@ AC_SUBST(CC)
 dnl ***********************************************
 dnl GHC
 dnl ***********************************************
-AC_ARG_WITH(ghc,
-AC_HELP_STRING([--with-ghc=<ghc command>],
-               [Use a different command instead of 
-                'ghc' for the Haskell compiler.]),
-[AC_CHECK_FILE("$withval",GHC="$withval",[AC_PATH_PROG(GHC,"$withval")])],
-[AC_PATH_PROG(GHC,ghc)]
-)
-
-if test "$GHC" = "" || test ! -x "$GHC"; then
-   AC_MSG_WARN([GHC not found. Not building GHC libraries.])
-   ENABLE_GHC=no
-else
-  GHCI=$(dirname $GHC)/ghci
-fi
 
 if test "$ENABLE_GHC" = "yes"; then
-  AC_HS_CHECK_GHC_VERSION_IFELSE([$ghc_req_major_verison],
+  AC_ARG_WITH(ghc,
+  AC_HELP_STRING([--with-ghc=<ghc command>],
+               [Use a different command instead of 
+                'ghc' for the Haskell compiler.]),
+  [AC_CHECK_FILE("$withval",GHC="$withval",[AC_PATH_PROG(GHC,"$withval")])],
+  [AC_PATH_PROG(GHC,ghc)])
+
+  if test "$GHC" = "" || test ! -x "$GHC"; then
+    AC_MSG_WARN([GHC not found. Not building GHC libraries.])
+    GHC=""
+    ENABLE_GHC=no
+  else
+    GHCI=$(dirname $GHC)/ghci
+    
+    AC_HS_CHECK_GHC_VERSION_IFELSE([$ghc_req_major_verison],
     [$ghc_req_minor_verison],,[
       AC_MSG_ERROR([ghc >= $ghc_req_major_verison.$ghc_req_minor_verison
 	            is required to build HaskellDB.]) ])
+  fi
 fi
 
 AC_SUBST(GHC)
@@ -249,19 +250,17 @@ AC_SUBST(GHCI)
 AC_SUBST(GHC_VERSION)
 
 dnl ***********************************************
-dnl GHC directory
+dnl GHC directory 
 dnl ***********************************************
-AC_ARG_WITH(ghc-dir,
-AC_HELP_STRING([--with-ghc-dir=DIR],
-               [Install GHC libraries in the given GHC directory 
-                (default is "ghc --print-libdir")]),
-[GHC_DIR="$withval"],
-[if test "$ENABLE_GHC" = "yes"; then
-   GHC_DIR=`$GHC --print-libdir`
- fi]
-)
 
 if test "$ENABLE_GHC" = "yes"; then
+  AC_ARG_WITH(ghc-dir,
+  AC_HELP_STRING([--with-ghc-dir=DIR],
+               [Install GHC libraries in the given GHC directory 
+                (default is "ghc --print-libdir")]),
+  [GHC_DIR="$withval"],
+  [GHC_DIR=`$GHC --print-libdir`])
+
 	if test "$GHC_DIR" = "" || test ! -d $GHC_DIR; then
 	   AC_MSG_ERROR([GHC_DIR $GHC_DIR does not exist])
 	fi
@@ -272,17 +271,17 @@ AC_SUBST(GHC_DIR)
 dnl ***********************************************
 dnl ghc-pkg
 dnl ***********************************************
-AC_ARG_WITH(ghc-pkg,
-AC_HELP_STRING([--with-ghc-pkg=<ghc-pkg command>],
-               [Use a different command instead of 'ghc-pkg']),
-[GHC_PKG="$withval"
-if test ! -x "$GHC_PKG"; then AC_PATH_PROG(GHC_PKG,"$withval") fi],
-[AC_CHECK_FILE("$(dirname $GHC)/ghc-pkg",
-	       GHC_PKG="$(dirname $GHC)/ghc-pkg",
-	       [AC_PATH_PROG(GHC_PKG,ghc-pkg)])]
-)
 
 if test "$ENABLE_GHC" = "yes"; then
+  AC_ARG_WITH(ghc-pkg,
+  AC_HELP_STRING([--with-ghc-pkg=<ghc-pkg command>],
+               [Use a different command instead of 'ghc-pkg']),
+  [GHC_PKG="$withval"
+   if test ! -x "$GHC_PKG"; then AC_PATH_PROG(GHC_PKG,"$withval") fi],
+  [AC_CHECK_FILE("$(dirname $GHC)/ghc-pkg",
+	       GHC_PKG="$(dirname $GHC)/ghc-pkg",
+	       [AC_PATH_PROG(GHC_PKG,ghc-pkg)])])
+
 	if test "$GHC_PKG" = "" || test ! -x "$GHC_PKG"; then
 	   AC_MSG_ERROR([ghc-pkg is required for GHC support])
 	fi
@@ -293,19 +292,23 @@ AC_SUBST(GHC_PKG)
 dnl ***********************************************
 dnl HUGS
 dnl ***********************************************
-AC_ARG_WITH(hugs,
-AC_HELP_STRING([--with-hugs=<hugs command>],
+
+if test "$ENABLE_HUGS" = "yes"; then
+  AC_ARG_WITH(hugs,
+ AC_HELP_STRING([--with-hugs=<hugs command>],
                [Use a different command instead of 'hugs' 
 	        for the Hugs interpreter.]),
-[AC_CHECK_FILE("$withval",HUGS="$withval",[AC_PATH_PROG(HUGS,"$withval")])],
-[AC_PATH_PROG(HUGS,hugs)]
-)
+  [AC_CHECK_FILE("$withval",HUGS="$withval",[AC_PATH_PROG(HUGS,"$withval")])],
+  [AC_PATH_PROG(HUGS,hugs)])
 
-if test "$ENABLE_HUGS" != "yes" || test "$HUGS" = "" || test ! -x "$HUGS"; then
-  AC_MSG_WARN([The build for HUGS will be skipped.])
-  ENABLE_HUGS="no"
-else
-  RUNHUGS=$(dirname $HUGS)/runhugs
+  if test "$HUGS" = "" || test ! -x "$HUGS"; then
+    AC_MSG_WARN([The build for HUGS will be skipped.])
+    HUGS=""
+    ENABLE_HUGS="no"
+  else
+    RUNHUGS=$(dirname $HUGS)/runhugs
+  fi
+
 fi
 
 case $ac_cv_target_alias in
@@ -321,21 +324,19 @@ AC_SUBST(SO_EXT)
 dnl ***********************************************
 dnl HUGS directory
 dnl ***********************************************
-AC_ARG_WITH(hugs-dir,
-AC_HELP_STRING([--with-hugs-dir=DIR],
+
+if test "$ENABLE_HUGS" = "yes"; then
+  AC_ARG_WITH(hugs-dir,
+  AC_HELP_STRING([--with-hugs-dir=DIR],
                [Install Hugs libraries in the given Hugs directory 
                 (default is the Hugs libraries directory)]),
-[HUGS_DIR="$withval"],
-[if test "$ENABLE_HUGS" = "yes"; then
-   case $ac_cv_target_alias in
+  [HUGS_DIR="$withval"],
+  [case $ac_cv_target_alias in
       i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
           HUGS_DIR=$(dirname $HUGS);;
       *)  HUGS_DIR=$(dirname $HUGS)/../lib/hugs;;
-   esac
- fi]
-)
+   esac])
 
-if test "$ENABLE_HUGS" = "yes"; then
 	if test "$HUGS_DIR" = "" || test ! -d "$HUGS_DIR"; then
 	   AC_MSG_ERROR([HUGS_DIR $HUGS_DIR does not exist])
 	fi
@@ -360,6 +361,8 @@ if test "$ENABLE_GHC" = "yes" && test "$WITH_GHC_HSQL" = "yes"; then
     GHCFLAGS="`echo $GHCFLAGS | sed 's/-package hsql//'`"
   fi
 
+else
+  WITH_GHC_HSQL="no"
 fi
 
 dnl ***********************************************
@@ -370,10 +373,12 @@ if test "$ENABLE_HUGS" = "yes" && test "$WITH_HUGS_HSQL" = "yes"; then
     AC_HS_HUGS_MODULE_IFELSE([Database.HSQL], [query],,
 	 [AC_MSG_WARN([HSQL for Hugs not found.])
 	 WITH_HUGS_HSQL="no"])
+else
+  WITH_HUGS_HSQL="no"
 fi
 
 dnl ***********************************************
-dnl WxHaskell for GHC
+dnl Check for wxHaskell for GHC
 dnl ***********************************************
 
 if test "$ENABLE_GHC" = "yes" && test "$WITH_GHC_WX" = "yes"; then
@@ -386,7 +391,8 @@ if test "$ENABLE_GHC" = "yes" && test "$WITH_GHC_WX" = "yes"; then
   if test "$WITH_GHC_WX" != "yes"; then
     GHCFLAGS="`echo $GHCFLAGS | sed 's/-package wxcore//'`"
   fi
-
+else
+  WITH_GHC_WX="no"
 fi
 
 dnl ***********************************************

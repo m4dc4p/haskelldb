@@ -9,7 +9,7 @@ AC_DEFUN([AC_HS_GHC_COMPILE_IFELSE],
 cat << \EOF > conftest.hs 
 [$1]
 EOF
-if AC_TRY_COMMAND($GHC $GHCFLAGS -c conftest.hs) && test -f conftest.o; then
+if test "$GHC" != "" && AC_TRY_COMMAND($GHC $GHCFLAGS -c conftest.hs) && test -f conftest.o; then
 	m4_default([$2],:)
 else
 	m4_default([$3],:)
@@ -24,7 +24,7 @@ AC_DEFUN([AC_HS_HUGS_RUN_IFELSE],
 cat << \EOF > conftest.hs
 [$1]
 EOF
-if AC_TRY_COMMAND($RUNHUGS $HUGSFLAGS conftest.hs); then
+if test "$RUNHUGS" != "" && AC_TRY_COMMAND($RUNHUGS $HUGSFLAGS conftest.hs); then
 	m4_default([$2],:)
 else
 	m4_default([$3],:)
