@@ -38,6 +38,9 @@ import Text.PrettyPrint.HughesPJ
 -- SQL data type
 -----------------------------------------------------------
 
+-- | Data type representing the SQL SELECT statement.
+-- Can be created with the 'toSql' function', and pretty printed
+-- with the 'ppSql' function.
 data SqlSelect  = SqlSelect   { options  :: [String]
 			      , attrs    :: [(Attribute,String)]
                               , tables   :: [(TableName,SqlSelect)]
@@ -47,22 +50,38 @@ data SqlSelect  = SqlSelect   { options  :: [String]
 			      , limit    :: [String]
                               }
                 | SqlBin   String SqlSelect SqlSelect
-                | SqlTable TableName
-                | SqlEmpty
+                | SqlTable TableName -- ^ Select a whole table named TableName.
+                | SqlEmpty -- ^ Empty select.
 
 
-data SqlUpdate  = SqlUpdate TableName [String] [String]
+-- | Data type representing the SQL UPDATE statement.
+-- Can be created with the 'toUpdate' function, and pretty printed with
+-- the 'ppUpdate' function.
+data SqlUpdate  = SqlUpdate TableName [String] [String] -- ^ Update 
+-- the rows in table TableName that corresponds to the criterias
+-- supplid with the second field with values from the last field.
 
-data SqlDelete  = SqlDelete TableName [String]
 
+-- | Data type representing the SQL DELETE statement.
+-- Can be created with the 'toDelete' function, and pretty printed with
+-- the 'ppDelete' function.
+data SqlDelete  = SqlDelete TableName [String] -- ^ Delete the rows 
+-- in the table TableName that corresponds to the criterias 
+-- supplied as a list of strings in the last field.
+
+-- | Data type representing the SQL INSERT statement.
 data SqlInsert  = SqlInsert  TableName [(Attribute,String)]
                 | SqlInsertQuery TableName SqlSelect
 
-data SqlCreate = SqlCreateDB String
-		   | SqlCreateTable TableName [(Attribute,FieldDesc)]
+-- | Data type representing the SQL CREATE statement.
+data SqlCreate = SqlCreateDB String -- ^ Create a database
+		   | SqlCreateTable TableName [(Attribute,FieldDesc)] 
+-- ^ Create a table with name TableName and with a list of Attributes and 
+-- FieldDescs.
 
-data SqlDrop = SqlDropDB String
-	     | SqlDropTable TableName
+-- | Data type representing the SQL DROP statement.
+data SqlDrop = SqlDropDB String -- ^ Delete a database
+	     | SqlDropTable TableName -- ^ Delete a table named TableName
 
 newSelect       = SqlSelect { options   = []
 			    , attrs 	= []
@@ -80,6 +99,8 @@ newSelect       = SqlSelect { options   = []
 
 -- invariant: null attrs => null groupby
 
+-- | Creates a 'SqlSelect' based on the 'PrimQuery' supplied.
+-- Corresponds to the SQL statement SELECT.
 toSql   :: PrimQuery -> SqlSelect
 toSql   = foldPrimQuery (empty,table,project,restrict,binary,special)
         where
@@ -136,6 +157,7 @@ toSql   = foldPrimQuery (empty,table,project,restrict,binary,special)
           	where
                   sql	    = toSelect q
 
+
 toSelect :: SqlSelect -> SqlSelect
 toSelect sql    = case sql of
                     (SqlEmpty)          -> newSelect
@@ -160,6 +182,8 @@ toSqlOp Difference   = "EXCEPT"
 -----------------------------------------------------------
 -- SELECT, show & pretty print
 -----------------------------------------------------------
+
+-- | Pretty prints a 'SqlSelect'
 ppSql :: SqlSelect -> Doc
 ppSql (SqlSelect options attrs tables criteria groupby orderby limit)
     = text "SELECT DISTINCT" <+> (hsep . map text) options <+> ppAttrs attrs
@@ -209,11 +233,21 @@ ppAs alias expr    | null alias    = expr
 -----------------------------------------------------------
 -- INSERT
 -----------------------------------------------------------
-toInsertQuery :: TableName -> PrimQuery -> SqlInsert
+
+-- | Creates a 'SqlInsert'. Corresponds to the SQL statement
+-- INSERT INTO which is used to insert new rows in a table.
+toInsertQuery :: TableName -- ^ Name of the table
+	      -> PrimQuery -- ^ What to insert
+	      -> SqlInsert
 toInsertQuery table qtree
 	= SqlInsertQuery table (toSql qtree)
 
-toInsert :: TableName -> Assoc -> SqlInsert
+-- | Creates a 'SqlInsert'. Almost the same as to InsertQuery
+-- except that it take a 'Assoc' instead of a 'PrimQuery'
+-- as second argument.
+toInsert :: TableName -- ^ Name of the table
+	 -> Assoc -- ^ What to insert.
+	 -> SqlInsert
 toInsert table assoc
 	= SqlInsert table (map showExpr assoc)
 	where
@@ -235,8 +269,11 @@ ppInsert (SqlInsert table exprs)
 -----------------------------------------------------------
 -- DELETE
 -----------------------------------------------------------
-
-toDelete :: TableName -> [PrimExpr] -> SqlDelete
+-- | Creates a 'SqlDelete'. Corresponds to the SQL statement
+-- DELETE which deletes rows in a table.
+toDelete :: TableName -- ^ Name of the table
+	 -> [PrimExpr] -- ^ Rows to be deleted.
+	 -> SqlDelete
 toDelete name exprs
         = SqlDelete name (map toSqlExpr exprs)
 
@@ -250,7 +287,12 @@ ppDelete (SqlDelete name exprs)
 -- UPDATE
 -----------------------------------------------------------
 
-toUpdate :: TableName -> [PrimExpr] -> Assoc -> SqlUpdate
+-- | Creates a 'SqlUpdate'. Corresponds to the SQL statement
+-- UPDATE which updates data in a table.
+toUpdate :: TableName -- ^ Name of the table to update.
+	 -> [PrimExpr] -- ^ Which data to update.
+	 -> Assoc -- ^ Update the data with this.
+	 -> SqlUpdate
 toUpdate name criteria assigns
         = SqlUpdate name (map toSqlExpr criteria)
         		 (map showAssign assigns)
@@ -258,6 +300,7 @@ toUpdate name criteria assigns
           showAssign (attr,expr)
           	= attr ++ " = " ++ toSqlExpr expr
 
+-- | Pretty prints a 'SqlUpdate'
 ppUpdate :: SqlUpdate -> Doc
 ppUpdate (SqlUpdate name criteria assigns)
         = text "UPDATE" <+> text name
@@ -271,12 +314,21 @@ ppUpdate (SqlUpdate name criteria assigns)
 -- CREATE
 -----------------------------------------------------------
 
-toCreateDB :: String -> SqlCreate
+-- | Use this to create a 'SqlCreate' data type corresponding to 
+-- the SQL statement CREATE DATABASE which creates a new database.
+toCreateDB :: String -- ^ name of the database.
+	   -> SqlCreate
 toCreateDB name = SqlCreateDB name
 
-toCreateTable :: TableName -> [(Attribute,FieldDesc)] -> SqlCreate
+-- | Use this to create a 'SqlCreate' data type corresponding to 
+-- the SQL statement CREATE which creates a new table.
+toCreateTable :: TableName -- ^ name of the table to be created.
+	      -> [(Attribute,FieldDesc)] -- ^ List of Attributes and FiledDescs 
+					 -- that describes the table.
+	      -> SqlCreate
 toCreateTable name xs = SqlCreateTable name xs
 
+-- | Pretty prints a 'SqlCreate'. 
 ppCreate :: SqlCreate -> Doc
 ppCreate (SqlCreateDB name) = text "CREATE DATABASE" <+> text name
 ppCreate (SqlCreateTable name xs) 
@@ -291,12 +343,18 @@ ppCreate (SqlCreateTable name xs)
 -- DROP
 -----------------------------------------------------------
 
+-- | Creates a 'SqlDrop' that delete the database with the 
+-- name given as the first argument.
 toDropDB :: String -> SqlDrop
 toDropDB name = SqlDropDB name
 
+-- | Creates a 'SqlDrop' that delete the database named
+-- in the first argument.
 toDropTable :: TableName -> SqlDrop
 toDropTable name = SqlDropTable name
 
+
+-- | Pretty prints a 'SqlDrop'.
 ppDrop :: SqlDrop -> Doc
 ppDrop (SqlDropDB name) = text "DROP DATABASE" <+> text name
 ppDrop (SqlDropTable name) 
