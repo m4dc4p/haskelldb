@@ -47,3 +47,8 @@
   * db-specific restrictions on column and database names
   * auto_increment columns
   * db-specific table options (such as the table type in MySQL)
+
+- There is no way to apply many of the functions (such as like)
+  to nullable fields.
+
+- There is no way to do CASE expressions.
