@@ -27,7 +27,7 @@ HSQL/configure: HSQL/configure.ac
 
 HSQL/config.mk: HSQL/configure HSQL/config.mk.in
 	cd HSQL && ./configure --enable-odbc --enable-mysql --enable-postgres \
-	CPPFLAGS=$(CPPFLAGS) -I$(UNIXODBC_DIR)/include \
+	CPPFLAGS="$(CPPFLAGS) -I$(UNIXODBC_DIR)/include" \
 	LDFLAGS=-L$(UNIXODBC_DIR)/lib \
 	--with-hugs-dir=$(HUGS_DIR)
 
