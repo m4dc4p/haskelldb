@@ -33,13 +33,6 @@ mkRec f = f HDBRecTail
 
 -- * Class definitions.
 
--- | Each entry in a record needs to be an instance of this class.
--- Fundeps and two argument classes are used, this violates 
--- the haskell 98 standard. 
-class HDBRecEntry f a | f -> a --where
---    fieldName :: f -> String
---    fieldTag :: f
-
 class FieldTag f where
     fieldName :: f -> String
 

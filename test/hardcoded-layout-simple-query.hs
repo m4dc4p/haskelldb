@@ -33,7 +33,7 @@ test_tb1 = baseTable "test_tb1" $
 
 data C11 = C11
 
-instance HDBRecEntry C11 (Expr Int)
+--instance HDBRecEntry C11 (Expr Int)
 
 instance FieldTag C11 where fieldName _ = "c11"
 
@@ -46,7 +46,7 @@ c11 = mkAttr C11
 
 data C12 = C12
 
-instance HDBRecEntry C12 (Expr (Maybe Int))
+--instance HDBRecEntry C12 (Expr (Maybe Int))
 
 instance FieldTag C12 where fieldName _ = "c12"
 
@@ -64,7 +64,7 @@ q = do
 
 newRec x y = c11 << constant x # c12 << constant y
 
-printResults = mapM_ (\row -> putStrLn (show (row!.c11) ++ " " ++ show (row!.c12)))
+printResults rs = mapM_ (\row -> putStrLn (show (row!.c11) ++ " " ++ show (row!.c12))) rs
 
 --
 -- Testing db layout functions
