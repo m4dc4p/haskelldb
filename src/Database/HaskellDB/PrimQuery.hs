@@ -12,7 +12,7 @@
 -- PrimQuery defines the datatype of relational expressions
 -- ('PrimQuery') and some useful functions on PrimQuery\'s
 --
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 -----------------------------------------------------------
 module Database.HaskellDB.PrimQuery (
 		  -- * Type Declarations
@@ -152,7 +152,7 @@ attributes (Special op q)	= attributes q
 attributes (Binary op q1 q2)    = case op of
                                     Times       -> attr1 `union` attr2
                                     Union       -> attr1
-                                    Intersect   -> attr1 \\ attr2
+                                    Intersect   -> attr1
                                     Divide      -> attr1 
                                     Difference  -> attr1
                                 where
