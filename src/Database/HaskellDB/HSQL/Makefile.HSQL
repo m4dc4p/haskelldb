@@ -3,10 +3,14 @@ HTOOLKIT_CVS=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/htoolkit
 UNIXODBC_DIR=/usr
 HUGS_DIR=/usr/lib/hugs
 
-ifeq ($(shell hostname), "jackass.tekno.chalmers.se")
+ifeq $(shell hostname) "jackass.tekno.chalmers.se"
 UNIXODBC_DIR=/usr/local/dp03-7/unixODBC-2.2.6
 HUGS_DIR=/usr/local/dp03-7/hugs98-Nov2003/lib/hugs
 endif
+
+APA=$(shell hostname)
+apa:
+	echo "'$(APA)'"
 
 .PHONY: clean
 
