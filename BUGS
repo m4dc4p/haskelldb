@@ -1,4 +1,3 @@
-- Does not handle dates correctly, due to bugs in HSQL
 - There is probably a memory leak somwhere, with 512 MB RAM
   you can do about 50000 database queries before you runs
   out of memory and get an SqlNoData user error.
