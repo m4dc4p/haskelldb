@@ -1,6 +1,10 @@
-- When using non-ascii characters the string escaping sometimes gives a badly
-  escaped string to the backend. This can result in data which can not be
-  removed using haskelldb.
+The HaskellDB bug tracker can be found at:
+
+http://sourceforge.net/tracker/?group_id=101095&atid=629040
+
+This is a partial list of known problems in HaskellDB:
+
+- Character escapes are not compatible with SQLite.
 
 - There is currently no boolean type in HaskellDB. Some databases 
   implement this best using tinyint, some using boolean, and so on. The 
