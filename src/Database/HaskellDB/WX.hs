@@ -59,7 +59,11 @@ mkDatabase connection
 		 dbUpdate	= wxUpdate connection,
 		 dbTables       = wxTables connection,
 		 dbDescribe     = wxDescribe connection,
-		 dbTransaction  = wxTransaction connection
+		 dbTransaction  = wxTransaction connection,
+		 dbCreateDB     = wxCreateDB connection,
+		 dbCreateTable  = wxCreateTable connection,
+		 dbDropDB       = wxDropDB connection,
+		 dbDropTable    = wxDropTable connection
 	       }
 
 wxQuery :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [vr]
@@ -92,6 +96,19 @@ wxDescribe conn table =
 			    columnSqlType = sqlType, 
 			    columnNullable = nullable}
 	= (name, (toFieldType size sqlType, nullable))
+
+wxCreateDB :: Connection -> String -> IO ()
+wxCreateDB conn name 
+    = wxPrimExecute conn $ show $ ppCreate $ toCreateDB name
+wxCreateTable :: Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
+wxCreateTable conn name as
+    = wxPrimExecute conn $ show $ ppCreate $ toCreateTable name as
+wxDropDB :: Connection -> String -> IO ()
+wxDropDB conn name 
+    = wxPrimExecute conn $ show $ ppDrop $ toDropDB name
+wxDropTable :: Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
+wxDropTable conn name as
+    = wxPrimExecute conn $ show $ ppDrop $ toDropTable name as
 
 toFieldType :: Int -> SqlType -> FieldType
 toFieldType _ SqlDecimal   = DoubleT
