@@ -1,31 +1,37 @@
 -----------------------------------------------------------
--- Daan Leijen (c) 1998, daan@cs.uu.nl
--- Pretty print module based on Phil Wadlers "prettier printer"
+-- |
+-- Module      :  PPrint
+-- Copyright   :  Daan Leijen (c) 1998, daan\@cs.uu.nl
+-- License     :  BSD-style
 --
--- additions:
+-- Maintainer  :  dp03-7\@mdstud.chalmers.se
+-- Stability   :  experimental
+-- Portability :  portable
 --
--- * class Pretty a where
---      pretty :: a -> Doc	
---      
--- * indent :: Doc -> Doc
--- indent is equal to "nest n" where n is the column of the
+-- Daan Leijen (c) 1998, daan\@cs.uu.nl
+-- Pretty print module based on Phil Wadlers \"prettier printer\"
+--
+-- additions: 'Pretty' and 'indent'.
+-- indent is equal to @nest n@ where n is the column of the
 -- current output. 
 --
--- > test        = letin [text "x = 2", text "y = x"] (text "y + 2")
--- > letin xs x  = text "let" <+> indent (braces (sepby semi xs)) $$ text "in" <+> x
+-- @
+-- test        = letin [text "x = 2", text "y = x"] (text "y + 2")
+-- letin xs x  = text "let" <+> indent (braces (sepby semi xs)) $$ text "in" <+> x
+-- @
 --
--- gives for "putStr $ showPretty 80 test"
--- > let {x=2;y=x} 
--- > in y + 3
+-- gives for @putStr $ showPretty 80 test@
+-- \> let {x=2;y=x} 
+-- \> in y + 3
 --
--- but for "putStr $ showPretty 10 test"
--- > let {x=2;
--- >      y=x}
--- > in y + 3
+-- but for @putStr $ showPretty 10 test@
+-- \> let {x=2;
+-- \>      y=x}
+-- \> in y + 3
+--
 -----------------------------------------------------------
 
-module PPrint 
-        ( Doc
+module PPrint         ( Doc
         , emptyDoc, nest, text, newline, line, indent, group
 
         , (<|>)
