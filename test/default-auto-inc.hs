@@ -1,5 +1,7 @@
 import Database.HaskellDB
 import Database.HaskellDB.HDBRec
+import Database.HaskellDB.Query
+import Database.HaskellDB.PrimQuery
 
 import TestConnect
 
@@ -32,6 +34,13 @@ showResults = mapM_ (putStrLn . unwords . map (($ "") . snd) . showRecRow)
 
 showTable db = query db (table test_default_auto) >>= showResults
 
+last_insert_id :: Expr Int
+last_insert_id = Expr (ConstExpr "last_insert_id()")
+
+lid_q = do 
+	t <- table test_default_auto
+	project (def1 << last_insert_id # def2 << t!def2)
+
 test db = do
 	  putStrLn "Before:"
 	  showTable db
@@ -45,5 +54,8 @@ test db = do
 				       nodef2 << _default)
 	  putStrLn "After:"
 	  showTable db
+	  putStrLn $ show $ showSql lid_q
+	  (r:_) <- query db lid_q
+	  putStrLn $ "New id: " ++ show (r!def1)
 
 main = argConnect test
