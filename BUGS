@@ -31,4 +31,9 @@
   into doing the right thing is not always easy. Currently, if a
   project contains aggregate expressions, the results are grouped
   by all non-aggregate fields in the project.
+
+- The wxHaskell backend doesn't work in Hugs. If HaskellDB is
+  configured with wxHaskell support, DbDirect and the test programs
+  won't work in Hugs for this reason.
+  
   
