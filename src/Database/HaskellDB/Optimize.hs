@@ -13,7 +13,7 @@
 -----------------------------------------------------------
 module Database.HaskellDB.Optimize (optimize) where
 
-import List (intersect)
+import Data.List (intersect)
 import Database.HaskellDB.PrimQuery
 
 -- | Optimize a PrimQuery

@@ -18,7 +18,7 @@ module Database.HaskellDB.Sql (
 	   , toInsertNew
 	   ) where
 
-import List (intersect)
+import Data.List (intersect)
 import Database.HaskellDB.PrimQuery
 
 import Text.PrettyPrint.HughesPJ

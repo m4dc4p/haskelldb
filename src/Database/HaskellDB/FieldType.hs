@@ -1,40 +1,16 @@
-module Database.HaskellDB.FieldType (FieldDef, FieldType(..)) where
+module Database.HaskellDB.FieldType 
+    (FieldDef, FieldType(..), mkCalendarTime) where
 
+import Data.Dynamic
 import System.Time
 
 {-
  TODO:
 
  - add date / time type(s)
+ DEVELOPMENT OF THIS HAS BEEN MOVED TO DateTypes.hs
 
 -}
-
-newtype Date = D (Int,Int,Int)
-    deriving (Eq,Ord)
-newtype Time = T (Int,Int,Int)
-    deriving (Eq,Ord)
--- interestingly enough deriving Ord automatically for DateTime seems to work
--- I have tested it and it seems so anyway. / Chucky
-newtype DateTime = DT (Date,Time)
-    deriving (Eq,Ord)
-type Timestamp = DateTime
-
--- we need to provide better definitions of show using showsPrec, and also
--- of readsPrec (to give us read)
-instance Show Date where
-    show (D (a,b,c)) = show a ++ "-" ++ show b ++ "-" ++ show c
-{-instance Read Date where
-    read s = (year,month,day)
-	where
-	year = read (take 4 xs)
-	month = read (take 2 (drop 5 xs))
-	day = read (take 2 (drop 8 xs))
--}
-instance Show Time where
-    show (T (a,b,c)) = show a ++ ":" ++ show b ++ ":" ++ show c
-
-instance Show DateTime where
-    show (DT (d,t)) = show d ++ " " ++ show t
 
 -- | The type and @nullable@ flag of a database column
 type FieldDef = (FieldType, Bool)
@@ -46,6 +22,7 @@ data FieldType =
     | IntegerT
     | DoubleT
     | BoolT
+    | CalendarTimeT
     deriving (Eq)
 
 instance Show FieldType where
@@ -54,3 +31,15 @@ instance Show FieldType where
     show IntegerT = "Integer"
     show DoubleT = "Double"
     show BoolT = "Bool"
+    show CalendarTimeT = "CalendarTime"
+
+-- | Creates a CalendarTime from a ClockTime
+-- | This loses the time zone and assumes UTC. :(
+-- | A probable fix could be to make DbDirect aware of which time zone the
+-- | server is in and handle it here
+-- | This is just a function synonym for now
+mkCalendarTime :: ClockTime -> CalendarTime
+mkCalendarTime = toUTCTime
+
+instance Typeable CalendarTime where
+    typeOf _ = mkAppTy (mkTyCon "Database.HaskellDB.FieldType Error") []

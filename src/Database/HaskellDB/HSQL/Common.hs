@@ -13,8 +13,9 @@ module Database.HaskellDB.HSQL.Common (
 		   ) where
 
 import Data.Dynamic
-import Maybe
-import Monad
+import Data.Maybe
+import Control.Monad
+import System.Time
 
 import Database.HaskellDB.Database
 import Database.HaskellDB.Sql
@@ -122,9 +123,9 @@ toFieldType SqlDouble        = DoubleT
 --toFieldType SqlBit           = ?
 toFieldType SqlTinyInt       = IntT
 toFieldType SqlBigInt        = IntegerT
---toFieldType SqlDate          = ?
---toFieldType SqlTime          = ?
---toFieldType SqlTimeStamp     = ?
+toFieldType SqlDate          = CalendarTimeT
+toFieldType SqlTime          = CalendarTimeT
+toFieldType SqlTimeStamp     = CalendarTimeT
 toFieldType _                = StringT
 
 
@@ -157,10 +158,20 @@ getField s n =
 	    IntT     -> toVal (getFieldValueMB s n :: IO (Maybe Int))
 	    IntegerT -> toVal (getFieldValueMB s n :: IO (Maybe Integer))
 	    DoubleT  -> toVal (getFieldValueMB s n :: IO (Maybe Double))
+	    CalendarTimeT -> toVal $ mkIOMBCalendarTime
+			     (getFieldValueMB s n :: IO (Maybe ClockTime))
+-- FIXME!!!
     where
     (t,_) = getFieldValueType s n
     toVal :: Typeable a => IO (Maybe a) -> IO HSQLValue
     toVal = liftM toDyn
+    mkIOMBCalendarTime :: IO (Maybe ClockTime) -> IO (Maybe CalendarTime)
+    mkIOMBCalendarTime a 
+	= do
+	  b <- a
+	  case b of
+		 Nothing -> return Nothing
+		 Just c  -> return (Just (mkCalendarTime c))
 
 hsqlPrimExecute :: Connection -> String -> IO ()
 hsqlPrimExecute connection sql = 
