@@ -24,7 +24,7 @@ module Database.HaskellDB.Database (
 		-- * Function declarations
 		, query, lazyQuery, strictQuery
 		, insert, delete, update, insertQuery
-		, tables, describe
+		, tables, describe, transaction
 		) where
 
 import Database.HaskellDB.HDBRec
@@ -63,6 +63,7 @@ data Database db row
   	  , dbUpdate :: db -> TableName -> [PrimExpr] -> Assoc -> IO ()
 	  , dbTables :: db -> IO [TableName]
 	  , dbDescribe :: db -> TableName -> IO [(Attribute,FieldDef)]
+	  , dbTransaction :: forall a. db -> IO a -> IO a
   	  , database :: db
   	  }
   	  
@@ -158,3 +159,11 @@ describe :: Database db row -- ^ Database
 	 -> TableName -- ^ Name of the tables whose columns are to be listed
 	 -> IO [(Attribute,FieldDef)] -- ^ Name and type info for each column
 describe db = dbInvoke dbDescribe db
+
+
+-- | Performs some database action in a transaction. If no exception is thrown,
+--   the changes are committed. 
+transaction :: Database db row -- ^ Database
+	    -> IO a -- ^ Action to run
+	    -> IO a 
+transaction db = dbInvoke dbTransaction db

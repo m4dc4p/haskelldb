@@ -73,6 +73,7 @@ newHSQL connection
 		 dbUpdate	= hsqlUpdate,
 		 dbTables       = hsqlTables,
 		 dbDescribe     = hsqlDescribe,
+		 dbTransaction  = hsqlTransaction,
 		 database	= connection
 	       }
 
@@ -125,6 +126,10 @@ hsqlDescribe :: Connection -> TableName -> IO [(Attribute,FieldDef)]
 hsqlDescribe conn table = liftM (map toFieldDef) (HSQL.describe conn table)
     where
     toFieldDef (name,sqlType,nullable) = (name,(toFieldType sqlType, nullable))
+
+-- | HSQL implementation of 'Database.dbTransaction'.
+hsqlTransaction :: Connection -> IO a -> IO a
+hsqlTransaction conn action = inTransaction conn (\_ -> action)
 
 toFieldType :: SqlType -> FieldType
 toFieldType (SqlDecimal _ _) = DoubleT

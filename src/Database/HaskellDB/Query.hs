@@ -29,7 +29,7 @@ module Database.HaskellDB.Query (
 	     , union, intersect, divide, minus
 	     , _not, like, cat
 	     , isNull, notNull
-	     , constant
+	     , constant, nullable
 	     , count, _sum, _max, _min, avg
 	     , stddev, stddevP, variance, varianceP
 	     , asc, desc, order
@@ -318,10 +318,10 @@ instance ShowConstant a => ShowConstant (Maybe a) where
 constant :: ShowConstant a => a -> Expr a
 constant x      = Expr (ConstExpr (showConstant x))
 
--- This function is not exported and is not used anywhere.. 
--- Either export it or delete it :)
+-- | Turn constant data into a nullable expression. 
+--   Same as @constant . Just@
 nullable        :: ShowConstant a => a -> Expr (Maybe a)
-nullable x      = Expr (ConstExpr (showConstant x))
+nullable x      = constant (Just x)
 
 
 -----------------------------------------------------------

@@ -29,7 +29,7 @@ module Database.HaskellDB
 	, (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
 	, _not, like, cat
 	, isNull, notNull
-	, constant
+	, constant, nullable
 	
 	, count, _sum, _max, _min, avg
 	, stddev, stddevP, variance, varianceP
@@ -41,7 +41,7 @@ module Database.HaskellDB
 	, (!.)
 	, query, lazyQuery, strictQuery
 	, insert, delete, update, insertQuery
-	, tables, describe
+	, tables, describe, transaction
 	
 	, showQ, showOpt, showSql
 	
