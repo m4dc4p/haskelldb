@@ -5,20 +5,30 @@
 -- 	defines the datatype of relational expressions (PrimQuery)
 -- 	and some useful functions on PrimQuery's.
 -----------------------------------------------------------
-module PrimQuery where
+module PrimQuery (TableName, Attribute, Scheme, Assoc, 
+		 , PrimQuery(..), RelOp(..), SpecialOp(..), 
+		 , PrimExpr(..), BinOp(..), UnOp(..), AggrOp(..)
+		 , extend, times
+		 , attributes, attrInExpr, attrInOrder
+		 , substAttr
+		 , isAggregate, nestedAggregate
+		 , foldPrimQuery, foldPrimExpr,
+		 , ppPrimQuery, ppPrimExpr, 
+		 , ppRelOp, ppBinOp, ppAggrOp, ppSpecialOp, 
+		 , assert
+		 ) where
 
 import List ((\\))
 
 import Text.PrettyPrint.HughesPJ
 
------------------------------------------------------------
--- assertions
------------------------------------------------------------
+-- | Assertions
+assert :: String -> String -> String -> Bool -> a -> a
 assert moduleName functionName msg test x
  	| test      = x
         | otherwise = error ("assert: " ++ moduleName ++ "." 
         		     ++ functionName ++ ": " ++ msg)
-                
+
 -----------------------------------------------------------
 -- data definitions
 -- PrimQuery is the data type of relational expressions. 
@@ -37,17 +47,17 @@ data PrimQuery  = BaseTable TableName Scheme
                 | Binary    RelOp PrimQuery PrimQuery
                 | Special   SpecialOp PrimQuery
                 | Empty
-                
+
 data RelOp      = Times 
                 | Union 
                 | Intersect 
                 | Divide 
                 | Difference
                 deriving (Show)
-                
-data SpecialOp  = Order [PrimExpr]	--always UnExpr (OpDesc|OpAsc) (AttrExpr name) 
-		| Top Bool Integer	--True = top percent, False = top n
-				
+
+data SpecialOp  = Order [PrimExpr] -- ^ always UnExpr (OpDesc|OpAsc) (AttrExpr name)
+		| Top Bool Integer -- ^ 'True' = top percent, 'False' = top n
+
 data PrimExpr   = AttrExpr  Attribute
                 | BinExpr   BinOp PrimExpr PrimExpr
                 | UnExpr    UnOp PrimExpr
@@ -60,7 +70,7 @@ data BinOp      = OpEq | OpLt | OpLtEq | OpGt | OpGtEq | OpNotEq
                 | OpAnd | OpOr
                 | OpLike | OpIn 
                 | OpOther String
-                
+
                 | OpCat
                 | OpPlus | OpMinus | OpMul | OpDiv | OpMod
                 | OpBitNot | OpBitAnd | OpBitOr | OpBitXor
@@ -77,17 +87,15 @@ data AggrOp     = AggrCount | AggrSum | AggrAvg | AggrMin | AggrMax
                 | AggrOther String
                 deriving (Show,Read)
 
------------------------------------------------------------
--- extend: creates a projection of some attributes while
---	   keeping all other attributes in the relation visible too. 
--- times : takes the cartesian product of two queries. .
------------------------------------------------------------
+-- | Creates a projection of some attributes while
+--   keeping all other attributes in the relation visible too. 
 extend :: Assoc -> PrimQuery -> PrimQuery
 extend assoc query	
 	= Project (assoc ++ assoc') query
         where
           assoc'  = assocFromScheme (attributes query)
 
+-- | Takes the cartesian product of two queries.
 times :: PrimQuery -> PrimQuery -> PrimQuery
 times (Empty) query	= query
 times query (Empty)     = query
@@ -97,15 +105,8 @@ times query1 query2     = assert "PrimQuery" "times" "overlapping attributes"
 				  length (attributes query1))
                           Binary Times query1 query2
 
------------------------------------------------------------
--- attributes	: returns the schema (the attributes) of a query
--- assocFromScheme: returns a one-to-one association of a
---	schema. ie. "assocFromScheme ["name","city"] becomes:
---	"[("name",AttrExpr "name"), ("city",AttrExpr "city")]"
--- attrInExpr	: returns all attributes in a qexpr 
------------------------------------------------------------
+-- | Returns the schema (the attributes) of a query
 attributes :: PrimQuery -> Scheme
-
 attributes (Empty)              = []                            
 attributes (BaseTable nm attrs) = attrs
 attributes (Project assoc q)    = map fst assoc
@@ -120,12 +121,16 @@ attributes (Binary op q1 q2)    = case op of
                                 where
                                   attr1         = attributes q1
                                   attr2         = attributes q2
-                                                                   
+
+-- | Returns a one-to-one association of a
+--   schema. ie. @assocFromScheme ["name","city"]@ becomes:
+--   @[("name",AttrExpr "name"), ("city",AttrExpr "city")]@
 assocFromScheme :: Scheme -> Assoc
 assocFromScheme scheme          
 		= map (\attr -> (attr,AttrExpr attr)) scheme
 
 
+-- | Returns all attributes in a qexpr 
 attrInExpr :: PrimExpr -> Scheme
 attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr)
                 where
@@ -134,27 +139,25 @@ attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr)
                   binary op x y = x ++ y
                   unary op x    = x
                   aggr op x	= x
-                  
+
 
 attrInOrder :: [PrimExpr] -> Scheme
 attrInOrder  = concat . map attrInExpr
-                  
------------------------------------------------------------
--- Substitute attributes names in an expression.
------------------------------------------------------------
-substAttr :: Assoc -> PrimExpr -> PrimExpr                  
+
+-- | Substitute attribute names in an expression.
+substAttr :: Assoc -> PrimExpr -> PrimExpr           
 substAttr assoc 
         = foldPrimExpr (attr,ConstExpr,BinExpr,UnExpr,AggrExpr)
-        where        
-          attr name     = case (lookup name assoc) of        
-                            Just x      -> x        
+        where 
+          attr name     = case (lookup name assoc) of
+                            Just x      -> x 
                             Nothing     -> AttrExpr name
-                  
-  
+
+
 isAggregate, nestedAggregate :: PrimExpr -> Bool
 isAggregate x		= countAggregate x > 0
 nestedAggregate x	= countAggregate x > 1
-	                
+
 countAggregate :: PrimExpr -> Int
 countAggregate
 	= foldPrimExpr (const 0, const 0, binary, unary, aggr)
@@ -162,11 +165,14 @@ countAggregate
           binary op x y	 	= x + y
           unary op x		= x
           aggr op x		= x + 1
-	                    
+
 -----------------------------------------------------------
 -- fold on PrimQuery's and PrimExpr's
 -----------------------------------------------------------
 
+foldPrimQuery :: (t, TableName -> Scheme -> t, Assoc -> t -> t,
+                  PrimExpr -> t -> t, RelOp -> t -> t -> t,
+                  SpecialOp -> t -> t) -> PrimQuery -> t
 foldPrimQuery (empty,table,project,restrict,binary,special) 
         = fold
         where
@@ -181,8 +187,9 @@ foldPrimQuery (empty,table,project,restrict,binary,special)
                         = binary op (fold query1) (fold query2)
           fold (Special op query)
           		= special op (fold query)
-          fold _        = error "PrimQuery.foldPrimQuery: undefined case"
-          
+
+foldPrimExpr :: (Attribute -> t, String -> t, BinOp -> t -> t -> t,
+                 UnOp -> t -> t, AggrOp -> t -> t) -> PrimExpr -> t
 foldPrimExpr (attr,scalar,binary,unary,aggr) 
         = fold
         where
@@ -191,7 +198,6 @@ foldPrimExpr (attr,scalar,binary,unary,aggr)
           fold (BinExpr op x y)= binary op (fold x) (fold y)
           fold (UnExpr op x)   = unary op (fold x)
           fold (AggrExpr op x) = aggr op (fold x)
-          fold _               = error "PrimQuery.foldPrimExpr: undefined case"
 
 -----------------------------------------------------------
 -- Pretty print PrimQuery and PrimExpr.
@@ -203,6 +209,7 @@ instance Show PrimQuery where
 --instance Pretty PrimQuery where
 --  pretty                = ppPrimQuery
 
+ppPrimQuery :: PrimQuery -> Doc
 ppPrimQuery = foldPrimQuery (empty,table,project,restrict,binary,special)
         where
           ontop d e             = nest 2 (d $$ e)
@@ -219,7 +226,8 @@ ppScheme                        = braces . vcat . punctuate comma . map text
 ppAssoc                         = braces . vcat . punctuate comma . 
 				  map ppNameExpr
 ppNameExpr (attr,expr)          = text attr <> colon <+> ppPrimExpr expr
-          
+
+ppPrimExpr :: PrimExpr -> Doc
 ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
         where
           attr          = text
@@ -238,8 +246,7 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
           
           tosquote '\''         = "\\'"
           tosquote c            = [c]
-          
-          
+
 ppRelOp  op		= text (showRelOp  op) 
 ppUnOp	 op		= text (showUnOp   op)         
 ppBinOp  op             = text (showBinOp  op)
@@ -249,7 +256,7 @@ ppAggrOp op             = text (showAggrOp op)
 ppSpecialOp (Order xs)  = (vcat . punctuate comma) (map ppPrimExpr xs)
 ppSpecialOp (Top perc n)= text "TOP" <+> text (show n) <+>
 			  (if perc then text "PERCENT" else empty)
-			  
+
 -----------------------------------------------------------
 -- Show expression operators, coincidently they show
 -- exactly the SQL equivalents 
