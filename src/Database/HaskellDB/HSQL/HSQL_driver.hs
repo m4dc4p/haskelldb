@@ -34,6 +34,9 @@ type HSQLValue = Dynamic
 instance Typeable a => Row HSQLRow a where
     rowSelect = hsqlRowSelect
 
+instance Typeable a => Row HSQLRow (Maybe a) where
+    rowSelect = hsqlRowSelectMB
+
 -- | Run an action on a HSQL Connection and close the connection.
 hsqlConnect :: (opts -> IO Connection) -> opts -> (HSQL -> IO a) -> IO a
 hsqlConnect connect opts action = 
@@ -59,8 +62,8 @@ newHSQL connection
 	       }
 
 
-hsqlRowSelect :: Typeable a => Attr f r a -> HSQLRow r -> a
-hsqlRowSelect attr (HSQLRow vals)
+hsqlRowSelect' :: (Typeable a, Typeable b) => Attr f r a -> HSQLRow r1 -> (Maybe b)
+hsqlRowSelect' attr (HSQLRow vals)
         = case lookup (attributeName attr) vals of
             Nothing  -> error "Query.rowSelect: invalid attribute used ??"
             Just dyn -> case fromDynamic dyn of
@@ -68,6 +71,14 @@ hsqlRowSelect attr (HSQLRow vals)
 			      error ("Query.rowSelect: type mismatch: " 
 				     ++ attributeName attr ++ " :: " ++ show dyn)
 			  Just val -> val
+
+hsqlRowSelectMB :: Typeable a => Attr f r (Maybe a) -> HSQLRow r -> (Maybe a)
+hsqlRowSelectMB = hsqlRowSelect'
+
+hsqlRowSelect :: Typeable a => Attr f r a -> HSQLRow r -> a
+hsqlRowSelect attr vals = case (hsqlRowSelect' attr vals) of
+			    Nothing -> error ("Query.rowSelect: Null returned from non-nullable field")
+			    Just val -> val
 
 hsqlInsertNew conn table assoc = 
     hsqlPrimExecute conn $ show $ ppInsert $ toInsertNew table assoc
@@ -147,11 +158,9 @@ getField s n =
 	    IntegerT -> toVal (getFieldValueMB s n :: IO (Maybe Integer))
 	    DoubleT  -> toVal (getFieldValueMB s n :: IO (Maybe Double))
     where
-    (t,nullable) = getFieldValueType s n
+    (t,_) = getFieldValueType s n
     toVal :: Typeable a => IO (Maybe a) -> IO HSQLValue
-    toVal m | nullable = liftM toDyn m
-	    -- FIXME: what if we have Nothing?
-	    | otherwise = liftM (toDyn . fromJust) m
+    toVal = liftM toDyn
 
 hsqlPrimExecute :: Connection -> String -> IO ()
 hsqlPrimExecute connection sql = 
