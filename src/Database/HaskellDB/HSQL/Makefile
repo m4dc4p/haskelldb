@@ -1,12 +1,7 @@
 include ../../config.mk
 include ../../rules.mk
 
-# in HSQL_DIR there should be a directory (or a symlink to a directory)
-# that contains a directory called Database 
-# that contains the compiled HSQL library
-HSQL_DIR = .
-
-LDFLAGS += -L$(HSQL_DIR)/Database -lHSsql -lodbc
+LDFLAGS += -L$(HSQL_DIR)/Database -L$(UNIXODBC_LIBDIR)/lib -lHSsql -lodbc -lHDB
 GHCFLAGS += -i../.. -i$(HSQL_DIR)
 
 HUGSFLAGS += -P:../..:$(HSQL_DIR)
@@ -15,7 +10,7 @@ OBJS = HSQL_driver.o test.o
 
 SRC = $(patsubst %.o,%.hs, $(OBJS))
 
-.PHONY: clean HSQL
+.PHONY: clean hugsload hugstest ghciload
 
 default all: test
 
@@ -23,25 +18,20 @@ default all: test
 # HUGS
 #
 
-hugsload: $(HSQL_DIR)/Database/ODBC/HSQL.hs $(HSQL_DIR)/Database/ODBC/HSQL.so
+hugsload: 
 	$(HUGS) $(HUGSFLAGS) test.hs
 
-hugstest: $(HSQL_DIR)/Database/ODBC/HSQL.hs $(HSQL_DIR)/Database/ODBC/HSQL.so
+hugstest: 
 	$(RUNHUGS) $(HUGSFLAGS) test.hs
 
 #
 # GHC
 #
 
-HSQL:
-	$(MAKE) -f Makefile.HSQL HSQL/libHSsql.a
+test: $(OBJS)
+	$(GHC) $(GHCFLAGS) -o $@ $^ $(LDFLAGS) -L../..
 
-$(HSQL_DIR)/Database/libHSsql.a: HSQL
-
-test: $(HSQL_DIR)/Database/libHSsql.a $(OBJS)
-	$(GHC) $(GHCFLAGS) -o $@ $^ $(LDFLAGS) -L../.. -lHDB
-
-ghciload: $(HSQL_DIR)/Database/ODBC/HSQL.hs
+ghciload: 
 	$(GHCI) $(GHCFLAGS) test.hs
 
 #
