@@ -15,6 +15,8 @@ Things that need to be done, in no particular order:
   * Fix semantics of lazyQuery.
   * Fix table alias clashes with binary relops.
   * Allow using queries in expressions.
+  * Change types of aggregate expressions that can return NULL when the
+    table is empty to reflect the nullability.
   (* strictness checking. In other words: optimize the code to sort out what
      types and expressions are evaluated strictly, and explicitly tell the
      compiler that they are strict)

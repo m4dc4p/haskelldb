@@ -89,3 +89,7 @@
 
 - If a relation has two fields with the same name, only one of the values
   can be accessed. Reported by Jeremy Shaw on 2004-05-04.
+
+- Some aggregate expressions (_max, _min etc.) return NULL when the
+  relation has now rows. This is not reflected in their type, which
+  can cause runtime errors. Reported by Gregory Wright on 2004-05-10.
