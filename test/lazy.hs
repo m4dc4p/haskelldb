@@ -2,7 +2,7 @@ import Database.HaskellDB
 
 import TestConnect
 
-import Dp037.Lazy_test
+import LazyTestDB.Lazy_test
 
 {-
  Uses table created with:
