@@ -20,6 +20,8 @@ Things that need to be done, in no particular order:
      /Added by Bjorn, thanks to Anders Carlsson for inspiration )
 
 - DbDirect 
+  * Handle empty tables and tables with no name (probably by
+    ignoring them).
   * Set sensible default values for all NOT NULL columns.
   (* add optional command line argument for selecting which
   tables to generate code for)

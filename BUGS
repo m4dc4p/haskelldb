@@ -58,3 +58,8 @@
 
 - Tables in unions may get the same table alias, which Not A Good
   Thing. This is a problem i Sql.ppSql.
+
+- The MS Access ODBC driver reports some system tables which have
+  empty names and not fields. DBDirect generates table descriptions
+  like 'baseTable "" $' for such tables, which is bad, mkay.
+  Reported by Esa Ilari Vuokko on 2004-04-27.
