@@ -18,9 +18,7 @@ module Database.HaskellDB.FieldType
 import Data.Dynamic
 import System.Time
 
-#ifdef WITH_BOUNDEDSTRING
 import Database.HaskellDB.BoundedString
-#endif
 
 {-
  TODO:
@@ -41,9 +39,7 @@ data FieldType =
     | DoubleT
     | BoolT
     | CalendarTimeT
-#ifdef WITH_BOUNDEDSTRING
     | StrT Int
-#endif
     deriving (Eq)
 
 instance Show FieldType where
@@ -53,9 +49,7 @@ instance Show FieldType where
     show DoubleT = "Double"
     show BoolT = "Bool"
     show CalendarTimeT = "CalendarTime"
-#ifdef WITH_BOUNDEDSTRING
     show (StrT a) = "Str" ++ show a
-#endif
 
 -- | Creates a CalendarTime from a ClockTime
 -- | This loses the time zone and assumes UTC. :(

@@ -35,6 +35,7 @@ import Database.HaskellDB.Sql
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query
 import Database.HaskellDB.FieldType
+import Database.HaskellDB.BoundedString
 
 import Database.HSQL as HSQL hiding (FieldDef)
 
@@ -140,6 +141,7 @@ toFieldType SqlDate          = CalendarTimeT
 toFieldType SqlTime          = CalendarTimeT
 toFieldType SqlTimeStamp     = CalendarTimeT
 toFieldType SqlDateTime      = CalendarTimeT
+toFieldType (SqlVarChar a)   = StrT a
 toFieldType _                = StringT
 
 

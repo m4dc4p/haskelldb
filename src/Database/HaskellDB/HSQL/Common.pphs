@@ -35,12 +35,9 @@ import Database.HaskellDB.Sql
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query
 import Database.HaskellDB.FieldType
+import Database.HaskellDB.BoundedString
 
 import Database.HSQL as HSQL hiding (FieldDef)
-
-#ifdef WITH_BOUNDEDSTRING
-import Database.HaskellDB.BoundedString
-#endif
 
 type HSQL = Database Connection HSQLRow
 
@@ -144,11 +141,7 @@ toFieldType SqlDate          = CalendarTimeT
 toFieldType SqlTime          = CalendarTimeT
 toFieldType SqlTimeStamp     = CalendarTimeT
 toFieldType SqlDateTime      = CalendarTimeT
-
-#ifdef WITH_BOUNDEDSTRING
-toFieldType (SqlVarChar a)     = StrT a
-#endif
-
+toFieldType (SqlVarChar a)   = StrT a
 toFieldType _                = StringT
 
 
