@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.6],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.31 $)
+AC_REVISION($Revision: 1.32 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -39,80 +39,152 @@ fi],
 )
 
 dnl ***********************************************
-dnl Enable/Disable HSQL
+dnl Enable/Disable HSQL for ghc
 dnl ***********************************************
 
-AC_ARG_ENABLE(hsql,
-AC_HELP_STRING([--enable-hsql],
-	       [Enable use of HSQL. (default = yes)]),
-[WITH_HSQL="$enableval"],
-[WITH_HSQL=yes]
+AC_ARG_ENABLE(ghc-hsql,
+AC_HELP_STRING([--enable-ghc-hsql],
+	       [Enable use of HSQL with ghc. (default = yes)]),
+[WITH_GHC_HSQL="$enableval"],
+[WITH_GHC_HSQL=yes]
 )
-AC_SUBST(WITH_HSQL)
+AC_SUBST(WITH_GHC_HSQL)
 
 dnl ***********************************************
-dnl Enable/Disable HSQL ODBC binding
+dnl Enable/Disable HSQL for hugs
 dnl ***********************************************
 
-AC_ARG_ENABLE(hsql-odbc,
-AC_HELP_STRING([--enable-hsql-odbc],
-	       [Enable use of the HSQL ODBC driver. 
-	        (default = yes)]),
-[WITH_HSQL_ODBC="$enableval"],
-[WITH_HSQL_ODBC=yes]
+AC_ARG_ENABLE(hugs-hsql,
+AC_HELP_STRING([--enable-hugs-hsql],
+	       [Enable use of HSQL for Hugs. (default = yes)]),
+[WITH_HUGS_HSQL="$enableval"],
+[WITH_HUGS_HSQL=yes]
 )
-AC_SUBST(WITH_HSQL_ODBC)
+AC_SUBST(WITH_HUGS_HSQL)
 
 dnl ***********************************************
-dnl Enable/Disable HSQL MySQL binding
+dnl Enable/Disable HSQL ODBC binding for ghc
 dnl ***********************************************
 
-AC_ARG_ENABLE(hsql-mysql,
-AC_HELP_STRING([--enable-hsql-mysql],
-	       [Enable use of the HSQL MySQL driver.  
-	        (default = yes)]),
-[WITH_HSQL_MYSQL="$enableval"],
-[WITH_HSQL_MYSQL=yes]
+AC_ARG_ENABLE(ghc-hsql-odbc,
+AC_HELP_STRING([--enable-ghc-hsql-odbc],
+	       [Enable use of the HSQL ODBC driver
+	       for ghc. (default = yes)]),
+[WITH_GHC_HSQL_ODBC="$enableval"],
+[WITH_GHC_HSQL_ODBC=yes]
 )
-AC_SUBST(WITH_HSQL_MYSQL)
+AC_SUBST(WITH_GHC_HSQL_ODBC)
 
 dnl ***********************************************
-dnl Enable/Disable HSQL SQLite binding
+dnl Enable/Disable HSQL ODBC binding for Hugs
 dnl ***********************************************
 
-AC_ARG_ENABLE(hsql-sqlite,
-AC_HELP_STRING([--enable-hsql-sqlite],
-	       [Enable use of the HSQL SQLite driver.  
-	        (default = yes)]),
-[WITH_HSQL_SQLITE="$enableval"],
-[WITH_HSQL_SQLITE=yes]
+AC_ARG_ENABLE(hugs-hsql-odbc,
+AC_HELP_STRING([--enable-hugs-hsql-odbc],
+	       [Enable use of the HSQL ODBC driver
+	        for Hugs. (default = yes)]),
+[WITH_HUGS_HSQL_ODBC="$enableval"],
+[WITH_HUGS_HSQL_ODBC=yes]
 )
-AC_SUBST(WITH_HSQL_SQLITE)
+AC_SUBST(WITH_HUGS_HSQL_ODBC)
 
 dnl ***********************************************
-dnl Enable/Disable HSQL PostgreSQL binding
+dnl Enable/Disable HSQL MySQL binding for ghc
 dnl ***********************************************
 
-AC_ARG_ENABLE(hsql-postgresql,
-AC_HELP_STRING([--enable-hsql-postgresql],
-	       [Enable use of the HSQL PostgreSQL driver. 
-	        (default = yes)]),
-[WITH_HSQL_POSTGRESQL="$enableval"],
-[WITH_HSQL_POSTGRESQL=yes]
+AC_ARG_ENABLE(ghc-hsql-mysql,
+AC_HELP_STRING([--enable-ghc-hsql-mysql],
+	       [Enable use of the HSQL MySQL driver  
+	        for ghc. (default = yes)]),
+[WITH_GHC_HSQL_MYSQL="$enableval"],
+[WITH_GHC_HSQL_MYSQL=yes]
 )
-AC_SUBST(WITH_HSQL_POSTGRESQL)
+AC_SUBST(WITH_GHC_HSQL_MYSQL)
 
 dnl ***********************************************
-dnl Enable/Disable WxHaskell binding
+dnl Enable/Disable HSQL MySQL binding for Hugs
 dnl ***********************************************
 
-AC_ARG_ENABLE(wx,
-AC_HELP_STRING([--enable-wx],
-	       [Enable use of the WxHaskell driver. (default = yes)]),
-[WITH_WX="$enableval"],
-[WITH_WX=yes]
+AC_ARG_ENABLE(hugs-hsql-mysql,
+AC_HELP_STRING([--enable-hugs-hsql-mysql],
+	       [Enable use of the HSQL MySQL driver  
+	        for Hugs. (default = yes)]),
+[WITH_HUGS_HSQL_MYSQL="$enableval"],
+[WITH_HUGS_HSQL_MYSQL=yes]
 )
-AC_SUBST(WITH_WX)
+AC_SUBST(WITH_HUGS_HSQL_MYSQL)
+
+dnl ***********************************************
+dnl Enable/Disable HSQL SQLite binding for ghc
+dnl ***********************************************
+
+AC_ARG_ENABLE(ghc-hsql-sqlite,
+AC_HELP_STRING([--enable-ghc-hsql-sqlite],
+	       [Enable use of the HSQL SQLite driver  
+	        for ghc. (default = yes)]),
+[WITH_GHC_HSQL_SQLITE="$enableval"],
+[WITH_GHC_HSQL_SQLITE=yes]
+)
+AC_SUBST(WITH_GHC_HSQL_SQLITE)
+
+dnl ***********************************************
+dnl Enable/Disable HSQL SQLite binding for Hugs
+dnl ***********************************************
+
+AC_ARG_ENABLE(hugs-hsql-sqlite,
+AC_HELP_STRING([--enable-hugs-hsql-sqlite],
+	       [Enable use of the HSQL SQLite driver
+	        for Hugs. (default = yes)]),
+[WITH_HUGS_HSQL_SQLITE="$enableval"],
+[WITH_HUGS_HSQL_SQLITE=yes]
+)
+AC_SUBST(WITH_HUGS_HSQL_SQLITE)
+
+dnl ***********************************************
+dnl Enable/Disable HSQL PostgreSQL binding for ghc
+dnl ***********************************************
+
+AC_ARG_ENABLE(ghc-hsql-postgresql,
+AC_HELP_STRING([--enable-ghc-hsql-postgresql],
+	       [Enable use of the HSQL PostgreSQL driver  
+	        for ghc. (default = yes)]),
+[WITH_GHC_HSQL_POSTGRESQL="$enableval"],
+[WITH_GHC_HSQL_POSTGRESQL=yes]
+)
+AC_SUBST(WITH_GHC_HSQL_POSTGRESQL)
+
+dnl ***********************************************
+dnl Enable/Disable HSQL PostgreSQL binding for Hugs
+dnl ***********************************************
+
+AC_ARG_ENABLE(hugs-hsql-postgresql,
+AC_HELP_STRING([--enable-hugs-hsql-postgresql],
+	       [Enable use of the HSQL PostgreSQL driver
+	        for Hugs. (default = yes)]),
+[WITH_HUGS_HSQL_POSTGRESQL="$enableval"],
+[WITH_HUGS_HSQL_POSTGRESQL=yes]
+)
+AC_SUBST(WITH_HUGS_HSQL_POSTGRESQL)
+
+dnl ***********************************************
+dnl Enable/Disable WxHaskell binding for ghc
+dnl ***********************************************
+
+AC_ARG_ENABLE(ghc-wx,
+AC_HELP_STRING([--enable-ghc-wx],
+	       [Enable use of the WxHaskell driver
+	       for ghc. (default = yes)]),
+[WITH_GHC_WX="$enableval"],
+[WITH_GHC_WX=yes]
+)
+AC_SUBST(WITH_GHC_WX)
+
+dnl ***********************************************
+dnl Enable/Disable WxHaskell binding for Hugs
+dnl ***********************************************
+
+WITH_HUGS_WX=no
+AC_SUBST(WITH_HUGS_WX)
 
 dnl ***********************************************
 dnl Enable/Disable building Hugs libraries
@@ -159,14 +231,13 @@ AC_HELP_STRING([--with-ghc=<ghc command>],
 )
 
 if test "$GHC" = "" || test ! -x "$GHC"; then
-   AC_MSG_ERROR([GHC not found. GHC is needed to build 
-	         HaskellDB even you are only building libraries for Hugs.])
-  GHC=""
+   AC_MSG_WARN([GHC not found. Not building GHC libraries.])
+   ENABLE_GHC=no
 else
   GHCI=$(dirname $GHC)/ghci
 fi
 
-if test "$GHC" != ""; then
+if test "$ENABLE_GHC" = "yes"; then
   AC_HS_CHECK_GHC_VERSION_IFELSE([$ghc_req_major_verison],
     [$ghc_req_minor_verison],,[
       AC_MSG_ERROR([ghc >= $ghc_req_major_verison.$ghc_req_minor_verison
@@ -185,12 +256,12 @@ AC_HELP_STRING([--with-ghc-dir=DIR],
                [Install GHC libraries in the given GHC directory 
                 (default is "ghc --print-libdir")]),
 [GHC_DIR="$withval"],
-[if test "$GHC" != ""; then
+[if test "$ENABLE_GHC" = "yes"; then
    GHC_DIR=`$GHC --print-libdir`
  fi]
 )
 
-if test "$ENABLE_GHC" = "yes" && test "$GHC" != ""; then
+if test "$ENABLE_GHC" = "yes"; then
 	if test "$GHC_DIR" = "" || test ! -d $GHC_DIR; then
 	   AC_MSG_ERROR([GHC_DIR $GHC_DIR does not exist])
 	fi
@@ -211,7 +282,7 @@ if test ! -x "$GHC_PKG"; then AC_PATH_PROG(GHC_PKG,"$withval") fi],
 	       [AC_PATH_PROG(GHC_PKG,ghc-pkg)])]
 )
 
-if test "$ENABLE_GHC" = "yes" && test "$GHC" != ""; then
+if test "$ENABLE_GHC" = "yes"; then
 	if test "$GHC_PKG" = "" || test ! -x "$GHC_PKG"; then
 	   AC_MSG_ERROR([ghc-pkg is required for GHC support])
 	fi
@@ -231,8 +302,7 @@ AC_HELP_STRING([--with-hugs=<hugs command>],
 )
 
 if test "$ENABLE_HUGS" != "yes" || test "$HUGS" = "" || test ! -x "$HUGS"; then
-  AC_MSG_RESULT([The build for HUGS will be skipped.])
-  HUGS=""
+  AC_MSG_WARN([The build for HUGS will be skipped.])
   ENABLE_HUGS="no"
 else
   RUNHUGS=$(dirname $HUGS)/runhugs
@@ -256,7 +326,7 @@ AC_HELP_STRING([--with-hugs-dir=DIR],
                [Install Hugs libraries in the given Hugs directory 
                 (default is the Hugs libraries directory)]),
 [HUGS_DIR="$withval"],
-[if test "$HUGS" != ""; then
+[if test "$ENABLE_HUGS" = "yes"; then
    case $ac_cv_target_alias in
       i[[3456]]86-*-cygwin*|i[[3456]]86-*-mingw32*)
           HUGS_DIR=$(dirname $HUGS);;
@@ -265,7 +335,7 @@ AC_HELP_STRING([--with-hugs-dir=DIR],
  fi]
 )
 
-if test "$HUGS" != ""; then
+if test "$ENABLE_HUGS" = "yes"; then
 	if test "$HUGS_DIR" = "" || test ! -d "$HUGS_DIR"; then
 	   AC_MSG_ERROR([HUGS_DIR $HUGS_DIR does not exist])
 	fi
@@ -274,39 +344,46 @@ fi
 AC_SUBST(HUGS_DIR)
 
 dnl ***********************************************
-dnl Check for HSQL
+dnl Check for HSQL for ghc
 dnl ***********************************************
 
-if test "$WITH_HSQL" = "yes"; then
+if test "$ENABLE_GHC" = "yes" && test "$WITH_GHC_HSQL" = "yes"; then
 
   GHCFLAGS="$GHCFLAGS -package hsql"
 
-  AC_HS_GHC_MODULE_IFELSE([Database.HSQL],[query],
-    if test "$ENABLE_HUGS" = "yes"; then
-      [AC_HS_HUGS_MODULE_IFELSE([Database.HSQL], [query],,
-	 [AC_MSG_WARN([HSQL found but no support for HUGS])
-	 HUGS=""
-	 ENABLE_HUGS="no"])] fi,
-    [AC_MSG_WARN([HSQL not found, not building HSQL support])
-    WITH_HSQL="no"])
+  AC_HS_GHC_MODULE_IFELSE([Database.HSQL],[query],,
+    [AC_MSG_WARN([HSQL for ghc not found, not 
+                 building ghc HSQL support])
+    WITH_GHC_HSQL="no"])
 
-  if test "$WITH_HSQL" != "yes"; then
+  if test "$WITH_GHC_HSQL" != "yes"; then
     GHCFLAGS="`echo $GHCFLAGS | sed 's/-package hsql//'`"
   fi
 
 fi
 
 dnl ***********************************************
+dnl Check for HSQL for Hugs
+dnl ***********************************************
+
+if test "$ENABLE_HUGS" = "yes" && test "$WITH_HUGS_HSQL" = "yes"; then
+    AC_HS_HUGS_MODULE_IFELSE([Database.HSQL], [query],,
+	 [AC_MSG_WARN([HSQL for Hugs not found.])
+	 WITH_HUGS_HSQL="no"])
+fi
+
+dnl ***********************************************
 dnl WxHaskell for GHC
 dnl ***********************************************
 
-if test "$GHC" != "" && test "$WITH_WX" = "yes"; then
+if test "$ENABLE_GHC" = "yes" && test "$WITH_GHC_WX" = "yes"; then
 
   GHCFLAGS="$GHCFLAGS -package wxcore"
 
-  AC_HS_GHC_MODULE_IFELSE([Graphics.UI.WXCore.Db],[dbQuery],,[WITH_WX="no"])
+  AC_HS_GHC_MODULE_IFELSE([Graphics.UI.WXCore.Db],[dbQuery],,
+                          [WITH_GHC_WX="no"])
 
-  if test "$WITH_WX" != "yes"; then
+  if test "$WITH_GHC_WX" != "yes"; then
     GHCFLAGS="`echo $GHCFLAGS | sed 's/-package wxcore//'`"
   fi
 
@@ -319,7 +396,8 @@ AC_ARG_WITH(haddock,
 AC_HELP_STRING([--with-haddock=<haddock command>],
                [Use a different command instead of 'haddock' 
                 for the documentation builder.]),
-[AC_CHECK_FILE("$withval",HADDOCK="$withval",[AC_PATH_PROG(HADDOCK,"$withval")])],
+[AC_CHECK_FILE("$withval",HADDOCK="$withval",
+[AC_PATH_PROG(HADDOCK,"$withval")])],
 [AC_PATH_PROG(HADDOCK,haddock)]
 )
 
@@ -356,54 +434,105 @@ esac
 AC_SUBST(WIN32)
 
 dnl ***********************************************
-dnl check for ODBC module
+dnl check for ODBC module for ghc
 dnl ***********************************************
 
-if test "$WITH_HSQL" = "yes" && test "$WITH_HSQL_ODBC" = "yes"; then
-  AC_HS_MODULE_IFELSE([Database.HSQL.ODBC],[connect],,
-    [AC_MSG_WARN([ODBC module not found, skipping ODBC])
-    WITH_HSQL_ODBC=no])
+if test "$WITH_GHC_HSQL" = "yes" && test "$WITH_GHC_HSQL_ODBC" = "yes"; then
+  AC_HS_GHC_MODULE_IFELSE([Database.HSQL.ODBC],[connect],,
+    [AC_MSG_WARN([ODBC module for ghc not found, skipping ODBC])
+    WITH_GHC_HSQL_ODBC=no])
 else
-    WITH_HSQL_ODBC="no"
+    WITH_GHC_HSQL_ODBC="no"
 fi
 
 dnl ***********************************************
-dnl check for PostgreSQL module
+dnl check for ODBC module for hugs
 dnl ***********************************************
 
-if test "$WITH_HSQL" = "yes" && test "$WITH_HSQL_POSTGRESQL" = "yes"; then
-  AC_HS_MODULE_IFELSE([Database.HSQL.PostgreSQL],[connect],,
-    [AC_MSG_WARN([PostgreSQL module not found, 
+if test "$WITH_HUGS_HSQL" = "yes" && test "$WITH_HUGS_HSQL_ODBC" = "yes"; then
+  AC_HS_HUGS_MODULE_IFELSE([Database.HSQL.ODBC],[connect],,
+    [AC_MSG_WARN([ODBC module for hugs not found, skipping ODBC])
+    WITH_HUGS_HSQL_ODBC=no])
+else
+    WITH_HUGS_HSQL_ODBC="no"
+fi
+
+dnl ***********************************************
+dnl check for PostgreSQL module for ghc
+dnl ***********************************************
+
+if test "$WITH_GHC_HSQL" = "yes" && test "$WITH_GHC_HSQL_POSTGRESQL" = "yes"; then
+  AC_HS_GHC_MODULE_IFELSE([Database.HSQL.PostgreSQL],[connect],,
+    [AC_MSG_WARN([PostgreSQL module for ghc not found, 
 	          not building PostgreSQL support])
-    WITH_HSQL_POSTGRESQL=no])
+    WITH_GHC_HSQL_POSTGRESQL=no])
 else
-    WITH_HSQL_POSTGRESQL="no"
+    WITH_GHC_HSQL_POSTGRESQL="no"
 fi
 
 dnl ***********************************************
-dnl check for MySQL module
+dnl check for PostgreSQL module for hugs
 dnl ***********************************************
 
-if test "$WITH_HSQL" = "yes" && test "$WITH_HSQL_MYSQL" = "yes"; then
-  AC_HS_MODULE_IFELSE([Database.HSQL.MySQL],[connect],,
-    [AC_MSG_WARN([MySQL module not found, 
+if test "$WITH_HUGS_HSQL" = "yes" && test "$WITH_HUGS_HSQL_POSTGRESQL" = "yes"; then
+  AC_HS_HUGS_MODULE_IFELSE([Database.HSQL.PostgreSQL],[connect],,
+    [AC_MSG_WARN([PostgreSQL module for hugs not found, 
+	          not building PostgreSQL support])
+    WITH_HUGS_HSQL_POSTGRESQL=no])
+else
+    WITH_HUGS_HSQL_POSTGRESQL="no"
+fi
+
+dnl ***********************************************
+dnl check for MySQL module for ghc
+dnl ***********************************************
+
+if test "$WITH_GHC_HSQL" = "yes" && test "$WITH_GHC_HSQL_MYSQL" = "yes"; then
+  AC_HS_GHC_MODULE_IFELSE([Database.HSQL.MySQL],[connect],,
+    [AC_MSG_WARN([MySQL module for ghc not found, 
 	          not building MySQL support])
-    WITH_HSQL_MYSQL=no])
+    WITH_GHC_HSQL_MYSQL=no])
 else
-    WITH_HSQL_MYSQL="no"
+    WITH_GHC_HSQL_MYSQL="no"
 fi
 
 dnl ***********************************************
-dnl check for SQLite module
+dnl check for MySQL module for hugs
 dnl ***********************************************
 
-if test "$WITH_HSQL" = "yes" && test $WITH_HSQL_SQLITE = yes; then
-  AC_HS_MODULE_IFELSE([Database.HSQL.SQLite],[connect],,
-    [AC_MSG_WARN([SQLite module not found, 
-	          not building SQLite support])
-    WITH_HSQL_SQLITE=no])
+if test "$WITH_HUGS_HSQL" = "yes" && test "$WITH_HUGS_HSQL_MYSQL" = "yes"; then
+  AC_HS_HUGS_MODULE_IFELSE([Database.HSQL.MySQL],[connect],,
+    [AC_MSG_WARN([MySQL module for hugs not found, 
+	          not building MySQL support])
+    WITH_HUGS_HSQL_MYSQL=no])
 else
-    WITH_HSQL_SQLITE="no"
+    WITH_HUGS_HSQL_MYSQL="no"
+fi
+
+dnl ***********************************************
+dnl check for SQLite module for ghc
+dnl ***********************************************
+
+if test "$WITH_GHC_HSQL" = "yes" && test $WITH_GHC_HSQL_SQLITE = yes; then
+  AC_HS_GHC_MODULE_IFELSE([Database.HSQL.SQLite],[connect],,
+    [AC_MSG_WARN([SQLite module for ghc not found, 
+	          not building SQLite support])
+    WITH_GHC_HSQL_SQLITE=no])
+else
+    WITH_GHC_HSQL_SQLITE="no"
+fi
+
+dnl ***********************************************
+dnl check for SQLite module for hugs
+dnl ***********************************************
+
+if test "$WITH_HUGS_HSQL" = "yes" && test $WITH_HUGS_HSQL_SQLITE = yes; then
+  AC_HS_HUGS_MODULE_IFELSE([Database.HSQL.SQLite],[connect],,
+    [AC_MSG_WARN([SQLite module for hugs not found, 
+	          not building SQLite support])
+    WITH_HUGS_HSQL_SQLITE=no])
+else
+    WITH_HUGS_HSQL_SQLITE="no"
 fi
 
 dnl ***********************************************
@@ -435,11 +564,11 @@ dnl ***********************************************
 dnl Package dependencies
 dnl ***********************************************
 
-if test "$WITH_HSQL" = "yes"; then
+if test "$WITH_GHC_HSQL" = "yes"; then
 	PACKAGE_DEPS="$PACKAGE_DEPS,\"hsql\""
 fi
 
-if test "$WITH_WX" = "yes"; then
+if test "$WITH_GHC_WX" = "yes"; then
 	PACKAGE_DEPS="$PACKAGE_DEPS,\"wxcore\""
 fi
 
@@ -458,11 +587,17 @@ echo
 echo "HaskellDB will support:"
 echo "-----------------------"
 echo
-echo "HSQL:              $WITH_HSQL"
-echo "    ODBC:          $WITH_HSQL_ODBC"
-echo "    MySql:         $WITH_HSQL_MYSQL"
-echo "    SQLite:        $WITH_HSQL_SQLITE"
-echo "    PostgreSQL     $WITH_HSQL_POSTGRESQL"
-echo "WxHaskell:         $WITH_WX"
-echo "Hugs:              $ENABLE_HUGS"
 echo "GHC:               $ENABLE_GHC"
+echo "  HSQL:            $WITH_GHC_HSQL"
+echo "    ODBC:          $WITH_GHC_HSQL_ODBC"
+echo "    MySql:         $WITH_GHC_HSQL_MYSQL"
+echo "    SQLite:        $WITH_GHC_HSQL_SQLITE"
+echo "    PostgreSQL:    $WITH_GHC_HSQL_POSTGRESQL"
+echo "  WxHaskell:       $WITH_GHC_WX"
+echo "Hugs:              $ENABLE_HUGS"
+echo "  HSQL:            $WITH_HUGS_HSQL"
+echo "    ODBC:          $WITH_HUGS_HSQL_ODBC"
+echo "    MySql:         $WITH_HUGS_HSQL_MYSQL"
+echo "    SQLite:        $WITH_HUGS_HSQL_SQLITE"
+echo "    PostgreSQL:    $WITH_HUGS_HSQL_POSTGRESQL"
+echo "  WxHaskell:       $WITH_HUGS_WX"

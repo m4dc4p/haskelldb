@@ -25,22 +25,43 @@ DBSPEC_MODULES = \
 	  Database.HaskellDB.DBSpec.DatabaseToDBSpec \
 	  Database.HaskellDB.DBSpec.PPHelpers
 
-HSQL_MODULES = $(addprefix Database.HaskellDB.HSQL., Common $(HSQL_DRIVERS))
-
-WX_MODULES = Database.HaskellDB.WX
-
 MODULES = $(DATABASE_MODULES) $(HASKELLDB_MODULES) $(DBSPEC_MODULES)
 
+
 ifeq "$(WITH_HSQL)" "yes"
-MODULES += $(HSQL_MODULES)
+MODULES += Database.HaskellDB.HSQL.Common
+
+ifeq "$(WITH_HSQL_ODBC)" "yes"
+MODULES += Database.HaskellDB.HSQL.ODBC
+HSPP_FLAGS += -DWITH_HSQL_ODBC
 endif
+
+ifeq "$(WITH_HSQL_MYSQL)" "yes"
+MODULES += Database.HaskellDB.HSQL.MySQL
+HSPP_FLAGS += -DWITH_HSQL_MYSQL
+endif
+
+ifeq "$(WITH_HSQL_SQLITE)" "yes"
+MODULES += Database.HaskellDB.HSQL.SQLite
+HSPP_FLAGS += -DWITH_HSQL_SQLITE
+endif
+
+ifeq "$(WITH_HSQL_POSTGRESQL)" "yes"
+MODULES += Database.HaskellDB.HSQL.PostgreSQL
+HSPP_FLAGS += -DWITH_HSQL_POSTGRESQL
+endif
+endif
+
 ifeq "$(WITH_WX)" "yes"
-MODULES += $(WX_MODULES)
+MODULES += Database.HaskellDB.WX
+HSPP_FLAGS += -DWITH_WX
 endif
 
-PROGRAMS = DBDirect
+PROGRAM_MODULES = DBDirect
 
-PROG_SRC = $(patsubst %, $(COMPILER_DIR)/%.hs, $(PROGRAMS))
+PROGRAMS = $(addprefix $(COMPILER_DIR)/, $(PROGRAM_MODULES))
+
+PROG_SRC = $(patsubst %, $(COMPILER_DIR)/%.hs, $(PROGRAM_MODULES))
 
 SRC = $(patsubst %, $(COMPILER_DIR)/%.hs, $(subst .,/,$(MODULES)))
 
