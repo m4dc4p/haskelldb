@@ -1,4 +1,4 @@
-TOP_DIR = .
+	TOP_DIR = .
 
 include $(TOP_DIR)/rules.mk
 
@@ -22,47 +22,53 @@ MODULES = Database.HaskellDB \
 	  Database.HaskellDB.DBSpec.DatabaseToDBSpec \
 	  Database.HaskellDB.DBSpec.PPHelpers
 
+SRC_NODEP = $(patsubst %, $(COMPILER_DIR)/%.hs, $(subst .,/,$(MODULES)))
+
 ifeq "$(WITH_HSQL)" "yes"
-MODULES += Database.HaskellDB.HSQL.Common
+NEEDS_HSQL = Database.HaskellDB.HSQL.Common
 
 ifeq "$(WITH_HSQL_ODBC)" "yes"
-MODULES += Database.HaskellDB.HSQL.ODBC
+NEEDS_HSQL += Database.HaskellDB.HSQL.ODBC
 HSPP_FLAGS += -DWITH_HSQL_ODBC
 endif
 
 ifeq "$(WITH_HSQL_MYSQL)" "yes"
-MODULES += Database.HaskellDB.HSQL.MySQL
+NEEDS_HSQL += Database.HaskellDB.HSQL.MySQL
 HSPP_FLAGS += -DWITH_HSQL_MYSQL
 endif
 
 ifeq "$(WITH_HSQL_SQLITE)" "yes"
-MODULES += Database.HaskellDB.HSQL.SQLite
+NEEDS_HSQL += Database.HaskellDB.HSQL.SQLite
 HSPP_FLAGS += -DWITH_HSQL_SQLITE
 endif
 
 ifeq "$(WITH_HSQL_POSTGRESQL)" "yes"
-MODULES += Database.HaskellDB.HSQL.PostgreSQL
+NEEDS_HSQL += Database.HaskellDB.HSQL.PostgreSQL
 HSPP_FLAGS += -DWITH_HSQL_POSTGRESQL
 endif
+
+SRC_HSQL = $(patsubst %, $(COMPILER_DIR)/%.hs, $(subst .,/,$(NEEDS_HSQL)))
 endif
 
+
 ifeq "$(WITH_WX)" "yes"
-MODULES += Database.HaskellDB.WX
+NEEDS_WX = Database.HaskellDB.WX
 HSPP_FLAGS += -DWITH_WX
+SRC_WX = $(patsubst %, $(COMPILER_DIR)/%.hs, $(subst .,/,$(NEEDS_WX)))
 endif
 
 ifeq "$(WITH_GHC_PLUGINS)" "yes"
-MODULES += Database.HaskellDB.DynConnect
+NEEDS_PLUGINS = Database.HaskellDB.DynConnect
+SRC_PLUGINS = $(patsubst %, $(COMPILER_DIR)/%.hs, $(subst .,/,$(NEEDS_PLUGINS)))
 endif
 
 PROGRAM_MODULES = DBDirect
 
-SRC = $(patsubst %, $(COMPILER_DIR)/%.hs, $(subst .,/,$(MODULES)))
+SRC = $(SRC_NODEP) $(SRC_HSQL) $(SRC_WX) $(SRC_PLUGINS)
 
 PROGRAMS = $(addprefix $(COMPILER_DIR)/, $(PROGRAM_MODULES))
 
 PROG_SRC = $(patsubst %, $(COMPILER_DIR)/%.hs, $(PROGRAM_MODULES))
-
 
 $(COMPILER_DIR)/%.hs: src/%.hs
 	mkdir -p $(dir $@)
