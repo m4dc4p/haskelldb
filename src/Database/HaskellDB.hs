@@ -51,7 +51,7 @@ module Database.HaskellDB
 	, tables, describe, transaction
 	
 	, showQ, showOpt, showSql
-	
+	, genericConnect
 	) where
 
 import Database.HaskellDB.PrimQuery (ppPrimQuery)
@@ -60,6 +60,7 @@ import Database.HaskellDB.Optimize  (optimize)
 import Database.HaskellDB.Query
 import Database.HaskellDB.Database
 import Database.HaskellDB.HDBRecUtils
+import Database.HaskellDB.GenericConnect
 
 -----------------------------------------------------------
 -- Show Queries, both as PrimQuery, Optimized PrimQuery and SQL

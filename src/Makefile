@@ -20,7 +20,8 @@ HASKELLDB_MODULES = \
 	  Database.HaskellDB.Database \
 	  Database.HaskellDB.BoundedString \
 	  Database.HaskellDB.BoundedList \
-	  Database.HaskellDB.DBSpec
+	  Database.HaskellDB.DBSpec \
+	  Database.HaskellDB.GenericConnect
 
 DATABASE_MODULES = Database.HaskellDB
 
@@ -78,7 +79,7 @@ WX:
 # cleaning up
 
 clean: 
-	-rm -f *.o *.hi .depend .depend.bak
+	-rm -f *.o *.hi .depend .depend.bak GenericConnect.hs
 
 # dependencies
 
