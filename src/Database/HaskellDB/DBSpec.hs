@@ -54,7 +54,8 @@ dbInfoToDoc dbi@(DBInfo {dbname=n})
 -- | Does a final "touching up" of a DBInfo before it is used by i.e DBDirect.
 -- This converts any Bounded Strings to ordinary strings if that flag is set.
 finalizeSpec :: DBInfo -> DBInfo
-finalizeSpec dbi = stripBStr dbi
+finalizeSpec dbi = if (useBString (opts dbi)) then 
+		   dbi else stripBStr dbi
 
 -- | Converts all BStrings to ordinary Strings
 stripBStr :: DBInfo -> DBInfo
