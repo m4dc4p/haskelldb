@@ -23,8 +23,7 @@ Requirements:
 
 A database driver, at least one of:
 
-- HSQL 1.2.1 or later (1.4 strongly recommended) 
-  (http://htoolkit.sourceforge.net/)
+- HSQL (http://htoolkit.sourceforge.net/)
 
   It is preferrable to have HSQL installed
   in the GHC and Hugs library directories.
