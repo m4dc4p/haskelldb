@@ -14,7 +14,8 @@
 
 module Database.HaskellDB.DBSpec.DBInfo
     (DBInfo(..),TInfo(..),CInfo(..),DBOptions(..),makeDBSpec,
-     makeTInfo,makeCInfo,dbInfoToDoc,finalizeSpec,constructNonClashingDBInfo)
+     makeTInfo,makeCInfo,ppDBInfo,ppTInfo,ppCInfo,ppDBOptions,
+     dbInfoToDoc,finalizeSpec,constructNonClashingDBInfo)
     where
 
 import Database.HaskellDB.FieldType
@@ -47,7 +48,38 @@ data DBOptions = DBOptions {useBString :: Bool -- ^ Use Bounded Strings?
 dbInfoToDoc :: DBInfo -> Doc
 dbInfoToDoc dbi@(DBInfo {dbname=n}) 
     = text n <+> text ":: DBInfo"
-      $$ text n <+> text "=" <+> text (show dbi)
+      $$ text n <+> equals <+> ppDBInfo dbi
+
+-- | Pretty prints a DBInfo
+ppDBInfo :: DBInfo -> Doc
+ppDBInfo (DBInfo {dbname=n, opts=o, tbls = t}) 
+    = text "DBInfo" <+> 
+	 braces (vcat (punctuate comma (
+		 text "dbname =" <+> doubleQuotes (text n) :
+		 text "opts =" <+> ppDBOptions o :
+		 text "tbls =" <+> 
+		 brackets (vcat (punctuate comma (map ppTInfo t))) : [])))
+
+ppTInfo :: TInfo -> Doc
+ppTInfo (TInfo {tname=n,cols=c})
+    = text "TInfo" <+> 
+      braces (vcat (punctuate comma (
+		 text "tname =" <+> doubleQuotes (text n) :
+		 text "cols =" <+> 
+		 brackets (vcat (punctuate comma (map ppCInfo c))) : [])))
+
+ppCInfo :: CInfo -> Doc
+ppCInfo (CInfo {cname=n,descr=(val,null)})
+    = text "CInfo" <+>
+      braces (vcat (punctuate comma (
+	         text "cname =" <+> doubleQuotes (text n) :
+		 text "descr =" <+> 
+		 parens (text (show val) <> comma <+> text (show null)) : [])))
+
+ppDBOptions :: DBOptions -> Doc
+ppDBOptions (DBOptions {useBString = b})
+    = text "DBOptions" <+>
+      braces (text "useBString =" <+> text (show b))
 
 -- | Does a final "touching up" of a DBInfo before it is used by i.e DBDirect.
 -- This converts any Bounded Strings to ordinary strings if that flag is set.

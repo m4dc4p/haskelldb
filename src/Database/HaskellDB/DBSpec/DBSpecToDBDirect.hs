@@ -60,7 +60,7 @@ genDocs dbinfo
 			      ((moduleName . dbname) dbinfo) ++ ".") ++)) 
 		tbnames)
        <> newline
-       $$ dbInfoToDoc dbinfo)
+       $$ dbInfoToDoc dbinfo) -- FIXME!!!
         : map (tInfoToModule ((moduleName . dbname) dbinfo)) (tbls dbinfo)
     where
     tbnames = map (moduleName . tname) (tbls dbinfo)
@@ -78,13 +78,13 @@ tInfoToModule dbname tinfo@TInfo{tname=name,cols=col}
        $$ imports
        <> newline
        $$ ppComment ["Table"]
-       $$ ppTInfo tinfo       
+       $$ ppTable tinfo       
        $$ ppComment ["Fields"]
        $$ vcat (map ppField (columnNamesTypes tinfo)))
 
 -- | Pretty prints a TableInfo
-ppTInfo :: TInfo -> Doc
-ppTInfo (TInfo tiName tiColumns) =  
+ppTable :: TInfo -> Doc
+ppTable (TInfo tiName tiColumns) =  
     hang (text (identifier tiName) <+> text "::" <+> text "Table") 4 
 	 (parens (ppColumns tiColumns)
 	 <>  newline)

@@ -3,7 +3,6 @@ module Main where
 import Database.HaskellDB
 import Database.HaskellDB.FieldType
 import Database.HaskellDB.DBSpec
-import Database.HaskellDB.DBSpec.DBSpecToDatabase
 
 import System.Environment (getArgs)
 
@@ -23,4 +22,4 @@ testcol22 = CInfo {cname = "DinMamma", descr = (IntT,True)}
 main = do 
        args <- getArgs
        let db = genericConnect (head args) (tail args)
-       db (dbSpecToDatabase test)
+       db (\a -> dbSpecToDatabase a test)
