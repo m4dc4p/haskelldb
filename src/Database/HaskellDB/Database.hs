@@ -53,15 +53,11 @@ instance ShowRecRow r => ShowRecRow (Row r) where
 --   the database (= rows)
 --   Non-overloaded version of '!'. For backwards compatibility.
 (!.) :: SelectField f r a => Row r -> Attr f a -> a
-(Row row) !. attr = selectAttr attr row
+row !. attr = row!attr
 
 -- | '!' overloaded for selection of fields in query results.
 instance SelectField f r a => Select (Row r) (Attr f a) a where
-    (Row row) ! attr = selectAttr attr row
-
--- | Select a field from a record that uses 'Attr' labels.
-selectAttr :: SelectField f r a => Attr f a -> r -> a
-selectAttr (_::Attr f a) r = selectField (undefined::f) r
+    (Row r) ! (_::Attr f a) = selectField (undefined::f) r
 
 data Database
 	= Database  
