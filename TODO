@@ -19,6 +19,8 @@ Things that need to be done, in no particular order:
      available Haskell compilers)
   (* Add features for adding and modifying tables /Added by Bjorn,
      suggested by Shae Erisson)
+  (* use template haskell to compile queries to SQL at compile time 
+     /Added by Bjorn, thanks to Anders Carlsson for inspiration )
 
 - DbDirect 
   (* add optional command line argument for selecting which
