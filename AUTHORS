@@ -1,6 +1,6 @@
 The original HaskellDB was written by Daan Leijen (daan@cs.uu.nl)
 
-The current version is based on Daan Leijen's original version and is
+The current version is based on Daan Leijen's original version an is
 developed by:
 
 Conny Andersson (forester@dtek.chalmers.se)
@@ -10,9 +10,3 @@ Victor Blomqvist (viblo@dtek.chalmers.se)
 Björn Bringert (d00bring@dtek.chalmers.se)
 Anders Höckersten (chucky@dtek.chalmers.se)
 Torbjörn Martin (torma@dtek.chalmers.se)
-
-
-The following people have contributed patches:
-
-Jeremy Shaw (Jeremy.Shaw@lindows.com)
- - SQLite support, better distclean 
