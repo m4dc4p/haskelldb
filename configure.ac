@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.1],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.3 $)
+AC_REVISION($Revision: 1.4 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -73,6 +73,18 @@ AC_HELP_STRING([--enable-hsql-postgresql],
 [WITH_HSQL_POSTGRESQL=yes]
 )
 AC_SUBST(WITH_HSQL_POSTGRESQL)
+
+dnl ***********************************************
+dnl Enable/Disable building Hugs libraries
+dnl ***********************************************
+
+AC_ARG_ENABLE(hugs,
+AC_HELP_STRING([--enable-hugs],
+	       [Enable builing Hugs libraries. 
+	        (default = yes)]),
+[ENABLE_HUGS="$enableval"],
+[ENABLE_HUGS=yes]
+)
 
 dnl ***********************************************
 dnl GHC
@@ -145,7 +157,7 @@ AC_HELP_STRING([--with-hugs=<hugs command>],
 [AC_PATH_PROG(HUGS,hugs)]
 )
 
-if test "$HUGS" = "" || test ! -f $HUGS; then
+if test "$ENABLE_HUGS" != "yes" || test "$HUGS" = "" || test ! -f $HUGS; then
   AC_MSG_RESULT([The build for HUGS will be skipped.])
   HUGS=""
 else
