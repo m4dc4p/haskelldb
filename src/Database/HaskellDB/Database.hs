@@ -52,12 +52,11 @@ instance ShowRecRow r => ShowRecRow (Row r) where
 -- | The (!.) operator selects over returned records from
 --   the database (= rows)
 --   Non-overloaded version of '!'. For backwards compatibility.
-(!.) :: (SelectField f r a, HasField f r) => Row r -> Attr f a -> a
+(!.) :: SelectField f r a => Row r -> Attr f a -> a
 (Row row) !. attr = selectAttr attr row
 
 -- | '!' overloaded for selection of fields in query results.
-instance (SelectField f r a, HasField f r) => 
-    Select (Row r) (Attr f a) a where
+instance SelectField f r a => Select (Row r) (Attr f a) a where
     (Row row) ! attr = selectAttr attr row
 
 -- | Select a field from a record that uses 'Attr' labels.
