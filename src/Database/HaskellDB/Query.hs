@@ -97,9 +97,9 @@ attributeName (Attr name) = name
 -- Basic relational operators
 -----------------------------------------------------------
 
---| Selects a field from a row. Usage typicly something like
+-- Selects a field from a row. Usage typicly something like
 --
--- > restrict (table_1!name .==. table_2!name)
+--  restrict (table_1!name .==. table_2!name)
 --
 -- where name is the selected field
 (!) :: HasField f r => Rel r -> Attr f r a -> Expr a
