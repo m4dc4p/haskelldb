@@ -208,7 +208,7 @@ binop op (Expr primExpr1) (Expr primExpr2)
 (.>=.) :: Ord a => Expr a -> Expr a -> Expr Bool
 (.>=.) = binop OpGtEq
 
-
+-- | The inverse of an Expr Bool.
 _not :: Expr Bool -> Expr Bool
 _not   = unop OpNot
 
@@ -222,26 +222,58 @@ _not   = unop OpNot
 (.||.) :: Expr Bool -> Expr Bool -> Expr Bool
 (.||.) = binop OpOr
 
-
+-- | The HaskellDB counterpart to the SQL LIKE keyword.
+-- In the expresions, % is a wildcard representing any characters
+-- in the same position relavtive to the given characters.
+-- i.e.
+-- 
+-- > like (constant \"ABCDEF\") (constant \"AB%F\")
+-- 
+-- is true while
+-- 
+-- > like (constant \"ABCEDF\") (constant \"AC%F\") 
+-- 
+-- is false.
 like :: Expr String -> Expr String -> Expr Bool
 like   = binop OpLike
 
-cat,(.++.) :: Expr String -> Expr String -> Expr String
-cat    = binop OpCat
+
+-- | Produces the concatenation of two String-expressions.
+cat :: Expr String -> Expr String -> Expr String
+cat = binop OpCat
+
+-- | Concatenates two String-expressions. Is the same as  
+-- 'cat'.
+(.++.) :: Expr String -> Expr String -> Expr String
 (.++.) = cat
 
 numop :: Num a => BinOp -> Expr a -> Expr a -> Expr a
 numop   = binop
 
-(.+.),(.-.),(.*.),(./.),(.%.) :: Num a => Expr a -> Expr a -> Expr a
+
+-- | Addition
+(.+.) :: Num a => Expr a -> Expr a -> Expr a
 (.+.) = numop OpPlus
+-- | Subtraction 
+(.-.) :: Num a => Expr a -> Expr a -> Expr a
 (.-.) = numop OpMinus
+-- | Multiplication
+(.*.) :: Num a => Expr a -> Expr a -> Expr a
 (.*.) = numop OpMul
+-- | Division
+(./.) :: Num a => Expr a -> Expr a -> Expr a
 (./.) = numop OpDiv
+-- | Modulo
+(.%.) :: Num a => Expr a -> Expr a -> Expr a
 (.%.) = numop OpMod
 
-isNull,notNull :: Expr a -> Expr Bool
+-- | Returns true if the expression is Null.
+isNull :: Expr a -> Expr Bool
 isNull  = unop OpIsNull
+
+-- | The inverse of 'isNull', returns false
+-- if the expression supplied is Null.
+notNull :: Expr a -> Expr Bool
 notNull = unop OpIsNotNull
 
 -----------------------------------------------------------
