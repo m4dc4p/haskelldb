@@ -77,7 +77,8 @@ newHSQL connection
 hsqlRowSelect' :: (Typeable a, Typeable b) => Attr f r a -> HSQLRow r1 -> (Maybe b)
 hsqlRowSelect' attr (HSQLRow vals)
         = case lookup (attributeName attr) vals of
-            Nothing  -> error "Query.rowSelect: invalid attribute used ??"
+            Nothing  -> error $ "Query.rowSelect: invalid attribute: " 
+						++ attributeName attr
             Just dyn -> case fromDynamic dyn of
 	                  Nothing -> 
 			      error ("Query.rowSelect: type mismatch: " 
