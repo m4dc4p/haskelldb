@@ -1335,7 +1335,7 @@ instance Less a N254 => Less a N255
 newtype BoundedList a n = L [a]
 
 instance (Show a, Size n) => Show (BoundedList a n) where
-    show l@(L xs) = shows xs $ showChar ':' $ shows (listBound l) "" 
+    show l@(L xs) = show xs
 
 instance (Size n, Eq a) => Eq (BoundedList a n) where
     L c == L d = c == d
@@ -1367,4 +1367,4 @@ trunc :: Size n => [a] -> BoundedList a n
 trunc xs = trunc_ (L xs)
     where
     trunc_ :: Size n => BoundedList a n -> BoundedList a n
-    trunc_ l@(L xs) = (L xs)
+    trunc_ l@(L xs) = (L $ take (listBound l) xs)

@@ -27,6 +27,7 @@ import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query
 import Database.HaskellDB.FieldType
 import Database.HaskellDB.BoundedString
+import Database.HaskellDB.BoundedList
 
 import Database.HSQL as HSQL hiding (FieldDef)
 
@@ -43,6 +44,9 @@ instance Typeable a => Row HSQLRow a where
 instance Typeable a => Row HSQLRow (Maybe a) where
     rowSelect = hsqlRowSelectMB
 
+instance  Size n => Row HSQLRow (BoundedString n) where
+    rowSelect = hsqlRowSelectBStr
+
 -- | Run an action on a HSQL Connection and close the connection.
 hsqlConnect :: (opts -> IO Connection) -- ^ HSQL connection function, e.g.  
 	    -> opts -> (HSQL -> IO a) -> IO a
@@ -58,15 +62,14 @@ handleSqlError io = handleSql (\err -> fail (show err)) io
 
 newHSQL :: Connection -> HSQL
 newHSQL connection
-    = Database { dbQuery	= hsqlQuery,
-    		 dbInsert	= hsqlInsert,
-		 dbInsertQuery 	= hsqlInsertQuery,
-		 dbDelete	= hsqlDelete,
-		 dbUpdate	= hsqlUpdate,
-		 dbTables       = hsqlTables,
-		 dbDescribe     = hsqlDescribe,
-		 dbTransaction  = hsqlTransaction,
-		 database	= connection
+    = Database { dbQuery	= hsqlQuery connection,
+    		 dbInsert	= hsqlInsert connection,
+		 dbInsertQuery 	= hsqlInsertQuery connection,
+		 dbDelete	= hsqlDelete connection,
+		 dbUpdate	= hsqlUpdate connection,
+		 dbTables       = hsqlTables connection,
+		 dbDescribe     = hsqlDescribe connection,
+		 dbTransaction  = hsqlTransaction connection
 	       }
 
 
@@ -82,6 +85,12 @@ hsqlRowSelect' attr (HSQLRow vals)
 
 hsqlRowSelectMB :: Typeable a => Attr f r (Maybe a) -> HSQLRow r -> (Maybe a)
 hsqlRowSelectMB = hsqlRowSelect'
+
+hsqlRowSelectBStr :: Size n => Attr f r (BoundedString n) 
+		     -> HSQLRow r -> BoundedString n
+hsqlRowSelectBStr attr vals = case (hsqlRowSelect' attr vals) of
+			    Nothing -> error ("Query.rowSelect: Null returned from non-nullable field")
+			    Just val -> trunc val
 
 hsqlRowSelect :: Typeable a => Attr f r a -> HSQLRow r -> a
 hsqlRowSelect attr vals = case (hsqlRowSelect' attr vals) of

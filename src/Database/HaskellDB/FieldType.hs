@@ -53,3 +53,6 @@ mkCalendarTime = toUTCTime
 
 instance Typeable CalendarTime where -- not available in standard libraries
     typeOf _ = mkAppTy (mkTyCon "System.Time.CalendarTime") []
+
+instance Typeable (BoundedString n) where
+    typeOf _ = mkAppTy (mkTyCon "Database.HaskellDB.BoundedString") []

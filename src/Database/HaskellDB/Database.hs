@@ -55,19 +55,19 @@ class Row row a where
   
 data Database db row
 	= Database  
-	  { dbQuery  :: forall r. db -> PrimQuery -> Rel r -> IO [row r]
-  	  , dbInsert :: db -> TableName -> Assoc -> IO ()
-	  , dbInsertQuery :: db -> TableName -> PrimQuery -> IO ()
-  	  , dbDelete :: db -> TableName -> [PrimExpr] -> IO ()
-  	  , dbUpdate :: db -> TableName -> [PrimExpr] -> Assoc -> IO ()
-	  , dbTables :: db -> IO [TableName]
-	  , dbDescribe :: db -> TableName -> IO [(Attribute,FieldDef)]
-	  , dbTransaction :: forall a. db -> IO a -> IO a
-  	  , database :: db
+	  { dbQuery  :: forall r. PrimQuery -> Rel r -> IO [row r]
+  	  , dbInsert :: TableName -> Assoc -> IO ()
+	  , dbInsertQuery :: TableName -> PrimQuery -> IO ()
+  	  , dbDelete :: TableName -> [PrimExpr] -> IO ()
+  	  , dbUpdate :: TableName -> [PrimExpr] -> Assoc -> IO ()
+	  , dbTables :: IO [TableName]
+	  , dbDescribe :: TableName -> IO [(Attribute,FieldDef)]
+	  , dbTransaction :: forall a. IO a -> IO a
   	  }
   	  
-dbInvoke :: (Database db row -> db -> a) -> Database db row -> a
-dbInvoke fun db		= (fun db) (database db)  	  
+-- Obsolete?
+--dbInvoke :: (Database db row -> db -> a) -> Database db row -> a
+--dbInvoke fun db		= (fun db) (database db)  	  
 
 -----------------------------------------------------------
 -- Database operations
@@ -82,7 +82,7 @@ query	= lazyQuery
 --   we have not implemented lazy queries in the HSQL driver
 lazyQuery :: Database db row -> Query (Rel r) -> IO [(row r)]
 lazyQuery db q	
-	= (dbInvoke dbQuery db) (optimize primQuery) (rel)
+	= (dbQuery db) (optimize primQuery) (rel)
 	where
 	  (primQuery,rel) = runQueryRel q
 
@@ -102,12 +102,12 @@ strictQuery db q
 -- | Inserts values from a query into a table
 insertQuery :: ShowRecRow r => Database db row -> Table r -> Query (Rel r) -> IO ()
 insertQuery db (Table name assoc) q
-	= (dbInvoke dbInsertQuery db) name (optimize (runQuery q))
+	= (dbInsertQuery db) name (optimize (runQuery q))
 
 -- | Inserts a record into a table
 insert :: ShowRecRow r => Database db row -> Table r -> HDBRec r -> IO ()
 insert db (Table name assoc) newrec	
-	= (dbInvoke dbInsert db) name (zip (attrs assoc) (exprs newrec))
+	= (dbInsert db) name (zip (attrs assoc) (exprs newrec))
 	where
 	  attrs   = map (\(attr,AttrExpr name) -> name)
 	  
@@ -118,7 +118,7 @@ delete :: ShowRecRow r =>
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to delete
        -> IO ()
 delete db (Table name assoc) criteria
-	= (dbInvoke dbDelete db) name [substAttr assoc primExpr]
+	= (dbDelete db) name [substAttr assoc primExpr]
 	where
 	  (Expr primExpr)  = criteria rel
 	  rel		   = Rel 0 (map fst assoc)
@@ -131,7 +131,7 @@ update :: (ShowRecRow s,ShowRecRow r) =>
        -> (Rel r -> HDBRec s)  -- ^ Function used to modify selected records
        -> IO ()
 update db (Table name assoc) criteria assignFun
-	= (dbInvoke dbUpdate db) name [substAttr assoc primExpr] newassoc			     
+	= (dbUpdate db) name [substAttr assoc primExpr] newassoc			     
 	where
 	  (Expr primExpr)= criteria rel
 	  	
@@ -149,13 +149,13 @@ update db (Table name assoc) criteria assignFun
 -- | List all tables in the database
 tables :: Database db row -- ^ Database
        -> IO [TableName]  -- ^ Names of all tables in the database
-tables db = dbInvoke dbTables db
+tables db = dbTables db
 
 -- | List all columns in a table, along with their types
 describe :: Database db row -- ^ Database
 	 -> TableName       -- ^ Name of the tables whose columns are to be listed
 	 -> IO [(Attribute,FieldDef)] -- ^ Name and type info for each column
-describe db = dbInvoke dbDescribe db
+describe db = dbDescribe db
 
 
 -- | Performs some database action in a transaction. If no exception is thrown,
@@ -163,4 +163,4 @@ describe db = dbInvoke dbDescribe db
 transaction :: Database db row -- ^ Database
 	    -> IO a -- ^ Action to run
 	    -> IO a 
-transaction db = dbInvoke dbTransaction db
+transaction db = dbTransaction db

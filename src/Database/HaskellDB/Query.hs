@@ -316,7 +316,7 @@ instance ShowConstant CalendarTime where
 instance ShowConstant a => ShowConstant (Maybe a) where
     showConstant x = maybe "NULL" showConstant x
 
-instance (Size n) => ShowConstant (BoundedString n) where
+instance Size n => ShowConstant (BoundedString n) where
     showConstant x = show x
 
 -- | Transform an a into an Expr a.  
