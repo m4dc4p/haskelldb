@@ -255,6 +255,7 @@ doQuery db q =
 testOps db =
     do
     putStrLn "Testing UNION..."
+    putStrLn $ show $ showSql $ union q1 q2
     query db (union q1 q2)
 -- These don't work in MySQL:
 --    query db (intersect q1 q2)
