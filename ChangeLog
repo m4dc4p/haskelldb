@@ -1,3 +1,357 @@
+2004-05-01 19:38  d00bring
+
+	* test/THField.hs: Added template haskell field creation module.
+
+2004-05-01 19:00  d00bring
+
+	* BUGS: added access timestamp bug
+
+2004-05-01 18:29  d00bring
+
+	* src/: HDBRec.hs, Query.hs: more record clean-up and
+	  generalization
+
+2004-05-01 16:47  d00bring
+
+	* FIXED: Added dbinfo upper case identifier bug to FIXED. Fixed a
+	  typo.
+
+2004-05-01 16:33  d00bring
+
+	* src/: DBLayout.hs, HDBRec.hs, HaskellDB.hs, Query.hs: Moved # to
+	  HDBRec. Added revision tags.
+
+2004-04-30 02:59  viblo
+
+	* src/BoundedList.hs: Added haddock comments for the functions.
+
+2004-04-29 19:32  chucky
+
+	* BUGS: Forgot to mention I had fixed a bug
+
+2004-04-29 19:32  chucky
+
+	* src/DBSpec/: DBInfo.hs, DBSpecToDBDirect.hs: [no log message]
+
+2004-04-29 19:31  chucky
+
+	* BUGS:
+	  Fixed two bugs
+
+2004-04-28 20:12  d00bring
+
+	* src/drivers/hsql/Common.hs: Added a bunch of type signatures that
+	  the versose warnings complained about. Added revision tag.
+
+2004-04-28 20:06  d00bring
+
+	* src/Sql.hs: Added a bunch of type signatures to fix some warnings
+	  produced by --enable-verbose-warnings.
+
+2004-04-28 19:59  d00bring
+
+	* src/PrimQuery.hs: added type signatures to showRelOp, showUnOp,
+	  showBinOp and showAggrOp, to fix some warnings produces with
+	  --enable-verbose-warnings.
+
+2004-04-28 02:58  viblo
+
+	* src/HaskellDB.hs: Added type sign. for the show funcs so they are
+	  visible in the haddocked doc
+
+2004-04-27 23:49  d00bring
+
+	* BUGS: added MS Access Memo field bug.
+
+2004-04-27 21:32  d00bring
+
+	* test/: Makefile, run-all-tests, test-sum.hs: Added test-sum,
+	  which tests that the the sum of a column of ints can be treated
+	  as an int (did not work with MySQL and older hsql versions).
+
+2004-04-27 21:28  d00bring
+
+	* src/Database.hs: Added Show, ReadRecRow and Read instances for
+	  Row.
+
+2004-04-27 20:08  d00bring
+
+	* configure.ac: Added --enable-hsql flag
+
+2004-04-27 20:07  d00bring
+
+	* BUGS, TODO: Added DBDirect uppercase DBInfo name bug.
+
+2004-04-27 15:04  chucky
+
+	* src/DBSpec/DBSpecToDBDirect.hs: Hopefully fixed the "missing
+	  field" bug in DBDirect.
+
+2004-04-27 00:46  d00bring
+
+	* BUGS, TODO: Added empty tables / table name bug
+
+2004-04-24 14:58  d00bring
+
+	* src/HDBRec.hs: Added explicit export list, added some haddock
+
+2004-04-24 14:35  d00bring
+
+	* src/DBLayout.hs, src/Database.hs, src/HDBRec.hs, src/Query.hs,
+	  src/DBSpec/DBSpecToDBDirect.hs,
+	  test/hardcoded-layout-simple-query.hs, test/run-all-tests: gave
+	  HBDRec types non-hdb-specific names
+
+2004-04-23 02:46  viblo
+
+	* src/Sql.hs: Added some haddock comments
+
+2004-04-22 20:44  d00bring
+
+	* Makefile: stop running autoconf automatically, gets messy when
+	  you just want ot make clean
+
+2004-04-22 20:41  d00bring
+
+	* configure.ac: fixed hugs hsql path flags when prefix not set
+
+2004-04-22 20:27  d00bring
+
+	* src/HDBRec.hs: added fundep to SelectField
+
+2004-04-22 17:32  dp03-7
+
+	* config.mk.in, configure.ac: Configure now finds HSQL for Hugs
+	  using --prefix
+
+2004-04-08 19:57  d00bring
+
+	* src/Query.hs: reduced precedence of like to be lower than !
+
+2004-04-08 18:10  d00bring
+
+	* src/HDBRec.hs, doc/descript: Minor documentation updates.
+
+2004-04-08 15:16  d00bring
+
+	* test/: CustomSql.hs, custom-test.hs: Added some examples of using
+	  cusom SQL operators
+
+2004-04-08 15:05  d00bring
+
+	* src/Database.hs: change implementation of !. to use !, change !
+	  to use selectField directly
+
+2004-04-08 14:59  d00bring
+
+	* src/Database.hs: Removed unneccessary HasField constraint from
+	  selection operators
+
+2004-04-08 13:38  d00bring
+
+	* test/quickcheck.hs: More quickcheck property ideas
+
+2004-04-08 13:37  d00bring
+
+	* test/run-all-tests: Make hugs use a bigger heap, needed for
+	  join-without-restrict
+
+2004-04-08 13:33  d00bring
+
+	* test/default-auto-inc.hs: stupid monomorphism restriction
+
+2004-04-08 13:22  d00bring
+
+	* test/big-test.hs: Print PrimQuery for UNION
+
+2004-04-08 13:22  d00bring
+
+	* test/run-all-tests: halt on errors
+
+2004-04-08 13:20  d00bring
+
+	* BUGS, TODO, src/Sql.hs: Identified source of table alias clashes
+
+2004-04-08 13:01  d00bring
+
+	* src/Optimize.hs: Allow merging projects through all binaray
+	  relational operators, except Times where it does not work.
+
+2004-04-08 12:54  d00bring
+
+	* BUGS: added repeated table alias problem
+
+2004-04-08 12:51  d00bring
+
+	* test/big-test.hs: Print UNION query before running it
+
+2004-04-08 12:48  d00bring
+
+	* src/: Database.hs, drivers/hsql/Common.hs,
+	  drivers/wxhaskell/WX.hs: Backends can now retrieve Bools
+
+2004-04-08 12:31  d00bring
+
+	* test/run-all-tests: don't run lazy, it makes mysqld crazy
+
+2004-04-08 12:29  d00bring
+
+	* test/run-all-tests: run-all-tests now runs all tests
+
+2004-04-08 12:29  d00bring
+
+	* test/null-and-case.hs: Changed name of DBDirect module used
+
+2004-04-08 12:26  d00bring
+
+	* test/current-time.hs: fixed some type errors, forgot to compile
+	  before checking in earlier
+
+2004-04-08 12:12  d00bring
+
+	* BUGS, FIXED, TODO: Moved queries without tables and join without
+	  restrict (that was not actually the problem) to FIXED.
+
+2004-04-08 12:08  d00bring
+
+	* src/Optimize.hs, test/Makefile, test/current-time.hs,
+	  test/default-auto-inc.hs, test/join-without-restrict.hs: Fixed
+	  bugs in Optimize that messed up queries without a table and
+	  certain joins.
+
+2004-04-08 11:59  d00bring
+
+	* src/PrimQuery.hs: Changed attributes to use union instead of ++
+	  for times
+
+2004-04-08 01:38  d00bring
+
+	* test/default-auto-inc.hs: now gets last_insert_id()
+
+2004-04-08 01:37  d00bring
+
+	* TODO: added query without table TODO
+
+2004-04-08 01:17  d00bring
+
+	* test/current-time.hs: Cleaned up a little.
+
+2004-04-08 00:01  d00bring
+
+	* test/join-without-restrict.hs: added program that demonstrates
+	  the join without restrict bug
+
+2004-04-07 21:57  d00bring
+
+	* test/quickcheck.hs: Chnaged name of test function, conflicted
+	  with a QuickCheck function
+
+2004-04-07 21:52  chucky
+
+	* src/GenericConnect.pphs: Damnit I introduced a bug, fixed now
+
+2004-04-07 21:48  chucky
+
+	* src/GenericConnect.pphs: Created clearer error messages, and did
+	  some cleaning up
+
+2004-04-07 21:44  d00bring
+
+	* test/quickcheck.hs: first step towards quickcheck properties
+
+2004-04-07 21:16  d00bring
+
+	* src/HDBRec.hs: Added deriving Eq to record types.
+
+2004-04-07 20:42  d00bring
+
+	* src/: HDBRec.hs, Query.hs: Removed some unused code.
+
+2004-04-07 20:11  d00bring
+
+	* src/HDBRecUtils.hs: Removed HDBRecUtils.hs
+
+2004-04-07 20:10  d00bring
+
+	* src/DBLayout.hs, src/Database.hs, src/HDBRec.hs,
+	  src/HaskellDB.hs, src/Query.hs, src/common.mk,
+	  test/current-time.hs, test/hardcoded-layout-simple-query.hs,
+	  test/run-all-tests: Removed HDBRecUtils and put its pieces where
+	  they makethe most sense.
+
+2004-04-07 19:42  d00bring
+
+	* BUGS, FIXED, TODO: Moved default value support to FIXED.
+
+2004-04-07 19:34  d00bring
+
+	* BUGS, FIXED, TODO, src/Database.hs, src/HDBRecUtils.hs,
+	  src/HaskellDB.hs, src/Query.hs, test/Makefile,
+	  test/default-auto-inc.hs, test/higher-order.hs: Added support for
+	  default values in insert. Restricted use of aggregate expressions
+	  to project.
+
+2004-04-07 16:39  chucky
+
+	* src/: DBLayout.hs, common.mk, DBSpec/DBSpecToDBDirect.hs: [no log
+	  message]
+
+2004-04-07 16:39  chucky
+
+	* TODO: Fixed the following TODO:   * put all imports that
+	  DbDirect-generated files need in a module by	   itself, so that
+	  generated code only needs to import that module. /Bjorn
+
+2004-04-07 14:36  forester
+
+	* src/: BoundedList.hs, BoundedString.hs, drivers/hsql/Common.hs:
+	  Added size 65535 to boundedstring. Also added more SqlTypes
+
+2004-04-07 14:35  d00bring
+
+	* src/DBSpec/DBSpecToDBDirect.hs: Moved $$ after contextStackPragma
+	  into the commented-out part to fix a parse error.
+
+2004-04-07 10:31  chucky
+
+	* test/dbspec.hs: removed the easter egg
+
+2004-04-06 13:15  chucky
+
+	* src/DBSpec/DBSpecToDBDirect.hs: Tried adding -fcontext-stackXX as
+	  a pragma at the top of generated files, but it didn't work. The
+	  code remains if it starts to work some day. :)
+
+2004-04-06 13:14  chucky
+
+	* BUGS: Tried adding -fcontext-stackXX as a pragma at the top of
+	  generated files, but it didn't work.
+
+2004-04-05 12:09  chucky
+
+	* BUGS: Wrote something about SqlBit
+
+2004-04-05 11:57  chucky
+
+	* src/drivers/: hsql/Common.hs, wxhaskell/WX.hs: [no log message]
+
+2004-04-05 11:57  chucky
+
+	* src/FieldType.hs: Tried adding support for SqlBit, but gave up
+	  because of db incompatibilities
+
+2004-04-04 16:59  d00bring
+
+	* BUGS: fixed simple typo
+
+2004-04-01 22:46  d00bring
+
+	* BUGS: added LIKE/ILIKE problem
+
+2004-03-31 21:57  d00bring
+
+	* ChangeLog: Updated ChangeLog for release
+
 2004-03-31 21:56  forester
 
 	* NEWS: Added news for version 0.7
