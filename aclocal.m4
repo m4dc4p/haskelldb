@@ -1,6 +1,9 @@
 # Some macros for haskell projects
 # By Bjorn Bringert, 2004
 
+
+# AC_HS_GHC_COMPILE_IFELSE(program, action-if-true, action-if-false)
+# try to compile a program with GHC
 AC_DEFUN([AC_HS_GHC_COMPILE_IFELSE],
 [rm -f conftest.hs conftest.hi conftest.o
 cat << \EOF > conftest.hs 
@@ -14,6 +17,8 @@ fi
 rm -f conftest.hs conftest.hi conftest.o
 ])
 
+# AC_HS_HUGS_RUN_IFELSE(program, action-if-true, action-if-false)
+# Try to run a program with runhugs
 AC_DEFUN([AC_HS_HUGS_RUN_IFELSE],
 [rm -f conftest.hs 
 cat << \EOF > conftest.hs
@@ -27,6 +32,8 @@ fi
 rm -f conftest.hs
 ])
 
+# AC_HS_MODULE_TEST(module, function)
+# Make a Haskell module that tests that function exists in a module
 AC_DEFUN([AC_HS_MODULE_TEST],[
 import [$1] ([$2])
 
@@ -36,6 +43,7 @@ main :: IO ()
 main = return ()
 ])
 
+# AC_HS_GHC_MODULE_IFELSE(module, function, action-if-true, action-if-false)
 AC_DEFUN([AC_HS_GHC_MODULE_IFELSE],[
 AC_MSG_CHECKING([for module $1 for GHC])
 AC_HS_GHC_COMPILE_IFELSE(AC_HS_MODULE_TEST([$1],[$2]),
@@ -46,6 +54,7 @@ AC_HS_GHC_COMPILE_IFELSE(AC_HS_MODULE_TEST([$1],[$2]),
   )
 ])
 
+# AC_HS_HUGS_MODULE_IFELSE(module, function, action-if-true, action-if-false)
 AC_DEFUN([AC_HS_HUGS_MODULE_IFELSE],[
 AC_MSG_CHECKING([for module $1 for Hugs])
 AC_HS_HUGS_RUN_IFELSE(AC_HS_MODULE_TEST([$1],[$2]),
@@ -56,6 +65,7 @@ AC_HS_HUGS_RUN_IFELSE(AC_HS_MODULE_TEST([$1],[$2]),
   )
 ])
 
+# AC_HS_MODULE_IFELSE(module, function, action-if-true, action-if-false)
 AC_DEFUN([AC_HS_MODULE_IFELSE],[
 if test "$GHC" != ""; then
   AC_HS_GHC_MODULE_IFELSE([$1],[$2],[$3],[$4])
@@ -63,4 +73,23 @@ fi
 if test "$HUGS" != ""; then
   AC_HS_HUGS_MODULE_IFELSE([$1],[$2],[$3],[$4])
 fi
+])
+
+# AC_HS_MODULE_IFELSE(minimum major, mininum minor)
+AC_DEFUN([AC_HS_CHECK_GHC_VERSION],[
+  if test "$GHC" == ""; then
+    AC_MSG_ERROR([GHC not found])
+  fi
+
+  AC_MSG_CHECKING([for ghc >= $1.$2])
+
+  GHC_VERSION=`${GHC} --version | sed 's/.*version //'`
+  GHC_VERSION_MAJOR=[`echo $GHC_VERSION | sed 's/^\([^.]*\)\..*/\1/'`]
+  GHC_VERSION_MINOR=[`echo $GHC_VERSION | sed 's/^[^.]*\.\([^.]*\).*/\1/'`]
+
+  if test "$GHC_VERSION_MAJOR" -lt [$1] || (test "$GHC_VERSION_MAJOR" = [$1] && test "$GHC_VERSION_MINOR" -lt [$2]); then
+    AC_MSG_ERROR([GHC version >= $1.$2 required. Found $GHC_VERSION])
+  fi
+
+  AC_MSG_RESULT([$GHC_VERSION])
 ])
