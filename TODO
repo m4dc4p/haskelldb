@@ -1,7 +1,6 @@
 Things that must be done before the release:
   * Get date types working. (working, but buggy due to HSQL bug!)
   * Get Windows build working without needing configure flags. (working?)
-  * Remove passwords from all test files.
   * Finish website.
     - Describe requirements, and link to HSQL, unixODBC etc.
     - Add a simple example program, including db table layout.
@@ -24,8 +23,6 @@ Things that need to be done, in no particular order:
   * Make row retrieval lazy in HSQL driver
   * Make Query.exprs type safe
   * switch ad-hoc assert to Control.Expcetion.assert
-  * change insert to work like insertNew and remove insertNew 
-    (is this a good idea?)
   * make {odbc,mysql,postgresql}Connect take a Database argument 
     instead of a HSQL argument. This would allow more general type
     signatures in user code. (Added by Bjorn)
