@@ -38,6 +38,9 @@ module Database.HaskellDB.Query (
 
 import Database.HaskellDB.HDBRec
 import Database.HaskellDB.PrimQuery
+import Database.HaskellDB.BoundedString
+import Database.HaskellDB.BoundedList
+
 import System.Time
 
 -----------------------------------------------------------
@@ -313,16 +316,17 @@ instance ShowConstant CalendarTime where
 instance ShowConstant a => ShowConstant (Maybe a) where
     showConstant x = maybe "NULL" showConstant x
 
+instance (Size n) => ShowConstant (BoundedString n) where
+    showConstant x = show x
 
 -- | Transform an a into an Expr a.  
 constant :: ShowConstant a => a -> Expr a
-constant x      = Expr (ConstExpr (showConstant x))
+constant x  = Expr (ConstExpr (showConstant x))
 
 -- | Turn constant data into a nullable expression. 
 --   Same as @constant . Just@
-nullable        :: ShowConstant a => a -> Expr (Maybe a)
-nullable x      = constant (Just x)
-
+nullable :: ShowConstant a => a -> Expr (Maybe a)
+nullable x = constant (Just x)
 
 -----------------------------------------------------------
 -- Aggregate operators
