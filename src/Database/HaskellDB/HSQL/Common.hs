@@ -36,8 +36,8 @@ hsqlConnect :: (opts -> IO Connection) -- ^ HSQL connection function, e.g.
 hsqlConnect connect opts action = 
     do
     conn <- handleSqlError (connect opts)
-    x <- handleSqlError (action (newHSQL conn))
-    disconnect conn
+    x <- action (newHSQL conn)
+    handleSqlError (disconnect conn)
     return x
 
 handleSqlError :: IO a -> IO a
@@ -78,10 +78,11 @@ hsqlUpdate conn table criteria assigns =
     hsqlPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
 
 hsqlTables :: Connection -> IO [TableName]
-hsqlTables = HSQL.tables
+hsqlTables conn = handleSqlError $ HSQL.tables conn
 
 hsqlDescribe :: Connection -> TableName -> IO [(Attribute,FieldDesc)]
-hsqlDescribe conn table = liftM (map toFieldDesc) (HSQL.describe conn table)
+hsqlDescribe conn table = 
+    handleSqlError $ liftM (map toFieldDesc) (HSQL.describe conn table)
    where
    toFieldDesc (name,sqlType,nullable) = (name,(toFieldType sqlType, nullable))
 
@@ -119,7 +120,8 @@ toFieldType _                = StringT
 
 -- | HSQL implementation of 'Database.dbTransaction'.
 hsqlTransaction :: Connection -> IO a -> IO a
-hsqlTransaction conn action = inTransaction conn (\_ -> action)
+hsqlTransaction conn action = 
+    handleSqlError $ inTransaction conn (\_ -> action)
 
 
 -----------------------------------------------------------
@@ -135,12 +137,12 @@ hsqlPrimQuery :: GetRec er vr =>
 	      -> IO [vr]    -- ^ Query results
 hsqlPrimQuery connection sql scheme rel = 
     do
-    stmt <- HSQL.query connection sql
+    stmt <- handleSqlError $ HSQL.query connection sql
     lazyRows (getRec hsqlGetInstances rel scheme) stmt
 
 -- | Retrive rows lazily.
 lazyRows :: (Statement -> IO a) -> Statement -> IO [a]
-lazyRows f stmt = unsafeInterleaveIO loop
+lazyRows f stmt = unsafeInterleaveIO (handleSqlError loop)
     where
     loop = do
 	   success <- fetch stmt `onError` closeStatement stmt
@@ -160,7 +162,7 @@ onError a h = a `Control.Exception.catch` (\e -> h >> throwIO e)
 hsqlPrimExecute :: Connection -- ^ Database connection.
 		-> String     -- ^ SQL query.
 		-> IO ()
-hsqlPrimExecute connection sql = execute connection sql
+hsqlPrimExecute connection sql = handleSqlError $ execute connection sql
 
 
 -----------------------------------------------------------
@@ -168,13 +170,14 @@ hsqlPrimExecute connection sql = execute connection sql
 -----------------------------------------------------------
 
 hsqlGetInstances :: GetInstances Statement
-hsqlGetInstances = GetInstances {
-				 getString        = getFieldValueMB
-				, getInt          = getFieldValueMB
-				, getInteger      = getFieldValueMB
-				, getDouble       = getFieldValueMB
-				, getCalendarTime = hsqlGetCalendarTime
-				}
+hsqlGetInstances = 
+    GetInstances {
+		  getString        = getFieldValueMB
+		 , getInt          = getFieldValueMB
+		 , getInteger      = getFieldValueMB
+		 , getDouble       = getFieldValueMB
+		 , getCalendarTime = hsqlGetCalendarTime
+		 }
 
 hsqlGetCalendarTime :: Statement -> String -> IO (Maybe CalendarTime)
 hsqlGetCalendarTime s f = getFieldValueMB s f >>= mkIOMBCalendarTime

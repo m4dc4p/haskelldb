@@ -85,11 +85,14 @@ wxUpdate conn table criteria assigns =
     wxPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
 
 wxTables :: Connection -> IO [TableName]
-wxTables conn = liftM (map tableName . WX.dbTables) (WX.dbGetInfo conn)
+wxTables conn = 
+    handleDbError $ liftM (map tableName . WX.dbTables) (WX.dbGetInfo conn)
 
 wxDescribe :: Connection -> TableName -> IO [(Attribute,FieldDesc)]
 wxDescribe conn table = 
-    liftM (map toFieldDesc . tableColumns) (WX.dbGetTableInfo conn table)
+    do
+    i <- handleDbError $ WX.dbGetTableInfo conn table
+    return $ map toFieldDesc $ tableColumns i
     where 
     toFieldDesc ColumnInfo {columnName = name, 
 			    columnSize = size,
@@ -133,7 +136,7 @@ toFieldType _ _            = StringT
 
 -- | WxHaskell implementation of 'Database.dbTransaction'.
 wxTransaction :: Connection -> IO a -> IO a
-wxTransaction conn action = WX.dbTransaction conn action
+wxTransaction conn action = handleDbError $ WX.dbTransaction conn action
 
 
 -----------------------------------------------------------
@@ -148,15 +151,15 @@ wxPrimQuery :: GetRec er vr =>
 	    -> Rel er     -- ^ Phantom argument to get the return type right.
 	    -> IO [vr]    -- ^ Query results
 wxPrimQuery connection sql scheme rel = 
-    WX.dbQuery connection sql (getRec wxGetInstances rel scheme)
-
+    handleDbError $ WX.dbQuery connection sql getResults
+	where getResults = getRec wxGetInstances rel scheme
 
 -- | Primitive execute
 --   FIXME: WxHaskell docs says to always wrap dbExecute in dbTransaction
 wxPrimExecute :: Connection -- ^ Database connection.
 		-> String     -- ^ SQL query.
 		-> IO ()
-wxPrimExecute connection sql = WX.dbExecute connection sql
+wxPrimExecute connection sql = handleDbError $ WX.dbExecute connection sql
 
 
 -----------------------------------------------------------
@@ -164,13 +167,14 @@ wxPrimExecute connection sql = WX.dbExecute connection sql
 -----------------------------------------------------------
 
 wxGetInstances :: GetInstances (DbRow a)
-wxGetInstances = GetInstances {
-			        getString       = WX.dbRowGetStringMb
-			      , getInt          = WX.dbRowGetIntMb
-			      , getInteger      = WX.dbRowGetIntegerMb
-			      , getDouble       = WX.dbRowGetDoubleMb
-			      , getCalendarTime = wxGetCalendarTime
-			      }
+wxGetInstances = 
+    GetInstances {
+		   getString       = WX.dbRowGetStringMb
+		 , getInt          = WX.dbRowGetIntMb
+		 , getInteger      = WX.dbRowGetIntegerMb
+		 , getDouble       = WX.dbRowGetDoubleMb
+		 , getCalendarTime = wxGetCalendarTime
+		 }
 
 wxGetCalendarTime :: DbRow a -> String -> IO (Maybe CalendarTime)
 wxGetCalendarTime r f = WX.dbRowGetClockTimeMb r f >>= mkIOMBCalendarTime
