@@ -11,11 +11,8 @@ PROG = hardcoded-layout-simple-query join-and-aggr html-users-list \
 
 all: $(PROG)
 
-%.hs: %.pphs
-	$(TOP_DIR)/preprocess $(HSPP_FLAGS) $^ > $@
-
 %: %.hs TestConnect.hs
 	ghc --make -fcontext-stack30 -o $@ $<
 
 clean:
-	-rm -f $(PROG) TestConnect.hs *.o *.hi 
+	-rm -f $(PROG) *.o *.hi  
