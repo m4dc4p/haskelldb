@@ -1,8 +1,7 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  HDBRecUtils
--- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
---                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- Copyright   :  HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
 -- License     :  BSD-style
 -- 
 -- Maintainer  :  dp03-7@mdstud.chalmers.se
