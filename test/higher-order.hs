@@ -25,14 +25,11 @@ q1 r = do
        restrict (r!userid .==. constant "d00bring")
        return r
 
-{-
--- shouldn't work, and with the new type system restrictions on 
--- where aggregate functions can be used, it doesn't
+-- FIXME: exposes bug with aggregate functions in restrict
 q2 r = do
        u <- project (userid << r!userid # hours << r!hours)
        restrict (_sum (u!hours) .>. constant 100.0)
-       return 
--}
+       return r
 
 q3 r = do
        u <- project (userid << r!userid # hours << _sum(r!hours))
@@ -56,6 +53,6 @@ test db =
     mapM_ (putStrLn . showRow) rs3
     
 
-showRow r = r!userid ++ ": " ++ show (r!hours)
+showRow r = r!.userid ++ ": " ++ show (r!.hours)
 
 main = argConnect test
