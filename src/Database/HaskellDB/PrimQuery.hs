@@ -232,7 +232,7 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr)
         where
           attr          = text
           scalar        = text . unquote 
-          binary op x y = parens (x <+> ppBinOp  op <> char '\n' <+> y)
+          binary op x y = parens (x <+> ppBinOp op <+> y)
           unary OpAsc x = x <+> text "ASC"
           unary OpDesc x= x <+> text "DESC" 
           unary op x    = parens (ppUnOp  op <+> x)
