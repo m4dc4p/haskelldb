@@ -62,8 +62,8 @@ specToHDB dbinfo = genDocs (constructNonClashingDBInfo dbinfo)
 genDocs :: DBInfo -> [(FilePath,Doc)]
 genDocs dbinfo 
     = ("./" ++ ((moduleName . dbname) dbinfo) ++ ".hs",
---       contextStackPragma dbinfo
-       $$ header
+--       contextStackPragma dbinfo $$
+       header
        $$ text "module" <+> text ((moduleName . dbname) dbinfo) 
        <+> text "where"
        <> newline
