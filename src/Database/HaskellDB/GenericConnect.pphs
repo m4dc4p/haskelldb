@@ -44,24 +44,41 @@ genericConnect a b = genericConnect' (map toLower a) b
 genericConnect' :: String -> [String] -> ((Database -> IO a) -> IO a)
 #ifdef WITH_HSQL_ODBC
 genericConnect' "odbc" (a:b:c:[]) = connectODBC a b c
+genericConnect' "odbc" _ 
+    = error "Wrong arguments for ODBC driver, right ones are:" ++ 
+      "dsn, userid and password"
 #endif
 #ifdef WITH_HSQL_MYSQL
 genericConnect' "mysql" (a:b:c:d:[]) = connectMySQL a b c d
+genericConnect' "mysql" _ 
+    = error "Wrong arguments for MySQL driver, right ones are:" ++ 
+      "server, database, userid and password"
 #endif
 #ifdef WITH_HSQL_SQLITE
 genericConnect' "sqlite" (a:b:[]) = connectSQLite a b
+genericConnect' "sqlite" _ 
+    = error "Wrong arguments for SQLite driver, right ones are:" ++ 
+      "filepath and IOMode"
 #endif
 #ifdef WITH_HSQL_POSTGRESQL
+genericConnect' "postgre" a
+    = genericConnect' "postgresql" a -- pass on...
 genericConnect' "postgresql" (a:b:c:d:[]) 
     = connectPostgreSQL a b c d
-genericConnect' "postgre" (a:b:c:d:[]) 
-    = connectPostgreSQL a b c d
+genericConnect' "postgresql" _ 
+    = error "Wrong arguments for PostgreSQL driver, right ones are:" ++ 
+      "server, database, userid and password"
 #endif
 #ifdef WITH_WX
-genericConnect' "wx" (a:b:c:[]) = connectWXHaskell a b c
+genericConnect' "wx" a
+    = genericConnect' "wxhaskell" a -- pass on to the next one
 genericConnect' "wxhaskell" (a:b:c:[]) = connectWXHaskell a b c
+genericConnect' "wxhaskell" _ 
+    = error "Wrong arguments for WXHaskell driver, right ones are:" ++ 
+      "dsn, userid and password"
 #endif
-genericConnect' _ _ = error "Database driver not compiled in" 
+genericConnect' _ _ 
+    = error "Database driver not compiled in or invalid driver" 
 -- only used when no drivers, to make
 -- this compile anyway
 
