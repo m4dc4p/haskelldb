@@ -32,3 +32,7 @@ String. Chucky fixed this on 2004-02-08
 
 - viblo reported 2004-02-18 that union produces invalid SQL. Bjorn
   fixed this on 2004-02-22.
+
+- Jeremy Shaw (stepcut), reported 2004-02-29 that dates were not
+  formatted correctly, and were not quoted (e.g. 2004-February-27
+  12:0:0). Bjorn had already fixed this problem 2004-02-26.
