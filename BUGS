@@ -2,6 +2,10 @@
   since PostgreSQL doesn't like getting date and time as input to a 
   TIME column. We're working on a general solution to date handling issues.
 
+- When using PostgreSQL with ODBC, TIMESTAMP columns are treated
+  as String fields. This seems to be a problem with the PostgreSQL
+  ODBC driver.
+
 - There is probably a memory leak somwhere, with 512 MB RAM
   you can do about 50000 database queries before you runs
   out of memory and get an SqlNoData user error.
