@@ -40,6 +40,9 @@ HSQL_driver.o: $(HSQL_DIR)/Database/ODBC/HSQL.hi
 
 test.o: HSQL_driver.hi
 
+$(HSQL_DIR)/Database/libHSsql.a: HSQL
+	$(MAKE) -f Makefile.HSQL HSQL/libHSsql.a
+
 test: $(HSQL_DIR)/Database/libHSsql.a test.o HSQL_driver.o
 	$(GHC) $(GHCFLAGS) -o $@ $^ $(LDFLAGS) -L../.. -lHDB
 
@@ -47,7 +50,7 @@ test: $(HSQL_DIR)/Database/libHSsql.a test.o HSQL_driver.o
 # Generic
 #
 
-HSQL/% Database/%: HSQL-desc.patch HSQL-hugs.patch
+HSQL Database HSQL/% Database/%: HSQL-desc.patch HSQL-hugs.patch
 	$(MAKE) -f Makefile.HSQL HSQL Database
 
 clean:
