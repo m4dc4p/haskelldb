@@ -97,11 +97,6 @@ attributeName (Attr name) = name
 -- Basic relational operators
 -----------------------------------------------------------
 
--- Selects a field from a row. Usage typicly something like
---
---  restrict (table_1!name .==. table_2!name)
---
--- where name is the selected field
 (!) :: HasField f r => Rel r -> Attr f r a -> Expr a
 rel ! attr      = select attr rel
 
@@ -382,19 +377,39 @@ varianceP x     = numAggregate AggrVarP x
 aggregate :: AggrOp -> Expr a -> Expr b
 aggregate op (Expr primExpr) = Expr (AggrExpr op primExpr)
 
+-- | Returns the number of records (=rows) in a query.
 count :: Expr a -> Expr Int
 count x		= aggregate AggrCount x
 
-_sum,_max,_min,avg,stddev,stddevP,variance,varianceP 
-    :: Num a => Expr a -> Expr a
-_sum x          = aggregate AggrSum x
-_max x          = aggregate AggrMax x
-_min x          = aggregate AggrMin x
-avg x           = aggregate AggrAvg x
-stddev x        = aggregate AggrStdDev x
-stddevP x       = aggregate AggrStdDevP x
-variance x      = aggregate AggrVar x
-varianceP x     = aggregate AggrVarP x
+-- | Returns the total sum of a column.
+_sum :: Num a => Expr a -> Expr a
+_sum x = aggregate AggrSum x
+
+-- | Returns the highest value of a column.
+_max :: Num a => Expr a -> Expr a
+_max x = aggregate AggrMax x
+
+-- | Returns the lowest value of a column.
+_min :: Num a => Expr a -> Expr a
+_min x = aggregate AggrMin x
+
+-- | Returns the average of a column.
+avg :: Num a => Expr a -> Expr a
+avg x = aggregate AggrAvg x
+
+-- | Returns the standard deviation of a column.
+stddev :: Num a => Expr a -> Expr a
+stddev x = aggregate AggrStdDev x
+
+stddevP :: Num a => Expr a -> Expr a
+stddevP x = aggregate AggrStdDevP x
+
+-- | Returns the standard variance of a column.
+variance :: Num a => Expr a -> Expr a
+variance x = aggregate AggrVar x
+
+varianceP :: Num a => Expr a -> Expr a
+varianceP x  = aggregate AggrVarP x
 
 -----------------------------------------------------------
 -- Special ops
