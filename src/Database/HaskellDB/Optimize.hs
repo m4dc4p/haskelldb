@@ -170,9 +170,9 @@ pushRestrict (Restrict x query)
 
 -- also push specials
 
--- FIXME: this can cause the argument of ORDER
--- to become something other than an attribute
--- commented out for now
+-- This can cause the argument of ORDER
+-- to become something other than an attribute.
+-- Replaced this by the version below.
 {-
 pushRestrict (Special op (Project assoc query))
 	= Project assoc (pushRestrict (Special (subst op) query))
@@ -180,6 +180,13 @@ pushRestrict (Special op (Project assoc query))
 	  subst (Order xs)	= Order (map (substAttr assoc) xs)
 	  subst op		= op
 -}
+
+-- We take the safe route and do not push orderings at all
+pushRestrict (Special op (Project assoc query))
+	| safe op = Project assoc (pushRestrict (Special op query))
+	where
+	  safe (Order _)	= False
+	  safe _		= True
 
 pushRestrict (Special op (query@(Special _ _)))
 	= case (pushed) of
