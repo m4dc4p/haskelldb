@@ -27,9 +27,14 @@ testInsert db =
     insert db test_tb1 (c11 << constant 157 # c12 << constant (Just 56))
     insert db test_tb1 (c11 << constant (-567) # c12 << constant Nothing)
 
-testUpdate db = return ()
-testDelete db = return ()
-
+testUpdate db = 
+    do
+    update db test_tb1 (\r -> r!c11 .==. constant 157) (setC12 (Just 18))
+    where
+    setC12 x r = c11 << r!c11 # c12 << constant x
+testDelete db = 
+    do
+    delete db test_tb1 (\r -> r!c11 .==. constant 157 .||. isNull (r!c12))
 
 test db = 
     do
