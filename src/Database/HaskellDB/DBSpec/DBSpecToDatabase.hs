@@ -18,13 +18,13 @@ module Database.HaskellDB.DBSpec.DBSpecToDatabase
 import Database.HaskellDB.Database
 import Database.HaskellDB.DBSpec
 
--- | Converts a DBInfo to a real life Database
+-- | Converts a DBInfo to a real life Database, note that the database must
+-- exist for this to work
 dbSpecToDatabase :: DBInfo -- ^ The DBInfo to generate from
 		 -> Database -- ^ A Database
 		 -> IO ()
 dbSpecToDatabase dbi db 
     = do
-      createDB db (dbname dbi)
-      mapM_ (\t -> createTable db (tname t) (createAttFD t)) (tbls dbi) -- creates in the WRONG DATABASE!!!
+      mapM_ (\t -> createTable db (tname t) (createAttFD t)) (tbls dbi)
     where
     createAttFD tbl = zip (map cname (cols tbl)) (map descr (cols tbl))
