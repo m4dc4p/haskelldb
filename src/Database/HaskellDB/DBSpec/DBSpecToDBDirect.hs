@@ -1,3 +1,4 @@
+
 -----------------------------------------------------------
 -- |
 -- Module      :  DBSpecToDBDirect
@@ -21,7 +22,7 @@ import Database.HaskellDB.FieldType
 
 import Database.HaskellDB
 import Database.HaskellDB.PrimQuery
-import Database.HaskellDB.DBSpec
+import Database.HaskellDB.DBSpec.DBInfo
 
 import Database.HaskellDB.DBSpec.PPHelpers
 

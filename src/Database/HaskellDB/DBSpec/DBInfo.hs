@@ -1,4 +1,4 @@
------------------------------------------------------------
+a-----------------------------------------------------------
 -- |
 -- Module      :  DBInfo
 -- Copyright   :  HWT Group (c) 2004, dp03-7@mdstud.chalmers.se
@@ -18,10 +18,6 @@ module Database.HaskellDB.DBSpec.DBInfo
     where
 
 import Database.HaskellDB.FieldType
-
-import Database.HaskellDB.DBSpec.DatabaseToDBSpec
-import Database.HaskellDB.DBSpec.DBSpecToDatabase
-
 import Data.Char
 import Text.PrettyPrint.HughesPJ
 
