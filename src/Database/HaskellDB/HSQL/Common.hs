@@ -10,7 +10,7 @@
 --
 -- HSQL interface for HaskellDB
 --
--- $Revision: 1.45 $
+-- $Revision: 1.46 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.HSQL.Common (
@@ -23,6 +23,7 @@ import Control.Monad
 import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Time
 
+import Database.HaskellDB
 import Database.HaskellDB.Database
 import Database.HaskellDB.Sql
 import Database.HaskellDB.PrimQuery
@@ -64,7 +65,7 @@ hsqlQuery :: GetRec er vr =>
 	     Connection 
 	  -> PrimQuery 
 	  -> Rel er 
-	  -> IO [vr]
+	  -> IO [Record vr]
 hsqlQuery connection qtree rel = hsqlPrimQuery connection sql scheme rel
     where
       sql = show (ppSql (toSql qtree))  
@@ -146,7 +147,7 @@ hsqlPrimQuery :: GetRec er vr =>
 	      -> String     -- ^ SQL query
 	      -> Scheme     -- ^ List of field names to retrieve
 	      -> Rel er     -- ^ Phantom argument to get the return type right.
-	      -> IO [vr]    -- ^ Query results
+	      -> IO [Record vr]    -- ^ Query results
 hsqlPrimQuery connection sql scheme rel = 
     do
     stmt <- handleSqlError $ HSQL.query connection sql

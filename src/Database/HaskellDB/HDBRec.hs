@@ -10,18 +10,18 @@
 -- 
 -- This is a replacement for some of TREX.
 --
--- $Revision: 1.26 $
+-- $Revision: 1.27 $
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec 
     (
     -- * Record types
     RecNil(..), RecCons(..), Record
     -- * Record construction
-    , (.=.), ( # )
+    , emptyRecord, (.=.), ( # )
     -- * Labels
     , FieldTag(..)
     -- * Record predicates and operations
-    , HasField, SelectField(..)
+    , HasField, Select(..), SetField(..)
     -- * Showing and reading records
     , ShowRecRow(..), ReadRecRow(..)
     ) where
@@ -45,16 +45,24 @@ type Record r = RecNil -> r
 
 -- * Record construction
 
--- | Creates an a record field from a label and a value
-( .=. ) :: f             -- ^ Label
+
+-- | Creates one-field record from a label and a value
+( .=. ) :: l f a         -- ^ Label
        -> a              -- ^ Value
-       -> b              -- ^ Rest of the record
-       -> RecCons f a b  -- ^ New record
+       -> Record (RecCons f a RecNil)  -- ^ New record
 _ .=. x = RecCons x
 
--- | Adds an entry to a record.
-( # ) :: (b -> c) -> (a -> b) -> (a -> c)
-( # ) = (.)
+-- | Adds the field from a one-field record to another record.
+( # ) :: Record (RecCons f a RecNil) -- ^ Field to add
+      -> (b -> c)                    -- ^ Rest of record
+      -> (b -> RecCons f a c)        -- ^ New record
+f # r = let RecCons x _ = f RecNil in RecCons x . r
+
+
+
+-- | The empty record
+emptyRecord :: Record RecNil
+emptyRecord = id
 
 -- * Class definitions.
 
@@ -71,7 +79,20 @@ instance HasField f (RecCons f a r)
 instance HasField f r => HasField f (RecCons g a r)
 instance HasField f r => HasField f (Record r)
 
--- | Class for getting the value of a field from a record.
+
+infix   9 !
+
+class Select f r a | f r -> a where
+    -- | Field selection operator. It is overloaded so that
+    --   users (read HaskellDB) can redefine it for things
+    --   with phantom record types.
+    (!) :: r -> f -> a
+
+instance SelectField f r a => Select (l f a) (Record r) a where
+    r ! (_::l f a) = selectField (undefined::f) r
+
+-- | Class which does the actual work of 
+--   getting the value of a field from a record.
 -- FIXME: would like the dependency f r -> a here, but
 -- that makes Hugs complain about conflicting instaces
 class SelectField f r a where
@@ -79,22 +100,30 @@ class SelectField f r a where
     selectField :: f -- ^ Field label
 		-> r -- ^ Record 
 		-> a -- ^ Field value
+
+instance SelectField f (RecCons f a r) a where
+    selectField _ (RecCons x _) = x
+
+instance SelectField f r a => SelectField f (RecCons g b r) a where
+    selectField f (RecCons _ r) = selectField f r
+
+instance SelectField f r a => SelectField f (Record r) a where
+    selectField f r = selectField f (r RecNil)
+
+class SetField f r a where
     -- | Sets the value of a field in a record.
     setField :: f -- ^ Field label
 	     -> a -- ^ New field value
 	     -> r -- ^ Record
 	     -> r -- ^ New record
 
-instance SelectField f (RecCons f a r) a where
-    selectField _ (RecCons x _) = x
+instance SetField f (RecCons f a r) a where
     setField _ y (RecCons _ r) = RecCons y r
 
-instance SelectField f r a => SelectField f (RecCons g b r) a where
-    selectField f (RecCons _ r) = selectField f r
+instance SetField f r a => SetField f (RecCons g b r) a where
     setField l y (RecCons f r) = RecCons f (setField l y r)
 
-instance SelectField f r a => SelectField f (Record r) a where
-    selectField f r = selectField f (r RecNil)
+instance SetField f r a => SetField f (Record r) a where
     setField f y r = \e -> setField f y (r e)
 
 

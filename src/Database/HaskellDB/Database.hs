@@ -13,13 +13,12 @@
 -- primitive hooks that a particular database binding
 -- must provide.
 --
--- $Revision: 1.38 $ 
+-- $Revision: 1.39 $ 
 -----------------------------------------------------------
 module Database.HaskellDB.Database ( 
 		-- * Operators
 	      	(!.)
 		-- * Type declarations
-		, Row(..)
 		, Database(..)
 		, GetRec(..), GetInstances(..)
 
@@ -43,39 +42,18 @@ import Control.Monad
 
 infix 9 !. 
 
--- | The type of query results. This is a simple wrapper
---   around a record type in order to be able to overload !.
-newtype Row r = Row r deriving (Eq, Ord)
-
-instance ShowRecRow r => ShowRecRow (Row r) where
-    showRecRow (Row r) = showRecRow r
-
-instance Show r => Show (Row r) where
-    showsPrec x (Row r) = showsPrec x r
-
-instance ReadRecRow r => ReadRecRow (Row r) where
-    readRecRow s = [(Row r, rs) | (r,rs) <- readRecRow s]
-
-instance Read r => Read (Row r) where
-    readsPrec x s = [(Row r, rs) | (r,rs) <- readsPrec x s]
-
-
 -- | The (!.) operator selects over returned records from
 --   the database (= rows)
 --   Non-overloaded version of '!'. For backwards compatibility.
-(!.) :: SelectField f r a => Row r -> Attr f a -> a
-row !. attr = row!attr
-
--- | '!' overloaded for selection of fields in query results.
-instance SelectField f r a => Select (Row r) (Attr f a) a where
-    (Row r) ! (_::Attr f a) = selectField (undefined::f) r
+(!.) :: Select f r a => r -> f -> a
+row !. attr = row ! attr
 
 data Database
 	= Database  
 	  { dbQuery  :: forall er vr. GetRec er vr => 
 	     PrimQuery 
 	     -> Rel er
-	     -> IO [vr]
+	     -> IO [Record vr]
   	  , dbInsert :: TableName -> Assoc -> IO ()
 	  , dbInsertQuery :: TableName -> PrimQuery -> IO ()
   	  , dbDelete :: TableName -> [PrimExpr] -> IO ()
@@ -124,10 +102,10 @@ class GetRec er vr | er -> vr, vr -> er where
 	   -> Scheme       -- ^ Fields to get.
 	   -> s            -- ^ Driver-specific result data 
 	                   --   (for example a Statement object)
-           -> IO vr        -- ^ Result record.
+           -> IO (Record vr)        -- ^ Result record.
 
 instance GetRec RecNil RecNil where
-    getRec _ _ [] _ = return RecNil
+    getRec _ _ [] _ = return emptyRecord
     getRec _ _ fs _ = fail $ "Wanted empty record from scheme " ++ show fs
 
 
@@ -139,7 +117,7 @@ instance (GetValue a, GetRec er vr)
 	do
 	x <- getValue vfs stmt f
 	r <- getRec vfs (undefined :: Rel er) fs stmt
-	return (RecCons x r)
+	return (undefined .=. x # r)
 
 class GetValue a where
     getValue :: GetInstances s -> s -> String -> IO a
@@ -179,19 +157,19 @@ getNonNull fs s f =
 -----------------------------------------------------------  	    	  
 
 -- | performs a query on a database
-query :: GetRec er vr => Database -> Query (Rel er) -> IO [Row vr]
+query :: GetRec er vr => Database -> Query (Rel er) -> IO [Record vr]
 query	= strictQuery
 
 -- | lazy query performs a lazy query on a database
-lazyQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [Row vr]
-lazyQuery db q = liftM (map Row) (dbQuery db (optimize primQuery) (rel))
+lazyQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [Record vr]
+lazyQuery db q = dbQuery db (optimize primQuery) (rel)
 	where
 	  (primQuery,rel) = runQueryRel q
 
 
 -- | retrieves all the results directly in Haskell. This allows
 -- a connection to close as early as possible.
-strictQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [Row vr]
+strictQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [Record vr]
 strictQuery db q
         = do xs <- lazyQuery db q
              let xs' = seqList xs

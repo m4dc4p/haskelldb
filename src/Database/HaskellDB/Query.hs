@@ -13,15 +13,14 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.48 $
+-- $Revision: 1.49 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
 	      Rel(..), Attr(..), Table(..), Query, Expr(..)
-	     , ToPrimExprs, Select
+	     , ToPrimExprs
 	     , ExprC, ProjectRec, InsertRec
 	      -- * Operators
-	     , (!)
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
 	     , (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
@@ -56,7 +55,7 @@ import System.Locale
 -- Operators
 -----------------------------------------------------------
 
-infix   9 !
+--infix   9 !
 infix   8 `like`
 infixl  7 .*., ./., .%.
 infixl  6 .+.,.-.
@@ -161,16 +160,13 @@ _ << x = RecCons x
 -- Basic relational operators
 -----------------------------------------------------------
 
-class Select r f a | r f -> a where
-    -- | Field selection operator. It is overloaded to work for both
-    --   relations in a query and the result of a query.
-    --   That is, it corresponds to both '!' and '!.' from the original
-    --   HaskellDB. An overloaded operator was selected because users
-    --   (and the developers) always forgot to use !. instead of !
-    --   on query results.
-    (!) :: r -> f -> a
-
-instance HasField f r => Select (Rel r) (Attr f a) (Expr a) where
+-- | Field selection operator. It is overloaded to work for both
+--   relations in a query and the result of a query.
+--   That is, it corresponds to both '!' and '!.' from the original
+--   HaskellDB. An overloaded operator was selected because users
+--   (and the developers) always forgot to use !. instead of !
+--   on query results.
+instance HasField f r => Select (Attr f a) (Rel r) (Expr a) where
     rel ! attr = select attr rel
 
 select :: HasField f r => Attr f a -> Rel r -> Expr a

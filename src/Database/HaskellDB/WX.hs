@@ -11,7 +11,7 @@
 -- WxHaskell <http://wxhaskell.sourceforge.net/> 
 -- interface for HaskellDB
 --
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.WX (
@@ -26,6 +26,7 @@ import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Time
 
 
+import Database.HaskellDB
 import Database.HaskellDB.Database
 import Database.HaskellDB.Sql
 import Database.HaskellDB.PrimQuery
@@ -68,7 +69,7 @@ mkDatabase connection
 		 dbDropTable    = wxDropTable connection
 	       }
 
-wxQuery :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [vr]
+wxQuery :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [Record vr]
 wxQuery connection qtree rel = wxPrimQuery connection sql scheme rel
     where
       sql = show (ppSql (toSql qtree))  
@@ -152,7 +153,7 @@ wxPrimQuery :: GetRec er vr =>
 	    -> String     -- ^ SQL query
 	    -> Scheme     -- ^ List of field names to retrieve
 	    -> Rel er     -- ^ Phantom argument to get the return type right.
-	    -> IO [vr]    -- ^ Query results
+	    -> IO [Record vr]    -- ^ Query results
 wxPrimQuery connection sql scheme rel = 
     handleDbError $ WX.dbQuery connection sql getResults
 	where getResults = getRec wxGetInstances rel scheme
