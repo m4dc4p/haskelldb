@@ -4,7 +4,7 @@ include $(TOP_DIR)/rules.mk
 
 GHCFLAGS += -package-name haskelldb
 
-SRC_DBSPEC = DBSpec.hs
+SRC_DBSPEC = 
 
 SRC_HERE = DBSpecToDatabase.hs \
 	   DBSpecToDBDirect.hs \

@@ -24,6 +24,7 @@ import System.Directory
 import Text.PrettyPrint.HughesPJ
 
 import Database.HaskellDB
+import Database.HaskellDB.DBSpec
 import Database.HaskellDB.DBSpec.DBSpecToDBDirect
 import Database.HaskellDB.DBSpec.PPHelpers
 
@@ -37,7 +38,7 @@ main = do
        putStrLn "checking arguments..."
        if (checkFlag $ args) then process True (tail args) 
 	  else process False args
-       where
+       where 
        process useBStrT args = 
 	   case checkArgs args of
 	    True -> do
@@ -57,7 +58,8 @@ main = do
        checkArgs args
 	   = dbarg == "odbc" && (length args) == 5
 	     || dbarg == "mysql" && (length args) == 6
-             || dbarg == "postgresql" && (length args) == 6
+             || (dbarg == "postgresql" || dbarg == "postgre") 
+		    && (length args) == 6
              || dbarg == "sqlite" && (length args) == 4
 	   where dbarg = map toLower (head args)
 

@@ -36,7 +36,10 @@ imports = vcat (map (text . ("import " ++))
 		 "Database.HaskellDB.HDBRecUtils",
 		 "Database.HaskellDB.BoundedString",
 		 "System.Time (CalendarTime)",
-		 "Database.HaskellDB.Query (Expr, Table, Attr, baseTable)"])
+		 "Database.HaskellDB.Query (Expr, Table, Attr, baseTable)",
+		 "Database.HaskellDB.DBSpec",
+		 "Database.HaskellDB.FieldType"
+		])
 
 -- | Converts a database specification to a "finished" set of files
 specToHDB :: DBInfo -> [(FilePath,Doc)]
@@ -50,9 +53,12 @@ genDocs dbinfo
        $$ text "module" <+> text ((moduleName . dbname) dbinfo) 
        <+> text "where"
        <> newline
+       $$ imports
+       <> newline
        $$ vcat (map (text . (("import qualified " ++ 
 			      ((moduleName . dbname) dbinfo) ++ ".") ++)) 
-		tbnames))
+		tbnames)
+       $$ dbInfoToDoc dbinfo)
         : map (tInfoToModule ((moduleName . dbname) dbinfo)) (tbls dbinfo)
     where
     tbnames = map (moduleName . tname) (tbls dbinfo)
@@ -99,8 +105,8 @@ ppColumnType (CInfo ciName (ciType,ciAllowNull))
 	=   text "HDBRecCons" <+> 
 	    ((text $ toType ciName) <+> parens (text "Expr"
 	    <+> (if (ciAllowNull)
-	      then parens (text "Maybe" <+> text (show ciType))
-	      else text (show ciType)
+	      then parens (text "Maybe" <+> text (pshow ciType))
+	      else text (pshow ciType)
 	    )))
 
 -- | Pretty prints the value field in a ColumnInfo
@@ -138,7 +144,7 @@ columnTypes table =
     [if b then ("(Maybe " ++ t ++ ")") else t | (t,b) <- zippedlist]
     where
     zippedlist = zip typelist null_list
-    typelist  = map (show . fst . descr) (cols table)
+    typelist  = map (pshow . fst . descr) (cols table)
     null_list = map (snd . descr) (cols table)
 
 -- | Combines the results of columnNames and columnTypes
