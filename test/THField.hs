@@ -11,10 +11,11 @@
 -- Provides a Template Haskell function that declares
 -- a HaskellDB field.
 -- 
--- $Revision: 1.1 $
+-- $Revision: 1.2 $
 -----------------------------------------------------------
-module THField (field) where
+module THField (field, module Database.HaskellDB.DBLayout) where
 
+import Database.HaskellDB.DBLayout
 import Language.Haskell.THSyntax
 
 -- | Declare a field.

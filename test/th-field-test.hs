@@ -1,5 +1,4 @@
 import Database.HaskellDB
-import Database.HaskellDB.DBLayout
 
 import TestConnect
 import THField
