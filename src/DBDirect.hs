@@ -15,7 +15,7 @@
 -- data structure in an appropiate Haskell module which
 -- can be used to perform queries on the database.
 --
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -----------------------------------------------------------
 
 module Main where
@@ -26,6 +26,7 @@ import System.Directory
 import Text.PrettyPrint.HughesPJ
 
 import Database.HaskellDB
+import Database.HaskellDB.GenericConnect
 import Database.HaskellDB.DBSpec
 import Database.HaskellDB.DBSpec.PPHelpers
 import Database.HaskellDB.DBSpec.DBSpecToDBDirect
