@@ -17,3 +17,6 @@
 - When using lazyQuery with the MySQL driver and running a second
   query without retrieving all data from the first, you get the 
   error "Commands out of sync;  You can't run this command now".
+
+- Joins without a restrict generate SQL that uses non-existing 
+  field names. Reported by Thomas Bevan 2004-03-16.
