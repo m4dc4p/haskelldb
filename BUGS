@@ -35,3 +35,15 @@
 - The wxHaskell backend doesn't work in Hugs. If HaskellDB is
   configured with wxHaskell support, DbDirect and the test programs
   won't work in Hugs for this reason.
+
+- The following features are currently not supported:
+  * default values
+  * stored procedures
+  * natural joins (just use restrict)
+  * db-specific types and functions
+  * db-specific syntax (for example, only TOP is supported to limit
+    the number of results)
+  * db-specific quoting rules
+  * db-specific restrictions on column and database names
+  * auto_increment columns
+  * db-specific table options (such as the table type in MySQL)
