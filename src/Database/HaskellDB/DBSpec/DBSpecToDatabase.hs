@@ -16,7 +16,7 @@ module Database.HaskellDB.DBSpec.DBSpecToDatabase
     where
 
 import Database.HaskellDB.Database
-import Database.HaskellDB.DBSpec
+import Database.HaskellDB.DBSpec.DBInfo
 
 -- | Converts a DBInfo to a real life Database, note that the database must
 -- exist for this to work

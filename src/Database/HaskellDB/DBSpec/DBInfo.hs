@@ -1,26 +1,27 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  DBInfo
--- Copyright   :  HWT Group (c) 2004, haskelldb-users@lists.sourceforge.net
+-- Copyright   :  HWT Group (c) 2004, dp03-7@mdstud.chalmers.se
 -- License     :  BSD-style
 -- 
--- Maintainer  :  haskelldb-users@lists.sourceforge.net
+-- Maintainer  :  dp03-7@mdstud.chalmers.se
 -- Stability   :  experimental
--- Portability :  non-portable
+-- Portability :  portable
 --
 -- This is the "core" file of the DBSpec files. It defines
 -- a DBInfo and important functions on it.
---
--- $Revision: 1.9 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBSpec.DBInfo
-    (DBInfo(..),TInfo(..),CInfo(..),DBOptions(..),makeDBSpec,
-     makeTInfo,makeCInfo,ppDBInfo,ppTInfo,ppCInfo,ppDBOptions,
-     dbInfoToDoc,finalizeSpec,constructNonClashingDBInfo)
+    (DBInfo(..),TInfo(..),CInfo(..),DBOptions(..), makeDBSpec,
+     makeTInfo, makeCInfo,dbInfoToDoc,finalizeSpec)
     where
 
 import Database.HaskellDB.FieldType
+
+import Database.HaskellDB.DBSpec.DatabaseToDBSpec
+import Database.HaskellDB.DBSpec.DBSpecToDatabase
+
 import Data.Char
 import Text.PrettyPrint.HughesPJ
 
@@ -49,40 +50,8 @@ data DBOptions = DBOptions {useBString :: Bool -- ^ Use Bounded Strings?
 --   same as the database name
 dbInfoToDoc :: DBInfo -> Doc
 dbInfoToDoc dbi@(DBInfo {dbname=n}) 
-    = fixedName <+> text ":: DBInfo"
-      $$ fixedName <+> equals <+> ppDBInfo dbi
-      where fixedName = text ((toLower . head) n : tail n)
-
--- | Pretty prints a DBInfo
-ppDBInfo :: DBInfo -> Doc
-ppDBInfo (DBInfo {dbname=n, opts=o, tbls = t}) 
-    = text "DBInfo" <+> 
-	 braces (vcat (punctuate comma (
-		 text "dbname =" <+> doubleQuotes (text n) :
-		 text "opts =" <+> ppDBOptions o :
-		 text "tbls =" <+> 
-		 brackets (vcat (punctuate comma (map ppTInfo t))) : [])))
-
-ppTInfo :: TInfo -> Doc
-ppTInfo (TInfo {tname=n,cols=c})
-    = text "TInfo" <+> 
-      braces (vcat (punctuate comma (
-		 text "tname =" <+> doubleQuotes (text n) :
-		 text "cols =" <+> 
-		 brackets (vcat (punctuate comma (map ppCInfo c))) : [])))
-
-ppCInfo :: CInfo -> Doc
-ppCInfo (CInfo {cname=n,descr=(val,null)})
-    = text "CInfo" <+>
-      braces (vcat (punctuate comma (
-	         text "cname =" <+> doubleQuotes (text n) :
-		 text "descr =" <+> 
-		 parens (text (show val) <> comma <+> text (show null)) : [])))
-
-ppDBOptions :: DBOptions -> Doc
-ppDBOptions (DBOptions {useBString = b})
-    = text "DBOptions" <+>
-      braces (text "useBString =" <+> text (show b))
+    = text n <+> text ":: DBInfo"
+      $$ text n <+> text "=" <+> text (show dbi)
 
 -- | Does a final "touching up" of a DBInfo before it is used by i.e DBDirect.
 -- This converts any Bounded Strings to ordinary strings if that flag is set.

@@ -4,15 +4,13 @@ include $(TOP_DIR)/rules.mk
 
 GHCFLAGS += -package-name haskelldb
 
-SRC_DBSPEC = 
-
-SRC_HERE = DBSpecToDatabase.hs \
+SRC_HERE = DBInfo.hs \
+	   DBSpecToDatabase.hs \
 	   DBSpecToDBDirect.hs \
 	   DatabaseToDBSpec.hs \
 	   PPHelpers.hs
 
-SRC = $(addprefix $(BUILD_DIR)/Database/HaskellDB/DBSpec/, $(SRC_HERE)) \
-      $(addprefix $(BUILD_DIR)/Database/HaskellDB/, $(SRC_DBSPEC))
+SRC = $(addprefix $(BUILD_DIR)/Database/HaskellDB/DBSpec/, $(SRC_HERE))
 OBJS = $(patsubst %.hs,%.o, $(SRC))
 
 ALL_COMPILERS = $(addprefix all-,$(COMPILERS))
@@ -25,7 +23,7 @@ all-ghc: $(OBJS)
 
 all-hugs: $(SRC)
 
-$(SRC): $(SRC_HERE) $(SRC_DBSPEC)
+$(SRC): $(SRC_HERE)
 	mkdir -p $(sort $(dir $@))
 	cp -f $^ $(sort $(dir $@))
 

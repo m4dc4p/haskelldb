@@ -17,7 +17,7 @@ module Database.HaskellDB.DBSpec.DatabaseToDBSpec
 
 import Database.HaskellDB
 import Database.HaskellDB.FieldType
-import Database.HaskellDB.DBSpec
+import Database.HaskellDB.DBSpec.DBInfo
 
 -- | Connects to a database and generates a specification from it
 dbToDBSpec :: Bool -- ^ Use bounded strings?
