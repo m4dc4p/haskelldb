@@ -27,6 +27,15 @@ Requirements:
   $ make
   $ make install
 
+  Extra requirements for Windows
+  
+  - Cygwin (found at www.cygwin.com)
+    Except the default packages you will also need Make and GCC
+  
+  - Microsoft Data Access Components (MDAC) SDK (found at 
+    www.msdn.com/download)
+  
+  
 
 Database support:
 
