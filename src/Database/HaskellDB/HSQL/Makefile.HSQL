@@ -1,5 +1,5 @@
 HTOOLKIT_CVS=:pserver:anonymous@cvs.sourceforge.net:/cvsroot/htoolkit
-CVS_DATE="2004-01-06"
+CVS_DATE="2004-01-24"
 
 #commented out, just get the latest version for now
 #CVS_CHECKOUT_FLAGS= -D $(CVS_DATE)
@@ -15,7 +15,7 @@ endif
 
 .PHONY: clean HSQL/libHSsql.a
 
-default all: HSQL Database HSQL/libHSsql.a
+default all: HSQL HSQL/libHSsql.a
 
 HSQL:
 	cvs -d $(HTOOLKIT_CVS) co $(CVS_CHECKOUT_FLAGS) HSQL
@@ -31,16 +31,12 @@ HSQL/config.mk: HSQL/configure HSQL/config.mk.in
 HSQL/libHSsql.a: HSQL/config.mk
 	$(MAKE) -C HSQL
 
-Database: HSQL
-	ln -s HSQL Database
-
 clean:
 	$(MAKE) -C HSQL distclean
 
 
 test: test.hs HSQL/libHSsql.a
 	ghc -o test test.hs -iHSQL/build -LHSQL/build -LHSQL -lHSsql -lodbc
-
 
 mysqltest: mysqltest.hs HSQL/libHSsql.a
 	ghc -o mysqltest mysqltest.hs -LHSQL -lHSsql `mysql_config --libs`
