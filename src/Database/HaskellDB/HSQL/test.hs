@@ -1,5 +1,6 @@
 import HSQL_driver
 import HaskellDB
+import Query 
 
 import Database.ODBC.HSQL (SqlError, seErrorMsg, handleSql)
 import HDBRec
@@ -14,10 +15,9 @@ import HDBRecUtils
 test_tb1 :: Table
     (HDBRecCons C11 (Expr Int)
      (HDBRecCons C12 (Expr (Maybe Int)) HDBRecTail))
-
-test_tb1 = hdbBaseTable "test_tb1" $
-           hdbMakeEntry C11 "c11" .
-           hdbMakeEntry C12 "c12"
+test_tb1 = baseTable "test_tb1" $
+           hdbMakeEntry C11 #
+           hdbMakeEntry C12 
 
 ---------------------------------------------------------------------------
 -- Fields
@@ -68,9 +68,9 @@ runTest f = handleSql exError $ odbcConnect opts f
 
 q = do
     tb1 <- table test_tb1
-    hdbProject (c11 << tb1!c11 # c12 << tb1!c12)
+    project (c11 << tb1!c11 # c12 << tb1!c12)
 
-ins = hdbMakeRec $ c11 << constant 42 # c12 << constant (Just 7)
+ins = c11 << constant 42 # c12 << constant (Just 7)
 
 
 handleQuery :: (HasField C11 r, HasField C12 r, Row row Int, Row row (Maybe Int)) => [row r] -> IO ()

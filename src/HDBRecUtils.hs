@@ -1,33 +1,26 @@
 -- | Utility functions for HDBRec.
 module HDBRecUtils (hdbMakeEntry, 
-		    hdbProject, 
-		    hdbBaseTable,
-		    hdbMakeRec,
 		    mkAttr,
 		    ( << ),
 		    ( # )) where
 
 import HDBRec
 import Query
-import PrimQuery
 
 -- * Functions
 
--- Internal function used primarily in hdbProject and hdbBaseTable.
-hdbMakeRec :: (HDBRecTail -> r) -> HDBRec r
-hdbMakeRec f = HDBRec (f HDBRecTail)
+-- | Constructs a table entry from a field tag
+hdbMakeEntry :: HDBRecEntry f (Expr a) => 
+		f -- ^ Field tag
+	     -> b -- ^ Rest of the record
+	     -> HDBRecCons f (Expr a) b
+hdbMakeEntry f = HDBRecCons fieldTag (attribute (fieldName f))
 
--- | Constructs an entry with type and name of field.
-hdbMakeEntry :: f -> String -> c -> HDBRecCons f (Expr a) c
-hdbMakeEntry f n = HDBRecCons f (attribute n)
-
--- | Project a HDBRec on the database.
-hdbProject :: (ShowRecRow r) => (HDBRecTail -> r) -> Query (Rel r)
-hdbProject = Query.project . hdbMakeRec
-
--- | Constructs a virtual table.
-hdbBaseTable :: ShowRecRow r => String -> (HDBRecTail -> r) -> Table r
-hdbBaseTable name = Query.baseTable name . hdbMakeRec
+-- | Make an 'Attr' for a field.
+mkAttr :: (HDBRecEntry f (Expr a), HasField f r) => 
+	  f -- ^ Field tag
+       -> Attr f r a
+mkAttr = Attr . fieldName
 
 -- * Operators
 
@@ -43,8 +36,7 @@ _ << x = HDBRecCons fieldTag x
 ( # ) :: (b -> c) -> (a -> b) -> a -> c
 f1 # f2 = f1 . f2
 
-mkAttr :: (HDBRecEntry f (Expr a), HasField f r) => f -> Attr f r a
-mkAttr = Attr . fieldName
+
 
 
 
