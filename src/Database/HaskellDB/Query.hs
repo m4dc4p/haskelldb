@@ -13,7 +13,7 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.53 $
+-- $Revision: 1.54 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -439,7 +439,7 @@ instance ShowConstant Bool where
 -- this assumes that all databases accept both date and time even when they
 -- only want date.
 instance ShowConstant CalendarTime where
-    showConstant t = show (formatCalendarTime defaultTimeLocale fmt t)
+    showConstant t = showConstant (formatCalendarTime defaultTimeLocale fmt t)
 	where fmt = iso8601DateFormat (Just "%H:%M:%S")
 
 instance ShowConstant a => ShowConstant (Maybe a) where
