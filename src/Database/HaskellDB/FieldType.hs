@@ -45,7 +45,7 @@ instance PrimShow FieldType where
     pshow IntT = "Int"
     pshow IntegerT = "Integer"
     pshow DoubleT = "Double"
-    pshow BoolT = "Bool"
+--    pshow BoolT = "Bool"
     pshow CalendarTimeT = "CalendarTime"
     pshow (BStrT a) = "BStr" ++ show a
 
@@ -55,11 +55,11 @@ class SQLShow a where
     sshow :: a -> String
 
 instance SQLShow FieldType where
-    sshow StringT = "varchar(255)"
+    sshow StringT = "text"
     sshow IntT = "int"
     sshow IntegerT = "bigint"
     sshow DoubleT = "double precision"
-    sshow BoolT = "bit"
+--    sshow BoolT = "bit"
     sshow CalendarTimeT = "date"
     sshow (BStrT a) = "varchar(" ++ show a ++ ")"
 
