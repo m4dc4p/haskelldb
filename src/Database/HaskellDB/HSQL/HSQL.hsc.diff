@@ -1,54 +1,75 @@
-42d41
-< import qualified Foreign.Concurrent as C
-65,81c64,80
-< foreign import stdcall "sqlext.h SQLAllocEnv" sqlAllocEnv :: Ptr HENV -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLFreeEnv" sqlFreeEnv :: HENV -> IO ()
-< foreign import stdcall "sqlext.h SQLAllocConnect" sqlAllocConnect :: HENV -> Ptr HDBC -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLFreeConnect" sqlFreeConnect:: HDBC -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLConnect" sqlConnect :: HDBC -> CString -> Int -> CString -> Int -> CString -> Int -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLDisconnect" sqlDisconnect :: HDBC -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLAllocStmt" sqlAllocStmt :: HDBC -> Ptr HSTMT -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLFreeStmt" sqlFreeStmt :: HSTMT -> SQLUSMALLINT -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLNumResultCols" sqlNumResultCols :: HSTMT -> Ptr SQLUSMALLINT -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLDescribeCol" sqlDescribeCol :: HSTMT -> SQLUSMALLINT -> CString -> SQLSMALLINT -> Ptr SQLSMALLINT -> Ptr SQLSMALLINT -> Ptr SQLULEN -> Ptr SQLSMALLINT -> Ptr SQLSMALLINT -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLBindCol" sqlBindCol :: HSTMT -> SQLUSMALLINT -> SQLSMALLINT -> Ptr a -> SQLLEN -> Ptr SQLINTEGER -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLFetch" sqlFetch :: HSTMT -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLGetDiagRec" sqlGetDiagRec :: SQLSMALLINT -> SQLHANDLE -> SQLSMALLINT -> CString -> Ptr SQLINTEGER -> CString -> SQLSMALLINT -> Ptr SQLSMALLINT -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLExecDirect" sqlExecDirect :: HSTMT -> CString -> Int -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLSetConnectOption" sqlSetConnectOption :: HDBC -> SQLUSMALLINT -> SQLULEN -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLTransact" sqlTransact :: HENV -> HDBC -> SQLUSMALLINT -> IO SQLRETURN
-< foreign import stdcall "sqlext.h SQLGetData" sqlGetData :: HSTMT -> SQLUSMALLINT -> SQLSMALLINT -> Ptr () -> SQLINTEGER -> Ptr SQLINTEGER -> IO SQLRETURN
----
-> foreign import ccall "sqlext.h SQLAllocEnv" sqlAllocEnv :: Ptr HENV -> IO SQLRETURN
-> foreign import ccall "sqlext.h &SQLFreeEnv" sqlFreeEnv_p :: FunPtr (HENV -> IO ())
-> foreign import ccall "sqlext.h SQLAllocConnect" sqlAllocConnect :: HENV -> Ptr HDBC -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLFreeConnect" sqlFreeConnect:: HDBC -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLConnect" sqlConnect :: HDBC -> CString -> Int -> CString -> Int -> CString -> Int -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLDisconnect" sqlDisconnect :: HDBC -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLAllocStmt" sqlAllocStmt :: HDBC -> Ptr HSTMT -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLFreeStmt" sqlFreeStmt :: HSTMT -> SQLUSMALLINT -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLNumResultCols" sqlNumResultCols :: HSTMT -> Ptr SQLUSMALLINT -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLDescribeCol" sqlDescribeCol :: HSTMT -> SQLUSMALLINT -> CString -> SQLSMALLINT -> Ptr SQLSMALLINT -> Ptr SQLSMALLINT -> Ptr SQLULEN -> Ptr SQLSMALLINT -> Ptr SQLSMALLINT -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLBindCol" sqlBindCol :: HSTMT -> SQLUSMALLINT -> SQLSMALLINT -> Ptr a -> SQLLEN -> Ptr SQLINTEGER -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLFetch" sqlFetch :: HSTMT -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLGetDiagRec" sqlGetDiagRec :: SQLSMALLINT -> SQLHANDLE -> SQLSMALLINT -> CString -> Ptr SQLINTEGER -> CString -> SQLSMALLINT -> Ptr SQLSMALLINT -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLExecDirect" sqlExecDirect :: HSTMT -> CString -> Int -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLSetConnectOption" sqlSetConnectOption :: HDBC -> SQLUSMALLINT -> SQLULEN -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLTransact" sqlTransact :: HENV -> HDBC -> SQLUSMALLINT -> IO SQLRETURN
-> foreign import ccall "sqlext.h SQLGetData" sqlGetData :: HSTMT -> SQLUSMALLINT -> SQLSMALLINT -> Ptr () -> SQLINTEGER -> Ptr SQLINTEGER -> IO SQLRETURN
-141c140,146
-<    deriving (Show, Typeable)
----
->    deriving (Show)
-> 
-> sqlErrorTc :: TyCon
-> sqlErrorTc = mkTyCon "Database.ODBC.HSQL.SqlError"
-> 
-> instance Typeable SqlError where
-> 	typeOf _ = mkAppTy sqlErrorTc []
-194c199,201
-< 	C.newForeignPtr hEnv (sqlFreeEnv hEnv)
----
-> 	--GHC has arguments swapped 
-> 	--newForeignPtr hEnv sqlFreeEnv_p
-> 	newForeignPtr sqlFreeEnv_p hEnv
+--- HSQL.hsc.orig	2003-12-22 23:07:04.000000000 +0100
++++ HSQL.hsc	2003-12-23 00:23:10.000000000 +0100
+@@ -39,7 +39,6 @@
+ import Data.Dynamic
+ import Foreign
+ import Foreign.C
+-import qualified Foreign.Concurrent as C
+ import Control.Monad(when,unless)
+ import Control.Exception (throwDyn, catchDyn, dynExceptions, Exception(..), finally)
+ import System.IO.Unsafe
+@@ -62,23 +61,23 @@
+ type SQLLEN       = SQLINTEGER
+ type SQLULEN      = SQLINTEGER
+ 
+-foreign import stdcall "sqlext.h SQLAllocEnv" sqlAllocEnv :: Ptr HENV -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLFreeEnv" sqlFreeEnv :: HENV -> IO ()
+-foreign import stdcall "sqlext.h SQLAllocConnect" sqlAllocConnect :: HENV -> Ptr HDBC -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLFreeConnect" sqlFreeConnect:: HDBC -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLConnect" sqlConnect :: HDBC -> CString -> Int -> CString -> Int -> CString -> Int -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLDisconnect" sqlDisconnect :: HDBC -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLAllocStmt" sqlAllocStmt :: HDBC -> Ptr HSTMT -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLFreeStmt" sqlFreeStmt :: HSTMT -> SQLUSMALLINT -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLNumResultCols" sqlNumResultCols :: HSTMT -> Ptr SQLUSMALLINT -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLDescribeCol" sqlDescribeCol :: HSTMT -> SQLUSMALLINT -> CString -> SQLSMALLINT -> Ptr SQLSMALLINT -> Ptr SQLSMALLINT -> Ptr SQLULEN -> Ptr SQLSMALLINT -> Ptr SQLSMALLINT -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLBindCol" sqlBindCol :: HSTMT -> SQLUSMALLINT -> SQLSMALLINT -> Ptr a -> SQLLEN -> Ptr SQLINTEGER -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLFetch" sqlFetch :: HSTMT -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLGetDiagRec" sqlGetDiagRec :: SQLSMALLINT -> SQLHANDLE -> SQLSMALLINT -> CString -> Ptr SQLINTEGER -> CString -> SQLSMALLINT -> Ptr SQLSMALLINT -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLExecDirect" sqlExecDirect :: HSTMT -> CString -> Int -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLSetConnectOption" sqlSetConnectOption :: HDBC -> SQLUSMALLINT -> SQLULEN -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLTransact" sqlTransact :: HENV -> HDBC -> SQLUSMALLINT -> IO SQLRETURN
+-foreign import stdcall "sqlext.h SQLGetData" sqlGetData :: HSTMT -> SQLUSMALLINT -> SQLSMALLINT -> Ptr () -> SQLINTEGER -> Ptr SQLINTEGER -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLAllocEnv" sqlAllocEnv :: Ptr HENV -> IO SQLRETURN
++foreign import ccall "sqlext.h &SQLFreeEnv" sqlFreeEnv_p :: FunPtr (HENV -> IO ())
++foreign import ccall "sqlext.h SQLAllocConnect" sqlAllocConnect :: HENV -> Ptr HDBC -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLFreeConnect" sqlFreeConnect:: HDBC -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLConnect" sqlConnect :: HDBC -> CString -> Int -> CString -> Int -> CString -> Int -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLDisconnect" sqlDisconnect :: HDBC -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLAllocStmt" sqlAllocStmt :: HDBC -> Ptr HSTMT -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLFreeStmt" sqlFreeStmt :: HSTMT -> SQLUSMALLINT -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLNumResultCols" sqlNumResultCols :: HSTMT -> Ptr SQLUSMALLINT -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLDescribeCol" sqlDescribeCol :: HSTMT -> SQLUSMALLINT -> CString -> SQLSMALLINT -> Ptr SQLSMALLINT -> Ptr SQLSMALLINT -> Ptr SQLULEN -> Ptr SQLSMALLINT -> Ptr SQLSMALLINT -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLBindCol" sqlBindCol :: HSTMT -> SQLUSMALLINT -> SQLSMALLINT -> Ptr a -> SQLLEN -> Ptr SQLINTEGER -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLFetch" sqlFetch :: HSTMT -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLGetDiagRec" sqlGetDiagRec :: SQLSMALLINT -> SQLHANDLE -> SQLSMALLINT -> CString -> Ptr SQLINTEGER -> CString -> SQLSMALLINT -> Ptr SQLSMALLINT -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLExecDirect" sqlExecDirect :: HSTMT -> CString -> Int -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLSetConnectOption" sqlSetConnectOption :: HDBC -> SQLUSMALLINT -> SQLULEN -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLTransact" sqlTransact :: HENV -> HDBC -> SQLUSMALLINT -> IO SQLRETURN
++foreign import ccall "sqlext.h SQLGetData" sqlGetData :: HSTMT -> SQLUSMALLINT -> SQLSMALLINT -> Ptr () -> SQLINTEGER -> Ptr SQLINTEGER -> IO SQLRETURN
+ 
+ 
+ -- | A 'Connection' type represents a connection to a data source, through which you can operate on the data source. 
+@@ -138,7 +137,13 @@
+    | SqlFetchNull
+    		{ seFieldName :: String
+ 		}
+-   deriving (Show, Typeable)
++   deriving (Show)
++
++sqlErrorTc :: TyCon
++sqlErrorTc = mkTyCon "Database.ODBC.HSQL.SqlError"
++
++instance Typeable SqlError where
++	typeOf _ = mkAppTy sqlErrorTc []
+    
+ -----------------------------------------------------------------------------------------
+ -- routines for handling exceptions
+@@ -191,7 +196,7 @@
+ 	hEnv <- peek phEnv
+ 	free phEnv
+ 	handleSqlResult 0 nullPtr res
+-	C.newForeignPtr hEnv (sqlFreeEnv hEnv)
++	newForeignPtr sqlFreeEnv_p hEnv
+ 
+ -----------------------------------------------------------------------------------------
+ -- Connect/Disconnect
