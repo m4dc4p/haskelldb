@@ -14,7 +14,7 @@ endif
 default all: HSQL Database HSQL/libHSsql.a
 
 HSQL:
-	cvs -d $(HTOOLKIT_CVS) co HSQL
+	cvs -d $(HTOOLKIT_CVS) co -D "2004-01-06" HSQL
 
 HSQL/configure: HSQL/configure.ac
 	cd HSQL && autoconf
