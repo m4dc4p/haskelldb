@@ -16,13 +16,15 @@ import Data.Dynamic
 import Maybe
 import Monad
 
-import Database hiding (query)
+import Database
 import Sql
 import PrimQuery
 import Query
 import FieldType
 
-import Database.ODBC.HSQL as HSQL
+--import Database.ODBC.HSQL as HSQL
+import Database.HSQL as HSQL hiding (FieldDef)
+import qualified Database.HSQL.ODBC as ODBC (connect) 
 
 type ODBC = Database Connection (ODBCRow)
 
@@ -41,11 +43,39 @@ data ODBCOptions = ODBCOptions {
                                uid :: String, --user id
                                pwd :: String  --password
                   	       }          
-                             
+{-         
+type Driver = String
+type DriverOpts = [(String,String)]                    
 
+drivers :: [(Driver, DriverOpts -> IO Connection)]
+drivers = [
+	   ("ODBC", ODBC.connect),
+	   ("MySQL", MySQL.connect),
+	   ("PostgreSQL", PostgreSQL.connect)
+	  ]
+
+connect :: Driver -> DriverOpts -> IO Connection
+connect driver opts = case lookup driver drivers of
+		      Just conn -> conn opts
+		      Nothing -> fail "No driver called: " ++ driver
+				      ++ ". Available drivers: " 
+				       ++ unwords (map fst drivers))
+
+hsqlConnect :: DriverOpts -> IO Connection
+hsqlConnect opts = do
+		   dsn  <- getOpt "dsn" opts
+		   user <- getOpt "user" opts
+		   pwd  <- getOpt "password" opts
+		   connect dsn user pwd
+
+getOpt :: DriverOpts -> String -> IO String
+getOpt opts opt = case lookup opt opts of
+		  Just val -> return val
+		  Nothing -> fail ("Option '" ++ opt ++ "' not set.")
+-}
 odbcConnect :: ODBCOptions -> (ODBC -> IO a) -> IO a
 odbcConnect opts action = do
-			  conn <- connect (dsn opts) (uid opts) (pwd opts)
+			  conn <- ODBC.connect (dsn opts) (uid opts) (pwd opts)
 			  x <- action (newODBC conn)
 			  disconnect conn
 			  return x
@@ -132,7 +162,7 @@ odbcPrimQuery connection sql scheme _ =
     do
     -- FIXME: (DEBUG) remove
     putStrLn sql
-    stmt <- query connection sql
+    stmt <- HSQL.query connection sql
     -- FIXME: (DEBUG) remove
     -- putStrLn $ unlines $ map show $ getFieldsTypes stmt
     collectRows (getRow scheme) stmt

@@ -3,7 +3,7 @@ import HaskellDB
 import Query 
 import Random
 
-import Database.ODBC.HSQL (SqlError, handleSql)
+import Database.HSQL (SqlError, handleSql)
 import HDBRec
 import HDBRecUtils
 
