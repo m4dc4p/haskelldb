@@ -23,11 +23,13 @@ timefield = mkAttr Timefield :: Attr Timefield CalendarTime
 q = project (timefield << now)
 
 getTime :: Database -> IO CalendarTime
-getTime db = query db q
+getTime db = do
+	     (r:_) <- query db q
+	     return (r!timefield)
 
 printTime db = do
-	       putStrLn $ show $ showSql qSimple
-	       (r:_) <- query db qSimple
-	       putStrLn $ calendarTimeToString (r!timefield)
+	       putStrLn $ show $ showSql q
+	       t <- getTime db
+	       putStrLn $ calendarTimeToString t
 
 main = argConnect printTime
