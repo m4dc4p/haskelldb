@@ -55,9 +55,6 @@ DRIVER_DIRS = $(addprefix $(SRC_DIR)/drivers/, $(DRIVERS))
 IMPORT_DIRS = $(SRC_DIR) $(DRIVER_DIRS)
 
 GHCFLAGS += $(addprefix -i, $(IMPORT_DIRS))
-HUGSFLAGS += $(pathsubst %, -P%:, $(IMPORT_DIRS)
+HUGSFLAGS += $(patsubst %, -P%:, $(IMPORT_DIRS))
 # order is significant here
 LDFLAGS := -L$(SRC_DIR) -lHShdb $(LDFLAGS)
-
-
-
