@@ -38,7 +38,7 @@ import Database.HaskellDB.Query	(Rel(..), Attr, Table(..), Query, Expr(..)
 
 infix 9 !. 
 
---| The (!.) operator selects over returned records from
+-- | The (!.) operator selects over returned records from
 --  the database (= rows)
 
 (!.) :: Row row a => row r -> Attr f r a -> a
