@@ -86,3 +86,6 @@
 - When using HSQL ODBC with PostgreSQL, the result of a SUM() is
   reported as SqlVarChar 19, which means that it can't be treated 
   as a number.
+
+- If a relation has two fields with the same name, only one of the values
+  can be accessed. Reported by Jeremy Shaw on 2004-05-04.
