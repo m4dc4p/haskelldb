@@ -20,7 +20,7 @@ hugstest:
 	$(RUNHUGS) $(HUGSFLAGS) $^
 
 ghciload: 
-	$(GHCI) $(GHCFLAGS) $^
+	$(GHCI) $(GHCFLAGS) $(LDFLAGS) $^
 
 %.o: %.hs
 	$(GHC) $(GHCFLAGS) -c $<
