@@ -13,7 +13,5 @@ data ODBCOptions = ODBCOptions {
                   	       }          
 
 odbcConnect :: ODBCOptions -> (HSQL -> IO a) -> IO a
-odbcConnect opts action = 
-    do
-    conn <- ODBC.connect (dsn opts) (uid opts) (pwd opts)
-    hsqlAction conn action
+odbcConnect = 
+    hsqlConnect (\opts -> ODBC.connect (dsn opts) (uid opts) (pwd opts))

@@ -1,4 +1,4 @@
-module HSQL_PostgeSQL (
+module HSQL_PostgreSQL (
 		      PostgreSQLOptions(..)
 		      , postgresqlConnect
 		      ) where
@@ -14,7 +14,6 @@ data PostgreSQLOptions = PostgreSQLOptions {
                   		 }
 
 postgresqlConnect :: PostgreSQLOptions -> (HSQL -> IO a) -> IO a
-postgresqlConnect opts action = 
-    do
-    conn <- PostgreSQL.connect (server opts) (db opts) (uid opts) (pwd opts)
-    hsqlAction conn action
+postgresqlConnect = 
+    hsqlConnect (\opts -> PostgreSQL.connect 
+		            (server opts) (db opts) (uid opts) (pwd opts))

@@ -8,7 +8,7 @@
 -}
 
 module HSQL_driver (
-		     hsqlAction
+		     hsqlConnect
 		   , HSQL
 		   ) where
 
@@ -35,11 +35,13 @@ instance Typeable a => Row HSQLRow a where
     rowSelect = hsqlRowSelect
 
 -- | Run an action on a HSQL Connection and close the connection.
-hsqlAction :: Connection -> (HSQL -> IO a) -> IO a
-hsqlAction conn action = do
-			 x <- handleSqlError (action (newHSQL conn))
-			 disconnect conn
-			 return x
+hsqlConnect :: (opts -> IO Connection) -> opts -> (HSQL -> IO a) -> IO a
+hsqlConnect connect opts action = 
+    do
+    conn <- handleSqlError (connect opts)
+    x <- handleSqlError (action (newHSQL conn))
+    disconnect conn
+    return x
 
 handleSqlError :: IO a -> IO a
 handleSqlError io = handleSql (\err -> fail (show err)) io

@@ -14,7 +14,6 @@ data MySQLOptions = MySQLOptions {
                   		 }
 
 mysqlConnect :: MySQLOptions -> (HSQL -> IO a) -> IO a
-mysqlConnect opts action = 
-    do
-    conn <- MySQL.connect (server opts) (db opts) (uid opts) (pwd opts)
-    hsqlAction conn action
+mysqlConnect = 
+    hsqlConnect (\opts -> MySQL.connect 
+		            (server opts) (db opts) (uid opts) (pwd opts))
