@@ -25,8 +25,6 @@ Possible properties:
 
 -- creating a table and describing it gives the orginal spec
 
--- same operations on different databases gie the same result
-
 -}
 
 -- FIXME: allow row permutations?
@@ -54,7 +52,7 @@ q2 = do
 	       .&&. r!hours .>. constant 0.5)
      return r
 
-t db = do
+test db = do
        sameResults db q1 q2 >>= putStrLn . show
 
-main = argConnect t
+main = argConnect test
