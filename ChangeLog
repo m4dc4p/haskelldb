@@ -1,3 +1,11 @@
+2004-08-19 15:02  d00bring
+
+	* src/Query.hs: Changed Num constraint to Ord on _min and _max.
+
+2004-08-19 09:20  d00bring
+
+	* ChangeLog: Updated ChangeLog
+
 2004-08-19 09:19  d00bring
 
 	* ANNOUNCE, NEWS, configure.ac: Updated for 0.9 release.
