@@ -6,6 +6,10 @@
   as String fields. This seems to be a problem with the PostgreSQL
   ODBC driver.
 
+- Since SQLite is untyped, all columns in SQLite datbases are treated
+  as having type String, even if some other type was used when the
+  table was created.
+
 - When compiling DbDirect-generated code for tables with many columns,
   GHC may need the -fcontext-stackXX flag, where XX needs to be at
   least around the number of columns in the largest table.
