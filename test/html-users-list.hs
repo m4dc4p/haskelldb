@@ -1,8 +1,11 @@
-import Database.HaskellDB
+import HaskellDB
+import HSQL_ODBC
 
-import TestConnect
-
+import Dp037
 import Dp037.D3proj_users
+
+opts = ODBCOptions { dsn = "mysql-dp037", uid = "dp037", pwd = "teent333" }
+withDB = odbcConnect opts
 
 getUsers = 
     do
@@ -13,9 +16,8 @@ getUsers =
 	     email << users!email)
 
 
-showUser u = "<li>" ++ u!first_name ++ " " ++ u!last_name 
-		 ++ " (<tt>" ++ obfuscate (u!email) 
-			++ "</tt>)</li>"
+showUser u = "<li>" ++ u!.first_name ++ " " ++ u!.last_name 
+		 ++ ", <tt>" ++ obfuscate (u!.email) ++ "</tt></li>"
 
 obfuscate addr = name ++ " AT " ++ safeTail domain 
     where 
@@ -30,4 +32,4 @@ printUserList db =
     mapM_ (putStrLn . showUser) users
     putStrLn "</ul>"
 
-main = argConnect printUserList
+main = withDB printUserList
