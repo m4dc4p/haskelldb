@@ -38,15 +38,15 @@ data1 = [(
 	 t1f17 << constant (Just 17.17) #
 	 t1f18 << constant 18.18 #
 	 t1f19 << constant (Just now) #
-	 t1f20 << constant now 
+	 t1f20 << constant now #
 -- Insertion doesn't work in Postgre
 --	 t1f21 << constant (Just now) #
 --	 t1f22 << constant now #
 -- MySQL makes this NOT NULL
 --	 t1f23 << constant now #
 -- Treated as strings in Postgre
---	 t1f23 << constant (Just now) #
---	 t1f24 << constant now
+	 t1f23 << constant (Just now) #
+	 t1f24 << constant now
 	)
 	]
 
@@ -70,15 +70,15 @@ data2 =  [(
 	 t2f17 << constant (Just 17.17) #
 	 t2f18 << constant 18.18 #
 	 t2f19 << constant (Just now) #
-	 t2f20 << constant now 
+	 t2f20 << constant now #
 -- Insertion doesn't work in Postgre
 --	 t2f21 << constant (Just now) #
 --	 t2f22 << constant now #
 -- MySQL makes this NOT NULL
 --	 t2f23 << constant now #
 -- Treated as strings in Postgre
---	 t2f23 << constant (Just now) #
---	 t2f24 << constant now
+	 t2f23 << constant (Just now) #
+	 t2f24 << constant now
 	)]
 
 insertData db = do
