@@ -1,0 +1,148 @@
+diff -ur --exclude CVS ../HSQL/ODBC/HSQL.hsc ./ODBC/HSQL.hsc
+--- ../HSQL/ODBC/HSQL.hsc	2004-01-02 17:11:20.000000000 +0100
++++ ./ODBC/HSQL.hsc	2004-01-02 16:40:06.000000000 +0100
+@@ -31,6 +31,9 @@
+ 		, forEachRow        -- :: (Statement -> s -> IO s) -> Statement -> s -> IO s
+ 		, forEachRow'       -- :: (Statement -> IO ()) -> Statement -> IO ()
+ 		, collectRows       -- :: (Statement -> IO s) -> Statement -> IO [s]
++
++		, tables            -- :: Connection -> IO [String]
++		, describe          -- :: Connection -> String -> IO [(String, SqlType, Bool)]
+ 		) where
+ 
+ import Data.Word(Word32, Word16)
+@@ -252,9 +255,9 @@
+ 	sqlFreeStmt hSTMT 0 >>= handleSqlResult (#const SQL_HANDLE_STMT) hSTMT
+ 	free pFIELD
+ 
+--- | Executes the statement and returns a 'Statement' value which represents the result set
+-query :: Connection -> String -> IO Statement
+-query conn@(Connection {hDBC=hDBC}) query = do
++-- ^ Allocates a statement and calls the given function on it.
++withStatement :: Connection -> (HSTMT -> IO SQLRETURN) -> IO Statement
++withStatement conn@(Connection {hDBC=hDBC}) f = do
+ 	pFIELD <- mallocBytes (#const sizeof(FIELD))	
+ 	res <- sqlAllocStmt hDBC ((#ptr FIELD, hSTMT) pFIELD)
+ 	unless (sqlSuccess res) (free pFIELD)
+@@ -263,10 +266,7 @@
+ 	let handleResult res = do
+ 		unless (sqlSuccess res) (free pFIELD)
+ 		handleSqlResult (#const SQL_HANDLE_STMT) hSTMT res
+-	pQuery <- newCString query
+-	res <- sqlExecDirect hSTMT pQuery (length query)
+-	free pQuery
+-	handleResult res
++	res <- f hSTMT
+ 	sqlNumResultCols hSTMT ((#ptr FIELD, fieldsCount) pFIELD) >>= handleResult
+ 	count <- (#peek FIELD, fieldsCount) pFIELD
+ 	(fields, bufSize) <- getFieldDefs hSTMT pFIELD 1 count
+@@ -291,25 +291,32 @@
+ 				(fields, fullBufSize) <- getFieldDefs hSTMT pFIELD (n+1) count
+ 				return ((name,sqlType,toBool nullable):fields, max bufSize fullBufSize)
+ 				
+-		mkSqlType :: SQLSMALLINT -> SQLULEN -> SQLSMALLINT -> (SqlType, SQLINTEGER)
+-		mkSqlType (#const SQL_CHAR)         size    _    = (SqlChar (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
+-		mkSqlType (#const SQL_VARCHAR)      size    _    = (SqlVarChar (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
+-		mkSqlType (#const SQL_LONGVARCHAR)  size    _    = (SqlLongVarChar (fromIntegral size), 1) -- dummy bufSize
+-		mkSqlType (#const SQL_DECIMAL)      size    prec = (SqlDecimal (fromIntegral size) (fromIntegral prec), (#const sizeof(SQLDOUBLE)))
+-		mkSqlType (#const SQL_NUMERIC)      size    prec = (SqlNumeric (fromIntegral size) (fromIntegral prec), (#const sizeof(SQLDOUBLE)))
+-		mkSqlType (#const SQL_SMALLINT)     _       _    = (SqlSmallInt, (#const sizeof(SQLSMALLINT)))
+-		mkSqlType (#const SQL_INTEGER)      _       _    = (SqlInteger, (#const sizeof(SQLINTEGER)))
+-		mkSqlType (#const SQL_REAL)         _       _    = (SqlReal, (#const sizeof(SQLDOUBLE)))
+-		mkSqlType (#const SQL_DOUBLE)		_    	_    = (SqlDouble, (#const sizeof(SQLDOUBLE)))
+-		mkSqlType (#const SQL_BIT)          _    	_    = (SqlBit, (#const sizeof(SQLINTEGER)))
+-		mkSqlType (#const SQL_TINYINT)      _    	_    = (SqlTinyInt, (#const sizeof(SQLSMALLINT)))
+-		mkSqlType (#const SQL_BIGINT)       _    	_    = (SqlBigInt, (#const sizeof(SQLINTEGER)))
+-		mkSqlType (#const SQL_BINARY)       size    _    = (SqlBinary (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
+-		mkSqlType (#const SQL_VARBINARY)    size    _    = (SqlVarBinary (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
+-		mkSqlType (#const SQL_LONGVARBINARY)size    _    = (SqlLongVarBinary (fromIntegral size), 1) -- dummy bufSize
+-		mkSqlType (#const SQL_DATE)         _    	_    = (SqlDate, (#const sizeof(SQL_DATE_STRUCT)))
+-		mkSqlType (#const SQL_TIME)         _    	_    = (SqlTime, (#const sizeof(SQL_TIME_STRUCT)))
+-		mkSqlType (#const SQL_TIMESTAMP)	_    	_    = (SqlTimeStamp, (#const sizeof(SQL_TIMESTAMP_STRUCT)))
++
++-- | Executes the statement and returns a 'Statement' value which represents the result set
++query :: Connection -> String -> IO Statement
++query conn q = withStatement conn doQuery
++    where doQuery hSTMT = withCStringLen q (uncurry (sqlExecDirect hSTMT))
++
++				
++mkSqlType :: SQLSMALLINT -> SQLULEN -> SQLSMALLINT -> (SqlType, SQLINTEGER)
++mkSqlType (#const SQL_CHAR)         size    _    = (SqlChar (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
++mkSqlType (#const SQL_VARCHAR)      size    _    = (SqlVarChar (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
++mkSqlType (#const SQL_LONGVARCHAR)  size    _    = (SqlLongVarChar (fromIntegral size), 1) -- dummy bufSize
++mkSqlType (#const SQL_DECIMAL)      size    prec = (SqlDecimal (fromIntegral size) (fromIntegral prec), (#const sizeof(SQLDOUBLE)))
++mkSqlType (#const SQL_NUMERIC)      size    prec = (SqlNumeric (fromIntegral size) (fromIntegral prec), (#const sizeof(SQLDOUBLE)))
++mkSqlType (#const SQL_SMALLINT)     _       _    = (SqlSmallInt, (#const sizeof(SQLSMALLINT)))
++mkSqlType (#const SQL_INTEGER)      _       _    = (SqlInteger, (#const sizeof(SQLINTEGER)))
++mkSqlType (#const SQL_REAL)         _       _    = (SqlReal, (#const sizeof(SQLDOUBLE)))
++mkSqlType (#const SQL_DOUBLE)		_    	_    = (SqlDouble, (#const sizeof(SQLDOUBLE)))
++mkSqlType (#const SQL_BIT)          _    	_    = (SqlBit, (#const sizeof(SQLINTEGER)))
++mkSqlType (#const SQL_TINYINT)      _    	_    = (SqlTinyInt, (#const sizeof(SQLSMALLINT)))
++mkSqlType (#const SQL_BIGINT)       _    	_    = (SqlBigInt, (#const sizeof(SQLINTEGER)))
++mkSqlType (#const SQL_BINARY)       size    _    = (SqlBinary (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
++mkSqlType (#const SQL_VARBINARY)    size    _    = (SqlVarBinary (fromIntegral size), (#const sizeof(SQLCHAR))*(fromIntegral size+1))
++mkSqlType (#const SQL_LONGVARBINARY)size    _    = (SqlLongVarBinary (fromIntegral size), 1) -- dummy bufSize
++mkSqlType (#const SQL_DATE)         _    	_    = (SqlDate, (#const sizeof(SQL_DATE_STRUCT)))
++mkSqlType (#const SQL_TIME)         _    	_    = (SqlTime, (#const sizeof(SQL_TIME_STRUCT)))
++mkSqlType (#const SQL_TIMESTAMP)	_    	_    = (SqlTimeStamp, (#const sizeof(SQL_TIMESTAMP_STRUCT)))
+ 
+ 
+ {-# NOINLINE fetch #-}
+@@ -573,3 +580,57 @@
+ 					xs <- loop
+ 					return (x:xs)
+ 				else return []
++
++-----------------------------------------------------------------------------------------
++-- getting table and column info
++-----------------------------------------------------------------------------------------
++
++foreign import ccall "sqlext.h SQLTables" sqlTables 
++    :: HSTMT -> CString -> SQLSMALLINT -> CString -> SQLSMALLINT 
++    -> CString -> SQLSMALLINT -> CString -> SQLSMALLINT 
++    -> IO SQLRETURN
++
++foreign import ccall "sqlext.h SQLColumns" sqlColumns
++    :: HSTMT -> CString -> SQLSMALLINT -> CString -> SQLSMALLINT 
++    -> CString -> SQLSMALLINT -> CString -> SQLSMALLINT 
++    -> IO SQLRETURN
++
++-- | List all tables in the database.
++tables :: Connection -- ^ Database connection
++	  -> IO [String] -- ^ The names of all tables in the database.
++tables conn = do  
++      stmt <- withStatement conn sqlTable'
++      -- SQLTable returns:
++      -- Column name     #   Type
++      -- TABLE_NAME      3   VARCHAR
++      collectRows (\s -> getFieldValue' s "TABLE_NAME" "") stmt
++      where sqlTable' hSTMT = sqlTables hSTMT nullPtr 0 nullPtr 0 nullPtr 0 nullPtr 0
++
++-- | List all columns in a table along with their types and @nullable@ flags
++describe :: Connection -- ^ Database connection
++	   -> String -- ^ Name of a database table
++	   -> IO [(String, SqlType, Bool)] -- ^ @[(name, type, nullable)]@
++describe conn table = do
++      stmt <- withStatement conn (\hSTMT -> sqlColumns' hSTMT table)
++      collectRows getColumnInfo stmt
++      where
++      sqlColumns' hSTMT table = 
++	  withCStringLen table (\(pTable,len) -> 
++	      sqlColumns hSTMT nullPtr 0 nullPtr 0 pTable (fromIntegral len) nullPtr 0)
++      -- SQLColumns returns:
++      -- Column name     #   Type
++      -- COLUMN_NAME     4   Varchar not NULL
++      -- DATA_TYPE       5   Smallint not NULL
++      -- COLUMN_SIZE     7   Integer
++      -- DECIMAL_DIGITS  9   Smallint
++      -- NULLABLE       11   Smallint not NULL
++      getColumnInfo stmt = 
++	  do
++	  name <- getFieldValue stmt "COLUMN_NAME"
++	  (t::Int) <- getFieldValue stmt "DATA_TYPE"
++	  (size::Int) <- getFieldValue' stmt "COLUMN_SIZE" 0
++	  (prec::Int) <- getFieldValue' stmt "DECIMAL_DIGITS" 0
++	  (n::Int) <- getFieldValue stmt "NULLABLE"
++	  let (sqlType,_) = mkSqlType (fromIntegral t) (fromIntegral size) (fromIntegral prec)
++	      nullable = n == (#const SQL_NO_NULLS)
++	  return (name, sqlType, nullable)
