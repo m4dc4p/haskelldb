@@ -15,6 +15,9 @@ Things that need to be done, in no particular order:
     place or take place). Essential for real world applications, and 
     supported by HSQL. (Added by Chucky, suggested by stepcut on 
     #haskell)
+  * make SQL generation tweakable by the DB driver, since different
+    DBs have different SQL syntax, for example TOP / LIMIT.
+    Added by Bjorn, suggested by Shae Erisson.
 
   (* strictness checking. In other words: optimize the code to sort out what
      types and expressions are evaluated strictly, and explicitly tell the
