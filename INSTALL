@@ -62,6 +62,9 @@ Database support:
   HaskellDB only works with MySQL version >= 4.1 since earlier
   versions don't support for nested subqueries.
 
+  It is currently not possible to build HSQL's MySQL support under
+  Windows. If you figure it out, let us know.
+
   MySQL only supports transactions on transaction-safe table types,
   such as InnoDB and BDB. The default table type, MyISAM does not
   support transactions. See the MySQL manual for more information.
