@@ -4,7 +4,17 @@ PROG="hardcoded-layout-simple-query join-and-aggr html-users-list \
        current-time date-types \
        insert-update-delete test-bounded transaction"
 
+# make sure TestConnect.hs exists
+make TestConnect.hs
+
+# run tests with ghc
 for p in $PROG; do
-	echo "Running: $p"
+	echo "GHC running: $p"
 	./$p "$@"
+done
+
+# run tests with hugs
+for p in $PROG; do
+	echo "Hugs running: $p"
+	runhugs -98 +o $p.hs "$@"
 done

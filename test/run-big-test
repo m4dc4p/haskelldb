@@ -20,10 +20,18 @@ echo "Running DbDirect..."
 ../build/DbDirect "$@" BigTestDB || exit 1
 echo
 
+echo "Creating TestConnect.hs..."
+make TestConnect.hs
+echo
+
 echo "Compiling test program..."
 make big-test || exit 1
 echo
 
-echo "Running tests..."
+echo "Running GHC-compiled tests..."
 ./big-test "$@" || exit 1
+echo
+
+echo "Running tests with Hugs..."
+runhugs -98 +o big-test.hs "$@" || exit 1
 echo
