@@ -11,7 +11,7 @@ import TestConnect
 import Data.Maybe
 import System.Time
 
-q = Project [("t",BinExpr (OpOther "NOW()") (ConstExpr "") (ConstExpr ""))] Empty
+q = Project [("timefield",BinExpr (OpOther "NOW()") (ConstExpr "") (ConstExpr ""))] Empty
 
 data Timefield = Timefield
 instance HDBRecEntry Timefield (Expr CalendarTime)
