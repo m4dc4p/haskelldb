@@ -44,7 +44,7 @@ infix 9 !.
 
 -- | The (!.) operator selects over returned records from
 --  the database (= rows)
-(!.) :: (SelectField f r a, HasField f r) => r -> Attr f r a -> a
+(!.) :: (SelectField f r a, HasField f r) => r -> Attr f a -> a
 row !. attr     = selectField attr row
 
   

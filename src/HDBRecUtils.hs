@@ -32,7 +32,7 @@ hdbMakeEntry f = HDBRecCons (attribute (fieldName f))
 -- | Make an 'Attr' for a field.
 mkAttr :: FieldTag f => 
 	  f -- ^ Field tag
-       -> Attr f r a
+       -> Attr f a
 mkAttr = Attr . fieldName
 
 -- * Operators
@@ -41,7 +41,7 @@ infix  6 <<
 infixr 5 #
 
 -- | Links together a type and a value into an entry.
-( << ) :: Attr f r a 
+( << ) :: Attr f a 
        -> Expr a
        -> (b -> HDBRecCons f (Expr a) b)
 _ << x = HDBRecCons x
@@ -53,7 +53,7 @@ f1 # f2 = f1 . f2
 
 class SelectField f r a where
     -- | Gets the value of a field from a record.
-    selectField :: Attr f r1 a -> r -> a
+    selectField :: Attr f a -> r -> a
 
 instance SelectField f (HDBRecCons f a r) a where
     selectField _ (HDBRecCons x _) = x

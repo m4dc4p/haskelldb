@@ -76,7 +76,7 @@ data Expr a     = Expr PrimExpr
 data Table r    = Table TableName Assoc
 
 -- | Typed attributes
-data Attr f r a   = Attr Attribute
+data Attr f a   = Attr Attribute
 
 type Alias      = Int
 
@@ -90,7 +90,7 @@ data Query a    = Query (QState -> (a,QState))
 scheme :: Rel r -> Scheme
 scheme (Rel _ s) = s
 
-attributeName :: Attr f r a -> Attribute
+attributeName :: Attr f a -> Attribute
 attributeName (Attr name) = name
 
 -----------------------------------------------------------
@@ -99,11 +99,11 @@ attributeName (Attr name) = name
 
 -- | Attribute selection operator. Given a relation and an 
 -- attribute name, it returns the attribute value expression.
-(!) :: HasField f r => Rel r -> Attr f r a -> Expr a
+(!) :: HasField f r => Rel r -> Attr f a -> Expr a
 rel ! attr      = select attr rel
 
 
-select :: HasField f r => Attr f r a -> Rel r -> Expr a
+select :: HasField f r => Attr f a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
 
@@ -356,21 +356,21 @@ constJust x = constant (Just x)
 -----------------------------------------------------------
 
 {-
-aggregate :: HasField f r => AggrOp -> Rel r -> Attr f r a -> Expr b
+aggregate :: HasField f r => AggrOp -> Rel r -> Attr f a -> Expr b
 aggregate op rel attr
 		= Expr (AggrExpr op primExpr)
 		where
  	  	  (Expr primExpr)  = rel ! attr
 
-count :: HasField f r => Rel r -> Attr f r a -> Expr Int
+count :: HasField f r => Rel r -> Attr f a -> Expr Int
 count x		= aggregate AggrCount x
 
 
-numAggregate :: (Num a,HasField f r) => AggrOp -> Rel r -> Attr f r a -> Expr a
+numAggregate :: (Num a,HasField f r) => AggrOp -> Rel r -> Attr f a -> Expr a
 numAggregate	= aggregate
 
 _sum,_max,_min,avg,stddev,stddevP,variance,varianceP 
-    :: (Num a,HasField f r) => Rel r -> Attr f r a -> Expr a
+    :: (Num a,HasField f r) => Rel r -> Attr f a -> Expr a
 _sum x          = numAggregate AggrSum x
 _max x          = numAggregate AggrMax x
 _min x          = numAggregate AggrMin x
@@ -442,20 +442,20 @@ topPercent n    = updatePrimQuery_ (Special (Top True perc))
 
 data Order	= OrderPhantom
 
-orderOp :: HasField f r => UnOp -> Rel r -> Attr f r a -> Expr Order
+orderOp :: HasField f r => UnOp -> Rel r -> Attr f a -> Expr Order
 orderOp op rel attr = Expr (UnExpr op expr)
 	where
 	  (Expr expr) = rel ! attr
 
 -- | Use this together with the function 'order' to 
 -- create an query orderd ascending.
-asc :: HasField f r => Rel r -> Attr f r a -> Expr Order
+asc :: HasField f r => Rel r -> Attr f a -> Expr Order
 asc rel attr	= orderOp OpAsc rel attr
 
 
 -- | Use this together with the function 'order' to 
 -- create an query orderd descending.
-desc :: HasField f r => Rel r -> Attr f r a -> Expr Order
+desc :: HasField f r => Rel r -> Attr f a -> Expr Order
 desc rel attr	= orderOp OpDesc rel attr
 
 -- | HaskellDB counterpart to the SQL keyword ORDER BY. 

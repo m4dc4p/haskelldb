@@ -32,12 +32,9 @@ test_tb1 = baseTable "test_tb1" $
 -------------------------------------
 
 data C11 = C11
-
---instance HDBRecEntry C11 (Expr Int)
-
 instance FieldTag C11 where fieldName _ = "c11"
 
-c11 :: Attr C11 r Int
+c11 :: Attr C11 Int
 c11 = mkAttr C11
 
 -------------------------------------
@@ -45,12 +42,9 @@ c11 = mkAttr C11
 -------------------------------------
 
 data C12 = C12
-
---instance HDBRecEntry C12 (Expr (Maybe Int))
-
 instance FieldTag C12 where fieldName _ = "c12"
 
-c12 :: Attr C12 r (Maybe Int)
+c12 :: Attr C12 (Maybe Int)
 c12 = mkAttr C12
 
 

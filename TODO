@@ -7,7 +7,6 @@ Things that need to be done, in no particular order:
   * make SQL generation tweakable by the DB driver, since different
     DBs have different SQL syntax, for example TOP / LIMIT.
     Added by Bjorn, suggested by Shae Erisson.
-  * remove r type parameter from Attr. It seems useless now. /Bjorn
   * Only allow aggregate functions in project, not in e.g. restrict.
     viblo reports that restrict (count(tbl!nick) .<. constant 5)
     compiles but generates SQL that is not accepted by MySQL.

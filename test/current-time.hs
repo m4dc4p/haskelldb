@@ -14,9 +14,8 @@ import System.Time
 q = Project [("timefield",BinExpr (OpOther "NOW()") (ConstExpr "") (ConstExpr ""))] Empty
 
 data Timefield = Timefield
---instance HDBRecEntry Timefield (Expr CalendarTime)
 instance FieldTag Timefield where fieldName _ = "timefield"
-timefield :: Attr Timefield r CalendarTime
+timefield :: Attr Timefield CalendarTime
 timefield = mkAttr Timefield
 
 getTime db = do
