@@ -39,9 +39,10 @@ Things that need to be done, in no particular order:
 - Build system 
 
 - Database drivers
-  * Add interface to HSQL.SQLite
   * Add more drivers:
     - wxHaskell
+  * Make SQLite report more useful types. Make HSQL parse the original
+    create query from the meta-table?
 
 - Documentation
   * Haddock comments on all exported functions, classes and types
