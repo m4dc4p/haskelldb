@@ -1,0 +1,40 @@
+BoundedLists and BoundedStrings:
+
+* BoundedList:
+
+The main idea of bounded lists is to create lists with predetermined 
+maximum size.
+
+BoundedList is a simple, fast and type safe approach to implementing this idea.
+The implementation is based on inductive instances, making it very easy to
+expand with new bounds. A new bound only requires one instance of size and two 
+instances of Less.
+
+BoundedList works as follows.
+Every bound is build up by declaring a data-type representing the new bound.
+The instance of size only returns the size as an Int.
+The first instance of Less is for telling the typechecker that this bound
+is greater than the largest smaller bound.
+The second instance of Less is used by the typechecker to construct a chain
+of instances if there is no hardcoded instance available.
+This way the type checker can determine if a bound is smaller/greater
+than any other bound.
+
+This inductive approach gives the complexity O(n) on the number of instances
+and very short type checking times compared to an O(n^2) implementation.
+
+BoundedList also comes with a few utility function for manipulation an 
+contructing bounded lists.
+
+To be noted:
+Since each bound is a unique type:
+      Explicit shrink and/or grow is needed before using (==).
+      BoundedList does not have an instance of Ordering. (This might change)
+
+* BoundedString:
+
+BoundedString represents the sql types; CHARACTER and CHARACTER VARYING both 
+defined in SQL 1992.
+BoundedString supports sizes in the range [0,255].
+Greater sizes and the sql type SQL_TEXT (SQL 1992) will might be 
+supported in the future.
