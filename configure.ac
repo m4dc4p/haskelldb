@@ -5,7 +5,7 @@ AC_INIT([HaskellDB],[0.5],[dp03-7@mdstud.chalmers.se],[haskelldb])
 
 AC_PREREQ(2.53)
 
-AC_REVISION($Revision: 1.14 $)
+AC_REVISION($Revision: 1.15 $)
 
 AC_CONFIG_FILES([config.mk haskelldb.pkg])
 
@@ -467,3 +467,13 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([Creating output directories])
 mkdir -p build
+
+echo
+echo "HaskellDB will support:"
+echo "-----------------------"
+echo
+echo "ODBC:           $WITH_HSQL_ODBC"
+echo "MySql:          $WITH_HSQL_MYSQL"
+echo "PostgreSQL:     $WITH_HSQL_POSTGRESQL"
+echo "Hugs:           $ENABLE_HUGS"
+echo "GHC:            $ENABLE_GHC"
