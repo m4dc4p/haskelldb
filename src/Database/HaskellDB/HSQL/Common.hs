@@ -4,7 +4,6 @@
 
 module HSQL_driver where
 
-import GHC.Prim (unsafeCoerce#)
 import Data.Dynamic
 import Monad
 import Time
