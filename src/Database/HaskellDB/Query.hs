@@ -13,7 +13,7 @@
 -- The Query monad constructs a relational expression
 -- ('PrimQuery'). 
 --
--- $Revision: 1.50 $
+-- $Revision: 1.51 $
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
@@ -31,7 +31,7 @@ module Database.HaskellDB.Query (
 	     , attributeName, exprs, labels
 	     , restrict, table
 	     , union, intersect, divide, minus
-	     , _not, like, cat
+	     , _not, like, cat, _length
 	     , isNull, notNull
 	     , fromNull
 	     , constant, constJust
@@ -337,6 +337,10 @@ cat = binop OpCat
 -- | Concatenates two String-expressions. 
 (.++.) :: Expr String -> Expr String -> Expr String
 (.++.) = cat
+
+-- | Gets the length of a string.
+_length :: Expr String -> Expr Int
+_length = unop OpLength
 
 numop :: Num a => BinOp -> Expr a -> Expr a -> Expr a
 numop   = binop

@@ -12,7 +12,7 @@
 -- PrimQuery defines the datatype of relational expressions
 -- ('PrimQuery') and some useful functions on PrimQuery\'s
 --
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -----------------------------------------------------------
 module Database.HaskellDB.PrimQuery (
 		  -- * Type Declarations
@@ -96,6 +96,7 @@ data BinOp      = OpEq | OpLt | OpLtEq | OpGt | OpGtEq | OpNotEq
 data UnOp	= OpNot 
 		| OpAsc | OpDesc
 		| OpIsNull | OpIsNotNull
+		| OpLength
 		deriving (Show,Read)
 
 data AggrOp     = AggrCount | AggrSum | AggrAvg | AggrMin | AggrMax
@@ -268,7 +269,8 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
           -- paranthesis around ASC / desc exprs not allowed
           unary OpAsc x  = x <+> ppUnOp OpAsc
           unary OpDesc x = x <+> ppUnOp OpDesc
-	  unary op x | isPrefixOp op = parens (ppUnOp op <+> x)
+	  unary op x | isFun op      = parens (ppUnOp op <+> parens x)
+		     | isPrefixOp op = parens (ppUnOp op <+> x)
 		     | otherwise     = parens (x <+> ppUnOp op)
 
           aggr op x	= ppAggrOp op <> parens x
@@ -282,6 +284,9 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
           
           tosquote '\''         = "\\'"
           tosquote c            = [c]
+	  
+          isFun OpLength        = True
+	  isFun _               = False
 
 	  isPrefixOp OpNot      = True
 	  isPrefixOp _          = False
@@ -331,6 +336,7 @@ showUnOp  OpIsNull      = "IS NULL"
 showUnOp  OpIsNotNull   = "IS NOT NULL" 
 showUnOp  OpAsc         = "ASC"
 showUnOp  OpDesc        = "DESC"
+showUnOp  OpLength      = "LENGTH"
 
 showBinOp :: BinOp -> String
 showBinOp  OpEq         = "=" 

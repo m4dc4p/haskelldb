@@ -20,7 +20,7 @@
 -- Conference on Domain-Specific Languages (DSL), Austin, 
 -- USA, October 1999 (<http://www.usenix.org/events/dsl99/>).
 --
--- $Revision: 1.25 $
+-- $Revision: 1.26 $
 -----------------------------------------------------------
 module Database.HaskellDB
 	( Rel, Attr, Expr, Table, Query	-- abstract
@@ -35,7 +35,7 @@ module Database.HaskellDB
 	, (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	, (.&&.) , (.||.)
 	, (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
-	, _not, like, cat
+	, _not, like, cat, _length
 	, isNull, notNull, fromNull
 	, constant, constJust
 	
