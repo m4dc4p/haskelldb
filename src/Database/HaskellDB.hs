@@ -35,7 +35,7 @@ module Database.HaskellDB
 	, stddev, stddevP, variance, varianceP
 	
 	, asc, desc, order
-	, top, topPercent
+	, top --, topPercent
 	
 	, Row, Database				-- abstract
 	, (!.)

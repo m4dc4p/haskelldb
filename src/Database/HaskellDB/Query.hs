@@ -33,7 +33,7 @@ module Database.HaskellDB.Query (
 	     , count, _sum, _max, _min, avg
 	     , stddev, stddevP, variance, varianceP
 	     , asc, desc, order
-	     , top, topPercent
+	     , top --, topPercent
 	     ) where
 
 import Database.HaskellDB.HDBRec
@@ -381,13 +381,18 @@ varianceP x     = aggregate AggrVarP x
 -- Special ops
 -----------------------------------------------------------
 
-top,topPercent :: Integer -> Query ()
+top :: Integer -> Query ()
 top n           = updatePrimQuery_ (Special (Top False n))
+
+{-
+-- Disabled by Bjorn since the DBs don't seem to support this
+topPercent :: Integer -> Query ()
 topPercent n    = updatePrimQuery_ (Special (Top True perc))
                 where
                   perc  | n < 0         = 0
                         | n > 100       = 100
                         | otherwise     = n
+-}
 
 -----------------------------------------------------------
 -- Ordering results

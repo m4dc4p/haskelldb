@@ -300,8 +300,10 @@ ppAggrOp op             = text (showAggrOp op)
 -- | Pretty prints a 'Special Op'
 ppSpecialOp :: SpecialOp -> Doc
 ppSpecialOp (Order xs)  = (vcat . punctuate comma) (map ppPrimExpr xs)
-ppSpecialOp (Top perc n)= text "TOP" <+> text (show n) <+>
-			  (if perc then text "PERCENT" else empty)
+ppSpecialOp (Top False n)= text "LIMIT" <+> text (show n)
+-- FIXME: should we remove topPercent?
+-- doesn't seem to be any support for it in e.g.g MySQL and PostgreSQL
+ppSpecialOp (Top True n) = error "topPercent not supported"
 
 -----------------------------------------------------------
 -- Show expression operators, coincidently they show

@@ -41,6 +41,7 @@ data SqlSelect  = SqlSelect   { options  :: [String]
                               , criteria :: [String]
                               , groupby  :: [String]
                               , orderby	 :: [PrimExpr]
+			      , limit    :: [String]
                               }
                 | SqlBin   String SqlSelect SqlSelect
                 | SqlTable TableName
@@ -61,7 +62,8 @@ newSelect       = SqlSelect { options   = []
 			    , tables 	= []
 			    , criteria 	= []
 			    , groupby	= []
-			    , orderby	= [] }
+			    , orderby	= []
+			    , limit     = []}
 
 
 -----------------------------------------------------------
@@ -120,8 +122,8 @@ toSql   = foldPrimQuery (empty,table,project,restrict,binary,special)
 		  
 		  	    
 		  	    
-          special op q
-          	= sql { options = show (ppSpecialOp op) : options sql }
+          special op@(Top _ _) q
+          	= sql { limit = show (ppSpecialOp op) : limit sql }
           	where
                   sql	    = toSelect q
 
@@ -145,12 +147,13 @@ toSqlOp Difference   = "MINUS"
 -- SELECT, show & pretty print
 -----------------------------------------------------------
 ppSql :: SqlSelect -> Doc
-ppSql (SqlSelect options attrs tables criteria groupby orderby)
+ppSql (SqlSelect options attrs tables criteria groupby orderby limit)
     = text "SELECT DISTINCT" <+> (hsep . map text) options <+> ppAttrs attrs
       $$ f "FROM " ppTables tables
       $$ f "WHERE" ppCriteria criteria
       $$ f "GROUP BY" ppGroupBy groupby
       $$ f "ORDER BY" ppOrderBy orderby
+      $$ (hsep . map text) limit
     where
     f clause action xs    | null xs       = empty
 			  | otherwise     = text clause <+> action xs
