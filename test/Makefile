@@ -7,4 +7,5 @@ include $(TOP_DIR)/rules.mk
 clean:
 	-rm -f *.hi .depend .depend.bak
 
-include .depend
+# disabled to avoid looking for dbdirect-generated code
+#include .depend
