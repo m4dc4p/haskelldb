@@ -47,11 +47,11 @@ all-hugs: $(SRC)
 $(BUILD_DIR)/libHShdb.a: $(OBJS) $(DRIVER_DIRS)
 	$(AR) -rc $@ $(filter %.o, $^) $(DRIVERS_OBJS)
 
-$(HASKELLDB_SRC): $(notdir $(HASKELLDB_SRC))
+$(BUILD_DIR)/Database/%: %
 	mkdir -p $(sort $(dir $@))
 	cp -f $^ $(sort $(dir $@))
 
-$(DATABASE_SRC): $(notdir $(DATABASE_SRC))
+$(BUILD_DIR)/Database/HaskellDB/%: %
 	mkdir -p $(sort $(dir $@))
 	cp -f $^ $(sort $(dir $@))
 
