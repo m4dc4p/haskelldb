@@ -2,6 +2,7 @@
 module HDBRecUtils (hdbMakeEntry, 
 		    hdbProject, 
 		    hdbBaseTable,
+		    hdbMakeRec,
 		    (.<<.),
 		    ( # )) where
 
