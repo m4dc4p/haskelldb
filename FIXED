@@ -58,3 +58,7 @@ String. Chucky fixed this on 2004-02-08
 - Shae Erisson (shapr) reported on 2004-03-22 that the HSQL driver
   only catches SqlErrors in connect. Should do it for each call. 
   Bjorn fixed this in the HSQL and WX drivers on 2004-03-22.
+
+- Shae Erisson (shapr) discovered on 2004-03-24 that there is no way
+  to use a nullable expression with many of the functions (e.g. like).
+  Bjorn fxed this by adding fromNull on 2004-03-24.
