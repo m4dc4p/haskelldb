@@ -6,7 +6,7 @@
 -- (PrimQuery). 
 -----------------------------------------------------------
 module Query (
-	      Rel, Attr(..), Table, Query, Expr
+	      Rel(..), Attr(..), Table(..), Query, Expr(..)
 	     , runQuery, runQueryRel
 	     , attribute, project, baseTable
 	     , attributeName, exprs, labels
@@ -374,4 +374,3 @@ exprs r         = map (readPrimExpr . snd) (showRecRow r)
                   readPrimExpr s   = case (reads (s "")) of 
                                     [(Expr qx,_)] -> qx
                                     _             -> error ("record with invalid expression value: " ++ (s ""))
-     
