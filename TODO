@@ -49,6 +49,7 @@ Things that need to be done, in no particular order:
   * wxHaskell:
     - Figure out how to handle wrapping wxHaskell execute calls
       in transactions intelligently.
+    - Make dbQuery lazy.
     - Make it work in Hugs.
 
   * SQLite:

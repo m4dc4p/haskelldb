@@ -144,6 +144,7 @@ wxTransaction conn action = handleDbError $ WX.dbTransaction conn action
 -----------------------------------------------------------
 
 -- | Primitive query
+-- FIXME: make this lazy
 wxPrimQuery :: GetRec er vr => 
 	       Connection -- ^ Database connection.
 	    -> String     -- ^ SQL query
