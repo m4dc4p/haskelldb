@@ -61,9 +61,7 @@ HSQL_DRIVERS += PostgreSQL
 HSPP_FLAGS += -DWITH_HSQL_POSTGRESQL
 endif
 
-ifneq ($(strip $(HSQL_DRIVERS)),)
 DRIVERS += HSQL
-endif
 
 #
 # Preprocessing
