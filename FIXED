@@ -26,3 +26,9 @@ String. Chucky fixed this on 2004-02-08
 - shapr reported a bug in Dbdirect 2004-02-11, where a Table and a Field, 
   if they had the same name, would clash in the generated file. Chucky 
   fixed this on 2004-02-17
+
+- viblo reported 2004-02-18 that top and topPercent produce invalid
+  SQL. Bjorn fixed top and removed topPercent on 2004-02-22.
+
+- viblo reported 2004-02-18 that union produces invalid SQL. Bjorn
+  fixed this on 2004-02-22.
