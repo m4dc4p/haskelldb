@@ -47,9 +47,6 @@ all-hugs: $(SRC)
 $(BUILD_DIR)/libHShdb.a: $(OBJS) $(DRIVER_DIRS)
 	$(AR) -rc $@ $(filter %.o, $^) $(DRIVERS_OBJS)
 
-$(BUILD_DIR)/HShdb.o: $(BUILD_DIR)/libHShdb.a
-	$(LD) -r --whole-archive -o $@ $^
-
 $(HASKELLDB_SRC): $(notdir $(HASKELLDB_SRC))
 	mkdir -p $(sort $(dir $@))
 	cp -f $^ $(sort $(dir $@))

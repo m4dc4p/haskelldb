@@ -31,7 +31,7 @@ haskelldb.pkg: haskelldb.pkg.in config.status
 install: all $(INSTALL_COMPILERS)
 
 install-ghc: all haskelldb.pkg install-filesonly-ghc
-	$(GHC_PKG) -u -g -i haskelldb.pkg
+	$(GHC_PKG) -u --auto-ghci-libs -i haskelldb.pkg
 
 install-filesonly-ghc: all
 	cd build; tar -cf ghc-interfaces.tar `find Database -name '*.hi' -print`
