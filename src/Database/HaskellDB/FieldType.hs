@@ -11,7 +11,7 @@
 -- Defines the types of database columns, and functions
 -- for converting these between HSQL and internal formats
 --
--- $Revision: 1.23 $
+-- $Revision: 1.24 $
 -----------------------------------------------------------
 module Database.HaskellDB.FieldType 
     (FieldDesc, FieldType(..), PrimShow(..), 
@@ -73,7 +73,7 @@ mkCalendarTime :: ClockTime -> CalendarTime
 mkCalendarTime = toUTCTime
 
 instance Typeable CalendarTime where -- not available in standard libraries
-    typeOf _ = mkAppTy (mkTyCon "System.Time.CalendarTime") []
+    typeOf _ = mkTyConApp (mkTyCon "System.Time.CalendarTime") []
 
 instance Typeable (BoundedString n) where
-    typeOf _ = mkAppTy (mkTyCon "Database.HaskellDB.BoundedString") []
+    typeOf _ = mkTyConApp (mkTyCon "Database.HaskellDB.BoundedString") []
