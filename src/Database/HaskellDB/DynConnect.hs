@@ -20,7 +20,7 @@ module Database.HaskellDB.DynConnect (
 import Data.Char
 import Database.HaskellDB.Database(Database)
 import Database.HaskellDB.DriverAPI
-import Plugins
+import System.Plugins
 
 -- | Loads a given driver and connects using it
 dynConnect :: String -- ^ Driver name and path
