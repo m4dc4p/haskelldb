@@ -4,9 +4,8 @@ Copyright: The authors
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-build-depends: haskell98, hsql
-Extensions: CPP,
-            ExistentialQuantification,
+build-depends: haskell98
+Extensions: ExistentialQuantification,
             OverlappingInstances,
             AllowUndecidableInstances,
             MultiParamTypeClasses
@@ -24,14 +23,11 @@ Exposed-Modules:
         Database.HaskellDB.DBSpec.PPHelpers,
         Database.HaskellDB.Database,
         Database.HaskellDB.FieldType,
-        Database.HaskellDB.GenericConnect,
         Database.HaskellDB.HDBRec,
-        Database.HaskellDB.HSQL.Common,
-        Database.HaskellDB.HSQL.PostgreSQL,
         Database.HaskellDB.Optimize,
         Database.HaskellDB.PrimQuery,
         Database.HaskellDB.Query,
         Database.HaskellDB.Sql,
         Database.HaskellDB.DriverAPI
-hs-source-dir: build/ghc
+hs-source-dir: src
 ghc-options: -O2

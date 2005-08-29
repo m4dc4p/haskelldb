@@ -12,7 +12,7 @@
 -- PrimQuery defines the datatype of relational expressions
 -- ('PrimQuery') and some useful functions on PrimQuery\'s
 --
--- $Revision: 1.26 $
+-- $Revision: 1.27 $
 -----------------------------------------------------------
 module Database.HaskellDB.PrimQuery (
 		  -- * Type Declarations
@@ -137,10 +137,10 @@ extend assoc query
 times :: PrimQuery -> PrimQuery -> PrimQuery
 times (Empty) query	= query
 times query (Empty)     = query
-times query1 query2     = assert (length (attributes query1 \\
-					  attributes query2) == 
-				  length (attributes query1))
-                          Binary Times query1 query2
+times query1 query2     = 
+    assert (length (attributes query1 \\ attributes query2) == 
+		   length (attributes query1))
+    Binary Times query1 query2
 
 -- | Returns the schema (the attributes) of a query
 attributes :: PrimQuery -> Scheme

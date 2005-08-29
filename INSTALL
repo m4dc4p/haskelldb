@@ -1,3 +1,56 @@
+Installation with Cabal:
+
+- Install the main package (haskelldb):
+
+./Setup.hs configure
+./Setup.hs build
+./Setup.hs install
+
+- Install HSQL drivers (you need driver-hsql and
+  the backends you want to use):
+
+cd driver-hsql
+./Setup.hs configure
+./Setup.hs build
+./Setup.hs install
+cd ..
+
+cd driver-hsql-mysql
+./Setup.hs configure
+./Setup.hs build
+./Setup.hs install
+cd ..
+
+cd driver-hsql-postgresql
+./Setup.hs configure
+./Setup.hs build
+./Setup.hs install
+cd ..
+
+cd driver-hsql-odbc
+./Setup.hs configure
+./Setup.hs build
+./Setup.hs install
+cd ..
+
+cd driver-hsql-sqlite
+./Setup.hs configure
+./Setup.hs build
+./Setup.hs install
+cd ..
+
+- Install the WXHaskell driver:
+
+cd driver-wx
+./Setup.hs configure
+./Setup.hs build
+./Setup.hs install
+cd ..
+
+
+
+Installation with configure / make:
+
 Quick install:
 
 ./configure
