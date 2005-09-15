@@ -12,6 +12,18 @@ include common.mk
 
 ifeq "$(WITH_HSQL)" "yes"
 PACKAGE_FLAGS += -package hsql
+ifeq "$(WITH_HSQL_ODBC)" "yes"
+PACKAGE_FLAGS += -package hsql-odbc
+endif
+ifeq "$(WITH_HSQL_MYSQL)" "yes"
+PACKAGE_FLAGS += -package hsql-mysql
+endif
+ifeq "$(WITH_HSQL_SQLITE)" "yes"
+PACKAGE_FLAGS += -package hsql-sqlite
+endif
+ifeq "$(WITH_HSQL_POSTGRESQL)" "yes"
+PACKAGE_FLAGS += -package hsql-postgresql
+endif
 endif
 ifeq "$(WITH_WX)" "yes"
 PACKAGE_FLAGS += -package wxcore
@@ -31,7 +43,9 @@ OBJ_HSQL = $(patsubst %.hs, %.o, $(SRC_HSQL))
 OBJ_WX = $(patsubst %.hs, %.o, $(SRC_WX))
 OBJ_PLUGINS = $(patsubst %.hs, %.o, $(SRC_PLUGINS))
 
-all: $(COMPILER_DIR)/libHShdb.a $(PROGRAMS)
+all: $(COMPILER_DIR)/libHShdb.a programs
+
+programs: $(PROGRAMS)
 
 $(COMPILER_DIR)/libHShdb.a: $(OBJS)
 	$(AR) -rc $@ $(filter %.o, $^)

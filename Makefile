@@ -7,14 +7,16 @@ include $(TOP_DIR)/rules.mk
 DIST_DIR = haskelldb-$(PACKAGE_VERSION)
 
 ALL_COMPILERS               = $(addprefix all-,$(COMPILERS))
+PROGRAMS_COMPILERS           = $(addprefix programs-,$(COMPILERS))
 INSTALL_COMPILERS           = $(addprefix install-,$(COMPILERS))
 INSTALL_FILESONLY_COMPILERS = $(addprefix install-filesonly-,$(COMPILERS))
 UNINSTALL_COMPILERS         = $(addprefix uninstall-,$(COMPILERS))
 CLEAN_COMPILERS             = $(addprefix clean-,$(COMPILERS))
 
-.PHONY: install uninstall \
+.PHONY: all programs install uninstall \
 	dist distclean maintainer-clean \
         $(ALL_COMPILERS) \
+        $(PROGRAMS_COMPILERS) \
         $(INSTALL_COMPILERS) \
         $(INSTALL_FILESONLY_COMPILERS) \
 	$(UNINSTALL_COMPILERS) \
@@ -22,6 +24,9 @@ CLEAN_COMPILERS             = $(addprefix clean-,$(COMPILERS))
 
 $(ALL_COMPILERS):
 	$(MAKE) -f $(subst all-,Makefile., $@) all
+
+$(PROGRAMS_COMPILERS):
+	$(MAKE) -f $(subst programs-,Makefile., $@) all
 
 $(INSTALL_COMPILERS):
 	$(MAKE) -f $(subst install-,Makefile., $@) install
@@ -36,6 +41,8 @@ $(CLEAN_COMPILERS):
 	$(MAKE) -f $(subst clean-,Makefile., $@) clean
 
 default all: $(ALL_COMPILERS)
+
+programs: $(PROGRAMS_COMPILERS)
 
 configure: configure.ac aclocal.m4
 	autoconf
