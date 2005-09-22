@@ -13,7 +13,7 @@
 -- files usable in HaskellDB (the generation itself is done 
 -- in DBDirect)
 --
--- $Revision: 1.20 $
+-- $Revision: 1.21 $
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DBSpecToDBDirect
     (specToHDB, dbInfoToModuleFiles) 
@@ -156,7 +156,7 @@ ppTable (TInfo tiName tiColumns) =
     $$  
     text (identifier tiName) <+> text "=" <+> 
     hang (text "baseTable" <+> 
-	  doubleQuotes (text (checkChars $ checkLower tiName)) <+> 
+	  doubleQuotes (text (checkChars tiName)) <+> 
 	  text "$") 0
 	     (vcat $ punctuate (text " #") (map ppColumnValue tiColumns))
 	     <>  newline
@@ -191,7 +191,7 @@ ppField (name,typeof) =
     <> newline $$
     hang (text "instance FieldTag" <+> bname <+> text "where") 4 
          (text "fieldName _" <+> equals <+> doubleQuotes 
-	         (text (checkChars $ checkLower name)))
+	         (text (checkChars name)))
     <> newline $$
     
     iname <+> text "::" <+> text "Attr" <+> bname <+> text typeof
