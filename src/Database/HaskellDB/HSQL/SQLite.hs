@@ -12,7 +12,7 @@
 -- Interface to the SQLite <http://www.hwaci.com/sw/sqlite/>
 -- databases.
 --
--- $Revision: 1.4 $
+-- $Revision: 1.5 $
 -----------------------------------------------------------
 module Database.HaskellDB.HSQL.SQLite (
 		   SQLiteOptions(..),
@@ -36,9 +36,23 @@ sqliteConnect =
     hsqlConnect (\opts -> SQLite.connect 
 		            (filepath opts) (mode opts))
 
-sqliteFlatConnect :: [String] -> (Database -> IO a) -> IO a
-sqliteFlatConnect (a:b:[]) = sqliteConnect (SQLiteOptions {filepath = a,
-							   mode = read b})
-sqliteFlatConnect _ = error "sqliteFlatConnect failed: Invalid number of arguments"
+sqliteConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
+sqliteConnectOpts opts f = 
+    do
+    [a,b] <- getOptions ["filepath","mode"] opts
+    m <- readIOMode b
+    sqliteConnect (SQLiteOptions {filepath = a,
+				  mode = m}) f
 
-driver = defaultdriver {connect = sqliteFlatConnect}
+readIOMode :: Monad m => String -> m IOMode
+readIOMode s = 
+    case s of
+           "r" -> return ReadMode
+           "w" -> return WriteMode
+           "a" -> return AppendMode
+           "rw" -> return ReadWriteMode
+           _ -> case reads s of
+                             [(x,"")] -> return x
+                             _ -> fail $ "Bad IO mode: " ++ s
+
+driver = defaultdriver {connect = sqliteConnectOpts}

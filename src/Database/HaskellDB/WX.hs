@@ -11,7 +11,7 @@
 -- WxHaskell <http://wxhaskell.sourceforge.net/> 
 -- interface for HaskellDB
 --
--- $Revision: 1.12 $
+-- $Revision: 1.13 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.WX (
@@ -47,18 +47,21 @@ data WXOptions = WXOptions {
                             pwd :: String  -- ^ password
                   	   }
 
-wxFlatConnect :: [String] -> (Database -> IO a) -> IO a
-wxFlatConnect (a:b:c:[]) = wxConnect (WXOptions {dsn = a,
-                                                 uid = b,
-                                                 pwd = c})
-wxFlatConnect _ = error "wxFlatConnect failed: Invalid number of arguments"
-
-driver = defaultdriver {connect = wxFlatConnect}
-
 -- | Run an action and close the connection.
 wxConnect :: WXOptions -> (Database -> IO a) -> IO a
 wxConnect WXOptions{dsn=d,uid=u,pwd=p} action = 
     handleDbError (WX.dbWithConnection d u p (action . mkDatabase))
+
+wxConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
+wxConnectOpts opts f = 
+    do
+    [a,b,c] <- getOptions ["dsn","uid","pwd"] opts
+    wxConnect (PostgreSQLOptions {dsn = a,
+                                  uid = b,
+			          pwd = c}) f
+
+driver = defaultdriver {connect = wxConnectOpts}
+
 
 handleDbError :: IO a -> IO a
 handleDbError io = WX.catchDbError io (fail . WX.dbErrorMsg)

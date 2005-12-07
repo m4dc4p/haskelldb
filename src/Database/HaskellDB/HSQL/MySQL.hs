@@ -10,7 +10,7 @@
 -- Portability :  non-portable
 --
 --
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -----------------------------------------------------------
 module Database.HaskellDB.HSQL.MySQL (
 		   MySQLOptions(..),
@@ -35,12 +35,13 @@ mysqlConnect =
     hsqlConnect (\opts -> MySQL.connect 
 		            (server opts) (db opts) (uid opts) (pwd opts))
 
-mysqlFlatConnect :: [String] -> (Database -> IO a) -> IO a
-mysqlFlatConnect (a:b:c:d:[]) = mysqlConnect (MySQLOptions {
-							    server = a,
-							    db = b,
-							    uid = c,
-							    pwd = d})
-mysqlFlatConnect _ = error "mysqlFlatConnect failed: Invalid number of arguments"
+mysqlConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
+mysqlConnectOpts opts f = 
+    do
+    [a,b,c,d] <- getOptions ["server","db","uid","pwd"] opts
+    mysqlConnect (MySQLOptions {server = a,
+				db = b,
+				uid = c,
+				pwd = d}) f
 
-driver = defaultdriver {connect = mysqlFlatConnect}
+driver = defaultdriver {connect = mysqlConnectOpts}

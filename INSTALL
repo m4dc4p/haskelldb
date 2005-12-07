@@ -49,46 +49,19 @@ cd ..
 
 
 
-Installation with configure / make:
-
-Quick install:
-
-./configure
-make
-make install
-
-
-Install from CVS:
-
-autoconf
-./configure
-make
-make install
-
-Building RPM-package:
-rpmbuild -ta haskelldb-....tar.gz
-
 Requirements:
 
-- GHC 6.2 or 6.2.1 (if you want GHC support)
+- GHC 6.4 or newer (if you want GHC support)
 
 - GNU Make
 
-- Hugs November 2003 (if you want Hugs support)
+- Hugs ??? HaskellDB used to work with Hugs, does it still?
 
 A database driver, at least one of:
 
 - HSQL (http://htoolkit.sourceforge.net/)
 
-  It is preferrable to have HSQL installed
-  in the GHC and Hugs library directories.
-
-  When building HSQL, remember to enable all drivers that you are
-  going to use. Example of building and installing HSQL :
-
-  $ ./configure --enable-odbc --enable-mysql --enable-postgres
-  $ make
-  $ make install
+  Use Cabal to install the HSQL backends that you want to use.
 
   * Extra requirements for Windows
   

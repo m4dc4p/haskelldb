@@ -10,7 +10,7 @@
 -- Portability :  non-portable
 --
 --
--- $Revision: 1.9 $
+-- $Revision: 1.10 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.HSQL.ODBC (
@@ -34,10 +34,13 @@ odbcConnect :: ODBCOptions -> (Database -> IO a) -> IO a
 odbcConnect = 
     hsqlConnect (\opts -> ODBC.connect (dsn opts) (uid opts) (pwd opts))
 
-odbcFlatConnect :: [String] -> (Database -> IO a) -> IO a
-odbcFlatConnect (a:b:c:[]) = odbcConnect (ODBCOptions {dsn = a,
-						       uid = b,
-						       pwd = c})
-odbcFlatConnect _ = error "odbcFlatConnect failed: Invalid number of arguments"
 
-driver = defaultdriver {connect = odbcFlatConnect}
+odbcConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
+odbcConnectOpts opts f = 
+    do
+    [a,b,c] <- getOptions ["dsn","uid","pwd"] opts
+    odbcConnect (ODBCOptions {dsn = a,
+                              uid = b,
+			      pwd = c}) f
+
+driver = defaultdriver {connect = odbcConnectOpts}
