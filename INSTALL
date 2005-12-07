@@ -6,6 +6,20 @@ Installation with Cabal:
 ./Setup.hs build
 ./Setup.hs install
 
+- Install the hs-plugins backend which loads drivers
+  dynamically:
+
+cd driver-dynamic
+./Setup.hs configure
+./Setup.hs build
+./Setup.hs install
+cd ..
+
+- Compile and install DBDirect:
+
+make
+make install
+
 - Install HSQL drivers (you need driver-hsql and
   the backends you want to use):
 
@@ -46,6 +60,7 @@ cd driver-wx
 ./Setup.hs build
 ./Setup.hs install
 cd ..
+
 
 
 
