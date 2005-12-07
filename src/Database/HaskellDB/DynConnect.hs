@@ -19,6 +19,7 @@ module Database.HaskellDB.DynConnect (
 
 import Database.HaskellDB.Database (Database)
 import Database.HaskellDB.DriverAPI
+import Database.HaskellDB.Version
 
 import System.Plugins
 
@@ -39,9 +40,6 @@ dynConnect p m opts f =
                                     ++ " from package " ++ p
                   Just v -> return v
     connect v opts f
-
--- FIXME: get this from preprocessing
-version = "0.9"
 
 -- | Provided as a helper function for connecting to the standard drivers
 -- note that this REQUIRES that the driver is available in the same directory

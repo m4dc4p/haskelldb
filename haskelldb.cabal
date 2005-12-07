@@ -28,6 +28,7 @@ Exposed-Modules:
         Database.HaskellDB.PrimQuery,
         Database.HaskellDB.Query,
         Database.HaskellDB.Sql,
+        Database.HaskellDB.Version,
         Database.HaskellDB.DriverAPI
 hs-source-dir: src
 ghc-options: -O2
