@@ -21,10 +21,23 @@ import Database.HaskellDB.Database (Database)
 import Database.HaskellDB.DriverAPI
 import Database.HaskellDB.Version
 
-import System.Plugins
+import System.Plugins (loadPackage,unloadPackage,resolveObjs,loadFunction_)
+import System.Plugins.Utils (encode)
 
 import Data.Char
 import Data.List (isPrefixOf)
+
+-- | Loads a function from a package module, given the package name,
+--   module name and symbol name.
+loadPackageFunction :: String -- ^ Package name, including version number.
+                    -> String -- ^ Module name
+                    -> String -- ^ Symbol to lookup in the module
+                    -> IO (Maybe a)
+loadPackageFunction pkgName moduleName functionName =
+    do
+    loadPackage pkgName
+    resolveObjs (unloadPackage pkgName)
+    loadFunction_ (encode moduleName) functionName
 
 -- | Loads a given driver and connects using it
 dynConnect :: String -- ^ Driver package
