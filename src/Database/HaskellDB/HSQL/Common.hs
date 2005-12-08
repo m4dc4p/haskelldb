@@ -1,16 +1,16 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  HaskellDB
--- Copyright   :  HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- Copyright   :  HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
 -- License     :  BSD-style
 -- 
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  portable
 --
 -- HSQL interface for HaskellDB
 --
--- $Revision: 1.47 $
+-- $Revision: 1.48 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.HSQL.Common (

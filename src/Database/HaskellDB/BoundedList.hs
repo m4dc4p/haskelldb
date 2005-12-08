@@ -1,10 +1,10 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  BoundedList
--- Copyright   :  HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- Copyright   :  HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
 -- License     :  BSD-style
 --
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 --
@@ -39,7 +39,7 @@
 -- Explicit shrink and\/or grow is needed before using (==).
 -- BoundedList does not have an instance of Ordering. (This might change)
 --
--- $Revision: 1.10 $
+-- $Revision: 1.11 $
 -----------------------------------------------------------
 module Database.HaskellDB.BoundedList (shrink,
 		    grow,

@@ -1,10 +1,10 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  DBSpecToDBDirect
--- Copyright   :  HWT Group (c) 2004, dp03-7@mdstud.chalmers.se
+-- Copyright   :  HWT Group (c) 2004, haskelldb-users@lists.sourceforge.net
 -- License     :  BSD-style
 -- 
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 --
@@ -13,7 +13,7 @@
 -- files usable in HaskellDB (the generation itself is done 
 -- in DBDirect)
 --
--- $Revision: 1.21 $
+-- $Revision: 1.22 $
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DBSpecToDBDirect
     (specToHDB, dbInfoToModuleFiles) 

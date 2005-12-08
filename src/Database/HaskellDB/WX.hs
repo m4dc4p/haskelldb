@@ -1,17 +1,17 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  HaskellDB
--- Copyright   :  HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- Copyright   :  HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
 -- License     :  BSD-style
 -- 
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 --
 -- WxHaskell <http://wxhaskell.sourceforge.net/> 
 -- interface for HaskellDB
 --
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.WX (

@@ -1,10 +1,10 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  DBSpec
--- Copyright   :  HWT Group (c) 2004, dp03-7@mdstud.chalmers.se
+-- Copyright   :  HWT Group (c) 2004, haskelldb-users@lists.sourceforge.net
 -- License     :  BSD-style
 -- 
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 --
@@ -13,7 +13,7 @@
 -- way that it can easily be converted to a DBDirect-spec OR
 -- directly into a database
 --
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBSpec 

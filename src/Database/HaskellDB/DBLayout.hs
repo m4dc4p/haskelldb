@@ -1,17 +1,17 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  DBLayout
--- Copyright   :  HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- Copyright   :  HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
 -- License     :  BSD-style
 -- 
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 -- 
 -- Exports every function needed by DBDirect generated 
 -- files
 --
--- $Revision: 1.6 $
+-- $Revision: 1.7 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBLayout

@@ -1,16 +1,16 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  HDBRec
--- Copyright   :  HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+-- Copyright   :  HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
 -- License     :  BSD-style
 -- 
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 -- 
 -- This is a replacement for some of TREX.
 --
--- $Revision: 1.32 $
+-- $Revision: 1.33 $
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec 
     (

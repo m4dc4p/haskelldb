@@ -2,11 +2,11 @@
 -- |
 -- Module      :  Main
 -- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
---                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+--                HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
 --                Bjorn Birngert (c) 2005, bjorn@bringert.net
 -- License     :  BSD-style
 -- 
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  portable
 --
@@ -16,7 +16,7 @@
 -- data structure in an appropiate Haskell module which
 -- can be used to perform queries on the database.
 --
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -----------------------------------------------------------
 
 module Main where

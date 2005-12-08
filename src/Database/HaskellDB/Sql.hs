@@ -2,17 +2,17 @@
 -- |
 -- Module      :  SQL
 -- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
---                HWT Group (c) 2003, dp03-7@mdstud.chalmers.se
+--                HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
 -- License     :  BSD-style
 -- 
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 -- 
 -- Transform a PrimQuery (relational expression) to SQL
 -- and pretty print SQL
 --
--- $Revision: 1.22 $
+-- $Revision: 1.23 $
 -----------------------------------------------------------
 module Database.HaskellDB.Sql ( 
 		-- * Type Declarations

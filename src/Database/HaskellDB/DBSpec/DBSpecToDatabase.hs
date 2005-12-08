@@ -1,17 +1,17 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  DBSpecToDatabase
--- Copyright   :  HWT Group (c) 2004, dp03-7@mdstud.chalmers.se
+-- Copyright   :  HWT Group (c) 2004, haskelldb-users@lists.sourceforge.net
 -- License     :  BSD-style
 -- 
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 --
 -- Connects to a database and generates stuff in it according
 -- to what's inside the DBSpec.
 --
--- $Revision: 1.13 $
+-- $Revision: 1.14 $
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DBSpecToDatabase 
     (dbSpecToDatabase)

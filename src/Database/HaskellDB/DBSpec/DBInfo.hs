@@ -1,17 +1,17 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  DBInfo
--- Copyright   :  HWT Group (c) 2004, dp03-7@mdstud.chalmers.se
+-- Copyright   :  HWT Group (c) 2004, haskelldb-users@lists.sourceforge.net
 -- License     :  BSD-style
 -- 
--- Maintainer  :  dp03-7@mdstud.chalmers.se
+-- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 --
 -- This is the "core" file of the DBSpec files. It defines
 -- a DBInfo and important functions on it.
 --
--- $Revision: 1.8 $
+-- $Revision: 1.9 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBSpec.DBInfo
