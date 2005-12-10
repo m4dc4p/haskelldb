@@ -16,7 +16,7 @@
 -- data structure in an appropiate Haskell module which
 -- can be used to perform queries on the database.
 --
--- $Revision: 1.14 $
+-- $Revision: 1.15 $
 -----------------------------------------------------------
 
 module Main where
@@ -52,7 +52,7 @@ main = do
                       do
                       let opts = splitOptions o
 		      putStrLn "Connecting to database..."
-                      dynConnectPWD d opts (createModules m useBStrT)
+                      dynConnect_ d opts (createModules m useBStrT)
 		      putStrLn "Done!"
                   _ -> 
                       do

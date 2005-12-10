@@ -14,7 +14,7 @@
 
 module Database.HaskellDB.DynConnect (
 				      dynConnect,
-				      dynConnectPWD
+				      dynConnect_
                                     ) where
 
 import Database.HaskellDB.Database (Database)
@@ -39,7 +39,7 @@ loadPackageFunction pkgName moduleName functionName =
     resolveObjs (unloadPackage pkgName)
     loadFunction_ (encode moduleName) functionName
 
--- | Loads a given driver and connects using it
+-- | Loads a driver by package and module name.
 dynConnect :: String -- ^ Driver package
            -> String -- ^ Driver module
 	   -> [(String,String)] -- ^ Options to the driver
@@ -54,15 +54,13 @@ dynConnect p m opts f =
                   Just v -> return v
     connect v opts f
 
--- | Provided as a helper function for connecting to the standard drivers
--- note that this REQUIRES that the driver is available in the same directory
--- as the program being run
-dynConnectPWD :: String -- ^ Driver, in a human readable format, for
-                        -- example "odbc" or "mysql"
+-- | Load a driver by a simple driver name.
+dynConnect_ :: String -- ^ Driver, in a human readable format, for
+                      -- example "odbc" or "mysql"
               -> [(String,String)] -- ^ Arguments to the driver 
               -> (Database -> IO a) -- ^ Database action to run
               -> IO a
-dynConnectPWD d opts f = 
+dynConnect_ d opts f = 
     case map toLower d of
          "odbc"                       -> c "hsql-odbc" "HSQL.ODBC"
          "mysql"                      -> c "hsql-mysql" "HSQL.MySQL"
