@@ -7,7 +7,8 @@ Installation with Cabal:
 ./Setup.hs install
 
 - Install the hs-plugins backend which loads drivers
-  dynamically:
+  dynamically (requires at least the current, as of
+  2005-12-09, darcs version of hs-plugins):
 
 cd driver-dynamic
 ./Setup.hs configure
