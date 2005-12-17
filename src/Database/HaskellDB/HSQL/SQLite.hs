@@ -31,7 +31,7 @@ data SQLiteOptions = SQLiteOptions {
 				    mode :: IOMode        -- ^ access mode
                   		   }
 
-sqliteConnect :: SQLiteOptions -> (Database -> IO a) -> IO a
+sqliteConnect :: MonadIO m => SQLiteOptions -> (Database -> m a) -> m a
 sqliteConnect = 
     hsqlConnect (\opts -> SQLite.connect 
 		            (filepath opts) (mode opts))

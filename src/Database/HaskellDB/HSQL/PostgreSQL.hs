@@ -30,7 +30,7 @@ data PostgreSQLOptions = PostgreSQLOptions {
 				  pwd :: String     -- ^ password
                   		 }
 
-postgresqlConnect :: PostgreSQLOptions -> (Database -> IO a) -> IO a
+postgresqlConnect :: MonadIO m => PostgreSQLOptions -> (Database -> m a) -> m a
 postgresqlConnect = 
     hsqlConnect (\opts -> PostgreSQL.connect 
 		            (server opts) (db opts) (uid opts) (pwd opts))

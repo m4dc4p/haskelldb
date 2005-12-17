@@ -30,7 +30,7 @@ data MySQLOptions = MySQLOptions {
 				  pwd :: String     -- ^ password
                   		 }
 
-mysqlConnect :: MySQLOptions -> (Database -> IO a) -> IO a
+mysqlConnect :: MonadIO m => MySQLOptions -> (Database -> m a) -> m a
 mysqlConnect = 
     hsqlConnect (\opts -> MySQL.connect 
 		            (server opts) (db opts) (uid opts) (pwd opts))

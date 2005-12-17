@@ -30,7 +30,7 @@ data ODBCOptions = ODBCOptions {
                                pwd :: String  -- ^ password
                   	       }          
 
-odbcConnect :: ODBCOptions -> (Database -> IO a) -> IO a
+odbcConnect :: MonadIO m => ODBCOptions -> (Database -> m a) -> m a
 odbcConnect = 
     hsqlConnect (\opts -> ODBC.connect (dsn opts) (uid opts) (pwd opts))
 

@@ -14,12 +14,14 @@
 -----------------------------------------------------------
 
 module Database.HaskellDB.HSQL.Common (
-		     hsqlConnect
+		     hsqlConnect, MonadIO
 		   ) where
 
 import Data.Maybe
 import Control.Exception (catch, throwIO)
 import Control.Monad
+import Control.Monad.Trans (MonadIO, liftIO)
+import System.IO
 import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Time
 
@@ -33,13 +35,13 @@ import Database.HaskellDB.FieldType
 import Database.HSQL as HSQL
 
 -- | Run an action on a HSQL Connection and close the connection.
-hsqlConnect :: (opts -> IO Connection) -- ^ HSQL connection function, e.g.  
-	    -> opts -> (Database -> IO a) -> IO a
+hsqlConnect :: MonadIO m => (opts -> IO Connection) -- ^ HSQL connection function
+	    -> opts -> (Database -> m a) -> m a
 hsqlConnect connect opts action = 
     do
-    conn <- handleSqlError (connect opts)
+    conn <- liftIO $ handleSqlError (connect opts)
     x <- action (mkDatabase conn)
-    handleSqlError (disconnect conn)
+    liftIO $ handleSqlError (disconnect conn)
     return x
 
 handleSqlError :: IO a -> IO a
