@@ -23,7 +23,7 @@ module Database.HaskellDB.HSQL.SQLite (
 import Database.HaskellDB.Database
 import Database.HaskellDB.HSQL.Common
 import Database.HaskellDB.DriverAPI
-import qualified Database.HSQL.SQLite as SQLite (connect) 
+import qualified Database.HSQL.SQLite2 as SQLite (connect) 
 import System.IO
 
 data SQLiteOptions = SQLiteOptions { 
