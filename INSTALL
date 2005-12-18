@@ -8,18 +8,15 @@ runghc Setup.hs install
 
 - Install the hs-plugins backend which loads drivers
   dynamically (requires at least the current, as of
-  2005-12-09, darcs version of hs-plugins):
+  2005-12-09, darcs version of hs-plugins).
+
+  This also compiles and installs DBDirect.
 
 cd driver-dynamic
 runghc Setup.hs configure
 runghc Setup.hs build
 runghc Setup.hs install
 cd ..
-
-- Compile and install DBDirect:
-
-make
-make install
 
 - Install HSQL drivers (you need driver-hsql and
   the backends you want to use):
