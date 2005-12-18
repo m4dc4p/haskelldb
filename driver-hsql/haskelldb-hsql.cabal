@@ -7,7 +7,7 @@ License: BSD3
 build-depends: haskell98, base, haskelldb, hsql
 Extensions: ExistentialQuantification,
             OverlappingInstances,
-            AllowUndecidableInstances,
+            UndecidableInstances,
             MultiParamTypeClasses
 Synopsis: HaskellDB support for HSQL. You will also need one
           or more back-end specific packages.

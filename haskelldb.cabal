@@ -7,7 +7,7 @@ License: BSD3
 build-depends: haskell98, base
 Extensions: ExistentialQuantification,
             OverlappingInstances,
-            AllowUndecidableInstances,
+            UndecidableInstances,
             MultiParamTypeClasses
 Synopsis: SQL unwrapper for Haskell.
 Exposed-Modules:
