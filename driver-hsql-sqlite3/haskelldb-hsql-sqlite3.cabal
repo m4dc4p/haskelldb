@@ -1,0 +1,16 @@
+Name: haskelldb-hsql-sqlite3
+Version: 0.9
+Copyright: The authors
+Maintainer: haskelldb-users@lists.sourceforge.net
+Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
+License: BSD3
+build-depends: haskell98, base, haskelldb, haskelldb-hsql, hsql, hsql-sqlite3
+Extensions: ExistentialQuantification,
+            OverlappingInstances,
+            UndecidableInstances,
+            MultiParamTypeClasses
+Synopsis: HaskellDB support for the HSQL SQLite driver.
+Exposed-Modules:
+        Database.HaskellDB.HSQL.SQLite3
+hs-source-dir: ../src
+ghc-options: -O2
