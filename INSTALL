@@ -2,18 +2,18 @@ Installation with Cabal:
 
 - Install the main package (haskelldb):
 
-./Setup.hs configure
-./Setup.hs build
-./Setup.hs install
+runghc Setup.hs configure
+runghc Setup.hs build
+runghc Setup.hs install
 
 - Install the hs-plugins backend which loads drivers
   dynamically (requires at least the current, as of
   2005-12-09, darcs version of hs-plugins):
 
 cd driver-dynamic
-./Setup.hs configure
-./Setup.hs build
-./Setup.hs install
+runghc Setup.hs configure
+runghc Setup.hs build
+runghc Setup.hs install
 cd ..
 
 - Compile and install DBDirect:
@@ -25,41 +25,41 @@ make install
   the backends you want to use):
 
 cd driver-hsql
-./Setup.hs configure
-./Setup.hs build
-./Setup.hs install
+runghc Setup.hs configure
+runghc Setup.hs build
+runghc Setup.hs install
 cd ..
 
 cd driver-hsql-mysql
-./Setup.hs configure
-./Setup.hs build
-./Setup.hs install
+runghc Setup.hs configure
+runghc Setup.hs build
+runghc Setup.hs install
 cd ..
 
 cd driver-hsql-postgresql
-./Setup.hs configure
-./Setup.hs build
-./Setup.hs install
+runghc Setup.hs configure
+runghc Setup.hs build
+runghc Setup.hs install
 cd ..
 
 cd driver-hsql-odbc
-./Setup.hs configure
-./Setup.hs build
-./Setup.hs install
+runghc Setup.hs configure
+runghc Setup.hs build
+runghc Setup.hs install
 cd ..
 
 cd driver-hsql-sqlite
-./Setup.hs configure
-./Setup.hs build
-./Setup.hs install
+runghc Setup.hs configure
+runghc Setup.hs build
+runghc Setup.hs install
 cd ..
 
 - Install the WXHaskell driver:
 
 cd driver-wx
-./Setup.hs configure
-./Setup.hs build
-./Setup.hs install
+runghc Setup.hs configure
+runghc Setup.hs build
+runghc Setup.hs install
 cd ..
 
 
@@ -67,15 +67,14 @@ cd ..
 
 Requirements:
 
-- GHC 6.4 or newer (if you want GHC support)
-
-- GNU Make
+- GHC 6.4 or newer
 
 - Hugs ??? HaskellDB used to work with Hugs, does it still?
 
+
 A database driver, at least one of:
 
-- HSQL (http://htoolkit.sourceforge.net/)
+- HSQL (http://htoolkit.sourceforge.net/), version 1.7 or later.
 
   Use Cabal to install the HSQL backends that you want to use.
 

@@ -11,10 +11,10 @@ HaskellDB is written entirely in Haskell and works under both the
 Glasgow Haskell Compiler (GHC) and the Hugs Haskell interpreter. The
 library is designed to to support multiple database backends.
 
-Currently the only supported database backend uses the HSQL database
-library (available from the HToolkit project,
-http://htoolkit.sourceforge.net/). HSQLs bindings to ODBC, MySQL and
-PostgreSQL are currently used.
+Currently supported database backends are:
+* HSQL (http://htoolkit.sourceforge.net/). HSQL's bindings to ODBC, MySQL,
+  PostgreSQL and SQLite are currently supported.
+* wxHaskell (http://wxhaskell.sourceforge.net/)
 
 HaskellDB is intended to be platform independent. It should be
 possible to use HaskellDB on any platform that has a supported Haskell
@@ -34,6 +34,6 @@ form that are used by HaskellDB, are only available in antiquated
 versions of the Hugs interpreter. Furthermore, the original HaskellDB
 only supports a Windows-specific ADO-based database backend.
 
-The new version of HaskellDB is produced as a student project at
-Chalmers University of Technology in Gothenburg, Sweden. We aim to
-make HaskellDB a practically useful database library.
+The new version of HaskellDB was produced as a student project at
+Chalmers University of Technology in Gothenburg, Sweden. The aim of the
+project was to make HaskellDB a practically useful database library.
