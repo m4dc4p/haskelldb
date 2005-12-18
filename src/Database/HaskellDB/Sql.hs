@@ -308,9 +308,11 @@ toUpdate :: TableName -- ^ Name of the table to update.
 	 -> Assoc -- ^ Update the data with this.
 	 -> SqlUpdate
 toUpdate name criteria assigns
-        = SqlUpdate name (map toSqlExpr criteria)
-        		 (map showAssign assigns)
+        = SqlUpdate name cs (map showAssign assigns)
         where
+          cs = [ toSqlExpr c | c <- criteria, not (isTrue c) ]
+          isTrue (ConstExpr (BoolLit True)) = True
+          isTrue _ = False
           showAssign (attr,expr)
           	= attr ++ " = " ++ toSqlExpr expr
 
