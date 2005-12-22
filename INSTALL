@@ -1,5 +1,7 @@
 Installation with Cabal:
 
+NOTE: you may need to upgrade Cabal to get this to work.
+
 - Install the main package (haskelldb):
 
 runghc Setup.hs configure
@@ -65,6 +67,9 @@ cd ..
 Requirements:
 
 - GHC 6.4 or newer
+
+- A recent verion of Cabal (newer than that which comes with GHC 6.4[.1],
+  I'm not sure about the exact version requirement).
 
 - Hugs ??? HaskellDB used to work with Hugs, does it still?
 
