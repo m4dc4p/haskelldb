@@ -1,0 +1,17 @@
+Name: haskelldb-hdbc
+Version: 0.9
+Copyright: The authors
+Maintainer: haskelldb-users@lists.sourceforge.net
+Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
+License: BSD3
+build-depends: haskell98, base, haskelldb, HDBC
+Extensions: ExistentialQuantification,
+            OverlappingInstances,
+            UndecidableInstances,
+            MultiParamTypeClasses
+Synopsis: HaskellDB support for HDBC. You will also need one
+          or more back-end specific packages.
+Exposed-Modules:
+        Database.HaskellDB.HDBC.Common
+hs-source-dir: ../src
+ghc-options: -O2
