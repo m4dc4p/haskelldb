@@ -12,7 +12,6 @@
 --
 -----------------------------------------------------------
 module Database.HaskellDB.HDBC.SQLite3 (
-		   SQLiteOptions(..),
 		   sqliteConnect,
 		   driver
 		  ) where
@@ -27,14 +26,13 @@ data SQLiteOptions = SQLiteOptions {
 				    filepath :: FilePath
                   		   }
 
-sqliteConnect :: MonadIO m => SQLiteOptions -> (Database -> m a) -> m a
-sqliteConnect = 
-    hdbcConnect (\opts -> connectSqlite3 (filepath opts))
+sqliteConnect :: MonadIO m => FilePath -> (Database -> m a) -> m a
+sqliteConnect path = hdbcConnect connectSqlite3 path
 
 sqliteConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
 sqliteConnectOpts opts f = 
     do
     [a] <- getOptions ["filepath"] opts
-    sqliteConnect (SQLiteOptions {filepath = a }) f
+    sqliteConnect a f
 
 driver = defaultdriver {connect = sqliteConnectOpts}
