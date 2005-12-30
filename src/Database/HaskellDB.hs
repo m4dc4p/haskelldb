@@ -26,7 +26,7 @@ module Database.HaskellDB
 	( Rel, Attr, Expr, Table, Query	-- abstract
 
         -- * Records
-	, Record , ( # ), ( << ), (<<-), (!), (!.)
+	, Record, Select, ( # ), ( << ), (<<-), (!), (!.)
 	
         -- * Relational operators
 	, restrict, table, project
