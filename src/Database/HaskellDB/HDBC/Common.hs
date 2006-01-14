@@ -26,6 +26,7 @@ import Database.HaskellDB.FieldType
 import Database.HDBC as HDBC hiding (toSql)
 
 import Control.Monad.Trans (MonadIO, liftIO)
+import Data.Char (toLower)
 import Data.Map (Map)
 import qualified Data.Map as Map
 
@@ -159,4 +160,4 @@ hdbcGetInstances =
 		 }
 
 hdbcGetValue :: SqlType a => HDBCRow -> String -> IO (Maybe a)
-hdbcGetValue m f = return $ fmap HDBC.fromSql (Map.lookup f m)
+hdbcGetValue m f = return $ fmap HDBC.fromSql (Map.lookup (map toLower f) m)
