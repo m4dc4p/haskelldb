@@ -4,7 +4,7 @@ Copyright: The authors
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-build-depends: haskell98, base, haskelldb, wxcore
+build-depends: haskell98, base, mtl, haskelldb, wxcore
 Extensions: CPP,
             ExistentialQuantification,
             OverlappingInstances,
