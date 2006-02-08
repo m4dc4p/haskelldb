@@ -18,4 +18,8 @@ ghc-options: -O2
 executable: DBDirect
 main-is: DBDirect.hs
 hs-source-dir: ../src
+Extensions: ExistentialQuantification,
+            OverlappingInstances,
+            UndecidableInstances,
+            MultiParamTypeClasses
 ghc-options: -O2
