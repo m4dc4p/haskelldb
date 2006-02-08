@@ -178,7 +178,8 @@ onError a h = a `Control.Exception.catch` (\e -> h >> throwIO e)
 hsqlPrimExecute :: Connection -- ^ Database connection.
 		-> String     -- ^ SQL query.
 		-> IO ()
-hsqlPrimExecute connection sql = handleSqlError $ execute connection sql
+hsqlPrimExecute connection sql = 
+    handleSqlError (execute connection sql >> return ())
 
 
 -----------------------------------------------------------
@@ -188,16 +189,16 @@ hsqlPrimExecute connection sql = handleSqlError $ execute connection sql
 hsqlGetInstances :: GetInstances Statement
 hsqlGetInstances = 
     GetInstances {
-		  getString        = getFieldValueMB
-		 , getInt          = getFieldValueMB
-		 , getInteger      = getFieldValueMB
-		 , getDouble       = getFieldValueMB
-		 , getBool         = getFieldValueMB
+		  getString        = getFieldValue
+		 , getInt          = getFieldValue
+		 , getInteger      = getFieldValue
+		 , getDouble       = getFieldValue
+		 , getBool         = getFieldValue
 		 , getCalendarTime = hsqlGetCalendarTime
 		 }
 
 hsqlGetCalendarTime :: Statement -> String -> IO (Maybe CalendarTime)
-hsqlGetCalendarTime s f = getFieldValueMB s f >>= mkIOMBCalendarTime
+hsqlGetCalendarTime s f = getFieldValue s f >>= mkIOMBCalendarTime
 
 mkIOMBCalendarTime :: Maybe ClockTime -> IO (Maybe CalendarTime)
 mkIOMBCalendarTime Nothing = return Nothing
