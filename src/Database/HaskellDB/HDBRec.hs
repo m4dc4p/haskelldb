@@ -221,7 +221,7 @@ readRecEntry ((f,v):xs) r | f == consFieldName r = res
 
 
 readsReadRecRow :: ReadRecRow r => ReadS r
-readsReadRecRow s = [(r,"") | (l,"") <- reads s, (r,[]) <- readRecRow l]
+readsReadRecRow s = [(r,leftOver) | (l,leftOver) <- reads s, (r,[]) <- readRecRow l]
 
 instance ReadRecRow r => Read (Record r) where
     readsPrec _ s = [(const r, rs) | (r,rs) <- readsReadRecRow s]
