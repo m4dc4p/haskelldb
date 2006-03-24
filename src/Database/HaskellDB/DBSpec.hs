@@ -17,7 +17,9 @@
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBSpec 
-    (DBInfo(..),TInfo(..),CInfo(..),DBOptions(..),makeDBSpec,makeTInfo,
+    (DBInfo(..),TInfo(..),CInfo(..),DBOptions(..),
+     FieldDesc, FieldType(..),
+     makeDBSpec,makeTInfo,
      makeCInfo,constructNonClashingDBInfo,ppDBInfo,ppTInfo,ppCInfo,
      ppDBOptions,dbInfoToDoc,finalizeSpec,dbToDBSpec,dbSpecToDatabase)
     where
