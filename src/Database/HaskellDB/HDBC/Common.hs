@@ -29,6 +29,7 @@ import Control.Monad.Trans (MonadIO, liftIO)
 import Data.Char (toLower)
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Maybe (fromMaybe)
 
 -- | Run an action on a HDBC Connection and close the connection.
 hdbcConnect :: MonadIO m => (opts -> IO Connection) -- ^ connection function
@@ -84,13 +85,48 @@ hdbcUpdate :: Connection -> TableName -> [PrimExpr] -> Assoc -> IO ()
 hdbcUpdate conn table criteria assigns = 
     hdbcPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
 
--- FIXME: implement when HDBC supports it
 hdbcTables :: Connection -> IO [TableName]
-hdbcTables conn = fail "Listing tables not yet supported in HDBC"
+hdbcTables conn = handleSqlError $ HDBC.getTables conn
 
 hdbcDescribe :: Connection -> TableName -> IO [(Attribute,FieldDesc)]
 hdbcDescribe conn table = 
-    fail "Describing tables not yet supported in HDBC"
+    handleSqlError $ do
+                     cs <- HDBC.describeTable conn table
+                     return [(n,colDescToFieldDesc c) | (n,c) <- cs]
+
+colDescToFieldDesc :: SqlColDesc -> FieldDesc
+colDescToFieldDesc c = (t, nullable)
+    where 
+    nullable = fromMaybe True (colNullable c)
+    string = maybe StringT BStrT (colSize c)
+    t = case colType c of
+            SqlCharT          -> string
+            SqlVarCharT       -> string
+            SqlLongVarCharT   -> string
+            SqlWCharT	      -> string
+            SqlWVarCharT      -> string
+            SqlWLongVarCharT  -> string
+            SqlDecimalT       -> IntegerT
+            SqlNumericT       -> IntegerT
+            SqlSmallIntT      -> IntT
+            SqlIntegerT	      -> IntT
+            SqlRealT	      -> DoubleT
+            SqlFloatT	      -> DoubleT
+            SqlDoubleT	      -> DoubleT
+            SqlBitT	      -> BoolT
+            SqlTinyIntT	      -> IntT
+            SqlBigIntT	      -> IntT
+            SqlBinaryT	      -> string
+            SqlVarBinaryT     -> string
+            SqlLongVarBinaryT -> string
+            SqlDateT          -> CalendarTimeT
+            SqlTimeT          -> CalendarTimeT
+            SqlTimestampT     -> CalendarTimeT
+            SqlUTCDateTimeT   -> CalendarTimeT
+            SqlUTCTimeT       -> CalendarTimeT
+            SqlIntervalT _    -> string
+            SqlGUIDT          -> string
+            SqlUnknownT _     -> string
 
 hdbcCreateDB :: Connection -> String -> IO ()
 hdbcCreateDB conn name 
