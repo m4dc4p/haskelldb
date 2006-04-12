@@ -35,7 +35,7 @@ odbcConnect =
     hsqlConnect (\opts -> ODBC.connect (dsn opts) (uid opts) (pwd opts))
 
 
-odbcConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
+odbcConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 odbcConnectOpts opts f = 
     do
     [a,b,c] <- getOptions ["dsn","uid","pwd"] opts
@@ -43,4 +43,5 @@ odbcConnectOpts opts f =
                               uid = b,
 			      pwd = c}) f
 
+driver :: DriverInterface
 driver = defaultdriver {connect = odbcConnectOpts}

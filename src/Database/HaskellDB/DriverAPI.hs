@@ -15,6 +15,7 @@
 
 module Database.HaskellDB.DriverAPI (
 				     DriverInterface(..),
+                                     MonadIO, 
 				     defaultdriver,
                                      getOptions
 				    ) where
@@ -22,12 +23,13 @@ module Database.HaskellDB.DriverAPI (
 import Database.HaskellDB.Database (Database)
 
 import Control.Monad (liftM)
+import Control.Monad.Trans (MonadIO)
 
 -- | Interface which drivers should implement.
 --   The 'connect' function takes some driver specific name, value pairs
 --   use to setup the database connection, and a database action to run.
 data DriverInterface = DriverInterface
-    { connect :: forall a. [(String,String)] -> (Database -> IO a) -> IO a }
+    { connect :: forall m a. MonadIO m => [(String,String)] -> (Database -> m a) -> m a }
 
 -- | Default dummy driver, real drivers should overload this
 defaultdriver :: DriverInterface 

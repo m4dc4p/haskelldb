@@ -29,10 +29,11 @@ data SQLiteOptions = SQLiteOptions {
 sqliteConnect :: MonadIO m => FilePath -> (Database -> m a) -> m a
 sqliteConnect path = hdbcConnect connectSqlite3 path
 
-sqliteConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
+sqliteConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 sqliteConnectOpts opts f = 
     do
     [a] <- getOptions ["filepath"] opts
     sqliteConnect a f
 
+driver :: DriverInterface
 driver = defaultdriver {connect = sqliteConnectOpts}

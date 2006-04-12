@@ -35,7 +35,7 @@ mysqlConnect =
     hsqlConnect (\opts -> MySQL.connect 
 		            (server opts) (db opts) (uid opts) (pwd opts))
 
-mysqlConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
+mysqlConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 mysqlConnectOpts opts f = 
     do
     [a,b,c,d] <- getOptions ["server","db","uid","pwd"] opts
@@ -44,4 +44,5 @@ mysqlConnectOpts opts f =
 				uid = c,
 				pwd = d}) f
 
+driver :: DriverInterface
 driver = defaultdriver {connect = mysqlConnectOpts}

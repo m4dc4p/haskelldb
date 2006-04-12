@@ -23,4 +23,5 @@ postgresqlConnect :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 postgresqlConnect opts = hdbcConnect connectPostgreSQL conninfo
     where conninfo = unwords [ k ++ "=" ++ v | (k,v) <- opts]
 
+driver :: DriverInterface
 driver = defaultdriver {connect = postgresqlConnect}

@@ -24,27 +24,31 @@ import Database.HaskellDB.Version
 import System.Plugins (loadPackage,unloadPackage,resolveObjs,loadFunction_)
 import System.Plugins.Utils (encode)
 
+import Control.Monad.Trans (MonadIO, liftIO)
 import Data.Char
 import Data.List (isPrefixOf)
 
+
 -- | Loads a function from a package module, given the package name,
 --   module name and symbol name.
-loadPackageFunction :: String -- ^ Package name, including version number.
+loadPackageFunction :: MonadIO m => 
+                       String -- ^ Package name, including version number.
                     -> String -- ^ Module name
                     -> String -- ^ Symbol to lookup in the module
-                    -> IO (Maybe a)
+                    -> m (Maybe a)
 loadPackageFunction pkgName moduleName functionName =
     do
-    loadPackage pkgName
-    resolveObjs (unloadPackage pkgName)
-    loadFunction_ (encode moduleName) functionName
+    liftIO $ loadPackage pkgName
+    liftIO $ resolveObjs (unloadPackage pkgName)
+    liftIO $ loadFunction_ (encode moduleName) functionName
 
 -- | Loads a driver by package and module name.
-dynConnect :: String -- ^ Driver package
+dynConnect :: MonadIO m => 
+              String -- ^ Driver package
            -> String -- ^ Driver module
 	   -> [(String,String)] -- ^ Options to the driver
-	   -> (Database -> IO a) -- ^ Database action to run
-	   -> IO a
+	   -> (Database -> m a) -- ^ Database action to run
+	   -> m a
 dynConnect p m opts f = 
     do
     res <- loadPackageFunction p m "driver"
@@ -55,11 +59,12 @@ dynConnect p m opts f =
     connect v opts f
 
 -- | Load a driver by a simple driver name.
-dynConnect_ :: String -- ^ Driver, in a human readable format, for
+dynConnect_ :: MonadIO m => 
+               String -- ^ Driver, in a human readable format, for
                       -- example "odbc" or "mysql"
-              -> [(String,String)] -- ^ Arguments to the driver 
-              -> (Database -> IO a) -- ^ Database action to run
-              -> IO a
+            -> [(String,String)] -- ^ Arguments to the driver 
+            -> (Database -> m a) -- ^ Database action to run
+            -> m a
 dynConnect_ d opts f = 
     case map toLower d of
          "odbc"                       -> c "hsql-odbc" "HSQL.ODBC"

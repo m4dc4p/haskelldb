@@ -36,7 +36,7 @@ sqliteConnect =
     hsqlConnect (\opts -> SQLite3.connect 
 		            (filepath opts) (mode opts))
 
-sqliteConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
+sqliteConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 sqliteConnectOpts opts f = 
     do
     [a,b] <- getOptions ["filepath","mode"] opts
@@ -55,4 +55,5 @@ readIOMode s =
                              [(x,"")] -> return x
                              _ -> fail $ "Bad IO mode: " ++ s
 
+driver :: DriverInterface
 driver = defaultdriver {connect = sqliteConnectOpts}

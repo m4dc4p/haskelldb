@@ -35,7 +35,7 @@ postgresqlConnect =
     hsqlConnect (\opts -> PostgreSQL.connect 
 		            (server opts) (db opts) (uid opts) (pwd opts))
 
-postgresqlConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
+postgresqlConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 postgresqlConnectOpts opts f = 
     do
     [a,b,c,d] <- getOptions ["server","db","uid","pwd"] opts
@@ -44,4 +44,5 @@ postgresqlConnectOpts opts f =
                                           uid = c,
 			                  pwd = d}) f
 
+driver :: DriverInterface
 driver = defaultdriver {connect = postgresqlConnectOpts}
