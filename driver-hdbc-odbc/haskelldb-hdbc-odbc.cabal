@@ -1,0 +1,16 @@
+Name: haskelldb-hdbc-odbc
+Version: 0.9
+Copyright: The authors
+Maintainer: haskelldb-users@lists.sourceforge.net
+Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
+License: BSD3
+build-depends: haskell98, base, mtl, haskelldb, haskelldb-hdbc, HDBC, HDBC-odbc
+Extensions: ExistentialQuantification,
+            OverlappingInstances,
+            UndecidableInstances,
+            MultiParamTypeClasses
+Synopsis: HaskellDB support for the HDBC ODBC driver.
+Exposed-Modules:
+        Database.HaskellDB.HDBC.ODBC
+hs-source-dir: ../src
+ghc-options: -O2
