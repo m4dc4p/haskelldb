@@ -175,7 +175,7 @@ f <<- x = f << constant x
 --   (and the developers) always forgot to use !. instead of !
 --   on query results.
 instance HasField f r => Select (Attr f a) (Rel r) (Expr a) where
-    rel ! attr = select attr rel
+    (!) rel attr = select attr rel
 
 select :: HasField f r => Attr f a -> Rel r -> Expr a
 select (Attr attribute) (Rel alias scheme)

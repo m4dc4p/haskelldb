@@ -104,7 +104,7 @@ class Select f r a | f r -> a where
     (!) :: r -> f -> a
 
 instance SelectField f r a => Select (l f a) (Record r) a where
-    r ! (_::l f a) = selectField (undefined::f) r
+    (!) r (_::l f a) = selectField (undefined::f) r
 
 -- | Class which does the actual work of 
 --   getting the value of a field from a record.

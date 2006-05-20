@@ -113,7 +113,7 @@ instance (GetValue a, GetRec er vr)
     => GetRec (RecCons f (Expr a) er) (RecCons f a vr) where
 
     getRec _ _ [] _ = fail $ "Wanted non-empty record, but scheme is empty"
-    getRec vfs (_::Rel (RecCons ef (Expr ea) er)) (f:fs) stmt = 
+    getRec vfs (_::Rel (RecCons f (Expr a) er)) (f:fs) stmt = 
 	do
 	x <- getValue vfs stmt f
 	r <- getRec vfs (undefined :: Rel er) fs stmt
