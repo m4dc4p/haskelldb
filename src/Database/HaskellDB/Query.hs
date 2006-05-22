@@ -19,7 +19,7 @@ module Database.HaskellDB.Query (
 	      -- * Data and class declarations
 	      Rel(..), Attr(..), Table(..), Query, Expr(..)
 	     , ToPrimExprs, ShowConstant
-	     , ExprC, ProjectRec, InsertRec
+	     , ExprC, ProjectExpr, ProjectRec, InsertRec
 	      -- * Operators
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
