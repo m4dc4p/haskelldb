@@ -182,7 +182,7 @@ select (Attr attribute) (Rel alias scheme)
         = Expr (AttrExpr (fresh alias attribute))
 
 -- | Specifies a subset of the columns in the table.
-project :: (ShowRecRow r, ToPrimExprs r, ProjectRec r er) => Record r -> Query (Rel er)
+project :: (ShowLabels r, ToPrimExprs r, ProjectRec r er) => Record r -> Query (Rel er)
 project r
         = do
 	  alias <- newAlias
@@ -256,7 +256,7 @@ table (Table name assoc)
 
 -- used in table definitions
 
-baseTable :: (ShowRecRow r, ToPrimExprs r) => TableName -> Record r -> Table r
+baseTable :: (ShowLabels r, ToPrimExprs r) => TableName -> Record r -> Table r
 baseTable t r   = Table t (zip (labels r) (exprs r))
 
 
@@ -607,20 +607,10 @@ fresh :: Alias -> Attribute -> Attribute
 fresh 0     attribute   = attribute
 fresh alias attribute   = (attribute ++ show alias)
 
+labels :: ShowLabels r => r -> [String]
+labels = recordLabels
 
-
------------------------------------------------------------
--- Trex
---
--- hacky now, but this should change when we can
--- define fold-like functions over records.
------------------------------------------------------------
-
-labels :: ShowRecRow r => Record r -> [String]
-labels r        = map fst (showRecRow r)
-
-
--- Type safe version of exprs. If we use this, we must add
+-- Type safe version of exprs below. If we use this, we must add
 --  ToPrimExprs r to a lot of functions
 exprs :: ToPrimExprs r => Record r -> [PrimExpr]
 exprs r = toPrimExprs (r RecNil)
