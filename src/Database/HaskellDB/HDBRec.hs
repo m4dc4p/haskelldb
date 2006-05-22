@@ -23,7 +23,7 @@ module Database.HaskellDB.HDBRec
     -- * Record predicates and operations
     , HasField, Select(..), SetField, setField
     -- * Showing and reading records
-    , ShowRecRow(..), ReadRecRow(..)
+    , ShowLabels(..), ShowRecRow(..), ReadRecRow(..)
     ) where
 
 import Data.List
@@ -69,7 +69,6 @@ emptyRecord = id
 class FieldTag f where
     -- | Gets the name of the label.
     fieldName :: f -> String
-
 
 -- | The record @r@ has the field @f@ if there is an instance of
 --   @HasField f r@.
@@ -154,11 +153,20 @@ instance Eq r => Eq (Record r) where
 instance Ord r => Ord (Record r) where
     r1 <= r2 = r1 RecNil <= r2 RecNil
 
--- * Showing rows 
+-- * Showing labels
 
 -- | Get the label name of a record entry.
 consFieldName :: FieldTag f => RecCons f a r -> String
 consFieldName (_::RecCons f a r) = fieldName (undefined::f)
+
+class ShowLabels r where
+    recordLabels :: r -> [String]
+instance ShowLabels RecNil where
+    recordLabels _ = []
+instance (FieldTag f,ShowLabels r) => ShowLabels (RecCons f a r) where
+    recordLabels x@(RecCons _ r) = consFieldName x : recordLabels r
+
+-- * Showing rows 
 
 -- | Convert a record to a list of label names and field values.
 class ShowRecRow r where
