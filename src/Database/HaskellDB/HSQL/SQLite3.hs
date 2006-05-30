@@ -17,7 +17,8 @@
 module Database.HaskellDB.HSQL.SQLite3 (
 		   SQLiteOptions(..),
 		   sqliteConnect,
-		   driver
+		   driver,
+                   Database, IOMode(..), MonadIO
 		  ) where
 
 import Database.HaskellDB.Database
