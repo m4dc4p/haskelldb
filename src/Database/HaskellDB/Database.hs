@@ -204,7 +204,7 @@ delete db (Table name assoc) criteria
 	  rel		   = Rel 0 (map fst assoc)
 	  
 -- | Updates records
-update :: (ToPrimExprs s, ShowRecRow s,ShowRecRow r) => 
+update :: (ShowLabels s, ToPrimExprs s) =>
 	  Database             -- ^ The database
        -> Table r              -- ^ The table to update
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to update
