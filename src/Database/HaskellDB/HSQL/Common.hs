@@ -152,9 +152,9 @@ hsqlPrimQuery :: GetRec er vr =>
 	      -> Rel er     -- ^ Phantom argument to get the return type right.
 	      -> IO [Record vr]    -- ^ Query results
 hsqlPrimQuery connection sql scheme rel = 
-    do
-    stmt <- handleSqlError $ HSQL.query connection sql
-    lazyRows (getRec hsqlGetInstances rel scheme) stmt
+    do trace "HSQL.query" sql
+       stmt <- handleSqlError $ HSQL.query connection sql
+       lazyRows (getRec hsqlGetInstances rel scheme) stmt
 
 -- | Retrive rows lazily.
 lazyRows :: (Statement -> IO a) -> Statement -> IO [a]
@@ -179,7 +179,8 @@ hsqlPrimExecute :: Connection -- ^ Database connection.
 		-> String     -- ^ SQL query.
 		-> IO ()
 hsqlPrimExecute connection sql = 
-    handleSqlError (execute connection sql >> return ())
+    do trace "HSQL.execute" sql
+       handleSqlError (execute connection sql >> return ())
 
 
 -----------------------------------------------------------
@@ -203,3 +204,22 @@ hsqlGetCalendarTime s f = getFieldValue s f >>= mkIOMBCalendarTime
 mkIOMBCalendarTime :: Maybe ClockTime -> IO (Maybe CalendarTime)
 mkIOMBCalendarTime Nothing = return Nothing
 mkIOMBCalendarTime (Just c) = return (Just (mkCalendarTime c))
+
+-----------------------------------------------------------
+-- Tracing
+-----------------------------------------------------------
+
+tracingEnabled :: IO Bool
+tracingEnabled = return False
+
+traceFile :: IO (Maybe FilePath)
+traceFile = return Nothing
+
+trace :: String -> String -> IO ()
+trace act sql = 
+    do t <- tracingEnabled
+       when t $ do let s = act ++ ": " ++ sql
+                   mf <- traceFile
+                   case mf of
+                     Nothing -> hPutStrLn stderr s
+                     Just f  -> appendFile f s
