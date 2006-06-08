@@ -14,8 +14,7 @@
 -- $Revision: 1.25 $
 -----------------------------------------------------------
 module Database.HaskellDB.FieldType 
-    (FieldDesc, FieldType(..), PrimShow(..), 
-     SQLShow(..), mkCalendarTime) where
+    (FieldDesc, FieldType(..), PrimShow(..), SQLShow(..)) where
 
 import Data.Dynamic
 import System.Time
@@ -63,14 +62,6 @@ instance SQLShow FieldType where
 --    sshow BoolT = "bit"
     sshow CalendarTimeT = "timestamp"
     sshow (BStrT a) = "varchar(" ++ show a ++ ")"
-
--- | Creates a CalendarTime from a ClockTime
---   This loses the time zone and assumes UTC. :(
---   A probable fix could be to make DbDirect aware of which time zone the
---   server is in and handle it here
---   This is just a function synonym for now
-mkCalendarTime :: ClockTime -> CalendarTime
-mkCalendarTime = toUTCTime
 
 instance Typeable CalendarTime where -- not available in standard libraries
     typeOf _ = mkTyConApp (mkTyCon "System.Time.CalendarTime") []

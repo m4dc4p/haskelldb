@@ -199,4 +199,4 @@ wxGetCalendarTime r f = WX.dbRowGetClockTimeMb r f >>= mkIOMBCalendarTime
 
 mkIOMBCalendarTime :: Maybe ClockTime -> IO (Maybe CalendarTime)
 mkIOMBCalendarTime Nothing = return Nothing
-mkIOMBCalendarTime (Just c) = return (Just (mkCalendarTime c))
+mkIOMBCalendarTime (Just c) = return (Just (toUTCTime c))

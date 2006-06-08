@@ -202,8 +202,7 @@ hsqlGetCalendarTime :: Statement -> String -> IO (Maybe CalendarTime)
 hsqlGetCalendarTime s f = getFieldValue s f >>= mkIOMBCalendarTime
 
 mkIOMBCalendarTime :: Maybe ClockTime -> IO (Maybe CalendarTime)
-mkIOMBCalendarTime Nothing = return Nothing
-mkIOMBCalendarTime (Just c) = return (Just (mkCalendarTime c))
+mkIOMBCalendarTime = maybe (return Nothing) (fmap Just . toCalendarTime)
 
 -----------------------------------------------------------
 -- Tracing
