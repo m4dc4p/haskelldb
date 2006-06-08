@@ -18,15 +18,35 @@
 module Database.HaskellDB.Optimize (optimize) where
 
 import Control.Exception (assert)
-import Data.List (intersect)
+import Data.List (intersect,(\\),union)
 import Database.HaskellDB.PrimQuery
 
 -- | Optimize a PrimQuery
 optimize :: PrimQuery -> PrimQuery
-optimize = mergeProject
+optimize = hacks
+           . mergeProject
 	   . removeEmpty
            . removeDead
            . pushRestrict
+
+-- | Hacks needed by some back-ends.
+--   FIXME: this is silly.
+hacks :: PrimQuery -> PrimQuery
+hacks = includeOrderFieldsInSelect
+
+-- | HACK: All fields that we order by must also be in the result in 
+--   PostgreSQL, since we use SELECT DISTINCT.
+includeOrderFieldsInSelect :: PrimQuery -> PrimQuery
+includeOrderFieldsInSelect = 
+    foldPrimQuery (Empty, BaseTable, proj, Restrict, Binary, Special)
+    where 
+      proj ass p = Project (ass++ass') p
+          where ass' = [(a, AttrExpr a) | a <- new ]
+                new = orderedBy p \\ map fst ass
+                orderedBy = foldPrimQuery ([], \_ _ -> [], \_ _ -> [],
+                                           \_ _ -> [], \_ _ _ -> [], special)
+                special (Order es) p = attrInOrder es `union` p
+                special _ p = p
 
 -- | Remove unused attributes from projections.
 removeDead :: PrimQuery -> PrimQuery
