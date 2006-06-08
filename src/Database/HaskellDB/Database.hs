@@ -106,7 +106,8 @@ class GetRec er vr | er -> vr, vr -> er where
 
 instance GetRec RecNil RecNil where
     getRec _ _ [] _ = return emptyRecord
-    getRec _ _ fs _ = fail $ "Wanted empty record from scheme " ++ show fs
+-- NOTE: we accept extra fields, since the hacks in Optimzie could add fields that we don't want
+--    getRec _ _ fs _ = fail $ "Wanted empty record from scheme " ++ show fs
 
 
 instance (GetValue a, GetRec er vr) 

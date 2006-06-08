@@ -42,7 +42,7 @@ includeOrderFieldsInSelect =
     where 
       proj ass p = Project (ass++ass') p
           where ass' = [(a, AttrExpr a) | a <- new ]
-                new = orderedBy p \\ map fst ass
+                new = orderedBy p \\ concatMap (attrInExpr . snd) ass
                 orderedBy = foldPrimQuery ([], \_ _ -> [], \_ _ -> [],
                                            \_ _ -> [], \_ _ _ -> [], special)
                 special (Order es) p = attrInOrder es `union` p
