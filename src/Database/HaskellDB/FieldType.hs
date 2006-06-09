@@ -33,7 +33,7 @@ data FieldType =
     | BoolT
     | CalendarTimeT
     | BStrT Int
-    deriving (Eq,Show)
+    deriving (Eq,Ord,Show,Read)
 
 -- | defines a primitive show, that gives us the Haskell correct types from a
 -- FieldType

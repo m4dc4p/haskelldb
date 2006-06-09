@@ -286,7 +286,8 @@ ppInsert (SqlInsert table exprs)
 -- | Creates a 'SqlDelete'. Corresponds to the SQL statement
 -- DELETE which deletes rows in a table.
 toDelete :: TableName -- ^ Name of the table
-	 -> [PrimExpr] -- ^ Rows to be deleted.
+	 -> [PrimExpr] -- ^ Conditions which must all be true for a row
+                       --   to be deleted.
 	 -> SqlDelete
 toDelete name exprs
         = SqlDelete name (map toSqlExpr exprs)
@@ -304,7 +305,8 @@ ppDelete (SqlDelete name exprs)
 -- | Creates a 'SqlUpdate'. Corresponds to the SQL statement
 -- UPDATE which updates data in a table.
 toUpdate :: TableName -- ^ Name of the table to update.
-	 -> [PrimExpr] -- ^ Which data to update.
+	 -> [PrimExpr]  -- ^ Conditions which must all be true for a row
+                        --   to be deleted.
 	 -> Assoc -- ^ Update the data with this.
 	 -> SqlUpdate
 toUpdate name criteria assigns

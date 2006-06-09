@@ -56,8 +56,15 @@ data Database
 	     -> IO [Record vr]
   	  , dbInsert :: TableName -> Assoc -> IO ()
 	  , dbInsertQuery :: TableName -> PrimQuery -> IO ()
-  	  , dbDelete :: TableName -> [PrimExpr] -> IO ()
-  	  , dbUpdate :: TableName -> [PrimExpr] -> Assoc -> IO ()
+  	  , dbDelete :: TableName 
+                     -> [PrimExpr] -- Conditions which must all be true for a
+                                   -- row to be deleted.
+                     -> IO ()
+  	  , dbUpdate :: TableName 
+                     -> [PrimExpr] -- ^ Conditions which must all be true for a row
+                                   --   to be updated.
+                     -> Assoc -- ^ New values for some fields.
+                     -> IO ()
 	  , dbTables :: IO [TableName]
 	  , dbDescribe :: TableName -> IO [(Attribute,FieldDesc)]
 	  , dbTransaction :: forall a. IO a -> IO a
