@@ -20,6 +20,7 @@ module Database.HaskellDB.Query (
 	      Rel(..), Attr(..), Table(..), Query, Expr(..)
 	     , ToPrimExprs, ShowConstant
 	     , ExprC, ProjectExpr, ProjectRec, InsertRec
+             , ConstantRecord(..)
 	      -- * Operators
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
@@ -446,6 +447,19 @@ constant x  = Expr (ConstExpr (showConstant x))
 --   Same as @constant . Just@
 constJust :: ShowConstant a => a -> Expr (Maybe a)
 constJust x = constant (Just x)
+
+class ConstantRecord r cr | r -> cr where
+    constantRecord :: r -> cr
+
+instance ConstantRecord r cr => ConstantRecord (Record r) (Record cr) where
+    constantRecord r = \n -> constantRecord (r n)
+
+instance ConstantRecord RecNil RecNil where
+    constantRecord RecNil = RecNil
+
+instance (ShowConstant a, ConstantRecord r cr) 
+    => ConstantRecord (RecCons f a r) (RecCons f (Expr a) cr) where
+    constantRecord (RecCons x rs) = RecCons (constant x) (constantRecord rs)
 
 -----------------------------------------------------------
 -- Aggregate operators
