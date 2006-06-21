@@ -17,7 +17,7 @@
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
-	      Rel(..), Attr(..), Table(..), Query, Expr(..)
+	      Rel(..), Attr(..), Table(..), Query, Expr(..), Order
 	     , ToPrimExprs, ShowConstant
 	     , ExprC, ProjectExpr, ProjectRec, InsertRec
              , ConstantRecord(..)

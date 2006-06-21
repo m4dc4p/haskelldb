@@ -23,10 +23,10 @@
 -- $Revision: 1.29 $
 -----------------------------------------------------------
 module Database.HaskellDB
-	( Rel, Attr, Expr, Table, Query	-- abstract
+	( Rel, Attr, Expr, Table, Query, Order
 
         -- * Records
-	, Record, Select, ( # ), ( << ), (<<-), (!), (!.)
+	, HasField, Record, Select, ( # ), ( << ), (<<-), (!), (!.)
 	
         -- * Relational operators
 	, restrict, table, project
