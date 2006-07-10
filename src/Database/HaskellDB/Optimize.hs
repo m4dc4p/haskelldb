@@ -15,7 +15,7 @@
 -- $Revision: 1.18 $
 -----------------------------------------------------------
 
-module Database.HaskellDB.Optimize (optimize) where
+module Database.HaskellDB.Optimize (optimize, optimizeCriteria) where
 
 import Control.Exception (assert)
 import Data.List (intersect,(\\),union)
@@ -28,6 +28,12 @@ optimize = hacks
 	   . removeEmpty
            . removeDead
            . pushRestrict
+           . optimizeExprs
+
+-- | Optimize a set of criteria.
+optimizeCriteria :: [PrimExpr] -> [PrimExpr]
+optimizeCriteria = filter (not . exprIsTrue) . map optimizeExpr
+
 
 -- | Hacks needed by some back-ends.
 --   FIXME: this is silly.
@@ -250,3 +256,42 @@ pushRestrict (Special op query)
 -- otherwise do nothing
 pushRestrict query
         = query
+
+
+optimizeExprs :: PrimQuery -> PrimQuery
+optimizeExprs = foldPrimQuery (Empty, BaseTable, Project, restr, Binary, Special)
+    where 
+      restr e q | exprIsTrue e' = q
+                | otherwise = Restrict e' q
+          where e' = optimizeExpr e
+
+optimizeExpr :: PrimExpr -> PrimExpr
+optimizeExpr = foldPrimExpr (AttrExpr,ConstExpr,bin,un,AggrExpr,CaseExpr,ListExpr)
+    where
+      bin OpAnd e1 e2
+          | exprIsFalse e1 || exprIsFalse e2 = exprFalse
+          | exprIsTrue e1 = e2
+          | exprIsTrue e2 = e1
+      bin OpOr e1 e2
+          | exprIsTrue e1 || exprIsTrue e2 = exprTrue
+          | exprIsFalse e1 = e2
+          | exprIsFalse e2 = e1
+      bin OpIn _ (ListExpr []) = exprFalse
+      bin op e1 e2 = BinExpr op e1 e2
+
+      un OpNot (ConstExpr (BoolLit b)) = ConstExpr (BoolLit (not b))
+      un op e = UnExpr op e
+
+exprTrue :: PrimExpr
+exprTrue = ConstExpr (BoolLit True)
+
+exprFalse :: PrimExpr
+exprFalse = ConstExpr (BoolLit False)
+
+exprIsTrue :: PrimExpr -> Bool
+exprIsTrue (ConstExpr (BoolLit True)) = True
+exprIsTrue _ = False
+
+exprIsFalse :: PrimExpr -> Bool
+exprIsFalse (ConstExpr (BoolLit False)) = True
+exprIsFalse _ = False

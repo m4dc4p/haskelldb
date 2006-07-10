@@ -293,10 +293,11 @@ toDelete name exprs
         = SqlDelete name (map toSqlExpr exprs)
 
 ppDelete :: SqlDelete -> Doc
-ppDelete (SqlDelete name exprs)
-        | null exprs    =  text ""
-        | otherwise     =  text "DELETE FROM" <+> text name
-                        $$ text "WHERE" <+> ppCriteria exprs
+ppDelete (SqlDelete name exprs) =
+    text "DELETE FROM" <+> text name $$ f "WHERE" ppCriteria exprs
+   where
+     f clause action xs | null xs    = empty
+                        | otherwise  = text clause <+> action xs
 
 -----------------------------------------------------------
 -- UPDATE
@@ -306,15 +307,13 @@ ppDelete (SqlDelete name exprs)
 -- UPDATE which updates data in a table.
 toUpdate :: TableName -- ^ Name of the table to update.
 	 -> [PrimExpr]  -- ^ Conditions which must all be true for a row
-                        --   to be deleted.
+                        --   to be updated.
 	 -> Assoc -- ^ Update the data with this.
 	 -> SqlUpdate
 toUpdate name criteria assigns
         = SqlUpdate name cs (map showAssign assigns)
         where
-          cs = [ toSqlExpr c | c <- criteria, not (isTrue c) ]
-          isTrue (ConstExpr (BoolLit True)) = True
-          isTrue _ = False
+          cs = map toSqlExpr criteria
           showAssign (attr,expr)
           	= attr ++ " = " ++ toSqlExpr expr
 

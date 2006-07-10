@@ -32,7 +32,7 @@ module Database.HaskellDB.Database (
 import Database.HaskellDB.HDBRec
 import Database.HaskellDB.FieldType
 import Database.HaskellDB.PrimQuery
-import Database.HaskellDB.Optimize (optimize)
+import Database.HaskellDB.Optimize (optimize, optimizeCriteria)
 import Database.HaskellDB.Query	
 import Database.HaskellDB.BoundedString
 import Database.HaskellDB.BoundedList
@@ -203,10 +203,10 @@ delete :: ShowRecRow r =>
        -> Table r -- ^ The table to delete records from
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to delete
        -> IO ()
-delete db (Table name assoc) criteria
-	= dbDelete db name [substAttr assoc primExpr]
+delete db (Table name assoc) criteria = dbDelete db name cs
 	where
 	  (Expr primExpr)  = criteria rel
+          cs               = optimizeCriteria [substAttr assoc primExpr]
 	  rel		   = Rel 0 (map fst assoc)
 	  
 -- | Updates records
@@ -216,10 +216,10 @@ update :: (ShowLabels s, ToPrimExprs s) =>
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to update
        -> (Rel r -> Record s)  -- ^ Function used to modify selected records
        -> IO ()
-update db (Table name assoc) criteria assignFun
-	= dbUpdate db name [substAttr assoc primExpr] newassoc
+update db (Table name assoc) criteria assignFun = dbUpdate db name cs newassoc
 	where
 	  (Expr primExpr)= criteria rel
+          cs = optimizeCriteria [substAttr assoc primExpr]
 	  	
 	  newassoc	= zip (map subst (labels assigns))
 	  		      (exprs assigns)
