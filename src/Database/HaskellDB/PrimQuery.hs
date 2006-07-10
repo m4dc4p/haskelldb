@@ -81,6 +81,7 @@ data PrimExpr   = AttrExpr  Attribute
                 | AggrExpr  AggrOp PrimExpr
                 | ConstExpr Literal
 		| CaseExpr [(PrimExpr,PrimExpr)] PrimExpr
+                | ListExpr [PrimExpr]
                 deriving (Read,Show)
 
 data Literal = NullLit
@@ -169,7 +170,7 @@ assocFromScheme scheme
 
 -- | Returns all attributes in an expression.
 attrInExpr :: PrimExpr -> Scheme
-attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
+attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list)
                 where
                   attr name     = [name]
                   scalar s      = []
@@ -177,6 +178,7 @@ attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
                   unary op x    = x
                   aggr op x	= x
 		  _case cs el   = concat (uncurry (++) (unzip cs)) ++ el
+                  list xs       = concat xs
 
 -- | Returns all attributes in a list of expressions.
 attrInOrder :: [PrimExpr] -> Scheme
@@ -185,7 +187,7 @@ attrInOrder  = concat . map attrInExpr
 -- | Substitute attribute names in an expression.
 substAttr :: Assoc -> PrimExpr -> PrimExpr
 substAttr assoc 
-        = foldPrimExpr (attr,ConstExpr,BinExpr,UnExpr,AggrExpr,CaseExpr)
+    = foldPrimExpr (attr,ConstExpr,BinExpr,UnExpr,AggrExpr,CaseExpr,ListExpr)
         where 
           attr name     = case (lookup name assoc) of
                             Just x      -> x 
@@ -198,12 +200,13 @@ nestedAggregate x	= countAggregate x > 1
 
 countAggregate :: PrimExpr -> Int
 countAggregate
-	= foldPrimExpr (const 0, const 0, binary, unary, aggr, _case)
+	= foldPrimExpr (const 0, const 0, binary, unary, aggr, _case, list)
 	where
           binary op x y	 	= x + y
           unary op x		= x
           aggr op x		= x + 1
 	  _case cs el           = sum (map (uncurry (+)) cs) + el
+          list xs               = sum xs
 
 -- | Fold on 'PrimQuery'
 foldPrimQuery :: (t, TableName -> Scheme -> t, Assoc -> t -> t,
@@ -226,8 +229,8 @@ foldPrimQuery (empty,table,project,restrict,binary,special)
 -- | Fold on 'PrimExpr'
 foldPrimExpr :: (Attribute -> t, Literal -> t, BinOp -> t -> t -> t,
                  UnOp -> t -> t, AggrOp -> t -> t, 
-		 [(t,t)] -> t -> t) -> PrimExpr -> t
-foldPrimExpr (attr,scalar,binary,unary,aggr,_case) 
+		 [(t,t)] -> t -> t, [t] -> t) -> PrimExpr -> t
+foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list) 
         = fold
         where
           fold (AttrExpr name) = attr name
@@ -236,6 +239,7 @@ foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
           fold (UnExpr op x)   = unary op (fold x)
           fold (AggrExpr op x) = aggr op (fold x)
 	  fold (CaseExpr cs el) = _case (map (both fold) cs) (fold el)
+          fold (ListExpr xs) = list (map fold xs)
 
           both f (x,y) = (f x, f y)
 
@@ -273,7 +277,7 @@ ppNameExpr (attr,expr)          = text attr <> colon <+> ppPrimExpr expr
 
 -- | Pretty prints a 'PrimExpr'
 ppPrimExpr :: PrimExpr -> Doc
-ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
+ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list)
         where
           attr          = text
           scalar        = ppLiteral
@@ -288,6 +292,7 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case)
           aggr op x	= ppAggrOp op <> parens x
           _case cs el   = text "CASE" <+> vcat (map ppWhen cs)
 			  <+> text "ELSE" <+> el <+> text "END"
+          list xs       = parens (hcat (punctuate (char ',') xs))
 {-
           -- Now done in ShowConstant String, since we can't use Haskell
 	  -- escaping of non-ascii characters. /Bjorn 2004-05-27

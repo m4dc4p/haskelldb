@@ -32,7 +32,7 @@ module Database.HaskellDB.Query (
 	     , attributeName, exprs, labels
 	     , restrict, table
 	     , union, intersect, divide, minus
-	     , _not, like, cat, _length
+	     , _not, like, _in, cat, _length
 	     , isNull, notNull
 	     , fromNull
 	     , constant, constJust
@@ -56,7 +56,7 @@ import System.Time (CalendarTime)
 -----------------------------------------------------------
 
 --infix   9 !
-infix   8 `like`
+infix   8 `like`, `_in`
 infixl  7 .*., ./., .%.
 infixl  6 .+.,.-.
 infix   6 <<, <<-
@@ -340,6 +340,12 @@ _not   = unop OpNot
 -- Different database systems implement this differently.
 like :: Expr String -> Expr String -> Expr Bool
 like   = binop OpLike
+
+-- | Returns true if the value of the first operand is
+--   equal to the value of any of the expressions in the 
+--   list operand. 
+_in :: Eq a => Expr a -> [Expr a] -> Expr Bool
+_in (Expr x) ys = Expr (BinExpr OpIn x (ListExpr [y | Expr y <- ys]))
 
 
 -- | Produces the concatenation of two String-expressions.

@@ -36,7 +36,7 @@ module Database.HaskellDB
 	, (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	, (.&&.) , (.||.)
 	, (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
-	, _not, like, cat, _length
+	, _not, like, _in, cat, _length
 	, isNull, notNull, fromNull
 	, constant, constJust
 	
