@@ -184,7 +184,7 @@ mergeProject
 
           safe :: Assoc -> Bool
           safe assoc
-          	= not (any (nestedAggregate.snd) assoc)
+          	= not (any (isAggregate.snd) assoc)
 
 -- | Push restrictions down through projections and binary ops.
 pushRestrict :: PrimQuery -> PrimQuery
