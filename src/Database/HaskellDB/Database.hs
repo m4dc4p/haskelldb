@@ -61,9 +61,9 @@ data Database
                                    -- row to be deleted.
                      -> IO ()
   	  , dbUpdate :: TableName 
-                     -> [PrimExpr] -- ^ Conditions which must all be true for a row
+                     -> [PrimExpr] -- Conditions which must all be true for a row
                                    --   to be updated.
-                     -> Assoc -- ^ New values for some fields.
+                     -> Assoc -- New values for some fields.
                      -> IO ()
 	  , dbTables :: IO [TableName]
 	  , dbDescribe :: TableName -> IO [(Attribute,FieldDesc)]
