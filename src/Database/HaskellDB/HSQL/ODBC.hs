@@ -15,6 +15,7 @@
 
 module Database.HaskellDB.HSQL.ODBC (
 		  odbcConnect, 
+                  odbcDriverConnect,
 		  ODBCOptions(..),
 		  driver
 		 ) where
@@ -22,7 +23,7 @@ module Database.HaskellDB.HSQL.ODBC (
 import Database.HaskellDB.Database
 import Database.HaskellDB.HSQL.Common
 import Database.HaskellDB.DriverAPI
-import qualified Database.HSQL.ODBC as ODBC (connect) 
+import qualified Database.HSQL.ODBC as ODBC (connect, driverConnect) 
 
 data ODBCOptions = ODBCOptions { 
                                dsn :: String, -- ^ name binding in ODBC
@@ -34,6 +35,9 @@ odbcConnect :: MonadIO m => ODBCOptions -> (Database -> m a) -> m a
 odbcConnect = 
     hsqlConnect (\opts -> ODBC.connect (dsn opts) (uid opts) (pwd opts))
 
+odbcDriverConnect :: MonadIO m => String -> (Database -> m a) -> m a
+odbcDriverConnect =
+    hsqlConnect (\opts -> ODBC.driverConnect opts)
 
 odbcConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 odbcConnectOpts opts f = 
