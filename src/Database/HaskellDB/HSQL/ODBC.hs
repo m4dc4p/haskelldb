@@ -35,6 +35,7 @@ odbcConnect :: MonadIO m => ODBCOptions -> (Database -> m a) -> m a
 odbcConnect = 
     hsqlConnect (\opts -> ODBC.connect (dsn opts) (uid opts) (pwd opts))
 
+-- | DSN-less connection.
 odbcDriverConnect :: MonadIO m => String -> (Database -> m a) -> m a
 odbcDriverConnect =
     hsqlConnect (\opts -> ODBC.driverConnect opts)
