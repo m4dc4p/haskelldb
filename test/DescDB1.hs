@@ -88,11 +88,12 @@ t1 = TInfo {tname = "hdb_t1",
 		    CInfo {cname = "t1f14", descr = (DoubleT,       False)},
 		    CInfo {cname = "t1f15", descr = (DoubleT,       True )},
 		    CInfo {cname = "t1f16", descr = (DoubleT,       False)},
-
-		    CInfo {cname = "t1f17", descr = (BoolT,         True )},
-		    CInfo {cname = "t1f18", descr = (BoolT,         False)},
-		    CInfo {cname = "t1f19", descr = (BoolT,         True )},
-		    CInfo {cname = "t1f20", descr = (BoolT,         False)},
+                    
+-- Disabled for now, since booleans don't really work anywhere
+--		    CInfo {cname = "t1f17", descr = (BoolT,         True )},
+--		    CInfo {cname = "t1f18", descr = (BoolT,         False)},
+--		    CInfo {cname = "t1f19", descr = (BoolT,         True )},
+--		    CInfo {cname = "t1f20", descr = (BoolT,         False)},
 
 		    CInfo {cname = "t1f21", descr = (CalendarTimeT, True )},
 		    CInfo {cname = "t1f22", descr = (CalendarTimeT, False)},
@@ -121,10 +122,11 @@ t2 = TInfo {tname = "hdb_t2",
 		    CInfo {cname = "t2f15", descr = (DoubleT,       True )},
 		    CInfo {cname = "t2f16", descr = (DoubleT,       False)},
 
-		    CInfo {cname = "t2f17", descr = (BoolT,         True )},
-		    CInfo {cname = "t2f18", descr = (BoolT,         False)},
-		    CInfo {cname = "t2f19", descr = (BoolT,         True )},
-		    CInfo {cname = "t2f20", descr = (BoolT,         False)},
+-- Disabled for now, since booleans don't really work anywhere
+--		    CInfo {cname = "t2f17", descr = (BoolT,         True )},
+--		    CInfo {cname = "t2f18", descr = (BoolT,         False)},
+--		    CInfo {cname = "t2f19", descr = (BoolT,         True )},
+--		    CInfo {cname = "t2f20", descr = (BoolT,         False)},
 
 		    CInfo {cname = "t2f21", descr = (CalendarTimeT, True )},
 		    CInfo {cname = "t2f22", descr = (CalendarTimeT, False)},

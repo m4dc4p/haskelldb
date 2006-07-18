@@ -30,37 +30,42 @@ allTests =
 
 insertAndQueryTests = 
     dbtests [
-             testInsertAndQuery string_tbl string_data TString.f01,
-             testInsertAndQuery string_tbl string_data TString.f02,
-             testInsertAndQuery string_tbl string_data TString.f03,
-             testInsertAndQuery string_tbl string_data TString.f04,
+             testField string_tbl string_data_1 TString.f01,
+             testField string_tbl string_data_1 TString.f02,
+             testField string_tbl string_data_1 TString.f03,
+             testField string_tbl string_data_1 TString.f04,
 
-             testInsertAndQuery int_tbl int_data TInt.f01,
-             testInsertAndQuery int_tbl int_data TInt.f02,
-             testInsertAndQuery int_tbl int_data TInt.f03,
-             testInsertAndQuery int_tbl int_data TInt.f04,
+             testField int_tbl int_data_1 TInt.f01,
+             testField int_tbl int_data_1 TInt.f02,
+             testField int_tbl int_data_1 TInt.f03,
+             testField int_tbl int_data_1 TInt.f04,
 
-             testInsertAndQuery integer_tbl integer_data TInteger.f01,
-             testInsertAndQuery integer_tbl integer_data TInteger.f02,
-             testInsertAndQuery integer_tbl integer_data TInteger.f03,
-             testInsertAndQuery integer_tbl integer_data TInteger.f04,
+             testField integer_tbl integer_data_1 TInteger.f01,
+             testField integer_tbl integer_data_1 TInteger.f02,
+             testField integer_tbl integer_data_1 TInteger.f03,
+             testField integer_tbl integer_data_1 TInteger.f04,
 
-             testInsertAndQuery double_tbl double_data TDouble.f01,
-             testInsertAndQuery double_tbl double_data TDouble.f02,
-             testInsertAndQuery double_tbl double_data TDouble.f03,
-             testInsertAndQuery double_tbl double_data TDouble.f04,
+             testField double_tbl double_data_1 TDouble.f01,
+             testField double_tbl double_data_1 TDouble.f02,
+             testField double_tbl double_data_1 TDouble.f03,
+             testField double_tbl double_data_1 TDouble.f04,
 
-             testInsertAndQuery bool_tbl bool_data TBool.f01,
-             testInsertAndQuery bool_tbl bool_data TBool.f02,
-             testInsertAndQuery bool_tbl bool_data TBool.f03,
-             testInsertAndQuery bool_tbl bool_data TBool.f04,
+             testField bool_tbl bool_data_1 TBool.f01,
+             testField bool_tbl bool_data_1 TBool.f02,
+             testField bool_tbl bool_data_1 TBool.f03,
+             testField bool_tbl bool_data_1 TBool.f04,
 
-             testInsertAndQuery calendartime_tbl calendartime_data TCalendartime.f01,
-             testInsertAndQuery calendartime_tbl calendartime_data TCalendartime.f02,
-             testInsertAndQuery calendartime_tbl calendartime_data TCalendartime.f03,
-             testInsertAndQuery calendartime_tbl calendartime_data TCalendartime.f04
+             testField calendartime_tbl calendartime_data_1 TCalendartime.f01,
+             testField calendartime_tbl calendartime_data_1 TCalendartime.f02,
+             testField calendartime_tbl calendartime_data_1 TCalendartime.f03,
+             testField calendartime_tbl calendartime_data_1 TCalendartime.f04
             ]
 
+testField tbl r f = 
+    dbtests [
+             testInsertAndQuery tbl r f,
+             testDistinct tbl r f
+            ]
 
 testInsertAndQuery tbl r f = dbtest name $ \db ->
     do insert db tbl (constantRecord r)
@@ -69,6 +74,14 @@ testInsertAndQuery tbl r f = dbtest name $ \db ->
        assertEqual "Bad result length" (length rs) 1
        assertEqual "Bad field value" (head rs!f) (r!f)
   where name = "insertAndQuery " ++ attributeName f
+
+testDistinct tbl r f = dbtest name $ \db ->
+    do insert db tbl (constantRecord r)
+       insert db tbl (constantRecord r)
+       rs <- query db $ do t <- table tbl
+                           project (f << t!f)
+       assertEqual "Bad result length" (length rs) 1
+  where name = "distinct " ++ attributeName f
 
 testDeleteEmpty = dbtest "deleteEmpty" $ \db ->
     do mapM_ (insert db hdb_t1) data1
@@ -80,37 +93,37 @@ testDeleteEmpty = dbtest "deleteEmpty" $ \db ->
 
 -- * Test data
 
-string_data =
+string_data_1 =
           TString.f01 .=. Just "foo" #
           TString.f02 .=. "bar" #
           TString.f03 .=. Nothing #
           TString.f04 .=. "baz"
 
-int_data = 
+int_data_1 = 
           TInt.f01 .=. Just 42 #
           TInt.f02 .=. 43 #
           TInt.f03 .=. Nothing #
           TInt.f04 .=. (-1234)
 
-integer_data = 
+integer_data_1 = 
           TInteger.f01 .=. Just 1234567890123456789012345678901234567890 #
           TInteger.f02 .=. 123 #
           TInteger.f03 .=. Nothing #
           TInteger.f04 .=. (-453453)
 
-double_data = 
+double_data_1 = 
           TDouble.f01 .=. Just 0.0 #
           TDouble.f02 .=. pi #
           TDouble.f03 .=. Nothing #
           TDouble.f04 .=. (-8.6e15)
 
-bool_data = 
+bool_data_1 = 
           TBool.f01 .=. Just True #
           TBool.f02 .=. True  #
           TBool.f03 .=. Nothing #
           TBool.f04 .=. False
 
-calendartime_data = 
+calendartime_data_1 = 
           TCalendartime.f01 .=. Just epoch #
           TCalendartime.f02 .=. epoch #
           TCalendartime.f03 .=. Nothing #
@@ -137,10 +150,11 @@ data1 = [(
           t1f15 <<- Nothing #
           t1f16 <<- (-8.6e15) #
 
-          t1f17 <<- Just True #
-          t1f18 <<- True  #
-          t1f19 <<- Nothing #
-          t1f20 <<- False #
+-- Disabled for now, since booleans don't really work anywhere
+--          t1f17 <<- Just True #
+--          t1f18 <<- True  #
+--          t1f19 <<- Nothing #
+--          t1f20 <<- False #
 
           t1f21 <<- Just epoch #
           t1f22 <<- epoch #
