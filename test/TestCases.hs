@@ -13,7 +13,7 @@ import DBTest
 
 import Database.HaskellDB
 import Database.HaskellDB.HDBRec ((.=.))
-import Database.HaskellDB.Query (attributeName,constantRecord)
+import Database.HaskellDB.Query (attributeName,tableName, constantRecord)
 
 import System.Time
 import Test.HUnit
@@ -24,11 +24,22 @@ tests = allTests hdb_test_db
 
 allTests = 
     dbtests [
-             insertAndQueryTests,
+             tableTests,
+             fieldTests,
              testDeleteEmpty
             ]
 
-insertAndQueryTests = 
+tableTests = 
+    dbtests [ 
+             testTable string_tbl string_data_1,
+             testTable int_tbl int_data_1,
+             testTable integer_tbl integer_data_1,
+             testTable double_tbl double_data_1,
+             testTable bool_tbl bool_data_1,
+             testTable calendartime_tbl calendartime_data_1
+            ]
+
+fieldTests = 
     dbtests [
              testField string_tbl string_data_1 TString.f01,
              testField string_tbl string_data_1 TString.f02,
@@ -61,10 +72,14 @@ insertAndQueryTests =
              testField calendartime_tbl calendartime_data_1 TCalendartime.f04
             ]
 
+testTable tbl r = 
+    dbtests [
+             testDistinct tbl r
+            ]
+
 testField tbl r f = 
     dbtests [
-             testInsertAndQuery tbl r f,
-             testDistinct tbl r f
+             testInsertAndQuery tbl r f
             ]
 
 testInsertAndQuery tbl r f = dbtest name $ \db ->
@@ -75,13 +90,12 @@ testInsertAndQuery tbl r f = dbtest name $ \db ->
        assertEqual "Bad field value" (head rs!f) (r!f)
   where name = "insertAndQuery " ++ attributeName f
 
-testDistinct tbl r f = dbtest name $ \db ->
+testDistinct tbl r = dbtest name $ \db ->
     do insert db tbl (constantRecord r)
        insert db tbl (constantRecord r)
-       rs <- query db $ do t <- table tbl
-                           project (f << t!f)
+       rs <- query db $ table tbl
        assertEqual "Bad result length" (length rs) 1
-  where name = "distinct " ++ attributeName f
+  where name = "distinct " ++ tableName tbl
 
 testDeleteEmpty = dbtest "deleteEmpty" $ \db ->
     do mapM_ (insert db hdb_t1) data1
