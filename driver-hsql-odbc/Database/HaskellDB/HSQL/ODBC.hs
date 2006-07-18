@@ -1,27 +1,26 @@
 -----------------------------------------------------------
 -- |
--- Module      :  HaskellDB
--- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
---                HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
+-- Module      :  Database.HaskellDB.HSQL.ODBC
+-- Copyright   :  HWT Group 2003,
+--                Bjorn Bringert 2006
 -- License     :  BSD-style
 -- 
 -- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 --
---
--- $Revision: 1.11 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.HSQL.ODBC (
-		  odbcConnect, 
-                  odbcDriverConnect,
-		  ODBCOptions(..),
-		  driver
-		 ) where
+		                     ODBCOptions(..),
+		                     odbcConnect, 
+                                     odbcDriverConnect,
+                                     DriverInterface(..),
+		                     driver
+		                    ) where
 
 import Database.HaskellDB.Database
-import Database.HaskellDB.HSQL.Common
+import Database.HaskellDB.HSQL
 import Database.HaskellDB.DriverAPI
 import qualified Database.HSQL.ODBC as ODBC (connect, driverConnect) 
 
@@ -32,13 +31,13 @@ data ODBCOptions = ODBCOptions {
                   	       }          
 
 odbcConnect :: MonadIO m => ODBCOptions -> (Database -> m a) -> m a
-odbcConnect = 
-    hsqlConnect (\opts -> ODBC.connect (dsn opts) (uid opts) (pwd opts))
+odbcConnect opts = 
+    hsqlConnect (ODBC.connect (dsn opts) (uid opts) (pwd opts))
 
 -- | DSN-less connection.
 odbcDriverConnect :: MonadIO m => String -> (Database -> m a) -> m a
-odbcDriverConnect =
-    hsqlConnect (\opts -> ODBC.driverConnect opts)
+odbcDriverConnect opts =
+    hsqlConnect (ODBC.driverConnect opts)
 
 odbcConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 odbcConnectOpts opts f = 
@@ -48,5 +47,7 @@ odbcConnectOpts opts f =
                               uid = b,
 			      pwd = c}) f
 
+-- | This driver requires the following options: 
+--   "dsn", "uid", "pwd"
 driver :: DriverInterface
-driver = defaultdriver {connect = odbcConnectOpts}
+driver = defaultdriver { connect = odbcConnectOpts }

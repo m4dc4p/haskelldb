@@ -12,5 +12,4 @@ Extensions: ExistentialQuantification,
 Synopsis: HaskellDB support for the HSQL ODBC driver.
 Exposed-Modules:
         Database.HaskellDB.HSQL.ODBC
-hs-source-dir: ../src
 ghc-options: -O2

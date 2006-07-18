@@ -12,5 +12,4 @@ Extensions: ExistentialQuantification,
 Synopsis: HaskellDB support for the HSQL MySQL driver.
 Exposed-Modules:
         Database.HaskellDB.HSQL.MySQL
-hs-source-dir: ../src
 ghc-options: -O2

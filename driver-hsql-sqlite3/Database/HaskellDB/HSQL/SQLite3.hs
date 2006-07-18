@@ -1,28 +1,25 @@
 -----------------------------------------------------------
 -- |
--- Module      :  HaskellDB
--- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
---                HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
+-- Module      :  Database.HaskellDB.HSQL.SQLite3
+-- Copyright   :  HWT Group 2003,
+--                Bjorn Bringert 2006
 -- License     :  BSD-style
 -- 
 -- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
 --
--- Interface to the SQLite <http://www.hwaci.com/sw/sqlite/>
+-- Interface to SQLite 3 <http://www.hwaci.com/sw/sqlite/>
 -- databases.
 --
--- $Revision: 1.6 $
 -----------------------------------------------------------
 module Database.HaskellDB.HSQL.SQLite3 (
-		   SQLiteOptions(..),
-		   sqliteConnect,
-		   driver,
-                   Database, IOMode(..), MonadIO
+		   SQLiteOptions(..), sqliteConnect,
+		   DriverInterface(..), driver
 		  ) where
 
 import Database.HaskellDB.Database
-import Database.HaskellDB.HSQL.Common
+import Database.HaskellDB.HSQL
 import Database.HaskellDB.DriverAPI
 import qualified Database.HSQL.SQLite3 as SQLite3 (connect) 
 import System.IO
@@ -33,9 +30,8 @@ data SQLiteOptions = SQLiteOptions {
                   		   }
 
 sqliteConnect :: MonadIO m => SQLiteOptions -> (Database -> m a) -> m a
-sqliteConnect = 
-    hsqlConnect (\opts -> SQLite3.connect 
-		            (filepath opts) (mode opts))
+sqliteConnect opts = 
+    hsqlConnect (SQLite3.connect (filepath opts) (mode opts))
 
 sqliteConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 sqliteConnectOpts opts f = 
@@ -56,5 +52,8 @@ readIOMode s =
                              [(x,"")] -> return x
                              _ -> fail $ "Bad IO mode: " ++ s
 
+-- | This driver requires the following options: 
+--   "filepath", "mode"
+-- The possible values of the "mode" option are "r", "w", "rw"
 driver :: DriverInterface
 driver = defaultdriver {connect = sqliteConnectOpts}

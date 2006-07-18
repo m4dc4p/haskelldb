@@ -1,21 +1,20 @@
 -----------------------------------------------------------
 -- |
--- Module      :  HaskellDB
--- Copyright   :  HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
+-- Module      :  Database.HaskellDB.HSQL
+-- Copyright   :  HWT Group 2003,
+--                Bjorn Bringert 2006
 -- License     :  BSD-style
 -- 
 -- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- HSQL interface for HaskellDB
+-- HSQL interface for HaskellDB. You will also
+-- need one of the back-end specific modules.
 --
--- $Revision: 1.48 $
 -----------------------------------------------------------
 
-module Database.HaskellDB.HSQL.Common (
-		     hsqlConnect, MonadIO
-		   ) where
+module Database.HaskellDB.HSQL (hsqlConnect) where
 
 import Data.Maybe
 import Control.Exception (catch, throwIO)
@@ -35,11 +34,12 @@ import Database.HaskellDB.FieldType
 import Database.HSQL as HSQL
 
 -- | Run an action on a HSQL Connection and close the connection.
-hsqlConnect :: MonadIO m => (opts -> IO Connection) -- ^ HSQL connection function
-	    -> opts -> (Database -> m a) -> m a
-hsqlConnect connect opts action = 
+hsqlConnect :: MonadIO m => 
+               IO Connection -- ^ HSQL connection function
+	    -> (Database -> m a) -> m a
+hsqlConnect connect action = 
     do
-    conn <- liftIO $ handleSqlError (connect opts)
+    conn <- liftIO $ handleSqlError connect
     x <- action (mkDatabase conn)
     liftIO $ handleSqlError (disconnect conn)
     return x

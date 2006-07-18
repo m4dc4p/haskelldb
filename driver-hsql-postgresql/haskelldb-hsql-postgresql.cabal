@@ -12,5 +12,4 @@ Extensions: ExistentialQuantification,
 Synopsis: HaskellDB support for the HSQL PostgreSQL driver.
 Exposed-Modules:
         Database.HaskellDB.HSQL.PostgreSQL
-hs-source-dir: ../src
 ghc-options: -O2

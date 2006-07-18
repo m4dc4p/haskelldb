@@ -12,6 +12,5 @@ Extensions: ExistentialQuantification,
 Synopsis: HaskellDB support for HSQL. You will also need one
           or more back-end specific packages.
 Exposed-Modules:
-        Database.HaskellDB.HSQL.Common
-hs-source-dir: ../src
+        Database.HaskellDB.HSQL
 ghc-options: -O2
