@@ -30,5 +30,5 @@ Exposed-Modules:
         Database.HaskellDB.Sql,
         Database.HaskellDB.Version,
         Database.HaskellDB.DriverAPI
-hs-source-dir: src
+hs-source-dirs: src
 ghc-options: -O2
