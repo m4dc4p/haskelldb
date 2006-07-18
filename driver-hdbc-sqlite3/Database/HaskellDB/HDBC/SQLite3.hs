@@ -1,7 +1,8 @@
 -----------------------------------------------------------
 -- |
 -- Module      :  Database.HaskellDB.HDBC.SQLite3
--- Copyright   :  HWT Group (c) 2003, Bjorn Bringert (c) 2005
+-- Copyright   :  HWT Group 2003, 
+--                Bjorn Bringert 2005-2006
 -- License     :  BSD-style
 -- 
 -- Maintainer  :  haskelldb-users@lists.sourceforge.net
@@ -12,12 +13,12 @@
 --
 -----------------------------------------------------------
 module Database.HaskellDB.HDBC.SQLite3 (
-		   sqliteConnect,
-		   driver
+		   SQLiteOptions(..), sqliteConnect,
+                   DriverInterface(..), driver
 		  ) where
 
 import Database.HaskellDB.Database
-import Database.HaskellDB.HDBC.Common
+import Database.HaskellDB.HDBC
 import Database.HaskellDB.DriverAPI
 import Database.HDBC.Sqlite3 (connectSqlite3) 
 import System.IO
@@ -27,7 +28,7 @@ data SQLiteOptions = SQLiteOptions {
                   		   }
 
 sqliteConnect :: MonadIO m => FilePath -> (Database -> m a) -> m a
-sqliteConnect path = hdbcConnect connectSqlite3 path
+sqliteConnect path = hdbcConnect (connectSqlite3 path)
 
 sqliteConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 sqliteConnectOpts opts f = 
@@ -35,5 +36,7 @@ sqliteConnectOpts opts f =
     [a] <- getOptions ["filepath"] opts
     sqliteConnect a f
 
+-- | This driver requires the following options: 
+--   "filepath"
 driver :: DriverInterface
 driver = defaultdriver {connect = sqliteConnectOpts}

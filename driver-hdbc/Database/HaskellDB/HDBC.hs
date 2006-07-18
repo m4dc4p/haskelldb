@@ -1,7 +1,8 @@
 -----------------------------------------------------------
 -- |
--- Module      :  Database.HaskellDB.HDBC.Common
--- Copyright   :  HWT Group (c) 2003, Bjorn Bringert (c) 2005
+-- Module      :  Database.HaskellDB.HDBC
+-- Copyright   :  HWT Group 2003, 
+--                Bjorn Bringert 2005-2006
 -- License     :  BSD-style
 -- 
 -- Maintainer  :  haskelldb-users@lists.sourceforge.net
@@ -12,9 +13,7 @@
 --
 -----------------------------------------------------------
 
-module Database.HaskellDB.HDBC.Common (
-		     hdbcConnect, MonadIO
-		   ) where
+module Database.HaskellDB.HDBC (hdbcConnect) where
 
 import Database.HaskellDB
 import Database.HaskellDB.Database
@@ -32,11 +31,11 @@ import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 
 -- | Run an action on a HDBC Connection and close the connection.
-hdbcConnect :: MonadIO m => (opts -> IO Connection) -- ^ connection function
-	    -> opts -> (Database -> m a) -> m a
-hdbcConnect connect opts action = 
+hdbcConnect :: MonadIO m => IO Connection -- ^ connection function
+	    -> (Database -> m a) -> m a
+hdbcConnect connect action = 
     do
-    conn <- liftIO $ handleSqlError (connect opts)
+    conn <- liftIO $ handleSqlError connect
     x <- action (mkDatabase conn)
     -- FIXME: should we really commit here?
     liftIO $ HDBC.commit conn

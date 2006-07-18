@@ -1,6 +1,6 @@
 -----------------------------------------------------------
 -- |
--- Module      :  Database.HaskellDB.ODBC.PostgreSQL
+-- Module      :  Database.HaskellDB.HDBC.ODBC
 -- Copyright   :  HWT Group (c) 2003, Bjorn Bringert (c) 2006
 -- License     :  BSD-style
 -- 
@@ -11,17 +11,18 @@
 -----------------------------------------------------------
 module Database.HaskellDB.HDBC.ODBC (
 		      odbcConnect,
-		      driver
+                      DriverInterface(..), driver
 		      ) where
 
 import Database.HaskellDB.Database
-import Database.HaskellDB.HDBC.Common
+import Database.HaskellDB.HDBC
 import Database.HaskellDB.DriverAPI
 import Database.HDBC.ODBC (connectODBC)
 
 odbcConnect :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
-odbcConnect opts = hdbcConnect connectODBC conninfo
+odbcConnect opts = hdbcConnect (connectODBC conninfo)
     where conninfo = unwords [ k ++ "=" ++ v | (k,v) <- opts]
 
+-- | This driver passes its options through to HDBC.
 driver :: DriverInterface
-driver = defaultdriver {connect = odbcConnect}
+driver = defaultdriver { connect = odbcConnect }

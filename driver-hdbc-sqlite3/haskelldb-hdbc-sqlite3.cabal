@@ -12,5 +12,4 @@ Extensions: ExistentialQuantification,
 Synopsis: HaskellDB support for the HDBC SQLite driver.
 Exposed-Modules:
         Database.HaskellDB.HDBC.SQLite3
-hs-source-dir: ../src
 ghc-options: -O2
