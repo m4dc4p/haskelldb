@@ -10,3 +10,5 @@ fi
 echo "Setting version to: $NEW_VERSION"
 
 find haskelldb.cabal driver-* -name '*.cabal' | xargs perl -i -pe "s/^Version:.*/Version: $NEW_VERSION/i"
+
+perl -i -pe "s/^version\s*=.*/version = \"$NEW_VERSION\"/i" src/Database/HaskellDB/Version.hs
