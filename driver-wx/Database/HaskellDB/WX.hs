@@ -1,7 +1,8 @@
 -----------------------------------------------------------
 -- |
--- Module      :  HaskellDB
--- Copyright   :  HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
+-- Module      :  Database.HaskellDB.WX
+-- Copyright   :  HWT Group 2003, 
+--                Bjorn Bringert 2005-2006
 -- License     :  BSD-style
 -- 
 -- Maintainer  :  haskelldb-users@lists.sourceforge.net
@@ -11,13 +12,11 @@
 -- WxHaskell <http://wxhaskell.sourceforge.net/> 
 -- interface for HaskellDB
 --
--- $Revision: 1.14 $
 -----------------------------------------------------------
 
 module Database.HaskellDB.WX (
-			      wxConnect,
-			      WXOptions(..),
-			      driver
+			      WXOptions(..), wxConnect,
+                              DriverInterface(..), driver
 			     ) where
 
 import Data.Maybe

@@ -13,5 +13,4 @@ Extensions: CPP,
 Synopsis: HaskellDB support for WXHaskell.
 Exposed-Modules:
         Database.HaskellDB.WX
-hs-source-dir: ../src
 ghc-options: -O2
