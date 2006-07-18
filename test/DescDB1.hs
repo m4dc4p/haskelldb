@@ -7,7 +7,66 @@ hdb_test_db = DBInfo {dbname = "hdb_test_db",
                       opts = DBOptions {useBString = False}, 
                       tbls = tables}
 
-tables = [t1,t2]
+tables = [
+          string_tbl,
+          int_tbl,
+          integer_tbl,
+          double_tbl,
+          bool_tbl,
+          calendartime_tbl,
+          t1,
+          t2
+         ]
+
+string_tbl = TInfo {tname = "string_tbl",
+	    cols = [
+                    CInfo {cname = "f01", descr = (StringT,       True )},
+		    CInfo {cname = "f02", descr = (StringT,       False)},
+		    CInfo {cname = "f03", descr = (StringT,       True )},
+		    CInfo {cname = "f04", descr = (StringT,       False)}
+                   ]}
+
+int_tbl = TInfo {tname = "int_tbl",
+	    cols = [
+                    CInfo {cname = "f01", descr = (IntT,       True )},
+		    CInfo {cname = "f02", descr = (IntT,       False)},
+		    CInfo {cname = "f03", descr = (IntT,       True )},
+		    CInfo {cname = "f04", descr = (IntT,       False)}
+                   ]}
+
+
+integer_tbl = TInfo {tname = "integer_tbl",
+	    cols = [
+                    CInfo {cname = "f01", descr = (IntegerT,       True )},
+		    CInfo {cname = "f02", descr = (IntegerT,       False)},
+		    CInfo {cname = "f03", descr = (IntegerT,       True )},
+		    CInfo {cname = "f04", descr = (IntegerT,       False)}
+                   ]}
+
+double_tbl = TInfo {tname = "double_tbl",
+	    cols = [
+                    CInfo {cname = "f01", descr = (DoubleT,       True )},
+		    CInfo {cname = "f02", descr = (DoubleT,       False)},
+		    CInfo {cname = "f03", descr = (DoubleT,       True )},
+		    CInfo {cname = "f04", descr = (DoubleT,       False)}
+                   ]}
+
+bool_tbl = TInfo {tname = "bool_tbl",
+	    cols = [
+                    CInfo {cname = "f01", descr = (BoolT,       True )},
+		    CInfo {cname = "f02", descr = (BoolT,       False)},
+		    CInfo {cname = "f03", descr = (BoolT,       True )},
+		    CInfo {cname = "f04", descr = (BoolT,       False)}
+                   ]}
+
+calendartime_tbl = TInfo {tname = "calendartime_tbl",
+	    cols = [
+                    CInfo {cname = "f01", descr = (CalendarTimeT,       True )},
+		    CInfo {cname = "f02", descr = (CalendarTimeT,       False)},
+		    CInfo {cname = "f03", descr = (CalendarTimeT,       True )},
+		    CInfo {cname = "f04", descr = (CalendarTimeT,       False)}
+                   ]}
+
 
 t1 = TInfo {tname = "hdb_t1",
 	    cols = [CInfo {cname = "t1f01", descr = (StringT,       True )},

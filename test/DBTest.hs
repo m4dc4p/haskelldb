@@ -21,8 +21,8 @@ data Conn = Conn {
 
 type DBTest = DBInfo -> [Conn] -> Test
 
-dbtests :: DBInfo -> [DBTest] -> [Conn] -> Test
-dbtests dbi fs cs = TestList $ map (\f -> f dbi cs) fs
+dbtests :: [DBTest] -> DBTest
+dbtests fs dbi cs = TestList $ map (\f -> f dbi cs) fs
 
 dbtest :: String -> (Database -> Assertion) -> DBTest
 dbtest l f dbi cs = TestLabel l $ TestList $ map (testWithDB f dbi) cs

@@ -1,23 +1,183 @@
 module TestCases where
 
 import DB1
+import DB1.String_tbl as TString
+import DB1.Int_tbl as TInt
+import DB1.Integer_tbl as TInteger
+import DB1.Double_tbl as TDouble
+import DB1.Bool_tbl as TBool
+import DB1.Calendartime_tbl as TCalendartime
 import DB1.Hdb_t1
-
-import Database.HaskellDB
 
 import DBTest
 
+import Database.HaskellDB
+import Database.HaskellDB.HDBRec ((.=.))
+import Database.HaskellDB.Query (attributeName,constantRecord)
+
+import System.Time
 import Test.HUnit
 
 
-tests = dbtests hdb_test_db
-  [
-   dbtest "deleteEmpty" testDeleteEmpty
-  ]
+
+tests = allTests hdb_test_db
+
+allTests = 
+    dbtests [
+             insertAndQueryTests,
+             testDeleteEmpty
+            ]
+
+insertAndQueryTests = 
+    dbtests [
+             testInsertAndQuery string_tbl string_data TString.f01,
+             testInsertAndQuery string_tbl string_data TString.f02,
+             testInsertAndQuery string_tbl string_data TString.f03,
+             testInsertAndQuery string_tbl string_data TString.f04,
+
+             testInsertAndQuery int_tbl int_data TInt.f01,
+             testInsertAndQuery int_tbl int_data TInt.f02,
+             testInsertAndQuery int_tbl int_data TInt.f03,
+             testInsertAndQuery int_tbl int_data TInt.f04,
+
+             testInsertAndQuery integer_tbl integer_data TInteger.f01,
+             testInsertAndQuery integer_tbl integer_data TInteger.f02,
+             testInsertAndQuery integer_tbl integer_data TInteger.f03,
+             testInsertAndQuery integer_tbl integer_data TInteger.f04,
+
+             testInsertAndQuery double_tbl double_data TDouble.f01,
+             testInsertAndQuery double_tbl double_data TDouble.f02,
+             testInsertAndQuery double_tbl double_data TDouble.f03,
+             testInsertAndQuery double_tbl double_data TDouble.f04,
+
+             testInsertAndQuery bool_tbl bool_data TBool.f01,
+             testInsertAndQuery bool_tbl bool_data TBool.f02,
+             testInsertAndQuery bool_tbl bool_data TBool.f03,
+             testInsertAndQuery bool_tbl bool_data TBool.f04,
+
+             testInsertAndQuery calendartime_tbl calendartime_data TCalendartime.f01,
+             testInsertAndQuery calendartime_tbl calendartime_data TCalendartime.f02,
+             testInsertAndQuery calendartime_tbl calendartime_data TCalendartime.f03,
+             testInsertAndQuery calendartime_tbl calendartime_data TCalendartime.f04
+            ]
 
 
+testInsertAndQuery tbl r f = dbtest name $ \db ->
+    do insert db tbl (constantRecord r)
+       rs <- query db $ do t <- table tbl
+                           project (f << t!f)
+       assertEqual "Bad result length" (length rs) 1
+       assertEqual "Bad field value" (head rs!f) (r!f)
+  where name = "insertAndQuery " ++ attributeName f
 
-testDeleteEmpty db =
-    do delete db hdb_t1 (\_ -> constant True)
+testDeleteEmpty = dbtest "deleteEmpty" $ \db ->
+    do mapM_ (insert db hdb_t1) data1
+       delete db hdb_t1 (\_ -> constant True)
        rs <- query db $ table hdb_t1
        assertBool "Query after complete delete is non-empty" (null rs)
+
+
+
+-- * Test data
+
+string_data =
+          TString.f01 .=. Just "foo" #
+          TString.f02 .=. "bar" #
+          TString.f03 .=. Nothing #
+          TString.f04 .=. "baz"
+
+int_data = 
+          TInt.f01 .=. Just 42 #
+          TInt.f02 .=. 43 #
+          TInt.f03 .=. Nothing #
+          TInt.f04 .=. (-1234)
+
+integer_data = 
+          TInteger.f01 .=. Just 1234567890123456789012345678901234567890 #
+          TInteger.f02 .=. 123 #
+          TInteger.f03 .=. Nothing #
+          TInteger.f04 .=. (-453453)
+
+double_data = 
+          TDouble.f01 .=. Just 0.0 #
+          TDouble.f02 .=. pi #
+          TDouble.f03 .=. Nothing #
+          TDouble.f04 .=. (-8.6e15)
+
+bool_data = 
+          TBool.f01 .=. Just True #
+          TBool.f02 .=. True  #
+          TBool.f03 .=. Nothing #
+          TBool.f04 .=. False
+
+calendartime_data = 
+          TCalendartime.f01 .=. Just epoch #
+          TCalendartime.f02 .=. epoch #
+          TCalendartime.f03 .=. Nothing #
+          TCalendartime.f04 .=. someTime
+
+data1 = [(
+          t1f01 <<- Just "foo" #
+          t1f02 <<- "bar" #
+          t1f03 <<- Nothing #
+          t1f04 <<- "baz" #
+
+          t1f05 <<- Just 42 #
+          t1f06 <<- 43 #
+          t1f07 <<- Nothing #
+          t1f08 <<- (-1234) #
+
+          t1f09 <<- Just 324234 #
+          t1f10 <<- 123 #
+          t1f11 <<- Nothing #
+          t1f12 <<- (-453453) #
+
+          t1f13 <<- Just 0.0 #
+          t1f14 <<- pi #
+          t1f15 <<- Nothing #
+          t1f16 <<- (-8.6e15) #
+
+          t1f17 <<- Just True #
+          t1f18 <<- True  #
+          t1f19 <<- Nothing #
+          t1f20 <<- False #
+
+          t1f21 <<- Just epoch #
+          t1f22 <<- epoch #
+          t1f23 <<- Nothing #
+          t1f24 <<- someTime
+         )]
+
+
+
+
+epoch :: CalendarTime
+epoch = CalendarTime {
+                      ctYear = 1970,
+                      ctMonth = January,
+                      ctDay = 1,
+                      ctHour = 0,
+                      ctMin = 0,
+                      ctSec = 0,
+                      ctPicosec = 0,
+                      ctWDay = Thursday,
+                      ctYDay = 1,
+                      ctTZName = "UTC",
+                      ctTZ = 0,
+                      ctIsDST = False
+                     }
+
+someTime = CalendarTime {
+                         ctYear = 2006, 
+                         ctMonth = July, 
+                         ctDay = 18, 
+                         ctHour = 13, 
+                         ctMin = 37, 
+                         ctSec = 15, 
+                         ctPicosec = 413289000000, 
+                         ctWDay = Tuesday, 
+                         ctYDay = 198, 
+                         ctTZName = "PDT", 
+                         ctTZ = -25200, 
+                         ctIsDST = True
+                        }

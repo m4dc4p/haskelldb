@@ -1,20 +1,20 @@
 GHC = ghc
-GHCFLAGS = -fcontext-stack64
+GHCFLAGS = -fglasgow-exts -fcontext-stack64
 
-.PHONY: runtests clean
+.PHONY: runtests tests dbmodules clean
 
 runtests: tests
 	@echo "Did you remember to edit test.config?"
 	@echo "Running tests..."
 	./tests
 
-tests: RunTests.hs DBTest.hs TestCases.hs DB1/Hdb_t1.hs DB1/Hdb_t2.hs
+tests: dbmodules
 	$(GHC) $(GHCFLAGS) --make -o $@ RunTests.hs
 
 createmodules: DescDB1.hs
 	$(GHC) $(GHCFLAGS) --make -o $@ $<
 
-DB1.hs DB1/Hdb_t1.hs DB1/Hdb_t2.hs: createmodules
+dbmodules: createmodules
 	./createmodules
 
 clean:
