@@ -14,10 +14,11 @@
 -- $Revision: 1.14 $
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DBSpecToDatabase 
-    (dbSpecToDatabase)
+    (dbSpecToDatabase,tInfoToTable)
     where
 
 import Database.HaskellDB.Database
+import Database.HaskellDB.FieldType
 import Database.HaskellDB.DBSpec.DBInfo
 
 -- | Converts a DBInfo to a real life Database, note that the database must
@@ -25,9 +26,11 @@ import Database.HaskellDB.DBSpec.DBInfo
 dbSpecToDatabase :: Database -- ^ A Database
 		 -> DBInfo -- ^ The DBInfo to generate from
 		 -> IO ()
-dbSpecToDatabase db dbi
-    = mapM_ (\t -> createTable db (tname t) (createAttFD t)) (tbls dbi)
-    where
-    createAttFD tbl = zip (filter hasName $ map cname (cols tbl)) 
-		          (map descr (cols tbl))
-    hasName a = a /= ""
+dbSpecToDatabase db = mapM_ (tInfoToTable db) . tbls
+
+-- | Create a database table specified by a 'TInfo'.
+tInfoToTable :: Database -> TInfo -> IO ()
+tInfoToTable db t = createTable db (tname t) (tInfoCols t)
+
+tInfoCols :: TInfo -> [(String,FieldDesc)] 
+tInfoCols t = [(cname c, descr c) | c <- cols t, cname c /= ""]
