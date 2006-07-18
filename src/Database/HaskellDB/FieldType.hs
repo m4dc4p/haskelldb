@@ -45,7 +45,7 @@ instance PrimShow FieldType where
     pshow IntT = "Int"
     pshow IntegerT = "Integer"
     pshow DoubleT = "Double"
---    pshow BoolT = "Bool"
+    pshow BoolT = "Bool"
     pshow CalendarTimeT = "CalendarTime"
     pshow (BStrT a) = "BStr" ++ show a
 
@@ -59,7 +59,7 @@ instance SQLShow FieldType where
     sshow IntT = "int"
     sshow IntegerT = "bigint"
     sshow DoubleT = "double precision"
---    sshow BoolT = "bit"
+    sshow BoolT = "int" -- no boolean in SQL92
     sshow CalendarTimeT = "timestamp"
     sshow (BStrT a) = "varchar(" ++ show a ++ ")"
 
