@@ -29,6 +29,7 @@ allTests =
              tableTests,
              fieldTests,
              testDeleteEmpty,
+             testTop,
              testTransactionInsert
             ]
 
@@ -128,14 +129,20 @@ testDistinct tbl r = dbtest name $ \db ->
   where name = "distinct " ++ tableName tbl
 
 testDeleteEmpty = dbtest "deleteEmpty" $ \db ->
-    do mapM_ (insert db hdb_t1) hdb_t1_data
+    do insertData db hdb_t1 hdb_t1_data
        delete db hdb_t1 (\_ -> constant True)
        rs <- query db $ table hdb_t1
        assertBool "Query after complete delete is non-empty" (null rs)
 
+testTop = dbtest "top" $ \db ->
+    do insertData db hdb_t1 hdb_t1_data
+       rs <- query db $ do t <- table hdb_t1
+                           top 1
+                           return t
+       assertEqual "Result count" 1 (length rs)
 
 testTransactionInsert = dbtest "transactionInsert" $ \db ->
-     do let tr = do insert db hdb_t1 hdb_t1_data_1 
+     do let tr = do insertData db hdb_t1 hdb_t1_data
                     throwDyn AbortTransaction
         catchDyn (transaction db tr) handler
         assertTableEmpty db hdb_t1
@@ -153,6 +160,8 @@ data AbortTransaction = AbortTransaction
 assertTableEmpty db tbl =
     do rs <- query db $ table tbl
        assertBool "Table not empty" (null rs)
+
+insertData db tbl = mapM_ (insert db tbl)
 
 -- * Test data
 
