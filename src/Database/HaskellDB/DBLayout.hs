@@ -18,7 +18,6 @@ module Database.HaskellDB.DBLayout
     (
      module Database.HaskellDB.BoundedString,
      module Database.HaskellDB.DBSpec,
-     FieldType(..),
      CalendarTime,
      Expr, Table, Attr, baseTable,
      RecCons,RecNil,FieldTag,fieldName,
