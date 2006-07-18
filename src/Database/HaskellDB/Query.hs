@@ -27,10 +27,7 @@ module Database.HaskellDB.Query (
 	     , (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
              , (<<), (<<-)
 	      -- * Function declarations
-	     , runQuery, runQueryRel
-	     , attribute, project, baseTable
-	     , attributeName, exprs, labels
-	     , restrict, table
+	     , project, restrict, table
 	     , union, intersect, divide, minus
 	     , _not, like, _in, cat, _length
 	     , isNull, notNull
@@ -42,6 +39,10 @@ module Database.HaskellDB.Query (
 	     , top --, topPercent
              , _case
 	     , _default
+             -- * Internals
+	     , runQuery, runQueryRel
+	     , attribute, tableName, baseTable
+	     , attributeName, exprs, labels
 	     ) where
 
 import Database.HaskellDB.HDBRec
@@ -254,6 +255,10 @@ table (Table name assoc)
 	      q        = Project newAssoc (BaseTable name scheme)
 	  updatePrimQuery (times q)
           return (Rel alias scheme)
+
+-- | Get the name of a table.
+tableName :: Table t -> TableName
+tableName (Table n _) = n
 
 -- used in table definitions
 
