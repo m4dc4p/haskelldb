@@ -12,12 +12,10 @@ Extensions: ExistentialQuantification,
 Synopsis: HaskellDB support for the dynamically loaded drivers.
 Exposed-Modules:
         Database.HaskellDB.DynConnect
-hs-source-dir: ../src
 ghc-options: -O2
 
 executable: DBDirect
 main-is: DBDirect.hs
-hs-source-dir: ../src
 Extensions: ExistentialQuantification,
             OverlappingInstances,
             UndecidableInstances,

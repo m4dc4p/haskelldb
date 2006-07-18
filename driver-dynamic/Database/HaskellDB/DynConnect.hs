@@ -1,7 +1,8 @@
 -----------------------------------------------------------
 -- |
--- Module      :  DynConnect
--- Copyright   :  Anders Hockersten (c), chucky@dtek.chalmers.se
+-- Module      :  Database.HaskellDB.DynConnect
+-- Copyright   :  Anders Hockersten 2004, chucky@dtek.chalmers.se
+--                Bjorn Bringert 2005-2006
 -- License     :  BSD-style
 --
 -- Maintainer  :  chucky@dtek.chalmers.se

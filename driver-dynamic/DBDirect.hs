@@ -2,8 +2,8 @@
 -- |
 -- Module      :  Main
 -- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
---                HWT Group (c) 2003, haskelldb-users@lists.sourceforge.net
---                Bjorn Birngert (c) 2005, bjorn@bringert.net
+--                HWT Group (c) 2003,
+--                Bjorn Bringert (c) 2005-2006, bjorn@bringert.net
 -- License     :  BSD-style
 -- 
 -- Maintainer  :  haskelldb-users@lists.sourceforge.net
@@ -16,7 +16,6 @@
 -- data structure in an appropiate Haskell module which
 -- can be used to perform queries on the database.
 --
--- $Revision: 1.15 $
 -----------------------------------------------------------
 
 module Main where
@@ -42,7 +41,7 @@ createModules m useBStrT db =
 -- | Command line driver
 main = do
        putStrLn "DB/Direct: Daan Leijen (c) 1999, HWT (c) 2003-2004,"
-       putStrLn "           Bjorn Bringert (c) 2005"
+       putStrLn "           Bjorn Bringert (c) 2005-2006"
        putStrLn ""
        args <- getArgs
        let (flags,args') = partition ("-" `isPrefixOf`) args
