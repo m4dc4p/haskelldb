@@ -1,0 +1,12 @@
+#!/bin/sh
+
+NEW_VERSION=$1
+
+if [ -z "$NEW_VERSION" ]; then
+  echo "Usage: set-version <version>"
+  exit 2
+fi
+
+echo "Setting version to: $NEW_VERSION"
+
+find haskelldb.cabal driver-* -name '*.cabal' | xargs perl -i -pe "s/^Version:.*/Version: $NEW_VERSION/i"
