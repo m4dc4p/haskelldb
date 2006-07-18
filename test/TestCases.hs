@@ -30,7 +30,8 @@ allTests =
              fieldTests,
              testDeleteEmpty,
              testTop,
-             testTransactionInsert
+             testTransactionInsert,
+             testLazy
             ]
 
 tableTests = 
@@ -119,7 +120,7 @@ testInsertAndQuery tbl r f = dbtest name $ \db ->
                            project (f << t!f)
        assertEqual "Bad result length" 1 (length rs)
        assertEqual "Bad field value" (r!f) (head rs!f) 
-  where name = "insertAndQuery " ++ attributeName f
+  where name = "insertAndQuery " ++ tableName tbl ++ "." ++ attributeName f
 
 testDistinct tbl r = dbtest name $ \db ->
     do insert db tbl (constantRecord r)
@@ -127,6 +128,11 @@ testDistinct tbl r = dbtest name $ \db ->
        rs <- query db $ table tbl
        assertEqual "Bad result length" 1 (length rs)
   where name = "distinct " ++ tableName tbl
+
+testInsert = dbtest "insert" $ \db ->
+    do insertData db hdb_t1 hdb_t1_data
+       rs <- query db $ table hdb_t1
+       assertEqual "Bad result length" (length hdb_t1_data) (length rs)
 
 testDeleteEmpty = dbtest "deleteEmpty" $ \db ->
     do insertData db hdb_t1 hdb_t1_data
@@ -153,6 +159,13 @@ testTransactionInsert = dbtest "transactionInsert" $ \db ->
 data AbortTransaction = AbortTransaction
                       deriving (Typeable)
 
+
+testLazy = dbtest "lazy" $ \db ->
+    do insertData db hdb_t1 hdb_t1_data
+       rs1 <- strictQuery db $ table hdb_t1
+       rs2 <- lazyQuery db $ table hdb_t1
+       assertEqual "Bad result length" (length rs1) (length rs2)
+       assertEqual "Results not equal" rs1 rs2
 
 
 -- * Utilities
@@ -189,7 +202,7 @@ string_data_strange =
           TString.f01 .=. Just "'\"\\;" #
           TString.f02 .=. "\n\r\t " #
           TString.f03 .=. Nothing #
-          TString.f04 .=. "\0\255\246"
+          TString.f04 .=. "\255\246\0"
 
 int_data_1 = 
           TInt.f01 .=. Just 42 #
