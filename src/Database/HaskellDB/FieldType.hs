@@ -59,7 +59,7 @@ instance SQLShow FieldType where
     sshow IntT = "int"
     sshow IntegerT = "bigint"
     sshow DoubleT = "double precision"
-    sshow BoolT = "int" -- no boolean in SQL92
+    sshow BoolT = "bit"
     sshow CalendarTimeT = "timestamp"
     sshow (BStrT a) = "varchar(" ++ show a ++ ")"
 
