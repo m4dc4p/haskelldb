@@ -12,7 +12,8 @@
 --  and doesn't use SQL. It stores the database in a file. Using this with
 --  concurrent writes leads to data loss. This back-end does not support transactions.
 -----------------------------------------------------------
-module Database.HaskellDB.FlatDB (driver, withFlatDB, newDB) where
+module Database.HaskellDB.FlatDB (DriverInterface(..), driver, 
+                                  withFlatDB, newDB) where
 
 import Database.HaskellDB.Database
 import Database.HaskellDB.HDBRec
@@ -56,7 +57,8 @@ data Value = VString String
              deriving (Show,Read,Eq,Ord) -- FIXME: ord and eq are too liberal here?
 
 
-
+-- | This driver requires the following options: 
+--   "filepath"
 driver :: DriverInterface
 driver = defaultdriver {connect = flatDBConnectOpts}
 
@@ -67,7 +69,9 @@ flatDBConnectOpts opts f = do [a] <- getOptions ["filepath"] opts
 
 withFlatDB :: MonadIO m => FilePath -> (Database -> m a) -> m a
 withFlatDB f m = 
-    do db <- liftIO $ readDB f
+    do e <- liftIO $ doesFileExist f
+       when (not e) $ liftIO $ newDB f
+       db <- liftIO $ readDB f
        dbr <- liftIO $ newIORef db
        x <- m (flatDatabase dbr)
        db' <- liftIO $ readIORef dbr

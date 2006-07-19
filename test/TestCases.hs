@@ -176,6 +176,8 @@ assertTableEmpty db tbl =
 
 insertData db tbl = mapM_ (insert db tbl)
 
+
+
 -- * Test data
 
 string_data = [string_data_1,string_data_2,string_data_3]
