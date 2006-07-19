@@ -29,7 +29,7 @@ module Database.HaskellDB.PrimQuery (
 		 , extend, times
 		 , attributes, attrInExpr, attrInOrder
 		 , substAttr
-		 , isAggregate, nestedAggregate
+		 , isAggregate
 		 , foldPrimQuery, foldPrimExpr
 		 --, assert
 		 -- ** Pretty printers
@@ -116,15 +116,7 @@ data AggrOp     = AggrCount | AggrSum | AggrAvg | AggrMin | AggrMax
                 | AggrStdDev | AggrStdDevP | AggrVar | AggrVarP
                 | AggrOther String
                 deriving (Show,Read)
-{- Use standard assert instead.
---  Assertions
-assert :: String -> String -> String -> Bool -> a -> a
-assert moduleName functionName msg test x
- 	| test      = x
-        | otherwise = error ("assert: " ++ moduleName ++ "."
-        		     ++ functionName ++ ": " ++ msg)
 
--}
 
 -- | Creates a projection of some attributes while
 --   keeping all other attributes in the relation visible too. 
@@ -194,9 +186,8 @@ substAttr assoc
                             Nothing     -> AttrExpr name
 
 
-isAggregate, nestedAggregate :: PrimExpr -> Bool
-isAggregate x		= countAggregate x > 0
-nestedAggregate x	= countAggregate x > 1
+isAggregate :: PrimExpr -> Bool
+isAggregate x = countAggregate x > 0
 
 countAggregate :: PrimExpr -> Int
 countAggregate
@@ -293,18 +284,7 @@ ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list)
           _case cs el   = text "CASE" <+> vcat (map ppWhen cs)
 			  <+> text "ELSE" <+> el <+> text "END"
           list xs       = parens (hcat (punctuate (char ',') xs))
-{-
-          -- Now done in ShowConstant String, since we can't use Haskell
-	  -- escaping of non-ascii characters. /Bjorn 2004-05-27
 
-          -- be careful when showing a SQL string
-          unquote ('"':s)       = "'" ++ (concat (map tosquote (init s))) 
-		                  ++ "'"
-          unquote s             = s
-          
-          tosquote '\''         = "\\'"
-          tosquote c            = [c]
--}	  
           isFun OpLength        = True
 	  isFun (UnOpOther _)   = True
 	  isFun _               = False
