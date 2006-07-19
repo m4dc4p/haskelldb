@@ -1,0 +1,19 @@
+Name: haskelldb-flat
+Version: 0.10
+Copyright: Bjorn Bringert
+Maintainer: bjorn@bringert.net
+Author: Bjorn Bringert
+License: BSD3
+build-depends: haskell98, base, mtl, haskelldb
+Extensions: 
+Synopsis: An experimental HaskellDB back-end in pure Haskell (no SQL)
+Description:
+  This is a very experimental HaskellDB back-end which is written in pure Haskell
+  and doesn't use SQL. It stores the database in a file. Using this with
+  concurrent writes leads to data loss. This back-end does not support transactions.
+Exposed-Modules: Database.HaskellDB.FlatDB
+ghc-options: -O2
+
+Executable:  flatdb-create
+Main-Is:     tools/flatdb-create.hs
+ghc-options: -O2 -Wall
