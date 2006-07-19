@@ -35,6 +35,12 @@ withDB f db = dynConnect (dbPackage db) (dbModule db) (dbOptions db) f
 
 withTables :: (Database -> IO a) -> DBInfo -> Database -> IO a
 withTables f dbi db = bracket_ create drop (f db)
-  where create = mapM_ (tInfoToTable db) ts
+  where create = do mapM_ (dropIfExists db . tname) ts
+                    mapM_ (tInfoToTable db) ts
         drop   = mapM_ (dropTable db . tname) ts
         ts     = tbls dbi
+        
+
+dropIfExists :: Database -> String -> IO ()
+dropIfExists db t = do ts <- tables db
+                       if t `elem` ts then dropTable db t else return ()

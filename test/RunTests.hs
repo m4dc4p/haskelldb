@@ -8,17 +8,22 @@ import Test.HUnit
 import Control.Exception 
 import Control.Monad
 import Prelude hiding (catch)
+import System.Environment
 import System.Exit
 import System.IO
 
 configFile :: FilePath
 configFile = "test.config"
 
-getDatabases :: IO ([Conn],[Conn])
-getDatabases = do x <- liftM reads $ readFile configFile
-                  case x of
-                    [(dbs,"")] -> partitionM dbOK dbs
-                    _          -> fail $ "Parse error in " ++ configFile
+getDatabases :: [String] -> IO ([Conn],[Conn])
+getDatabases dbns = 
+    do x <- liftM reads $ readFile configFile
+       case x of
+         [(dbs,"")] -> partitionM dbOK $ filter keepDB dbs
+         _          -> fail $ "Parse error in " ++ configFile
+  where keepDB db | null dbns = True
+                  | dbLabel db `elem` dbns = True
+                  | otherwise = False
 
 dbOK :: Conn -> IO Bool
 dbOK db = catch (withDB (\_ -> return True) db) f
@@ -29,15 +34,17 @@ dbOK db = catch (withDB (\_ -> return True) db) f
                hPutStrLn stderr $ "Skipping " ++ dbLabel db
                return False
 
-runDBTest :: ([Conn] -> Test) -> IO Counts
-runDBTest f = do (dbs,fdbs) <- getDatabases
-                 cs <- runTestTT (f dbs)
-                 when (not (null fdbs)) $
-                    hPutStrLn stderr $ "Skipped databases: " ++ show (map dbLabel fdbs)
-                 return cs
+runDBTest :: [String] -> ([Conn] -> Test) -> IO Counts
+runDBTest dbns f = 
+    do (dbs,fdbs) <- getDatabases dbns
+       cs <- runTestTT (f dbs)
+       when (not (null fdbs)) $
+            hPutStrLn stderr $ "Skipped databases: " ++ show (map dbLabel fdbs)
+       return cs
 
 main :: IO ()
-main = do c <- runDBTest tests
+main = do args <- getArgs
+          c <- runDBTest args tests
           if errors c > 0 || failures c > 0  
              then exitFailure
              else exitWith ExitSuccess
