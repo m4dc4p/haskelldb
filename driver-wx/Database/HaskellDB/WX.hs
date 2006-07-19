@@ -30,6 +30,7 @@ import Database.HaskellDB
 import Database.HaskellDB.DriverAPI
 import Database.HaskellDB.Database
 import Database.HaskellDB.Sql
+import Database.HaskellDB.Sql.Print
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query
 import Database.HaskellDB.FieldType
