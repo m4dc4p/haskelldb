@@ -59,6 +59,7 @@ wxConnectOpts opts f =
                                   uid = b,
 			          pwd = c}) f
 
+driver :: DriverInterface
 driver = defaultdriver {connect = wxConnectOpts}
 
 
