@@ -9,8 +9,14 @@
 -- Stability   :  experimental
 -- Portability :  non portable
 --
--- HaskellDB is the main module that a user should 
--- import. Beside this module, a user should import a
+-- HaskellDB is a Haskell library for expressing database queries and
+-- operations in a type safe and declarative way. HaskellDB compiles a
+-- relational algebra-like syntax into SQL, submits the operations to the
+-- database for processing, and returns the results as ordinary Haskell
+-- values.
+--
+-- This is the main module that the user should 
+-- import. Beside this module, the user should import a
 -- particular database binding (ie. "Database.HaskellDB.HSQL.ODBC") 
 -- and database definitions.
 --
@@ -20,7 +26,17 @@
 -- Conference on Domain-Specific Languages (DSL), Austin, 
 -- USA, October 1999 (<http://www.usenix.org/events/dsl99/>).
 --
--- 
+-- This new version of HaskellDB was produced as a student project at
+-- Chalmers University of Technology in Gothenburg, Sweden. The aim of the
+-- project was to make HaskellDB a practically useful database library.
+-- That work is described in 
+-- Student Paper: HaskellDB Improved, 
+-- Björn Bringert, Anders Höckersten, Conny Andersson, Martin Andersson, 
+-- Mary Bergman, Victor Blomqvist and Torbjörn Martin. 
+-- In Proceedings of the ACM SIGPLAN 2004 Haskell Workshop, Snowbird, Utah, 
+-- USA, September 22, 2004.
+-- (<http://haskelldb.sourceforge.net/haskelldb.pdf>)
+--
 -----------------------------------------------------------
 module Database.HaskellDB
 	( Rel, Attr, Expr, Table, Query, Order
