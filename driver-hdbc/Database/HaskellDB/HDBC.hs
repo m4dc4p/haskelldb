@@ -195,4 +195,6 @@ hdbcGetInstances =
 		 }
 
 hdbcGetValue :: SqlType a => HDBCRow -> String -> IO (Maybe a)
-hdbcGetValue m f = return $ fmap HDBC.fromSql (Map.lookup (map toLower f) m)
+hdbcGetValue m f = case Map.lookup (map toLower f) m of
+                     Nothing -> fail $ "No such field " ++ f
+                     Just x  -> return $ HDBC.fromSql x
