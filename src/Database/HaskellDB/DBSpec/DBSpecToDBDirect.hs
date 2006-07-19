@@ -171,8 +171,8 @@ ppColumnType (CInfo ciName (ciType,ciAllowNull))
 	=   text "RecCons" <+> 
 	    ((text $ toType ciName) <+> parens (text "Expr"
 	    <+> (if (ciAllowNull)
-	      then parens (text "Maybe" <+> text (pshow ciType))
-	      else text (pshow ciType)
+	      then parens (text "Maybe" <+> text (toHaskellType ciType))
+	      else text (toHaskellType ciType)
 	    )))
 
 -- | Pretty prints the value field in a ColumnInfo
@@ -210,7 +210,7 @@ columnTypes table =
     [if b then ("(Maybe " ++ t ++ ")") else t | (t,b) <- zippedlist]
     where
     zippedlist = zip typelist null_list
-    typelist  = map (pshow . fst . descr) (cols table)
+    typelist  = map (toHaskellType . fst . descr) (cols table)
     null_list = map (snd . descr) (cols table)
 
 -- | Combines the results of columnNames and columnTypes

@@ -95,6 +95,15 @@ newSelect       = SqlSelect { options   = []
 			    , limit     = []}
 
 
+toSqlType :: FieldType -> String
+toSqlType StringT = "text"
+toSqlType IntT = "int"
+toSqlType IntegerT = "bigint"
+toSqlType DoubleT = "double precision"
+toSqlType BoolT = "bit"
+toSqlType CalendarTimeT = "timestamp"
+toSqlType (BStrT a) = "varchar(" ++ show a ++ ")"
+
 -----------------------------------------------------------
 -- SELECT
 -- Hmm, bit messy.
@@ -353,7 +362,7 @@ ppCreate (SqlCreateTable name xs)
       <+> parens (vcat $ punctuate comma (map ppF xs))
     where
     ppF (fname,(ftype,nullable)) 
-	= text fname <+> text (sshow ftype)
+	= text fname <+> text (toSqlType ftype)
 	  <> if nullable then text "" else text " not null"
 
 -----------------------------------------------------------
