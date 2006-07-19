@@ -20,7 +20,7 @@
 -- Conference on Domain-Specific Languages (DSL), Austin, 
 -- USA, October 1999 (<http://www.usenix.org/events/dsl99/>).
 --
--- $Revision: 1.29 $
+-- 
 -----------------------------------------------------------
 module Database.HaskellDB
 	( Rel, Attr, Expr, Table, Query, Order

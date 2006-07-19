@@ -13,7 +13,7 @@
 -- files usable in HaskellDB (the generation itself is done 
 -- in DBDirect)
 --
--- $Revision: 1.22 $
+-- 
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DBSpecToDBDirect
     (specToHDB, dbInfoToModuleFiles) 

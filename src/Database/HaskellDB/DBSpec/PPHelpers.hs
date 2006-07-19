@@ -10,7 +10,7 @@
 --
 -- Various functions used when pretty printing stuff
 --
--- $Revision: 1.4 $
+-- 
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.PPHelpers where
 -- no explicit export, we want ALL of it

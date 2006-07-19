@@ -13,7 +13,7 @@
 -- way that it can easily be converted to a DBDirect-spec OR
 -- directly into a database
 --
--- $Revision: 1.9 $
+-- 
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBSpec 

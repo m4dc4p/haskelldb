@@ -11,7 +11,7 @@
 -- Connects to a Database and generates a DBSpec specification
 -- from it.
 --
--- $Revision: 1.7 $
+-- 
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DatabaseToDBSpec
     (dbToDBSpec)

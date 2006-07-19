@@ -11,7 +11,7 @@
 -- Exports every function needed by DBDirect generated 
 -- files
 --
--- $Revision: 1.7 $
+-- 
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBLayout

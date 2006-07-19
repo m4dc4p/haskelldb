@@ -10,7 +10,7 @@
 -- 
 -- This is a replacement for some of TREX.
 --
--- $Revision: 1.33 $
+-- 
 -----------------------------------------------------------
 module Database.HaskellDB.HDBRec 
     (

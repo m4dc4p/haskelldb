@@ -21,7 +21,7 @@
 -- due to sql string truncation when extracting and re-insert data into fields
 -- with smaller bound.
 --
--- $Revision: 1.10 $
+-- 
 -----------------------------------------------------------
 
 module Database.HaskellDB.BoundedString where

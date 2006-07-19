@@ -39,7 +39,7 @@
 -- Explicit shrink and\/or grow is needed before using (==).
 -- BoundedList does not have an instance of Ordering. (This might change)
 --
--- $Revision: 1.11 $
+-- 
 -----------------------------------------------------------
 module Database.HaskellDB.BoundedList (shrink,
 		    grow,

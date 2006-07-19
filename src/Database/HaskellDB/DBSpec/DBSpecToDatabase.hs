@@ -11,7 +11,7 @@
 -- Connects to a database and generates stuff in it according
 -- to what's inside the DBSpec.
 --
--- $Revision: 1.14 $
+-- 
 -----------------------------------------------------------
 module Database.HaskellDB.DBSpec.DBSpecToDatabase 
     (dbSpecToDatabase,tInfoToTable)
