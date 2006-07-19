@@ -25,5 +25,8 @@ postgresqlConnect opts = hdbcConnect (connectPostgreSQL conninfo)
     where conninfo = unwords [ k ++ "=" ++ v | (k,v) <- opts]
 
 -- | This driver passes its options through to HDBC.
+-- HDBC refers to
+-- <http://www.postgresql.org/docs/8.1/static/libpq.html#LIBPQ-CONNECT>
+-- for the meaning of the options.
 driver :: DriverInterface
 driver = defaultdriver {connect = postgresqlConnect}
