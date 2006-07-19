@@ -119,7 +119,7 @@ testInsertAndQuery tbl r f = dbtest name $ \db ->
        rs <- query db $ do t <- table tbl
                            project (f << t!f)
        assertEqual "Bad result length" 1 (length rs)
-       assertEqual "Bad field value" (r!f) (head rs!f) 
+       assertSame "Bad field value" (r!f) (head rs!f) 
   where name = "insertAndQuery " ++ tableName tbl ++ "." ++ attributeName f
 
 testDistinct tbl r = dbtest name $ \db ->
@@ -174,8 +174,37 @@ assertTableEmpty db tbl =
     do rs <- query db $ table tbl
        assertBool "Table not empty" (null rs)
 
+assertSame :: (Show a, Same a) => String -> a -> a -> Assertion
+assertSame s x y = assertBool msg (same x y) 
+        where msg = s ++ " Expected: " ++ show x ++ ", got " ++ show y
+
 insertData db tbl = mapM_ (insert db tbl)
 
+sameClockTime :: CalendarTime -> CalendarTime -> Bool
+sameClockTime t1 t2 = toClockTime t1 == toClockTime t2
+
+-- Hack to replace Eq CalendarTime
+class Eq a => Same a where
+    same :: a -> a -> Bool
+    same = (==)
+
+instance Same a => Same [a] where
+    same [] [] = True
+    same (x:xs) (y:ys) = same x y && same xs ys
+    same _ _ = False
+
+instance Same a => Same (Maybe a) where
+    same Nothing Nothing = True
+    same (Just x) (Just y) = same x y
+    same _ _ = False
+
+instance Same Char
+instance Same Int
+instance Same Integer
+instance Same Double
+instance Same Bool
+instance Same CalendarTime where
+    same = sameClockTime
 
 
 -- * Test data
