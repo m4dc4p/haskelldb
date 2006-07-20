@@ -17,7 +17,7 @@ module Database.HaskellDB.HDBC (hdbcConnect) where
 
 import Database.HaskellDB
 import Database.HaskellDB.Database
-import Database.HaskellDB.Sql
+import Database.HaskellDB.Sql.Generate (SqlGenerator(..))
 import Database.HaskellDB.Sql.Print
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query
@@ -32,58 +32,60 @@ import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 
 -- | Run an action on a HDBC Connection and close the connection.
-hdbcConnect :: MonadIO m => IO Connection -- ^ connection function
+hdbcConnect :: MonadIO m => 
+               SqlGenerator
+            -> IO Connection -- ^ connection function
 	    -> (Database -> m a) -> m a
-hdbcConnect connect action = 
+hdbcConnect gen connect action = 
     do
     conn <- liftIO $ handleSqlError connect
-    x <- action (mkDatabase conn)
+    x <- action (mkDatabase gen conn)
     -- FIXME: should we really commit here?
     liftIO $ HDBC.commit conn
     liftIO $ handleSqlError (HDBC.disconnect conn)
     return x
 
-mkDatabase :: Connection -> Database
-mkDatabase connection
-    = Database { dbQuery	= hdbcQuery connection,
-    		 dbInsert	= hdbcInsert connection,
-		 dbInsertQuery 	= hdbcInsertQuery connection,
-		 dbDelete	= hdbcDelete connection,
-		 dbUpdate	= hdbcUpdate connection,
-		 dbTables       = hdbcTables connection,
-		 dbDescribe     = hdbcDescribe connection,
-		 dbTransaction  = hdbcTransaction connection,
-		 dbCreateDB     = hdbcCreateDB connection,
-		 dbCreateTable  = hdbcCreateTable connection,
-		 dbDropDB       = hdbcDropDB connection,
-		 dbDropTable    = hdbcDropTable connection
+mkDatabase :: SqlGenerator -> Connection -> Database
+mkDatabase gen connection
+    = Database { dbQuery	= hdbcQuery       gen connection,
+    		 dbInsert	= hdbcInsert      gen connection,
+		 dbInsertQuery 	= hdbcInsertQuery gen connection,
+		 dbDelete	= hdbcDelete      gen connection,
+		 dbUpdate	= hdbcUpdate      gen connection,
+		 dbTables       = hdbcTables          connection,
+		 dbDescribe     = hdbcDescribe        connection,
+		 dbTransaction  = hdbcTransaction     connection,
+		 dbCreateDB     = hdbcCreateDB    gen connection,
+		 dbCreateTable  = hdbcCreateTable gen connection,
+		 dbDropDB       = hdbcDropDB      gen connection,
+		 dbDropTable    = hdbcDropTable   gen connection
 	       }
 
 hdbcQuery :: GetRec er vr => 
-	     Connection 
+	     SqlGenerator
+          -> Connection 
 	  -> PrimQuery 
 	  -> Rel er 
 	  -> IO [Record vr]
-hdbcQuery connection qtree rel = hdbcPrimQuery connection sql scheme rel
-    where
-      sql = show (ppSql (toSql qtree))  
-      scheme = attributes qtree
+hdbcQuery gen connection q rel = hdbcPrimQuery connection sql scheme rel
+    where sql = show $ ppSql $ sqlQuery gen q
+          scheme = attributes q
 
-hdbcInsert :: Connection -> TableName -> Assoc -> IO ()
-hdbcInsert conn table assoc = 
-    hdbcPrimExecute conn $ show $ ppInsert $ toInsert table assoc
+hdbcInsert :: SqlGenerator -> Connection -> TableName -> Assoc -> IO ()
+hdbcInsert gen conn table assoc = 
+    hdbcPrimExecute conn $ show $ ppInsert $ sqlInsert gen table assoc
 
-hdbcInsertQuery :: Connection -> TableName -> PrimQuery -> IO ()
-hdbcInsertQuery conn table assoc = 
-    hdbcPrimExecute conn $ show $ ppInsert $ toInsertQuery table assoc
+hdbcInsertQuery :: SqlGenerator -> Connection -> TableName -> PrimQuery -> IO ()
+hdbcInsertQuery gen conn table assoc = 
+    hdbcPrimExecute conn $ show $ ppInsert $ sqlInsertQuery gen table assoc
 
-hdbcDelete :: Connection -> TableName -> [PrimExpr] -> IO ()
-hdbcDelete conn table exprs = 
-    hdbcPrimExecute conn $ show $ ppDelete $ toDelete table exprs
+hdbcDelete :: SqlGenerator -> Connection -> TableName -> [PrimExpr] -> IO ()
+hdbcDelete gen conn table exprs = 
+    hdbcPrimExecute conn $ show $ ppDelete $ sqlDelete gen table exprs
 
-hdbcUpdate :: Connection -> TableName -> [PrimExpr] -> Assoc -> IO ()
-hdbcUpdate conn table criteria assigns = 
-    hdbcPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
+hdbcUpdate :: SqlGenerator -> Connection -> TableName -> [PrimExpr] -> Assoc -> IO ()
+hdbcUpdate gen conn table criteria assigns = 
+    hdbcPrimExecute conn $ show $ ppUpdate $ sqlUpdate gen table criteria assigns
 
 hdbcTables :: Connection -> IO [TableName]
 hdbcTables conn = handleSqlError $ HDBC.getTables conn
@@ -128,21 +130,21 @@ colDescToFieldDesc c = (t, nullable)
             SqlGUIDT          -> string
             SqlUnknownT _     -> string
 
-hdbcCreateDB :: Connection -> String -> IO ()
-hdbcCreateDB conn name 
-    = hdbcPrimExecute conn $ show $ ppCreate $ toCreateDB name
+hdbcCreateDB :: SqlGenerator -> Connection -> String -> IO ()
+hdbcCreateDB gen conn name 
+    = hdbcPrimExecute conn $ show $ ppCreate $ sqlCreateDB gen name
 
-hdbcCreateTable :: Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
-hdbcCreateTable conn name attrs
-    = hdbcPrimExecute conn $ show $ ppCreate $ toCreateTable name attrs
+hdbcCreateTable :: SqlGenerator -> Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
+hdbcCreateTable gen conn name attrs
+    = hdbcPrimExecute conn $ show $ ppCreate $ sqlCreateTable gen name attrs
 
-hdbcDropDB :: Connection -> String -> IO ()
-hdbcDropDB conn name 
-    = hdbcPrimExecute conn $ show $ ppDrop $ toDropDB name
+hdbcDropDB :: SqlGenerator -> Connection -> String -> IO ()
+hdbcDropDB gen conn name 
+    = hdbcPrimExecute conn $ show $ ppDrop $ sqlDropDB gen name
 
-hdbcDropTable :: Connection -> TableName -> IO ()
-hdbcDropTable conn name
-    = hdbcPrimExecute conn $ show $ ppDrop $ toDropTable name
+hdbcDropTable :: SqlGenerator -> Connection -> TableName -> IO ()
+hdbcDropTable gen conn name
+    = hdbcPrimExecute conn $ show $ ppDrop $ sqlDropTable gen name
 
 -- | HDBC implementation of 'Database.dbTransaction'.
 hdbcTransaction :: Connection -> IO a -> IO a

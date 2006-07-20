@@ -20,7 +20,9 @@ module Database.HaskellDB.HDBC.SQLite3 (
 import Database.HaskellDB.Database
 import Database.HaskellDB.HDBC
 import Database.HaskellDB.DriverAPI
+import Database.HaskellDB.Sql.SQLite as SQLite
 import Database.HDBC.Sqlite3 (connectSqlite3) 
+
 import System.IO
 
 data SQLiteOptions = SQLiteOptions { 
@@ -28,7 +30,7 @@ data SQLiteOptions = SQLiteOptions {
                   		   }
 
 sqliteConnect :: MonadIO m => FilePath -> (Database -> m a) -> m a
-sqliteConnect path = hdbcConnect (connectSqlite3 path)
+sqliteConnect path = hdbcConnect SQLite.generator (connectSqlite3 path)
 
 sqliteConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 sqliteConnectOpts opts f = 

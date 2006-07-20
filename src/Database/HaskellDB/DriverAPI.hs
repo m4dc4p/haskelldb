@@ -10,17 +10,24 @@
 --
 -- This exports an API that all drivers must conform to. It
 -- is used by the end user to load drivers either dynamically
--- or statically
+-- or statically.
 -----------------------------------------------------------
 
 module Database.HaskellDB.DriverAPI (
 				     DriverInterface(..),
                                      MonadIO, 
 				     defaultdriver,
-                                     getOptions
+                                     getOptions,
+                                     getGenerator
 				    ) where
 
 import Database.HaskellDB.Database (Database)
+
+import Database.HaskellDB.Sql.Generate (SqlGenerator, defaultSqlGenerator)
+import Database.HaskellDB.Sql.MySQL as MySQL
+import Database.HaskellDB.Sql.PostgreSQL as PostgreSQL
+import Database.HaskellDB.Sql.SQLite as SQLite
+
 
 import Control.Monad (liftM)
 import Control.Monad.Trans (MonadIO)
@@ -47,3 +54,20 @@ getOptions (x:xs) ys =
     case lookup x ys of
                      Nothing -> fail $ "Missing field " ++ x
                      Just v -> liftM (v:) $ getOptions xs ys
+
+-- | Gets an 'SqlGenerator' from the "generator" option in the given list.
+--   Currently available generators: "mysql", "postgresql", "sqlite", "default"
+getGenerator :: Monad m => 
+                [(String,String)] -- ^ options given
+           -> m SqlGenerator -- ^ An SQL generator. If there was no
+                             --   "generator" option, the default is used.
+                             -- Fails if the generator is unknown
+getGenerator opts = maybe (return defaultSqlGenerator) f $ lookup "generator" opts
+    where f n = maybe (fail msg) return $ lookup n generators
+              where msg = "Unknown SqlGenerator: " ++ n
+
+generators :: [(String,SqlGenerator)]
+generators = [("mysql",      MySQL.generator),
+              ("postgresql", PostgreSQL.generator),
+              ("sqlite",     SQLite.generator),
+              ("default",    defaultSqlGenerator)]

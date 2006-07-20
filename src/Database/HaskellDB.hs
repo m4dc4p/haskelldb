@@ -39,7 +39,7 @@
 --
 -----------------------------------------------------------
 module Database.HaskellDB
-	( Rel, Attr, Expr, Table, Query, Order
+	( Rel, Attr, Expr, Table, Query, OrderExpr
 
         -- * Records
 	, HasField, Record, Select, ( # ), ( << ), (<<-), (!), (!.)
@@ -71,14 +71,14 @@ module Database.HaskellDB
 	, insert, delete, update, insertQuery
 	, tables, describe, transaction
 
-	-- * Showing queries
-	, showQ, showOpt, showSql
+	-- * Debugging
+	, showQuery, showQueryUnOpt, showSql, showSqlUnOpt
 	) where
 
 import Database.HaskellDB.HDBRec
 -- PrimQuery type is imported so that haddock can find it.
-import Database.HaskellDB.PrimQuery (PrimQuery,ppPrimQuery)
-import Database.HaskellDB.Sql       (toSql)
+import Database.HaskellDB.PrimQuery (PrimQuery)
+import Database.HaskellDB.Sql.Generate (sqlQuery, defaultSqlGenerator)
 import Database.HaskellDB.Sql.Print (ppSql)
 import Database.HaskellDB.Optimize  (optimize)
 import Database.HaskellDB.Query
@@ -89,14 +89,18 @@ import Text.PrettyPrint.HughesPJ (Doc)
 instance Show (Query (Rel r)) where
   showsPrec _ query = shows (showSql query)
 
--- | Pretty-prints the unoptimized 'PrimQuery'.
-showQ :: Query (Rel r) -> Doc
-showQ = ppPrimQuery . runQuery
+-- | Shows the optimized 'PrimQuery'.
+showQuery :: Query (Rel r) -> String
+showQuery = show . optimize . runQuery
 
--- | Pretty-prints the optimized 'PrimQuery'.
-showOpt :: Query (Rel r) -> Doc
-showOpt = ppPrimQuery . optimize . runQuery
+-- | Shows the unoptimized 'PrimQuery'.
+showQueryUnOpt :: Query (Rel r) -> String
+showQueryUnOpt = show . runQuery
 
--- | Pretty-prints the optimized SQL query.
-showSql :: Query (Rel r) -> Doc
-showSql = ppSql . toSql . optimize . runQuery 
+-- | Shows the optimized SQL query.
+showSql :: Query (Rel r) -> String
+showSql = show . ppSql . sqlQuery defaultSqlGenerator . optimize . runQuery 
+
+-- | Shows the unoptimized SQL query.
+showSqlUnOpt :: Query (Rel r) -> String
+showSqlUnOpt = show . ppSql . sqlQuery defaultSqlGenerator . runQuery 

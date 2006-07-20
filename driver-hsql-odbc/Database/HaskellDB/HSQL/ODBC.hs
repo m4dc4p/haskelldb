@@ -22,6 +22,7 @@ module Database.HaskellDB.HSQL.ODBC (
 import Database.HaskellDB.Database
 import Database.HaskellDB.HSQL
 import Database.HaskellDB.DriverAPI
+import Database.HaskellDB.Sql.Generate (SqlGenerator)
 import qualified Database.HSQL.ODBC as ODBC (connect, driverConnect) 
 
 data ODBCOptions = ODBCOptions { 
@@ -30,22 +31,23 @@ data ODBCOptions = ODBCOptions {
                                pwd :: String  -- ^ password
                   	       }          
 
-odbcConnect :: MonadIO m => ODBCOptions -> (Database -> m a) -> m a
-odbcConnect opts = 
-    hsqlConnect (ODBC.connect (dsn opts) (uid opts) (pwd opts))
+odbcConnect :: MonadIO m => SqlGenerator -> ODBCOptions -> (Database -> m a) -> m a
+odbcConnect gen opts = 
+    hsqlConnect gen (ODBC.connect (dsn opts) (uid opts) (pwd opts))
 
 -- | DSN-less connection.
-odbcDriverConnect :: MonadIO m => String -> (Database -> m a) -> m a
-odbcDriverConnect opts =
-    hsqlConnect (ODBC.driverConnect opts)
+odbcDriverConnect :: MonadIO m => SqlGenerator -> String -> (Database -> m a) -> m a
+odbcDriverConnect gen opts =
+    hsqlConnect gen (ODBC.driverConnect opts)
 
 odbcConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 odbcConnectOpts opts f = 
     do
     [a,b,c] <- getOptions ["dsn","uid","pwd"] opts
-    odbcConnect (ODBCOptions {dsn = a,
-                              uid = b,
-			      pwd = c}) f
+    g <- getGenerator opts
+    odbcConnect g (ODBCOptions {dsn = a,
+                                uid = b,
+			        pwd = c}) f
 
 -- | This driver requires the following options: 
 --   "dsn", "uid", "pwd"

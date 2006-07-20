@@ -28,7 +28,11 @@ Exposed-Modules:
         Database.HaskellDB.PrimQuery,
         Database.HaskellDB.Query,
         Database.HaskellDB.Sql,
+        Database.HaskellDB.Sql.Generate,
         Database.HaskellDB.Sql.Print,
+        Database.HaskellDB.Sql.MySQL,
+        Database.HaskellDB.Sql.PostgreSQL,
+        Database.HaskellDB.Sql.SQLite,
         Database.HaskellDB.Version,
         Database.HaskellDB.DriverAPI
 hs-source-dirs: src

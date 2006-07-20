@@ -17,7 +17,7 @@
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
-	      Rel(..), Attr(..), Table(..), Query, Expr(..), Order
+	      Rel(..), Attr(..), Table(..), Query, Expr(..), OrderExpr
 	     , ToPrimExprs, ShowConstant
 	     , ExprC, ProjectExpr, ProjectRec, InsertRec
              , ConstantRecord(..)
@@ -550,49 +550,35 @@ varianceP x  = aggregate AggrVarP x
 -----------------------------------------------------------
 
 -- | Return the n topmost records.
-top :: Integer -> Query ()
-top n           = updatePrimQuery_ (Special (Top False n))
-
-{-
--- Disabled by Bjorn since the DBs don't seem to support this
-topPercent :: Integer -> Query ()
-topPercent n    = updatePrimQuery_ (Special (Top True perc))
-                where
-                  perc  | n < 0         = 0
-                        | n > 100       = 100
-                        | otherwise     = n
--}
+top :: Int -> Query ()
+top n = updatePrimQuery_ (Special (Top n))
 
 -----------------------------------------------------------
 -- Ordering results
 -----------------------------------------------------------
 
-data Order	= OrderPhantom
-
-orderOp :: HasField f r => UnOp -> Rel r -> Attr f a -> Expr Order
-orderOp op rel attr = Expr (UnExpr op expr)
+orderOp :: HasField f r => OrderOp -> Rel r -> Attr f a -> OrderExpr
+orderOp op rel attr = OrderExpr op expr
     where Expr expr = select attr rel
 
 -- | Use this together with the function 'order' to 
 -- order the results of a query in ascending order.
 -- Takes a relation and an attribute of that relation, which
 -- is used for the ordering.
-asc :: HasField f r => Rel r -> Attr f a -> Expr Order
+asc :: HasField f r => Rel r -> Attr f a -> OrderExpr
 asc rel attr	= orderOp OpAsc rel attr
 
 -- | Use this together with the function 'order' to 
 -- order the results of a query in descending order.
 -- Takes a relation and an attribute of that relation, which
 -- is used for the ordering.
-desc :: HasField f r => Rel r -> Attr f a -> Expr Order
+desc :: HasField f r => Rel r -> Attr f a -> OrderExpr
 desc rel attr	= orderOp OpDesc rel attr
 
 -- | Order the results of a query.
 -- Use this with the 'asc' or 'desc' functions.
-order :: [Expr Order] -> Query ()
-order xs	= updatePrimQuery_ (Special (Order (map unExpr xs)))
-		where
-		  unExpr (Expr x) = x
+order :: [OrderExpr] -> Query ()
+order xs = updatePrimQuery_ (Special (Order xs))
 
 -----------------------------------------------------------
 -- Query Monad

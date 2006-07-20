@@ -26,7 +26,7 @@ import System.Time
 
 import Database.HaskellDB
 import Database.HaskellDB.Database
-import Database.HaskellDB.Sql
+import Database.HaskellDB.Sql.Generate (SqlGenerator(..))
 import Database.HaskellDB.Sql.Print
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query
@@ -36,59 +36,61 @@ import Database.HSQL as HSQL
 
 -- | Run an action on a HSQL Connection and close the connection.
 hsqlConnect :: MonadIO m => 
-               IO Connection -- ^ HSQL connection function
+               SqlGenerator
+            -> IO Connection -- ^ HSQL connection function
 	    -> (Database -> m a) -> m a
-hsqlConnect connect action = 
+hsqlConnect gen connect action = 
     do
     conn <- liftIO $ handleSqlError connect
-    x <- action (mkDatabase conn)
+    x <- action (mkDatabase gen conn)
     liftIO $ handleSqlError (disconnect conn)
     return x
 
 handleSqlError :: IO a -> IO a
 handleSqlError io = handleSql (\err -> fail (show err)) io
 
-mkDatabase :: Connection -> Database
-mkDatabase connection
-    = Database { dbQuery	= hsqlQuery connection,
-    		 dbInsert	= hsqlInsert connection,
-		 dbInsertQuery 	= hsqlInsertQuery connection,
-		 dbDelete	= hsqlDelete connection,
-		 dbUpdate	= hsqlUpdate connection,
-		 dbTables       = hsqlTables connection,
-		 dbDescribe     = hsqlDescribe connection,
-		 dbTransaction  = hsqlTransaction connection,
-		 dbCreateDB     = hsqlCreateDB connection,
-		 dbCreateTable  = hsqlCreateTable connection,
-		 dbDropDB       = hsqlDropDB connection,
-		 dbDropTable    = hsqlDropTable connection
+mkDatabase :: SqlGenerator -> Connection -> Database
+mkDatabase gen connection
+    = Database { dbQuery	= hsqlQuery       gen connection,
+    		 dbInsert	= hsqlInsert      gen connection,
+		 dbInsertQuery 	= hsqlInsertQuery gen connection,
+		 dbDelete	= hsqlDelete      gen connection,
+		 dbUpdate	= hsqlUpdate      gen connection,
+		 dbTables       = hsqlTables          connection,
+		 dbDescribe     = hsqlDescribe        connection,
+		 dbTransaction  = hsqlTransaction     connection,
+		 dbCreateDB     = hsqlCreateDB    gen connection,
+		 dbCreateTable  = hsqlCreateTable gen connection,
+		 dbDropDB       = hsqlDropDB      gen connection,
+		 dbDropTable    = hsqlDropTable   gen connection
 	       }
 
 hsqlQuery :: GetRec er vr => 
-	     Connection 
+	     SqlGenerator
+          -> Connection 
 	  -> PrimQuery 
 	  -> Rel er 
 	  -> IO [Record vr]
-hsqlQuery connection qtree rel = hsqlPrimQuery connection sql scheme rel
+hsqlQuery gen connection q rel = hsqlPrimQuery connection sql scheme rel
     where
-      sql = show (ppSql (toSql qtree))  
-      scheme = attributes qtree
+      sql = show $ ppSql $ sqlQuery gen q
+      scheme = attributes q
 
-hsqlInsert :: Connection -> TableName -> Assoc -> IO ()
-hsqlInsert conn table assoc = 
-    hsqlPrimExecute conn $ show $ ppInsert $ toInsert table assoc
+hsqlInsert :: SqlGenerator -> Connection -> TableName -> Assoc -> IO ()
+hsqlInsert gen conn table assoc = 
+    hsqlPrimExecute conn $ show $ ppInsert $ sqlInsert gen table assoc
 
-hsqlInsertQuery :: Connection -> TableName -> PrimQuery -> IO ()
-hsqlInsertQuery conn table assoc = 
-    hsqlPrimExecute conn $ show $ ppInsert $ toInsertQuery table assoc
+hsqlInsertQuery :: SqlGenerator -> Connection -> TableName -> PrimQuery -> IO ()
+hsqlInsertQuery gen conn table assoc = 
+    hsqlPrimExecute conn $ show $ ppInsert $ sqlInsertQuery gen table assoc
 
-hsqlDelete :: Connection -> TableName -> [PrimExpr] -> IO ()
-hsqlDelete conn table exprs = 
-    hsqlPrimExecute conn $ show $ ppDelete $ toDelete table exprs
+hsqlDelete :: SqlGenerator -> Connection -> TableName -> [PrimExpr] -> IO ()
+hsqlDelete gen conn table exprs = 
+    hsqlPrimExecute conn $ show $ ppDelete $ sqlDelete gen table exprs
 
-hsqlUpdate :: Connection -> TableName -> [PrimExpr] -> Assoc -> IO ()
-hsqlUpdate conn table criteria assigns = 
-    hsqlPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
+hsqlUpdate :: SqlGenerator -> Connection -> TableName -> [PrimExpr] -> Assoc -> IO ()
+hsqlUpdate gen conn table criteria assigns = 
+    hsqlPrimExecute conn $ show $ ppUpdate $ sqlUpdate gen table criteria assigns
 
 hsqlTables :: Connection -> IO [TableName]
 hsqlTables conn = handleSqlError $ HSQL.tables conn
@@ -99,18 +101,21 @@ hsqlDescribe conn table =
    where
    toFieldDesc (name,sqlType,nullable) = (name,(toFieldType sqlType, nullable))
 
-hsqlCreateDB :: Connection -> String -> IO ()
-hsqlCreateDB conn name 
-    = hsqlPrimExecute conn $ show $ ppCreate $ toCreateDB name
-hsqlCreateTable :: Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
-hsqlCreateTable conn name as
-    = hsqlPrimExecute conn $ show $ ppCreate $ toCreateTable name as
-hsqlDropDB :: Connection -> String -> IO ()
-hsqlDropDB conn name 
-    = hsqlPrimExecute conn $ show $ ppDrop $ toDropDB name
-hsqlDropTable :: Connection -> TableName -> IO ()
-hsqlDropTable conn name
-    = hsqlPrimExecute conn $ show $ ppDrop $ toDropTable name
+hsqlCreateDB :: SqlGenerator -> Connection -> String -> IO ()
+hsqlCreateDB gen conn name 
+    = hsqlPrimExecute conn $ show $ ppCreate $ sqlCreateDB gen name
+
+hsqlCreateTable :: SqlGenerator -> Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
+hsqlCreateTable gen conn name as
+    = hsqlPrimExecute conn $ show $ ppCreate $ sqlCreateTable gen name as
+
+hsqlDropDB :: SqlGenerator -> Connection -> String -> IO ()
+hsqlDropDB gen conn name 
+    = hsqlPrimExecute conn $ show $ ppDrop $ sqlDropDB gen name
+
+hsqlDropTable :: SqlGenerator -> Connection -> TableName -> IO ()
+hsqlDropTable gen conn name
+    = hsqlPrimExecute conn $ show $ ppDrop $ sqlDropTable gen name
 
 
 toFieldType :: SqlType -> FieldType

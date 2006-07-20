@@ -18,10 +18,12 @@ module Database.HaskellDB.HDBC.PostgreSQL (
 import Database.HaskellDB.Database
 import Database.HaskellDB.HDBC
 import Database.HaskellDB.DriverAPI
+import Database.HaskellDB.Sql.PostgreSQL
+
 import Database.HDBC.PostgreSQL (connectPostgreSQL)
 
 postgresqlConnect :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
-postgresqlConnect opts = hdbcConnect (connectPostgreSQL conninfo)
+postgresqlConnect opts = hdbcConnect generator (connectPostgreSQL conninfo)
     where conninfo = unwords [ k ++ "=" ++ v | (k,v) <- opts]
 
 -- | This driver passes its options through to HDBC.

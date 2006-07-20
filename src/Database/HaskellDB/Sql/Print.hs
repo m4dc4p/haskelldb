@@ -9,9 +9,7 @@
 -- Stability   :  experimental
 -- Portability :  non-portable
 -- 
--- Transform a PrimQuery (relational expression) to SQL
--- and pretty print SQL
---
+-- Pretty-print SQL
 -- 
 -----------------------------------------------------------
 module Database.HaskellDB.Sql.Print ( 
@@ -20,120 +18,113 @@ module Database.HaskellDB.Sql.Print (
                                      ppDelete, 
                                      ppInsert, 
                                      ppCreate,
-                                     ppDrop
+                                     ppDrop,
+                                     ppSqlExpr
 	                            ) where
 
-import Database.HaskellDB.FieldType
-import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Sql
 
+import Data.List (intersperse)
 import Text.PrettyPrint.HughesPJ
-
-
--- * Types
-
-toSqlType :: FieldType -> String
-toSqlType StringT = "text"
-toSqlType IntT = "int"
-toSqlType IntegerT = "bigint"
-toSqlType DoubleT = "double precision"
-toSqlType BoolT = "bit"
-toSqlType CalendarTimeT = "timestamp"
-toSqlType (BStrT a) = "varchar(" ++ show a ++ ")"
 
 
 -- * SELECT
 
 -- | Pretty prints a 'SqlSelect'
 ppSql :: SqlSelect -> Doc
-ppSql (SqlSelect options attrs tables criteria groupby orderby limit)
-    = text "SELECT DISTINCT" <+> (hsep . map text) options <+> ppAttrs attrs
-      $$ f "FROM " ppTables tables
-      $$ f "WHERE" ppCriteria criteria
-      $$ f "GROUP BY" ppGroupBy groupby
-      $$ f "ORDER BY" ppOrderBy orderby
-      $$ (hsep . map text) limit
+ppSql (SqlSelect options attrs tables criteria groupby orderby extra)
+    = text "SELECT" 
+      <+> hsep (map text options)
+      <+> ppAttrs attrs
+      $$ ppTables tables
+      $$ ppWhere criteria
+      $$ ppGroupBy groupby
+      $$ ppOrderBy orderby
+      $$ hsep (map text extra)
+ppSql (SqlBin op q1 q2) = parens (ppSql q1) $$ text op $$ parens (ppSql q2)
+ppSql (SqlTable name)   = text name
+ppSql (SqlEmpty)        = text ""
+
+ppAttrs :: [(SqlColumn,SqlExpr)] -> Doc
+ppAttrs [] = text "*"
+ppAttrs xs = commaV nameAs xs
     where
-    f clause action xs    | null xs       = empty
-			  | otherwise     = text clause <+> action xs
-
-ppSql (SqlBin op sql1 sql2)     = parens (ppSql sql1) 
-				  $$ text op 
-				  $$ parens (ppSql sql2)
-ppSql (SqlTable name)           = text name
-ppSql (SqlEmpty)                = text ""
-
-ppAttrs :: [(Attribute,String)] -> Doc
-ppAttrs []	= text "*"
-ppAttrs xs      = vcat $ punctuate comma (map nameAs xs)
-
-ppCriteria :: [String] -> Doc
-ppCriteria      = vcat . punctuate (text " AND ") . map text
+      -- | Print a name-value binding, or just the name if
+      --   name and value are the same.
+      nameAs :: (SqlColumn,SqlExpr) -> Doc
+      nameAs (name, ColumnSqlExpr c) | name == c = text name
+      nameAs (name,expr) = ppAs name (ppSqlExpr expr)
 
 -- FIXME: table aliases start from 1 in every select, which means that
 -- with binary RelOps we can get table alias clashes.
-ppTables :: [(TableName,SqlSelect)] -> Doc
-ppTables        = vcat . punctuate comma . map ppTable . 
-		  zipWith tableAlias [1..]
+ppTables :: [(SqlTable,SqlSelect)] -> Doc
+ppTables [] = empty
+ppTables ts = text "FROM" <+> commaV ppTable (zipWith tableAlias [1..] ts)
+  where
+    tableAlias :: Int -> (SqlTable,SqlSelect) -> (SqlTable,SqlSelect)
+    tableAlias i (_,sql)  		= ("T" ++ show i,sql)
 
-ppGroupBy :: [String] -> Doc
-ppGroupBy	= vcat . punctuate comma  . map text
+    ppTable :: (SqlTable,SqlSelect) -> Doc
+    ppTable (alias,(SqlTable name)) = ppAs alias (text name)
+    ppTable (alias,sql)             = ppAs alias (parens (ppSql sql))
 
-ppOrderBy :: [PrimExpr] -> Doc
-ppOrderBy ord	= ppSpecialOp (Order ord)
+ppWhere :: [SqlExpr] -> Doc
+ppWhere [] = empty
+ppWhere es = text "WHERE" 
+             <+> hsep (intersperse (text "AND") (map ppSqlExpr es))
 
-tableAlias :: Int -> (TableName,SqlSelect) -> (TableName,SqlSelect)
-tableAlias i (_,sql)  		= ("T" ++ show i,sql)
+ppGroupBy :: [SqlExpr] -> Doc
+ppGroupBy [] = empty
+ppGroupBy es = text "GROUP BY" <+> commaV ppSqlExpr es
 
-ppTable :: (TableName,SqlSelect) -> Doc
-ppTable (alias,(SqlTable name)) = ppAs alias (text name)
-ppTable (alias,sql)             = ppAs alias (parens (ppSql sql))
+ppOrderBy :: [(SqlExpr,SqlOrder)] -> Doc
+ppOrderBy [] = empty
+ppOrderBy ord = text "ORDER BY" <+> commaV ppOrd ord
+    where
+      ppOrd (e,o) = ppSqlExpr e <+> ppSqlOrder o
+      ppSqlOrder :: SqlOrder -> Doc
+      ppSqlOrder SqlAsc = text "ASC"
+      ppSqlOrder SqlDesc = text "DESC"
 
--- | Print a name-value binding, or just the name if
---   name and value are the same.
-nameAs :: (Attribute,String) -> Doc
-nameAs (name,expr) | name == expr  = text name
-                   | otherwise     = ppAs name (text expr)              
-
-ppAs :: TableName -> Doc -> Doc
+ppAs :: String -> Doc -> Doc
 ppAs alias expr    | null alias    = expr                               
                    | otherwise     = expr <+> (hsep . map text) ["as",alias]
 
--- * INSERT
-
-ppInsert :: SqlInsert -> Doc
-ppInsert (SqlInsertQuery table select)
-	= text "INSERT INTO" <+> text table
-        $$ ppSql select
-
-ppInsert (SqlInsert table exprs)
-    = text "INSERT INTO" <+> text table 
-      <+> parens (vcat $ punctuate comma (map text names))
-      $$ text "VALUES"   <+> parens (vcat $ punctuate comma (map text values))
-    where
-    (names,values)        = unzip exprs
-
-
--- * DELETE
-
-ppDelete :: SqlDelete -> Doc
-ppDelete (SqlDelete name exprs) =
-    text "DELETE FROM" <+> text name $$ f "WHERE" ppCriteria exprs
-   where
-     f clause action xs | null xs    = empty
-                        | otherwise  = text clause <+> action xs
 
 -- * UPDATE
 
 -- | Pretty prints a 'SqlUpdate'
 ppUpdate :: SqlUpdate -> Doc
-ppUpdate (SqlUpdate name criteria assigns)
+ppUpdate (SqlUpdate name assigns criteria)
         = text "UPDATE" <+> text name
-        $$ text "SET" <+> (vcat $ punctuate comma (map text assigns))
-        $$ f "WHERE" ppCriteria criteria
-        where
-           f clause action xs   | null xs    = empty
-                                | otherwise  = text clause <+> action xs
+        $$ text "SET" <+> commaV ppAssign assigns
+        $$ ppWhere criteria
+    where
+      ppAssign (c,e) = text c <+> equals <+> ppSqlExpr e
+
+
+-- * DELETE
+
+-- | Pretty prints a 'SqlDelete'
+ppDelete :: SqlDelete -> Doc
+ppDelete (SqlDelete name criteria) =
+    text "DELETE FROM" <+> text name $$ ppWhere criteria
+
+
+-- * INSERT
+
+ppInsert :: SqlInsert -> Doc
+
+ppInsert (SqlInsert table names values)
+    = text "INSERT INTO" <+> text table 
+      <+> parens (commaV text names)
+      $$ text "VALUES" <+> parens (commaV ppSqlExpr values)
+
+ppInsert (SqlInsertQuery table names select)
+    = text "INSERT INTO" <+> text table
+      <+> parens (commaV text names)
+      $$ ppSql select
+
 
 -- * CREATE
 
@@ -142,16 +133,48 @@ ppCreate :: SqlCreate -> Doc
 ppCreate (SqlCreateDB name) = text "CREATE DATABASE" <+> text name
 ppCreate (SqlCreateTable name xs) 
     = text "CREATE TABLE" <+> text name 
-      <+> parens (vcat $ punctuate comma (map ppF xs))
+      <+> parens (commaV ppF xs)
     where
-    ppF (fname,(ftype,nullable)) 
-	= text fname <+> text (toSqlType ftype)
-	  <> if nullable then text "" else text " not null"
+    ppF (fname,t) = text fname <+> ppSqlTypeNull t
+
+ppSqlTypeNull :: (SqlType,Bool) -> Doc
+ppSqlTypeNull (t,nullable) = if nullable then t' else t' <+> text " not null"
+    where t' = ppSqlType t
+
+ppSqlType :: SqlType -> Doc
+ppSqlType (SqlType t) = text t
+ppSqlType (SqlType1 t x) = text t <> parens (int x)
+ppSqlType (SqlType2 t x y) = text t <> parens (commaH int [x,y])
+
 
 -- * DROP
 
 -- | Pretty prints a 'SqlDrop'.
 ppDrop :: SqlDrop -> Doc
 ppDrop (SqlDropDB name) = text "DROP DATABASE" <+> text name
-ppDrop (SqlDropTable name) 
-    = text "DROP TABLE" <+> text name 
+ppDrop (SqlDropTable name) = text "DROP TABLE" <+> text name 
+
+
+-- * Expressions
+
+-- | Pretty prints a 'SqlExpr'
+ppSqlExpr :: SqlExpr -> Doc
+ppSqlExpr e =
+    case e of
+      ColumnSqlExpr c     -> text c
+      BinSqlExpr op e1 e2 -> ppSqlExpr e1 <+> text op <+> ppSqlExpr e2
+      PrefixSqlExpr op e  -> text op <+> ppSqlExpr e
+      PostfixSqlExpr op e -> ppSqlExpr e <+> text op
+      FunSqlExpr f es     -> text f <> parens (commaH ppSqlExpr es)
+      ConstSqlExpr c      -> text c
+      CaseSqlExpr cs el   -> text "CASE" <+> vcat (map ppWhen cs)
+                             <+> text "ELSE" <+> ppSqlExpr el <+> text "END"
+          where ppWhen (w,t) = text "WHEN" <+> ppSqlExpr w 
+                               <+> text "THEN" <+> ppSqlExpr t
+      ListSqlExpr es      -> parens (commaH ppSqlExpr es)
+
+commaH :: (a -> Doc) -> [a] -> Doc
+commaH f = hcat . punctuate comma . map f
+
+commaV :: (a -> Doc) -> [a] -> Doc
+commaV f = vcat . punctuate comma . map f

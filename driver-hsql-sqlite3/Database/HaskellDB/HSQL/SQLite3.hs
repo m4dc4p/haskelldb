@@ -21,6 +21,7 @@ module Database.HaskellDB.HSQL.SQLite3 (
 import Database.HaskellDB.Database
 import Database.HaskellDB.HSQL
 import Database.HaskellDB.DriverAPI
+import Database.HaskellDB.Sql.SQLite as SQLite
 import qualified Database.HSQL.SQLite3 as SQLite3 (connect) 
 import System.IO
 
@@ -31,7 +32,7 @@ data SQLiteOptions = SQLiteOptions {
 
 sqliteConnect :: MonadIO m => SQLiteOptions -> (Database -> m a) -> m a
 sqliteConnect opts = 
-    hsqlConnect (SQLite3.connect (filepath opts) (mode opts))
+    hsqlConnect SQLite.generator (SQLite3.connect (filepath opts) (mode opts))
 
 sqliteConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 sqliteConnectOpts opts f = 

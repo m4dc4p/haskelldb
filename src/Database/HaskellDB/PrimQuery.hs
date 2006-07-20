@@ -22,7 +22,8 @@ module Database.HaskellDB.PrimQuery (
 
 		  -- ** Data types
 		 , PrimQuery(..), RelOp(..), SpecialOp(..) 
-		 , PrimExpr(..), BinOp(..), UnOp(..), AggrOp(..)
+		 , PrimExpr(..), OrderExpr(..)
+                 , BinOp(..), UnOp(..), OrderOp(..), AggrOp(..)
 	         , Literal(..)
 
 		  -- * Function declarations
@@ -31,10 +32,6 @@ module Database.HaskellDB.PrimQuery (
 		 , substAttr
 		 , isAggregate
 		 , foldPrimQuery, foldPrimExpr
-		 --, assert
-		 -- ** Pretty printers
-		 , ppPrimQuery, ppPrimExpr
-		 , ppRelOp, ppBinOp, ppAggrOp, ppSpecialOp
 		 ) where
 
 import Data.List ((\\), union)
@@ -71,8 +68,14 @@ data RelOp      = Times
                 | Difference
                 deriving (Show)
 
-data SpecialOp  = Order [PrimExpr] -- ^ always UnExpr (OpDesc|OpAsc) (AttrExpr name)
-		| Top Bool Integer -- ^ 'True' = top percent, 'False' = top n
+data SpecialOp  = Order [OrderExpr]
+		| Top Int
+		deriving (Show)
+
+data OrderExpr = OrderExpr OrderOp PrimExpr 
+		deriving (Show)
+
+data OrderOp = OpAsc | OpDesc
 		deriving (Show)
 
 data PrimExpr   = AttrExpr  Attribute
@@ -106,7 +109,6 @@ data BinOp      = OpEq | OpLt | OpLtEq | OpGt | OpGtEq | OpNotEq
                 deriving (Show,Read)
 
 data UnOp	= OpNot 
-		| OpAsc | OpDesc
 		| OpIsNull | OpIsNotNull
 		| OpLength
 		| UnOpOther String
@@ -172,9 +174,9 @@ attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list)
 		  _case cs el   = concat (uncurry (++) (unzip cs)) ++ el
                   list xs       = concat xs
 
--- | Returns all attributes in a list of expressions.
-attrInOrder :: [PrimExpr] -> Scheme
-attrInOrder  = concat . map attrInExpr
+-- | Returns all attributes in a list of ordering expressions.
+attrInOrder :: [OrderExpr] -> Scheme
+attrInOrder os = concat [attrInExpr e | OrderExpr _ e <- os]
 
 -- | Substitute attribute names in an expression.
 substAttr :: Assoc -> PrimExpr -> PrimExpr
@@ -184,7 +186,6 @@ substAttr assoc
           attr name     = case (lookup name assoc) of
                             Just x      -> x 
                             Nothing     -> AttrExpr name
-
 
 isAggregate :: PrimExpr -> Bool
 isAggregate x = countAggregate x > 0
@@ -233,178 +234,3 @@ foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list)
           fold (ListExpr xs) = list (map fold xs)
 
           both f (x,y) = (f x, f y)
-
------------------------------------------------------------
--- Pretty print PrimQuery and PrimExpr.
--- coincidently, ppPrimExpr shows exactly a valid SQL expression :-)
------------------------------------------------------------
-
--- | Pretty prints a 'PrimQuery'
-ppPrimQuery :: PrimQuery -> Doc
-ppPrimQuery = foldPrimQuery (empty,table,project,restrict,binary,special)
-        where
-          ontop d e             = nest 2 (d $$ e)
-          
-          empty                 = empty
-          table name scheme     = (hsep . map text) ["BaseTable",name] 
-				  <+> ppScheme scheme
-          project assoc         = ontop $ text "Project" <+> ppAssoc assoc
-          restrict x            = ontop $ text "Restrict" <+> ppPrimExpr x
-          binary op d1 d2       = nest 2 (ppRelOp op $$ (d1 $$ d2))
-          special op 		= ontop $ ppSpecialOp op
-
--- | Pretty prints a Scheme
-ppScheme :: Scheme -> Doc                    
-ppScheme                        = braces . vcat . punctuate comma . map text
-
--- | Pretty prints an 'Assoc'
-ppAssoc :: Assoc -> Doc
-ppAssoc                         = braces . vcat . punctuate comma . 
-				  map ppNameExpr
-
--- | Pretty prints ('Attribute', 'PrimExpr')
-ppNameExpr :: (Attribute, PrimExpr) -> Doc
-ppNameExpr (attr,expr)          = text attr <> colon <+> ppPrimExpr expr
-
--- | Pretty prints a 'PrimExpr'
-ppPrimExpr :: PrimExpr -> Doc
-ppPrimExpr = foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list)
-        where
-          attr          = text
-          scalar        = ppLiteral
-          binary op x y = parens (x <+> ppBinOp op <+> y)
-          -- paranthesis around ASC / desc exprs not allowed
-          unary OpAsc x  = x <+> ppUnOp OpAsc
-          unary OpDesc x = x <+> ppUnOp OpDesc
-	  unary op x | isFun op      = parens (ppUnOp op <> parens x)
-		     | isPrefixOp op = parens (ppUnOp op <+> x)
-		     | otherwise     = parens (x <+> ppUnOp op)
-
-          aggr op x	= ppAggrOp op <> parens x
-          _case cs el   = text "CASE" <+> vcat (map ppWhen cs)
-			  <+> text "ELSE" <+> el <+> text "END"
-          list xs       = parens (hcat (punctuate (char ',') xs))
-
-          isFun OpLength        = True
-	  isFun (UnOpOther _)   = True
-	  isFun _               = False
-
-	  isPrefixOp OpNot      = True
-	  isPrefixOp _          = False
-	  
-          ppWhen (w,t) = text "WHEN" <+> w <+> text "THEN" <+> t
-
--- PP on ops:
--- | Pretty prints a 'RelOp'
-ppRelOp :: RelOp -> Doc
-ppRelOp  op		= text (showRelOp  op) 
-
--- | Pretty prints an 'UnUp'
-ppUnOp :: UnOp -> Doc
-ppUnOp	 op		= text (showUnOp   op)         
-
--- | Pretty prints a 'BinOp'
-ppBinOp :: BinOp -> Doc
-ppBinOp  op             = text (showBinOp  op)
-
--- | Pretty prints an 'AggrOp'
-ppAggrOp :: AggrOp -> Doc
-ppAggrOp op             = text (showAggrOp op)
-
--- | Pretty prints a 'Special Op'
-ppSpecialOp :: SpecialOp -> Doc
-ppSpecialOp (Order xs)  = (vcat . punctuate comma) (map ppPrimExpr xs)
-ppSpecialOp (Top False n)= text "LIMIT" <+> text (show n)
--- FIXME: should we remove topPercent?
--- doesn't seem to be any support for it in e.g.g MySQL and PostgreSQL
-ppSpecialOp (Top True n) = error "topPercent not supported"
-
--- | Pretty prints a literal
-ppLiteral :: Literal -> Doc
-ppLiteral = text . showLiteral
-
------------------------------------------------------------
--- Show expression operators, coincidently they show
--- exactly the SQL equivalents 
------------------------------------------------------------
-
-showRelOp :: RelOp -> String
-showRelOp Times		= "TIMES"
-showRelOp Union        	= "UNION"
-showRelOp Intersect    	= "INTERSECT"
-showRelOp Divide       	= "DIVIDE"
-showRelOp Difference   	= "MINUS"
-
-showUnOp :: UnOp -> String
-showUnOp  OpNot         = "NOT"
-showUnOp  OpIsNull      = "IS NULL" 
-showUnOp  OpIsNotNull   = "IS NOT NULL" 
-showUnOp  OpAsc         = "ASC"
-showUnOp  OpDesc        = "DESC"
-showUnOp  OpLength      = "LENGTH"
-showUnOp  (UnOpOther s) = s
-
-showBinOp :: BinOp -> String
-showBinOp  OpEq         = "=" 
-showBinOp  OpLt         = "<" 
-showBinOp  OpLtEq       = "<=" 
-showBinOp  OpGt         = ">" 
-showBinOp  OpGtEq       = ">=" 
-showBinOp  OpNotEq      = "<>" 
-showBinOp  OpAnd        = "AND"  
-showBinOp  OpOr         = "OR" 
-showBinOp  OpLike       = "LIKE" 
-showBinOp  OpIn         = "IN" 
-showBinOp  (OpOther s)  = s
-                
-showBinOp  OpCat        = "+" 
-showBinOp  OpPlus       = "+" 
-showBinOp  OpMinus      = "-" 
-showBinOp  OpMul        = "*" 
-showBinOp  OpDiv        = "/" 
-showBinOp  OpMod        = "MOD" 
-showBinOp  OpBitNot     = "~" 
-showBinOp  OpBitAnd     = "&" 
-showBinOp  OpBitOr      = "|" 
-showBinOp  OpBitXor     = "^"
-showBinOp  OpAsg        = "="
-
-showAggrOp :: AggrOp -> String
-showAggrOp AggrCount    = "COUNT" 
-showAggrOp AggrSum      = "SUM" 
-showAggrOp AggrAvg      = "AVG" 
-showAggrOp AggrMin      = "MIN" 
-showAggrOp AggrMax      = "MAX" 
-showAggrOp AggrStdDev   = "StdDev" 
-showAggrOp AggrStdDevP  = "StdDevP" 
-showAggrOp AggrVar      = "Var" 
-showAggrOp AggrVarP     = "VarP"                
-showAggrOp (AggrOther s)        = s
-
-showLiteral :: Literal -> String
-showLiteral NullLit = "NULL"
-showLiteral DefaultLit = "DEFAULT"		    
-showLiteral (BoolLit b) = if b then "TRUE" else "FALSE"
-showLiteral (StringLit s) = quote s
-showLiteral (IntegerLit i) = show i
-showLiteral (DoubleLit d) = show d
-showLiteral (DateLit t) = quote (formatCalendarTime defaultTimeLocale fmt t)
-	where fmt = iso8601DateFormat (Just "%H:%M:%S")
-showLiteral (OtherLit l) = l
-
--- | Quote a string and escape characters that need escaping
---   FIXME: this is backend dependent
-quote :: String -> String 
-quote s = "'" ++ concatMap escape s ++ "'"
-
--- | Escape characters that need escaping
-escape :: Char -> String
-escape '\NUL' = "\\0"
-escape '\'' = "''"
-escape '"' = "\\\""
-escape '\b' = "\\b"
-escape '\n' = "\\n"
-escape '\r' = "\\r"
-escape '\t' = "\\t"
-escape '\\' = "\\\\"
-escape c = [c]

@@ -18,6 +18,7 @@ module Database.HaskellDB.HSQL.PostgreSQL (
 import Database.HaskellDB.Database
 import Database.HaskellDB.HSQL
 import Database.HaskellDB.DriverAPI
+import Database.HaskellDB.Sql.PostgreSQL
 import qualified Database.HSQL.PostgreSQL as PostgreSQL (connect) 
 
 data PostgreSQLOptions = PostgreSQLOptions { 
@@ -29,7 +30,7 @@ data PostgreSQLOptions = PostgreSQLOptions {
 
 postgresqlConnect :: MonadIO m => PostgreSQLOptions -> (Database -> m a) -> m a
 postgresqlConnect opts = 
-    hsqlConnect (PostgreSQL.connect (server opts) (db opts) (uid opts) (pwd opts))
+    hsqlConnect generator (PostgreSQL.connect (server opts) (db opts) (uid opts) (pwd opts))
 
 postgresqlConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 postgresqlConnectOpts opts f = 

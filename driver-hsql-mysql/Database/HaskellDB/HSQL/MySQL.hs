@@ -16,6 +16,7 @@ module Database.HaskellDB.HSQL.MySQL (MySQLOptions(..), mysqlConnect,
 import Database.HaskellDB.Database
 import Database.HaskellDB.HSQL
 import Database.HaskellDB.DriverAPI
+import Database.HaskellDB.Sql.MySQL (generator)
 import qualified Database.HSQL.MySQL as MySQL (connect) 
 
 data MySQLOptions = MySQLOptions { 
@@ -27,7 +28,7 @@ data MySQLOptions = MySQLOptions {
 
 mysqlConnect :: MonadIO m => MySQLOptions -> (Database -> m a) -> m a
 mysqlConnect opts = 
-    hsqlConnect (MySQL.connect (server opts) (db opts) (uid opts) (pwd opts))
+    hsqlConnect generator (MySQL.connect (server opts) (db opts) (uid opts) (pwd opts))
 
 mysqlConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 mysqlConnectOpts opts f = 

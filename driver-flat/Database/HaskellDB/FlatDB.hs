@@ -213,13 +213,10 @@ flatQuery pq db = e pq
            Special op q ->
                case op of 
                  Order os -> t { relRows = sortBy sortExprs (relRows t) }
-                       where sortExprs r1 r2 = mconcat [cmpExpr o r1 r2 | o <- os]
-                             cmpExpr (UnExpr OpAsc  e) r1 r2 = evalExpr r1 e `compare` evalExpr r2 e
-                             cmpExpr (UnExpr OpDesc e) r1 r2 = evalExpr r2 e `compare` evalExpr r1 e
-                 Top p n -> t { relRows = genericTake c rs }
-                       where rs = relRows t
-                             c | p = (genericLength rs * n) `div` 100
-                               | otherwise = n
+                       where sortExprs r1 r2 = mconcat [cmpExpr o e r1 r2 | OrderExpr o e <- os]
+                             cmpExpr OpAsc  e r1 r2 = evalExpr r1 e `compare` evalExpr r2 e
+                             cmpExpr OpDesc e r1 r2 = evalExpr r2 e `compare` evalExpr r1 e
+                 Top n -> t { relRows = take n (relRows t) }
                where t = e q
            Empty -> FlatRel { relSchema = [], 
                               relRows = [] }
@@ -302,8 +299,6 @@ evalExpr env (BinExpr op x1 x2) =
 evalExpr env (UnExpr op x) =
     case op of
       OpNot       -> VBool (not (toBool v))
-      OpAsc       -> notImplemented $ show op -- FIXME: sorting, weird
-      OpDesc      -> notImplemented $ show op -- FIXME: sorting, weird
       OpIsNull    -> VBool (isNull v)
       OpIsNotNull -> VBool (not (isNull v))
       OpLength    -> VInteger (genericLength (toString v))

@@ -29,7 +29,7 @@ import System.Time
 import Database.HaskellDB
 import Database.HaskellDB.DriverAPI
 import Database.HaskellDB.Database
-import Database.HaskellDB.Sql
+import Database.HaskellDB.Sql.Generate (SqlGenerator)
 import Database.HaskellDB.Sql.Print
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query
@@ -48,17 +48,16 @@ data WXOptions = WXOptions {
                   	   }
 
 -- | Run an action and close the connection.
-wxConnect :: WXOptions -> (Database -> IO a) -> IO a
-wxConnect WXOptions{dsn=d,uid=u,pwd=p} action = 
-    handleDbError (WX.dbWithConnection d u p (action . mkDatabase))
+wxConnect :: SqlGenerator -> WXOptions -> (Database -> IO a) -> IO a
+wxConnect gen WXOptions{dsn=d,uid=u,pwd=p} action = 
+    handleDbError (WX.dbWithConnection d u p (action . mkDatabase gen))
 
 wxConnectOpts :: [(String,String)] -> (Database -> IO a) -> IO a
 wxConnectOpts opts f = 
     do
     [a,b,c] <- getOptions ["dsn","uid","pwd"] opts
-    wxConnect (PostgreSQLOptions {dsn = a,
-                                  uid = b,
-			          pwd = c}) f
+    gen <- getGenerator opts
+    wxConnect gen (PostgreSQLOptions {dsn = a, uid = b, pwd = c}) f
 
 driver :: DriverInterface
 driver = defaultdriver {connect = wxConnectOpts}
@@ -67,39 +66,39 @@ driver = defaultdriver {connect = wxConnectOpts}
 handleDbError :: IO a -> IO a
 handleDbError io = WX.catchDbError io (fail . WX.dbErrorMsg)
 
-mkDatabase :: Connection -> Database
-mkDatabase connection
-    = Database { dbQuery	= wxQuery connection,
-    		 dbInsert	= wxInsert connection,
-		 dbInsertQuery 	= wxInsertQuery connection,
-		 dbDelete	= wxDelete connection,
-		 dbUpdate	= wxUpdate connection,
-		 dbTables       = wxTables connection,
-		 dbDescribe     = wxDescribe connection,
-		 dbTransaction  = wxTransaction connection,
-		 dbCreateDB     = wxCreateDB connection,
-		 dbCreateTable  = wxCreateTable connection,
-		 dbDropDB       = wxDropDB connection,
-		 dbDropTable    = wxDropTable connection
+mkDatabase :: SqlGenerator -> Connection -> Database
+mkDatabase gen connection
+    = Database { dbQuery	= wxQuery       gen connection,
+    		 dbInsert	= wxInsert      gen connection,
+		 dbInsertQuery 	= wxInsertQuery gen connection,
+		 dbDelete	= wxDelete      gen connection,
+		 dbUpdate	= wxUpdate      gen connection,
+		 dbTables       = wxTables          connection,
+		 dbDescribe     = wxDescribe        connection,
+		 dbTransaction  = wxTransaction     connection,
+		 dbCreateDB     = wxCreateDB    gen connection,
+		 dbCreateTable  = wxCreateTable gen connection,
+		 dbDropDB       = wxDropDB      gen connection,
+		 dbDropTable    = wxDropTable   gen connection
 	       }
 
-wxQuery :: GetRec er vr => Connection -> PrimQuery -> Rel er -> IO [Record vr]
-wxQuery connection qtree rel = wxPrimQuery connection sql scheme rel
+wxQuery :: GetRec er vr => SqlGenerator -> Connection -> PrimQuery -> Rel er -> IO [Record vr]
+wxQuery gen connection qtree rel = wxPrimQuery connection sql scheme rel
     where
-      sql = show (ppSql (toSql qtree))  
+      sql = show $ ppSql $ sqlQuery gen qtree
       scheme = attributes qtree
 
-wxInsert conn table assoc = 
-    wxPrimExecute conn $ show $ ppInsert $ toInsert table assoc
+wxInsert gen conn table assoc = 
+    wxPrimExecute conn $ show $ ppInsert $ sqlInsert gen table assoc
 	  
-wxInsertQuery conn table assoc = 
-    wxPrimExecute conn $ show $ ppInsert $ toInsertQuery table assoc
+wxInsertQuery gen conn table assoc = 
+    wxPrimExecute conn $ show $ ppInsert $ sqlInsertQuery gen table assoc
 	  
-wxDelete conn table exprs = 
-    wxPrimExecute conn $ show $ ppDelete $ toDelete table exprs
+wxDelete gen conn table exprs = 
+    wxPrimExecute conn $ show $ ppDelete $ sqlDelete gen table exprs
 
-wxUpdate conn table criteria assigns = 
-    wxPrimExecute conn $ show $ ppUpdate $ toUpdate table criteria assigns
+wxUpdate gen conn table criteria assigns = 
+    wxPrimExecute conn $ show $ ppUpdate $ sqlUpdate gen table criteria assigns
 
 wxTables :: Connection -> IO [TableName]
 wxTables conn = 
@@ -117,18 +116,21 @@ wxDescribe conn table =
 			    columnNullable = nullable}
 	= (name, (toFieldType size sqlType, nullable))
 
-wxCreateDB :: Connection -> String -> IO ()
-wxCreateDB conn name 
-    = wxPrimExecute conn $ show $ ppCreate $ toCreateDB name
-wxCreateTable :: Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
-wxCreateTable conn name as
-    = wxPrimExecute conn $ show $ ppCreate $ toCreateTable name as
-wxDropDB :: Connection -> String -> IO ()
-wxDropDB conn name 
-    = wxPrimExecute conn $ show $ ppDrop $ toDropDB name
-wxDropTable :: Connection -> TableName -> IO ()
-wxDropTable conn name
-    = wxPrimExecute conn $ show $ ppDrop $ toDropTable name
+wxCreateDB :: SqlGenerator -> Connection -> String -> IO ()
+wxCreateDB gen conn name 
+    = wxPrimExecute conn $ show $ ppCreate $ sqlCreateDB gen name
+
+wxCreateTable :: SqlGenerator -> Connection -> TableName -> [(Attribute,FieldDesc)] -> IO ()
+wxCreateTable gen conn name as
+    = wxPrimExecute conn $ show $ ppCreate $ sqlCreateTable gen name as
+
+wxDropDB :: SqlGenerator -> Connection -> String -> IO ()
+wxDropDB gen conn name 
+    = wxPrimExecute conn $ show $ ppDrop $ sqlDropDB gen name
+
+wxDropTable :: SqlGenerator -> Connection -> TableName -> IO ()
+wxDropTable gen conn name
+    = wxPrimExecute conn $ show $ ppDrop $ sqlDropTable gen name
 
 toFieldType :: Int -> SqlType -> FieldType
 toFieldType _ SqlDecimal   = DoubleT
