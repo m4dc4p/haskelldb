@@ -44,7 +44,7 @@ tableTests =
              testTable calendartime_tbl calendartime_data_1
             ]
 
-fieldTests = 
+fieldTests = label "fieldTests" $
     dbtests [
              testField string_tbl string_data_1 TString.f01,
              testField string_tbl string_data_1 TString.f02,
@@ -74,10 +74,11 @@ fieldTests =
              testField calendartime_tbl calendartime_data_1 TCalendartime.f01,
              testField calendartime_tbl calendartime_data_1 TCalendartime.f02,
              testField calendartime_tbl calendartime_data_1 TCalendartime.f03,
-             testField calendartime_tbl calendartime_data_1 TCalendartime.f04,
+             testField calendartime_tbl calendartime_data_1 TCalendartime.f04
+            ]
 
-
-
+strangeInputTests = label "strangeInputTests" $
+    dbtests [
              testField string_tbl string_data_strange TString.f01,
              testField string_tbl string_data_strange TString.f02,
              testField string_tbl string_data_strange TString.f03,

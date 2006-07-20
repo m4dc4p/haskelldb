@@ -27,6 +27,9 @@ dbtests fs dbi cs = TestList $ map (\f -> f dbi cs) fs
 dbtest :: String -> (Database -> Assertion) -> DBTest
 dbtest l f dbi cs = TestLabel l $ TestList $ map (testWithDB f dbi) cs
 
+label :: String -> DBTest -> DBTest
+label l f dbi cs = TestLabel l (f dbi cs)
+
 testWithDB :: (Database -> Assertion) -> DBInfo -> Conn -> Test
 testWithDB f dbi c = TestLabel (dbLabel c) $ TestCase $ withDB (withTables f dbi) c
 
