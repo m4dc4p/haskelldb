@@ -29,7 +29,8 @@ module Database.HaskellDB.Sql.Generate (
                                         defaultSqlDropTable,
 
                                         defaultSqlExpr,
-                                        defaultSqlLiteral
+                                        defaultSqlLiteral,
+                                        defaultSqlType
                                        ) where
 
 import Data.List (intersect)
@@ -53,7 +54,8 @@ data SqlGenerator = SqlGenerator
      sqlDropTable   :: TableName -> SqlDrop,
 
      sqlExpr        :: PrimExpr -> SqlExpr,
-     sqlLiteral     :: Literal -> String
+     sqlLiteral     :: Literal -> String,
+     sqlType        :: FieldType -> SqlType
     }
 
 mkSqlGenerator :: SqlGenerator -> SqlGenerator
@@ -70,7 +72,8 @@ mkSqlGenerator gen = SqlGenerator
      sqlDropTable   = defaultSqlDropTable gen,
 
      sqlExpr        = defaultSqlExpr gen,
-     sqlLiteral     = defaultSqlLiteral gen
+     sqlLiteral     = defaultSqlLiteral gen,
+     sqlType        = defaultSqlType gen
     }
 
 defaultSqlGenerator :: SqlGenerator
@@ -80,14 +83,16 @@ defaultSqlGenerator = mkSqlGenerator defaultSqlGenerator
 -- * Types
 -----------------------------------------------------------
 
-toSqlType :: FieldType -> SqlType
-toSqlType StringT       = SqlType "text"
-toSqlType IntT          = SqlType "int"
-toSqlType IntegerT      = SqlType "bigint"
-toSqlType DoubleT       = SqlType "double precision"
-toSqlType BoolT         = SqlType "bit"
-toSqlType CalendarTimeT = SqlType "timestamp"
-toSqlType (BStrT a)     = SqlType1 "varchar" a
+defaultSqlType :: SqlGenerator -> FieldType -> SqlType
+defaultSqlType _ t = 
+    case t of
+      StringT       -> SqlType "text"
+      IntT          -> SqlType "int"
+      IntegerT      -> SqlType "bigint"
+      DoubleT       -> SqlType "double precision"
+      BoolT         -> SqlType "bit"
+      CalendarTimeT -> SqlType "timestamp"
+      BStrT a       -> SqlType1 "varchar" a
 
 -----------------------------------------------------------
 -- * SELECT
@@ -243,8 +248,8 @@ defaultSqlCreateTable :: SqlGenerator
                    -> TableName -- ^ name of the table to be created.
 	           -> [(Attribute,FieldDesc)] -- ^ Column descriptions
                    -> SqlCreate
-defaultSqlCreateTable _ name xs = 
-    SqlCreateTable name [(cname, (toSqlType t,nullable)) 
+defaultSqlCreateTable gen name xs = 
+    SqlCreateTable name [(cname, (sqlType gen t,nullable)) 
                              | (cname, (t,nullable)) <- xs]
 
 
