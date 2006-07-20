@@ -28,7 +28,9 @@ allTests =
     dbtests [
              tableTests,
              fieldTests,
-             testDeleteEmpty,
+             testDeleteAll,
+             testDeleteNone,
+             testUpdateNone,
              testTop,
              testTransactionInsert,
              testLazy
@@ -130,16 +132,37 @@ testDistinct tbl r = dbtest name $ \db ->
        assertEqual "Bad result length" 1 (length rs)
   where name = "distinct " ++ tableName tbl
 
+-- * Insert
+
 testInsert = dbtest "insert" $ \db ->
     do insertData db hdb_t1 hdb_t1_data
        rs <- query db $ table hdb_t1
        assertEqual "Bad result length" (length hdb_t1_data) (length rs)
 
-testDeleteEmpty = dbtest "deleteEmpty" $ \db ->
+-- * Delete
+
+testDeleteAll = dbtest "deleteAll" $ \db ->
     do insertData db hdb_t1 hdb_t1_data
        delete db hdb_t1 (\_ -> constant True)
        rs <- query db $ table hdb_t1
        assertBool "Query after complete delete is non-empty" (null rs)
+
+testDeleteNone = dbtest "deleteNone" $ \db ->
+    do insertData db hdb_t1 hdb_t1_data
+       rs <- query db $ table hdb_t1
+       delete db hdb_t1 (\_ -> constant False)
+       rs' <- query db $ table hdb_t1
+       assertEqual "Something was changed by a null delete" rs rs'
+
+-- * Update
+
+testUpdateNone = dbtest "updateNone" $ \db ->
+    do insertData db hdb_t1 hdb_t1_data
+       rs <- query db $ table hdb_t1
+       update db hdb_t1 (\_ -> constant False) (\_ -> t1f02 <<- "flubber")
+       rs' <- query db $ table hdb_t1
+       assertEqual "Something was changed by a null update" rs rs'
+
 
 testTop = dbtest "top" $ \db ->
     do insertData db hdb_t1 hdb_t1_data
