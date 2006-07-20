@@ -78,7 +78,8 @@ module Database.HaskellDB
 import Database.HaskellDB.HDBRec
 -- PrimQuery type is imported so that haddock can find it.
 import Database.HaskellDB.PrimQuery (PrimQuery)
-import Database.HaskellDB.Sql.Generate (sqlQuery, defaultSqlGenerator)
+import Database.HaskellDB.Sql.Generate (sqlQuery)
+import Database.HaskellDB.Sql.Default (defaultSqlGenerator)
 import Database.HaskellDB.Sql.Print (ppSql)
 import Database.HaskellDB.Optimize  (optimize)
 import Database.HaskellDB.Query

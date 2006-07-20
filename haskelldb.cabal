@@ -29,6 +29,7 @@ Exposed-Modules:
         Database.HaskellDB.Query,
         Database.HaskellDB.Sql,
         Database.HaskellDB.Sql.Generate,
+        Database.HaskellDB.Sql.Default,
         Database.HaskellDB.Sql.Print,
         Database.HaskellDB.Sql.MySQL,
         Database.HaskellDB.Sql.PostgreSQL,

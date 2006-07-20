@@ -13,10 +13,11 @@
 -----------------------------------------------------------
 module Database.HaskellDB.Sql.PostgreSQL (generator) where
 
+import Database.HaskellDB.Sql
+import Database.HaskellDB.Sql.Default
 import Database.HaskellDB.Sql.Generate
 import Database.HaskellDB.FieldType
 import Database.HaskellDB.PrimQuery
-import Database.HaskellDB.Sql
 
 
 generator :: SqlGenerator
@@ -27,8 +28,6 @@ generator = mkSqlGenerator generator
             }
 
 postgresqlSpecial :: SpecialOp -> SqlSelect -> SqlSelect
-postgresqlSpecial (Top n) q = sql { extra = ("LIMIT " ++ show n) : extra sql }
-          	where sql = toSqlSelect q
 postgresqlSpecial op q = defaultSqlSpecial generator op q      
 
 postgresqlType :: FieldType -> SqlType

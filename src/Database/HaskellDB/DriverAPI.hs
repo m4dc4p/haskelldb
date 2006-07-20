@@ -23,7 +23,8 @@ module Database.HaskellDB.DriverAPI (
 
 import Database.HaskellDB.Database (Database)
 
-import Database.HaskellDB.Sql.Generate (SqlGenerator, defaultSqlGenerator)
+import Database.HaskellDB.Sql.Generate (SqlGenerator)
+import Database.HaskellDB.Sql.Default (defaultSqlGenerator)
 import Database.HaskellDB.Sql.MySQL as MySQL
 import Database.HaskellDB.Sql.PostgreSQL as PostgreSQL
 import Database.HaskellDB.Sql.SQLite as SQLite

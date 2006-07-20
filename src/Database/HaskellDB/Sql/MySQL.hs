@@ -13,6 +13,7 @@
 -----------------------------------------------------------
 module Database.HaskellDB.Sql.MySQL (generator) where
 
+import Database.HaskellDB.Sql.Default
 import Database.HaskellDB.Sql.Generate
 import Database.HaskellDB.PrimQuery
 
