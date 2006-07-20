@@ -28,9 +28,19 @@ module Database.HaskellDB.Sql.Generate (
                                         defaultSqlDropDB,
                                         defaultSqlDropTable,
 
+                                        defaultSqlEmpty,
+                                        defaultSqlTable,
+                                        defaultSqlProject,
+                                        defaultSqlRestrict,
+                                        defaultSqlBinary,
+                                        defaultSqlSpecial,
+
                                         defaultSqlExpr,
                                         defaultSqlLiteral,
-                                        defaultSqlType
+                                        defaultSqlType,
+
+                                        -- * Utilities
+                                        toSqlSelect
                                        ) where
 
 import Data.List (intersect)
@@ -53,6 +63,13 @@ data SqlGenerator = SqlGenerator
      sqlDropDB      :: String -> SqlDrop,
      sqlDropTable   :: TableName -> SqlDrop,
 
+     sqlEmpty       :: SqlSelect,
+     sqlTable       :: TableName -> Scheme -> SqlSelect,
+     sqlProject     :: Assoc -> SqlSelect -> SqlSelect,
+     sqlRestrict    :: PrimExpr -> SqlSelect -> SqlSelect,
+     sqlBinary      :: RelOp -> SqlSelect -> SqlSelect -> SqlSelect,
+     sqlSpecial     :: SpecialOp -> SqlSelect -> SqlSelect,
+
      sqlExpr        :: PrimExpr -> SqlExpr,
      sqlLiteral     :: Literal -> String,
      sqlType        :: FieldType -> SqlType
@@ -61,19 +78,26 @@ data SqlGenerator = SqlGenerator
 mkSqlGenerator :: SqlGenerator -> SqlGenerator
 mkSqlGenerator gen = SqlGenerator 
     {
-     sqlQuery       = defaultSqlQuery gen,
-     sqlUpdate      = defaultSqlUpdate gen,
-     sqlDelete      = defaultSqlDelete gen,
-     sqlInsert      = defaultSqlInsert gen,
+     sqlQuery       = defaultSqlQuery       gen,
+     sqlUpdate      = defaultSqlUpdate      gen,
+     sqlDelete      = defaultSqlDelete      gen,
+     sqlInsert      = defaultSqlInsert      gen,
      sqlInsertQuery = defaultSqlInsertQuery gen,
-     sqlCreateDB    = defaultSqlCreateDB gen,
+     sqlCreateDB    = defaultSqlCreateDB    gen,
      sqlCreateTable = defaultSqlCreateTable gen,
-     sqlDropDB      = defaultSqlDropDB gen,
-     sqlDropTable   = defaultSqlDropTable gen,
+     sqlDropDB      = defaultSqlDropDB      gen,
+     sqlDropTable   = defaultSqlDropTable   gen,
 
-     sqlExpr        = defaultSqlExpr gen,
-     sqlLiteral     = defaultSqlLiteral gen,
-     sqlType        = defaultSqlType gen
+     sqlEmpty       = defaultSqlEmpty       gen,
+     sqlTable       = defaultSqlTable       gen,
+     sqlProject     = defaultSqlProject     gen,
+     sqlRestrict    = defaultSqlRestrict    gen,
+     sqlBinary      = defaultSqlBinary      gen,
+     sqlSpecial     = defaultSqlSpecial     gen,
+
+     sqlExpr        = defaultSqlExpr        gen,
+     sqlLiteral     = defaultSqlLiteral     gen,
+     sqlType        = defaultSqlType        gen
     }
 
 defaultSqlGenerator :: SqlGenerator
@@ -101,17 +125,26 @@ defaultSqlType _ t =
 -- | Creates a 'SqlSelect' based on the 'PrimQuery' supplied.
 -- Corresponds to the SQL statement SELECT.
 defaultSqlQuery :: SqlGenerator -> PrimQuery -> SqlSelect
-defaultSqlQuery gen = foldPrimQuery (empty,table,project,restrict,binary,special)
-        where
-          empty             	= SqlEmpty
-          table name schema 	= SqlTable name
-	 
-          project assoc q
+defaultSqlQuery gen = foldPrimQuery (sqlEmpty gen, 
+                                     sqlTable gen,
+                                     sqlProject gen,
+                                     sqlRestrict gen,
+                                     sqlBinary gen,
+                                     sqlSpecial gen)
+
+defaultSqlEmpty :: SqlGenerator -> SqlSelect
+defaultSqlEmpty _ = SqlEmpty
+
+defaultSqlTable :: SqlGenerator -> TableName -> Scheme -> SqlSelect
+defaultSqlTable _ name schema = SqlTable name
+
+defaultSqlProject :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
+defaultSqlProject gen assoc q
           	| hasAggr    = select { groupby = map (sqlExpr gen) nonAggrs }
           	| otherwise  = select 
                 where
                   select   = sql { attrs = toSqlAssoc gen assoc }
-                  sql      = toSelect q
+                  sql      = toSqlSelect q
 
                   hasAggr  = any isAggregate exprs
                   
@@ -120,39 +153,40 @@ defaultSqlQuery gen = foldPrimQuery (empty,table,project,restrict,binary,special
                   nonAggrs = filter (not.isAggregate) exprs
                   
                   exprs    = map snd assoc
-		  
-          restrict expr q
+
+defaultSqlRestrict :: SqlGenerator -> PrimExpr -> SqlSelect -> SqlSelect
+defaultSqlRestrict gen expr q
                 = sql { criteria = sqlExpr gen expr : criteria sql }
                 where
-                  sql   = toSelect q
-                  
-          -- binary assumes that q1 and q2 are not empty
-          binary Times q1 q2  
+                  sql   = toSqlSelect q
+
+defaultSqlBinary :: SqlGenerator -> RelOp -> SqlSelect -> SqlSelect -> SqlSelect
+defaultSqlBinary _ Times q1 q2  
           	| null (attrs q1) = addTable q1 q2
           	| null (attrs q2) = addTable q2 q1
           	| otherwise       = newSelect { tables = [("",q1),("",q2)] }
           	where
           	  addTable sql q  = sql{ tables = tables sql ++ [("",q)] }
-		 
-          binary op q1 q2         
+defaultSqlBinary _ op q1 q2         
           	= SqlBin (toSqlOp op) q1 q2
 
-	  special (Order o) q
+defaultSqlSpecial :: SqlGenerator -> SpecialOp -> SqlSelect -> SqlSelect
+defaultSqlSpecial gen (Order o) q
 	  	= sql { orderby = newOrder ++ oldOrder }  
 		where
-		  sql 	    = toSelect q
+		  sql 	    = toSqlSelect q
                   newOrder  = map (toSqlOrder gen) o
 
 		  -- FIXME: what if they conflict?
                   -- The old version tried to fix that, but that
                   -- would only work partly
-		  oldOrder  = orderby sql
-		  	    
-          special (Top n) q
+		  oldOrder  = orderby sql		  	    
+defaultSqlSpecial _ (Top n) q
                   -- FIXME: HACK!!!
                   -- only works for a few databases
           	= sql { extra = ("TOP " ++ show n) : extra sql }
-          	where sql = toSelect q
+          	where sql = toSqlSelect q
+
 
 toSqlOrder :: SqlGenerator -> OrderExpr -> (SqlExpr,SqlOrder)
 toSqlOrder gen (OrderExpr o e) = (sqlExpr gen e, o')
@@ -160,8 +194,8 @@ toSqlOrder gen (OrderExpr o e) = (sqlExpr gen e, o')
                  OpAsc  -> SqlAsc
                  OpDesc -> SqlDesc
 
-toSelect :: SqlSelect -> SqlSelect
-toSelect sql = case sql of
+toSqlSelect :: SqlSelect -> SqlSelect
+toSqlSelect sql = case sql of
                     (SqlEmpty)          -> newSelect
                     (SqlTable name)     -> newSelect { tables = [("",sql)] }
                     (SqlBin op q1 q2)   -> newSelect { tables = [("",sql)] }

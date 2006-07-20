@@ -15,14 +15,21 @@ module Database.HaskellDB.Sql.PostgreSQL (generator) where
 
 import Database.HaskellDB.Sql.Generate
 import Database.HaskellDB.FieldType
+import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Sql
 
 
 generator :: SqlGenerator
 generator = mkSqlGenerator generator 
             {
+             sqlSpecial = postgresqlSpecial,
              sqlType = postgresqlType
             }
+
+postgresqlSpecial :: SpecialOp -> SqlSelect -> SqlSelect
+postgresqlSpecial (Top n) q = sql { extra = ("LIMIT " ++ show n) : extra sql }
+          	where sql = toSqlSelect q
+postgresqlSpecial op q = defaultSqlSpecial generator op q      
 
 postgresqlType :: FieldType -> SqlType
 postgresqlType BoolT = SqlType "boolean"
