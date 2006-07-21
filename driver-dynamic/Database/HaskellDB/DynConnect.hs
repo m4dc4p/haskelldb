@@ -67,13 +67,7 @@ dynConnect_ :: MonadIO m =>
             -> (Database -> m a) -- ^ Database action to run
             -> m a
 dynConnect_ d opts f = 
-    case map toLower d of
-         "odbc"                       -> c "hsql-odbc" "HSQL.ODBC"
-         "mysql"                      -> c "hsql-mysql" "HSQL.MySQL"
-         "sqlite"                     -> c "hsql-sqlite" "HSQL.SQLite"
-         x | "postgre" `isPrefixOf` x -> c "hsql-postgresql" "HSQL.PostgreSQL"
-         x | "wx" `isPrefixOf` x      -> c "wx" "WX"
-         _            -> fail $ "DynConnect: unknown driver: " ++ d
-  where c p m = dynConnect p' m' opts f
-         where p' = "haskelldb-" ++ p ++ "-" ++ version
-               m' = "Database.HaskellDB." ++ m
+    dynConnect p m opts f
+    where p = "haskelldb-" ++ (map c d) ++ "-" ++ version
+          m = "Database.HaskellDB." ++ d
+          c x = if x == '.' then '-' else toLower x
