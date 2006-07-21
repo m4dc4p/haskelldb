@@ -59,10 +59,11 @@ dynConnect p m opts f =
                   Just v -> return v
     connect v opts f
 
--- | Load a driver by a simple driver name.
+-- | Load a driver by a simple driver name corresponding to the
+--   package suffix
 dynConnect_ :: MonadIO m => 
-               String -- ^ Driver, in a human readable format, for
-                      -- example "odbc" or "mysql"
+               String -- ^ Driver package suffix, e.g. "WX", "HSQL.MySQL",
+                      -- "HDBC.PostgreSQL"
             -> [(String,String)] -- ^ Arguments to the driver 
             -> (Database -> m a) -- ^ Database action to run
             -> m a
