@@ -76,10 +76,8 @@ showHelp = mapM_ (hPutStrLn stderr) t
     t = ["Usage: DBDirect [-b] <module> <driver> <options>",
          "",
          "-b         Use bounded string types",
-         "<driver>   One of: odbc, mysql, sqlite, postgresql, wx",
-         "<options>  Driver dependent:",
-         "           odbc:       dsn=<dsn>,uid=<uid>,pwd=<pwd>",
-         "           mysql:      server=<server>,db=<db>,uid=<uid>,pwd=<pwd>",
-         "           sqlite:     filepath=<path>,mode=r|rw",
-         "           postgresql: server=<server>,db=<db>,uid=<uid>,pwd=<pwd>",
-         "           wx:         dsn=<dsn>,uid=<uid>,pwd=<pwd>"]
+         "<driver>   One of: WX, HSQL.MySQL, HDBC.PostgreSQL, etc",
+         "<options>  Driver dependent,e.g.",
+         "           WX:              dsn=<dsn>,uid=<uid>,pwd=<pwd>",
+         "           HSQL.MySQL:      server=<server>,db=<db>,uid=<uid>,pwd=<pwd>",
+         "           HDBC.PostgreSQL: host=<server>,dbname=<db>,user=<uid>,password=<pwd>"]
