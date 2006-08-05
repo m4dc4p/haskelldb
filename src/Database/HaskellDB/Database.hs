@@ -23,7 +23,7 @@ module Database.HaskellDB.Database (
 		, GetRec(..), GetInstances(..)
 
 		-- * Function declarations
-		, query, lazyQuery, strictQuery
+		, query
 		, insert, delete, update, insertQuery
 		, tables, describe, transaction
 		, createDB, createTable, dropDB, dropTable
@@ -164,26 +164,8 @@ getNonNull fs s f =
 
 -- | performs a query on a database
 query :: GetRec er vr => Database -> Query (Rel er) -> IO [Record vr]
-query	= strictQuery
-
--- | lazy query performs a lazy query on a database
-lazyQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [Record vr]
-lazyQuery db q = dbQuery db (optimize primQuery) (rel)
-	where
-	  (primQuery,rel) = runQueryRel q
-
-
--- | retrieves all the results directly in Haskell. This allows
--- a connection to close as early as possible.
-strictQuery :: GetRec er vr => Database -> Query (Rel er) -> IO [Record vr]
-strictQuery db q
-        = do xs <- lazyQuery db q
-             let xs' = seqList xs
-             xs' `seq` return xs'
-          where
-	  seqList []      = []
-	  seqList (x:xs)  = let xs' = seqList xs
-                  	    in  xs' `seq` x:xs'
+query db q = dbQuery db (optimize primQuery) rel
+    where (primQuery,rel) = runQueryRel q
 	
 -- | Inserts values from a query into a table
 insertQuery :: ShowRecRow r => Database -> Table r -> Query (Rel r) -> IO ()

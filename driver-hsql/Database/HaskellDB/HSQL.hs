@@ -160,18 +160,18 @@ hsqlPrimQuery :: GetRec er vr =>
 hsqlPrimQuery connection sql scheme rel = 
     do trace "HSQL.query" sql
        stmt <- handleSqlError $ HSQL.query connection sql
-       lazyRows (getRec hsqlGetInstances rel scheme) stmt
+       getRows (getRec hsqlGetInstances rel scheme) stmt
 
--- | Retrive rows lazily.
-lazyRows :: (Statement -> IO a) -> Statement -> IO [a]
-lazyRows f stmt = unsafeInterleaveIO (handleSqlError loop)
+-- | Retrive rows strictly.
+getRows :: (Statement -> IO a) -> Statement -> IO [a]
+getRows f stmt = handleSqlError loop
     where
     loop = do
 	   success <- fetch stmt `onError` closeStatement stmt
 	   if success 
 	      then do
 		   x <- f stmt `onError` closeStatement stmt
-		   xs <- lazyRows f stmt
+		   xs <- getRows f stmt
 		   return (x:xs)
 	      else do
 		   closeStatement stmt
