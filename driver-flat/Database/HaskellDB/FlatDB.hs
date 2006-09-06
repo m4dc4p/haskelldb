@@ -22,7 +22,9 @@ import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query	hiding (isNull, union, intersect)
 import Database.HaskellDB.DriverAPI
 
+import Control.Exception (bracket)
 import Control.Monad
+import Control.Monad.Error ()
 import Control.Monad.Trans
 import Data.Bits
 import Data.IORef
@@ -67,6 +69,7 @@ flatDBConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 flatDBConnectOpts opts f = do [a] <- getOptions ["filepath"] opts
                               withFlatDB a f
 
+-- FIXME: this is full of race conditions
 withFlatDB :: MonadIO m => FilePath -> (Database -> m a) -> m a
 withFlatDB f m = 
     do e <- liftIO $ doesFileExist f
@@ -106,27 +109,36 @@ flatDatabase db =
 	       dbDropTable    = \x -> modifyDB db $ flatDropTable x
 	     }
 
+fileReadDB :: FilePath -> IO FlatDB
+fileReadDB f = openFile f ReadMode >>= hReadDB
 
-readDB :: FilePath -> IO FlatDB
-readDB f = do c <- readFile f
-              case reads c of
-                [] -> err $ "parse error"
-                [(x,[])] -> return x
-                [(_,_)]  -> err $ "junk at end"
-                _  -> fail $ "ambiguous parse"
-    where err e = fail $ "FlatDB error when reading " ++ show f 
-                         ++ ": " ++ e
+hReadDB :: Handle -> IO FlatDB
+hReadDB h = 
+    do c <- hGetContents h
+       case readDB c of
+           Left err ->
+               fail $ "FlatDB error when reading " ++ show h
+                        ++ ": " ++ err
+           Right db -> return db
 
-writeDB :: FilePath -> FlatDB -> IO ()
-writeDB f db = do h <- openFile f WriteMode
-                  hWriteDB h db
-                  hClose h
+fileWriteDB :: FilePath -> FlatDB -> IO ()
+fileWriteDB f db = bracket (openFile f WriteMode) (flip hWriteDB db) hClose
 
 hWriteDB :: Handle -> FlatDB -> IO ()
-hWriteDB h db = hPutStr h $ show db
+hWriteDB h db = hPutStr h $ showDB db
 
 newDB :: FilePath -> IO ()
-newDB f = writeDB f emptyDB
+newDB f = fileWriteDB f emptyDB
+
+showDB :: FlatDB -> String
+showDB = show . Map.toList 
+
+readDB :: Monad m => String -> m FlatDB
+readDB c = case reads c of
+                []       -> fail "parse error"
+                [(x,[])] -> return $ Map.fromList x
+                [(_,_)]  -> fail "junk at end"
+                _        -> fail "ambiguous parse"
 
 -- Relations
 
