@@ -74,7 +74,7 @@ withFlatDB :: MonadIO m => FilePath -> (Database -> m a) -> m a
 withFlatDB f m = 
     do e <- liftIO $ doesFileExist f
        when (not e) $ liftIO $ newDB f
-       db <- liftIO $ readDB f
+       db <- liftIO $ fileReadDB f
        dbr <- liftIO $ newIORef db
        x <- m (flatDatabase dbr)
        db' <- liftIO $ readIORef dbr
@@ -122,7 +122,7 @@ hReadDB h =
            Right db -> return db
 
 fileWriteDB :: FilePath -> FlatDB -> IO ()
-fileWriteDB f db = bracket (openFile f WriteMode) (flip hWriteDB db) hClose
+fileWriteDB f db = bracket (openFile f WriteMode) hClose (flip hWriteDB db) 
 
 hWriteDB :: Handle -> FlatDB -> IO ()
 hWriteDB h db = hPutStr h $ showDB db
