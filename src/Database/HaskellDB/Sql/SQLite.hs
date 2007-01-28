@@ -26,6 +26,7 @@ generator = mkSqlGenerator generator
 
 literal :: Literal -> String
 literal (StringLit s) = quote s
+literal DefaultLit = "NULL"
 literal l = defaultSqlLiteral generator l
 
 {-
