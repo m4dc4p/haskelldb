@@ -4,7 +4,14 @@ Copyright: The authors
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-build-depends: haskell98, base, mtl, haskelldb, haskelldb-hdbc, HDBC, HDBC-odbc
+build-depends: 
+  haskell98, 
+  base, 
+  mtl, 
+  haskelldb==0.10, 
+  haskelldb-hdbc==0.10, 
+  HDBC==1.0.1, 
+  HDBC-odbc==1.0.1.0
 Extensions: ExistentialQuantification,
             OverlappingInstances,
             UndecidableInstances,
