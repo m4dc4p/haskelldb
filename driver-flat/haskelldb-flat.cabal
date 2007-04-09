@@ -4,7 +4,11 @@ Copyright: Bjorn Bringert
 Maintainer: bjorn@bringert.net
 Author: Bjorn Bringert
 License: BSD3
-build-depends: haskell98, base, mtl, haskelldb
+build-depends: 
+  haskell98, 
+  base, 
+  mtl, 
+  haskelldb==0.10
 Extensions: 
 Synopsis: An experimental HaskellDB back-end in pure Haskell (no SQL)
 Description:
