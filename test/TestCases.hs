@@ -32,8 +32,7 @@ allTests =
              testDeleteNone,
              testUpdateNone,
              testTop,
-             testTransactionInsert,
-             testLazy
+             testTransactionInsert
             ]
 
 tableTests = 
@@ -182,15 +181,6 @@ testTransactionInsert = dbtest "transactionInsert" $ \db ->
 
 data AbortTransaction = AbortTransaction
                       deriving (Typeable)
-
-
-testLazy = dbtest "lazy" $ \db ->
-    do insertData db hdb_t1 hdb_t1_data
-       rs1 <- strictQuery db $ table hdb_t1
-       rs2 <- lazyQuery db $ table hdb_t1
-       assertEqual "Bad result length" (length rs1) (length rs2)
-       assertEqual "Results not equal" rs1 rs2
-
 
 -- * Utilities
 
