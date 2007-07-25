@@ -138,8 +138,7 @@ ppCreate (SqlCreateTable name xs)
     ppF (fname,t) = text fname <+> ppSqlTypeNull t
 
 ppSqlTypeNull :: (SqlType,Bool) -> Doc
-ppSqlTypeNull (t,nullable) = if nullable then t' else t' <+> text " not null"
-    where t' = ppSqlType t
+ppSqlTypeNull (t,nullable) = ppSqlType t <+> text (if nullable then " null" else " not null")
 
 ppSqlType :: SqlType -> Doc
 ppSqlType (SqlType t) = text t
