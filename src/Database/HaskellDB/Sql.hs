@@ -68,6 +68,7 @@ data SqlExpr = ColumnSqlExpr  SqlColumn
              | ConstSqlExpr   String
 	     | CaseSqlExpr    [(SqlExpr,SqlExpr)] SqlExpr
              | ListSqlExpr    [SqlExpr]
+             | ExistsSqlExpr  SqlSelect
 
 -- | Data type for SQL UPDATE statements.
 data SqlUpdate  = SqlUpdate SqlTable [(SqlColumn,SqlExpr)] [SqlExpr]

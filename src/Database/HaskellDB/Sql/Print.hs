@@ -171,6 +171,7 @@ ppSqlExpr e =
           where ppWhen (w,t) = text "WHEN" <+> ppSqlExpr w 
                                <+> text "THEN" <+> ppSqlExpr t
       ListSqlExpr es      -> parens (commaH ppSqlExpr es)
+      ExistsSqlExpr s     -> text "EXISTS" <+> parens (ppSql s)
 
 commaH :: (a -> Doc) -> [a] -> Doc
 commaH f = hcat . punctuate comma . map f
