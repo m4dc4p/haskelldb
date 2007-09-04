@@ -22,26 +22,11 @@ import Database.HaskellDB.Database (Database)
 import Database.HaskellDB.DriverAPI
 import Database.HaskellDB.Version
 
-import System.Plugins (loadPackage,unloadPackage,resolveObjs,loadFunction_)
-import System.Plugins.Utils (encode)
+import System.Plugins (loadPackageFunction)
 
 import Control.Monad.Trans (MonadIO, liftIO)
 import Data.Char
 import Data.List (isPrefixOf)
-
-
--- | Loads a function from a package module, given the package name,
---   module name and symbol name.
-loadPackageFunction :: MonadIO m => 
-                       String -- ^ Package name, including version number.
-                    -> String -- ^ Module name
-                    -> String -- ^ Symbol to lookup in the module
-                    -> m (Maybe a)
-loadPackageFunction pkgName moduleName functionName =
-    do
-    liftIO $ loadPackage pkgName
-    liftIO $ resolveObjs (unloadPackage pkgName)
-    liftIO $ loadFunction_ (encode moduleName) functionName
 
 -- | Loads a driver by package and module name.
 dynConnect :: MonadIO m => 
@@ -52,7 +37,7 @@ dynConnect :: MonadIO m =>
 	   -> m a
 dynConnect p m opts f = 
     do
-    res <- loadPackageFunction p m "driver"
+    res <- liftIO $ loadPackageFunction p m "driver"
     v <- case res of
 		  Nothing -> fail $ "Couldn't load " ++ m ++ ".driver"
                                     ++ " from package " ++ p
