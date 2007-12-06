@@ -103,7 +103,10 @@ class Select f r a | f r -> a where
     (!) :: r -> f -> a
 
 instance SelectField f r a => Select (l f a) (Record r) a where
-    (!) r (_::l f a) = selectField (undefined::f) r
+    (!) r l = selectField (labelType l) r
+
+labelType :: l f a -> f
+labelType _ = undefined
 
 -- | Class which does the actual work of 
 --   getting the value of a field from a record.
@@ -127,7 +130,7 @@ instance SelectField f r a => SelectField f (Record r) a where
 -- * Field update
 
 setField :: SetField f r a => l f a -> a -> r -> r
-setField (_::l f a) = setField_ (undefined::f)
+setField l = setField_ (labelType l)
 
 class SetField f r a where
     -- | Sets the value of a field in a record.
@@ -157,7 +160,10 @@ instance Ord r => Ord (Record r) where
 
 -- | Get the label name of a record entry.
 consFieldName :: FieldTag f => RecCons f a r -> String
-consFieldName (_::RecCons f a r) = fieldName (undefined::f)
+consFieldName = fieldName . consFieldType
+
+consFieldType ::  RecCons f a r -> f
+consFieldType _ = undefined
 
 class ShowLabels r where
     recordLabels :: r -> [String]

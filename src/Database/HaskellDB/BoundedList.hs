@@ -1396,8 +1396,10 @@ listLength (L l) = length l
 
 -- | Returns the length of a 'BoundedList'.
 listBound :: Size n => BoundedList a n -> Int
-listBound (_ :: BoundedList a n) = size (undefined :: n)
+listBound = size . listBoundType
 
+listBoundType :: BoundedList a n -> n
+listBoundType _ = undefined
 
 -- | Takes a list and transforms it to a 'BoundedList'.
 -- If the list doesn\'t fit, Nothing is returned.
