@@ -21,7 +21,7 @@ import System.Time
 import Test.HUnit
 
 
-
+tests :: Conn -> Test
 tests = allTests hdb_test_db
 
 allTests = 
