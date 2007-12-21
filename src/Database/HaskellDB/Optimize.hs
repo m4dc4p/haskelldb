@@ -44,13 +44,13 @@ hacks = includeOrderFieldsInSelect
 --   PostgreSQL, since we use SELECT DISTINCT.
 includeOrderFieldsInSelect :: PrimQuery -> PrimQuery
 includeOrderFieldsInSelect = 
-    foldPrimQuery (Empty, BaseTable, proj, Restrict, Binary, Special)
+    foldPrimQuery (Empty, BaseTable, proj, Restrict, Binary, Group, Special)
     where 
       proj ass p = Project (ass++ass') p
           where ass' = [(a, AttrExpr a) | a <- new ]
                 new = orderedBy p \\ concatMap (attrInExpr . snd) ass
                 orderedBy = foldPrimQuery ([], \_ _ -> [], \_ _ -> [],
-                                           \_ _ -> [], \_ _ _ -> [], special)
+                                           \_ _ -> [], \_ _ _ -> [], \_ _ -> [], special)
                 special (Order es) p = attrInOrder es `union` p
                 special _ p = p
 
@@ -119,6 +119,14 @@ removeD live (Restrict x query)
 removeD live (Special (Order xs) query)
 	= Special (Order xs) (removeD (live ++ attrInOrder xs) query)
 
+-- Filter dead columns from group expression, as they are not used. Note
+-- live columns are NOT just those that are in the select, but also those
+-- used in restrictions.
+removeD live (Group cols query)
+    = Group liveCols (removeD (live ++ (map fst liveCols)) query)
+  where
+    liveCols = filter ((`elem` live) . fst) cols
+  
 removeD live query
         = query
 
@@ -126,7 +134,7 @@ removeD live query
 -- | Remove unused parts of the query
 removeEmpty :: PrimQuery -> PrimQuery
 removeEmpty
-        = foldPrimQuery (Empty, BaseTable, project, restrict, binary, special)
+        = foldPrimQuery (Empty, BaseTable, project, restrict, binary, group, special)
         where
           -- Messes up queries without a table, e.g. constant queries
 	  -- disabled by Bjorn Bringert 2004-04-08
@@ -147,12 +155,14 @@ removeEmpty
                                                Difference -> query
                                                _          -> Empty
           binary op query1 query2 = Binary op query1 query2
+          group _ Empty = Empty
+          group cols query = Group cols query
 
 
 -- | Collapse adjacent projections
 mergeProject :: PrimQuery -> PrimQuery
 mergeProject
-        = foldPrimQuery (Empty,BaseTable,project,Restrict,Binary,Special)
+        = foldPrimQuery (Empty,BaseTable,project,Restrict,Binary,Group, Special)
         where
           project assoc1 (Project assoc2 query)
              	| safe newAssoc	  = Project newAssoc query
@@ -261,7 +271,7 @@ pushRestrict query
 
 
 optimizeExprs :: PrimQuery -> PrimQuery
-optimizeExprs = foldPrimQuery (Empty, BaseTable, Project, restr, Binary, Special)
+optimizeExprs = foldPrimQuery (Empty, BaseTable, Project, restr, Binary, Group, Special)
     where 
       restr e q | exprIsTrue e' = q
                 | otherwise = Restrict e' q

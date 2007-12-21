@@ -27,7 +27,7 @@ module Database.HaskellDB.Query (
 	     , (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
              , (<<), (<<-)
 	      -- * Function declarations
-	     , project, restrict, table
+	     , project, restrict, table, unique
 	     , union, intersect, divide, minus
 	     , _not, like, _in, cat, _length
 	     , isNull, notNull
@@ -199,6 +199,29 @@ project r
 restrict :: Expr Bool -> Query ()
 restrict (Expr primExpr) = updatePrimQuery_ (Restrict primExpr)
 
+-- | Restricts the relation given to only return unique records. Upshot
+-- is all projected attributes will be 'grouped'
+unique :: Query ()
+unique = Query (\(i, primQ) ->
+    -- Add all non-aggregate expressions in the query
+    -- to a groupby association list. This list holds the name
+    -- of the expression and the expression itself. Those expressions
+    -- will later by added to the groupby list in the SqlSelect built.
+    case findNonAggr primQ of
+      [] -> ((), (i + 1, primQ)) -- No non-aggregate expressions - no-op.
+      newCols -> ((), (i + 1, Group newCols primQ)))
+  where
+    -- Find all non-aggregate expressions.
+    findNonAggr :: PrimQuery -> Assoc
+    findNonAggr (Project cols q) = filter (not . isAggregate . snd) cols
+    findNonAggr (Restrict _ q) = findNonAggr q
+    findNonAggr (Binary _ q1 q2) = findNonAggr q1 ++ findNonAggr q2
+    findNonAggr (BaseTable tblName cols) = zip cols (map AttrExpr cols)
+    findNonAggr (Special _ q) = findNonAggr q
+    -- Group and Empty are no-ops
+    findNonAggr (Group _ _) = []
+    findNonAggr Empty  = []
+  
 -----------------------------------------------------------
 -- Binary operations
 -----------------------------------------------------------

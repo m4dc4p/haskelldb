@@ -34,6 +34,9 @@ data SqlGenerator = SqlGenerator
      sqlEmpty       :: SqlSelect,
      sqlTable       :: TableName -> Scheme -> SqlSelect,
      sqlProject     :: Assoc -> SqlSelect -> SqlSelect,
+     -- | Ensures non-aggregate expressions in the select are included in
+     -- group by clause.
+     sqlGroup       :: Assoc -> SqlSelect -> SqlSelect,
      sqlRestrict    :: PrimExpr -> SqlSelect -> SqlSelect,
      sqlBinary      :: RelOp -> SqlSelect -> SqlSelect -> SqlSelect,
      sqlSpecial     :: SpecialOp -> SqlSelect -> SqlSelect,

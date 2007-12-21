@@ -31,6 +31,7 @@ module Database.HaskellDB.Sql.Default (
                                         defaultSqlProject,
                                         defaultSqlRestrict,
                                         defaultSqlBinary,
+                                        defaultSqlGroup,
                                         defaultSqlSpecial,
 
                                         defaultSqlExpr,
@@ -68,6 +69,7 @@ mkSqlGenerator gen = SqlGenerator
      sqlProject     = defaultSqlProject     gen,
      sqlRestrict    = defaultSqlRestrict    gen,
      sqlBinary      = defaultSqlBinary      gen,
+     sqlGroup       = defaultSqlGroup       gen,
      sqlSpecial     = defaultSqlSpecial     gen,
 
      sqlExpr        = defaultSqlExpr        gen,
@@ -105,6 +107,7 @@ defaultSqlQuery gen = foldPrimQuery (sqlEmpty gen,
                                      sqlProject gen,
                                      sqlRestrict gen,
                                      sqlBinary gen,
+                                     sqlGroup gen,
                                      sqlSpecial gen)
 
 defaultSqlEmpty :: SqlGenerator -> SqlSelect
@@ -115,19 +118,20 @@ defaultSqlTable _ name schema = SqlTable name
 
 defaultSqlProject :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
 defaultSqlProject gen assoc q
-          	| hasAggr    = select { groupby = map (sqlExpr gen) nonAggrs }
+          	| hasAggr    = select { groupby = toSqlAssoc gen nonAggrs }
           	| otherwise  = select 
                 where
                   select   = sql { attrs = toSqlAssoc gen assoc }
                   sql      = toSqlSelect q
+                  hasAggr  = (not . null  . filter (isAggregate . snd)) assoc
+                  nonAggrs = filter (not . isAggregate . snd) assoc
 
-                  hasAggr  = any isAggregate exprs
-                  
-                  -- TODO: we should make sure that every non-aggregate 
-                  -- is only a simple attribute expression
-                  nonAggrs = filter (not.isAggregate) exprs
-                  
-                  exprs    = map snd assoc
+
+-- | Takes all non-aggregate expressions in the select and adds them to
+-- the 'group by' clause.
+defaultSqlGroup :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
+defaultSqlGroup gen cols select = select { groupby = toSqlAssoc gen cols }
+    
 
 defaultSqlRestrict :: SqlGenerator -> PrimExpr -> SqlSelect -> SqlSelect
 defaultSqlRestrict gen expr q

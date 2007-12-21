@@ -56,6 +56,7 @@ type Assoc      = [(Attribute,PrimExpr)]
 data PrimQuery  = BaseTable TableName Scheme
                 | Project   Assoc PrimQuery
                 | Restrict  PrimExpr PrimQuery
+                | Group Assoc PrimQuery
                 | Binary    RelOp PrimQuery PrimQuery
                 | Special   SpecialOp PrimQuery
                 | Empty
@@ -153,6 +154,7 @@ attributes (Binary op q1 q2)    = case op of
                                 where
                                   attr1         = attributes q1
                                   attr2         = attributes q2
+attributes (Group _ qry) = attributes qry
 
 -- | Returns a one-to-one association of a
 --   schema. ie. @assocFromScheme ["name","city"]@ becomes:
@@ -203,8 +205,8 @@ countAggregate
 -- | Fold on 'PrimQuery'
 foldPrimQuery :: (t, TableName -> Scheme -> t, Assoc -> t -> t,
                   PrimExpr -> t -> t, RelOp -> t -> t -> t,
-                  SpecialOp -> t -> t) -> PrimQuery -> t
-foldPrimQuery (empty,table,project,restrict,binary,special) 
+                  Assoc -> t -> t, SpecialOp -> t -> t) -> PrimQuery -> t
+foldPrimQuery (empty,table,project,restrict,binary,group,special) 
         = fold
         where
           fold (Empty)  = empty
@@ -216,6 +218,8 @@ foldPrimQuery (empty,table,project,restrict,binary,special)
                         = restrict expr (fold query)
           fold (Binary op query1 query2)
                         = binary op (fold query1) (fold query2)
+          fold (Group assocs query)
+                        = group assocs (fold query)
           fold (Special op query)
           		= special op (fold query)
 -- | Fold on 'PrimExpr'

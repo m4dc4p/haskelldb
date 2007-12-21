@@ -73,10 +73,16 @@ ppWhere [] = empty
 ppWhere es = text "WHERE" 
              <+> hsep (intersperse (text "AND") (map ppSqlExpr es))
 
-ppGroupBy :: [SqlExpr] -> Doc
+ppGroupBy :: [(SqlColumn, SqlExpr)] -> Doc
 ppGroupBy [] = empty
-ppGroupBy es = text "GROUP BY" <+> commaV ppSqlExpr es
-
+ppGroupBy es = text "GROUP BY" <+> ppGroupAttrs es
+  where
+    ppGroupAttrs :: [(SqlColumn, SqlExpr)] -> Doc
+    ppGroupAttrs cs = commaV nameOrExpr cs
+    nameOrExpr :: (SqlColumn, SqlExpr) -> Doc
+    nameOrExpr (name, ColumnSqlExpr _) = text name
+    nameOrExpr (_, expr) = parens (ppSqlExpr expr)
+    
 ppOrderBy :: [(SqlExpr,SqlOrder)] -> Doc
 ppOrderBy [] = empty
 ppOrderBy ord = text "ORDER BY" <+> commaV ppOrd ord

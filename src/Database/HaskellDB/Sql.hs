@@ -40,10 +40,12 @@ type SqlTable = String
 type SqlColumn = String
 
 data SqlOrder = SqlAsc | SqlDesc
+  deriving Show
 
 data SqlType = SqlType String
              | SqlType1 String Int
              | SqlType2 String Int Int
+  deriving Show
 
 -- | Data type for SQL SELECT statements.
 data SqlSelect  = SqlSelect { 
@@ -51,14 +53,15 @@ data SqlSelect  = SqlSelect {
 			     attrs     :: [(SqlColumn,SqlExpr)],   -- ^ result
                              tables    :: [(SqlTable,SqlSelect)],  -- ^ FROM
                              criteria  :: [SqlExpr],               -- ^ WHERE
-                             groupby   :: [SqlExpr],               -- ^ GROUP BY
+                             groupby   :: [(SqlColumn,SqlExpr)],   -- ^ GROUP BY
                              orderby   :: [(SqlExpr,SqlOrder)],    -- ^ ORDER BY
 			     extra     :: [String]                 -- ^ TOP n, etc.
                             }
                 | SqlBin   String SqlSelect SqlSelect -- ^ Binary relational operator
                 | SqlTable SqlTable -- ^ Select a whole table.
                 | SqlEmpty -- ^ Empty select.
-
+  deriving Show
+  
 -- | Expressions in SQL statements.
 data SqlExpr = ColumnSqlExpr  SqlColumn
              | BinSqlExpr     String SqlExpr SqlExpr
@@ -69,6 +72,7 @@ data SqlExpr = ColumnSqlExpr  SqlColumn
 	     | CaseSqlExpr    [(SqlExpr,SqlExpr)] SqlExpr
              | ListSqlExpr    [SqlExpr]
              | ExistsSqlExpr  SqlSelect
+  deriving Show
 
 -- | Data type for SQL UPDATE statements.
 data SqlUpdate  = SqlUpdate SqlTable [(SqlColumn,SqlExpr)] [SqlExpr]
@@ -90,12 +94,12 @@ data SqlDrop = SqlDropDB String -- ^ Delete a database
 
 newSelect :: SqlSelect
 newSelect = SqlSelect { 
-                       options   = ["DISTINCT"],
-		       attrs     = [],
-		       tables    = [],
-		       criteria  = [],
-		       groupby	 = [],
-		       orderby	 = [],
-		       extra     = []
+                       options   = [],
+                       attrs     = [],
+                       tables    = [],
+                       criteria  = [],
+                       groupby	 = [],
+                       orderby	 = [],
+                       extra     = []
                       }
 

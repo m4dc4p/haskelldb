@@ -45,7 +45,7 @@ module Database.HaskellDB
 	, HasField, Record, Select, ( # ), ( << ), (<<-), (!), (!.)
 	
         -- * Relational operators
-	, restrict, table, project
+	, restrict, table, project, unique
 	, union, intersect, divide, minus
 
 	-- * Query expressions
