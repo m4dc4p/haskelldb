@@ -12,3 +12,6 @@ Library
   Build-depends: base, mtl, haskelldb, haskelldb-hsql, hsql, hsql-mysql
   Exposed-Modules:
         Database.HaskellDB.HSQL.MySQL
+
+Executable DBDirect-hsql-mysql
+  Main-is: DBDirect.hs

@@ -12,3 +12,6 @@ Library
   Build-depends: base, mtl, haskelldb, haskelldb-hsql, hsql, hsql-sqlite3
   Exposed-Modules:
         Database.HaskellDB.HSQL.SQLite3
+
+Executable DBDirect-hsql-sqlite3
+  Main-is: DBDirect.hs

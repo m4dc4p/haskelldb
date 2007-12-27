@@ -12,3 +12,6 @@ Library
   Build-depends: base, mtl, haskelldb, haskelldb-hsql, hsql, hsql-postgresql
   Exposed-Modules:
         Database.HaskellDB.HSQL.PostgreSQL
+
+Executable DBDirect-hsql-postgresql
+  Main-is: DBDirect.hs

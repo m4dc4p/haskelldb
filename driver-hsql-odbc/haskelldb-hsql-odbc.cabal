@@ -12,3 +12,6 @@ Library
   Build-depends: base, mtl, haskelldb, haskelldb-hsql, hsql, hsql-odbc
   Exposed-Modules:
         Database.HaskellDB.HSQL.ODBC
+
+Executable DBDirect-hsql-odbc
+  Main-is: DBDirect.hs
