@@ -27,6 +27,7 @@ import Control.Monad
 import Control.Monad.Error ()
 import Control.Monad.Trans
 import Data.Bits
+import Data.Function (on)
 import Data.IORef
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -208,6 +209,10 @@ flatQuery pq db = e pq
                           | otherwise = map (\g -> fst (head g) ++ [(n,evalAggr (map snd g) e) | (n,e) <- abs]) rps2
            Restrict p x -> relFilter (\r -> toBool (evalExpr r p)) t
                where t = e x
+           Group gs x -> FlatRel { relSchema = s, relRows = rs' }
+               where FlatRel { relSchema = s, relRows = rs } = e x
+                     -- FIXME: BUG: what if groups are not contiguous?
+                     rs' = map (fst . head) $ groupBy ((==) `on` snd) [(r,evalBinds r gs) | r <- rs]
            Binary op x1 x2 ->
                case op of
                    Times -> FlatRel { relSchema = s1 ++ s2, -- FIXME: assert s1, s2 disjoint
