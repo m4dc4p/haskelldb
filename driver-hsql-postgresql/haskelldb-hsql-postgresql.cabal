@@ -1,15 +1,14 @@
 Name: haskelldb-hsql-postgresql
 Version: 0.10
+Cabal-version: >= 1.2
+Build-type: Simple
 Copyright: The authors
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-build-depends: haskell98, base, mtl, haskelldb, haskelldb-hsql, hsql, hsql-postgresql
-Extensions: ExistentialQuantification,
-            OverlappingInstances,
-            UndecidableInstances,
-            MultiParamTypeClasses
 Synopsis: HaskellDB support for the HSQL PostgreSQL driver.
-Exposed-Modules:
+
+Library
+  Build-depends: base, mtl, haskelldb, haskelldb-hsql, hsql, hsql-postgresql
+  Exposed-Modules:
         Database.HaskellDB.HSQL.PostgreSQL
-ghc-options: -O2
