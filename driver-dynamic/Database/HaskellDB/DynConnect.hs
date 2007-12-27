@@ -14,6 +14,7 @@
 -----------------------------------------------------------
 
 module Database.HaskellDB.DynConnect (
+                                      driver,
 				      dynConnect,
 				      dynConnect_
                                     ) where
@@ -27,6 +28,12 @@ import System.Plugins (loadPackageFunction)
 import Control.Monad.Trans (MonadIO, liftIO)
 import Data.Char
 import Data.List (isPrefixOf)
+
+driver :: DriverInterface
+driver = defaultdriver {
+           connect = \opts f -> do [driver] <- getOptions ["driver"] opts
+                                   dynConnect_ driver opts f
+         }
 
 -- | Loads a driver by package and module name.
 dynConnect :: MonadIO m => 
