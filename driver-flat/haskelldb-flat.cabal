@@ -24,7 +24,6 @@ Library
 
 Executable DBDirect-flat
   Main-is: DBDirect.hs
-  Build-depends: haskelldb==0.10
 
 --Executable:  flatdb-create
 --Main-Is:     tools/flatdb-create.hs
