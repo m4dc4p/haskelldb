@@ -1,25 +1,23 @@
 Name: haskelldb-hdbc-odbc
 Version: 0.10
+Cabal-version: >= 1.2
+Build-type: Simple
 Copyright: The authors
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-build-depends: 
-  haskell98, 
-  base, 
-  mtl, 
-  haskelldb==0.10, 
-  haskelldb-hdbc==0.10, 
-  HDBC==1.0.1, 
-  HDBC-odbc==1.0.1.0
-Extensions: ExistentialQuantification,
-            OverlappingInstances,
-            UndecidableInstances,
-            MultiParamTypeClasses
 Synopsis: HaskellDB support for the HDBC ODBC driver.
-Exposed-Modules:
+
+Library
+  Build-depends: 
+    base, 
+    mtl, 
+    haskelldb==0.10, 
+    haskelldb-hdbc==0.10, 
+    HDBC>1.1.3, 
+    HDBC-odbc>1.1.3.0
+  Exposed-Modules:
         Database.HaskellDB.HDBC.ODBC
-ghc-options: -O2
 
 Executable DBDirect-hdbc-odbc
   Main-is: DBDirect.hs
