@@ -20,3 +20,6 @@ Synopsis: HaskellDB support for the HDBC ODBC driver.
 Exposed-Modules:
         Database.HaskellDB.HDBC.ODBC
 ghc-options: -O2
+
+Executable DBDirect-hdbc-odbc
+  Main-is: DBDirect.hs

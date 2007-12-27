@@ -20,3 +20,6 @@ Synopsis: HaskellDB support for the HDBC PostgreSQL driver.
 Exposed-Modules:
         Database.HaskellDB.HDBC.PostgreSQL
 ghc-options: -O2
+
+Executable DBDirect-hdbc-odbc
+  Main-is: DBDirect.hs

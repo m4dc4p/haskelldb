@@ -25,3 +25,6 @@ Library
             MultiParamTypeClasses
   Exposed-Modules:
         Database.HaskellDB.HDBC.SQLite3
+
+Executable DBDirect-hdbc-sqlite3
+  Main-is: DBDirect.hs
