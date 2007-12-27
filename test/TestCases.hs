@@ -108,7 +108,8 @@ strangeInputTests = label "strangeInputTests" $
 
 testTable tbl r = 
     dbtests [
-             testDistinct tbl r
+             testUnique tbl r,
+             testNonUnique tbl r
             ]
 
 testField tbl r f = 
@@ -124,12 +125,21 @@ testInsertAndQuery tbl r f = dbtest name $ \db ->
        assertSame "Bad field value" (r!f) (head rs!f) 
   where name = "insertAndQuery " ++ tableName tbl ++ "." ++ attributeName f
 
-testDistinct tbl r = dbtest name $ \db ->
+testUnique tbl r = dbtest name $ \db ->
+    do insert db tbl (constantRecord r)
+       insert db tbl (constantRecord r)
+       rs <- query db $ do t <- table tbl
+                           unique
+                           return t
+       assertEqual "Bad result length" 1 (length rs)
+  where name = "unique " ++ tableName tbl
+
+testNonUnique tbl r = dbtest name $ \db ->
     do insert db tbl (constantRecord r)
        insert db tbl (constantRecord r)
        rs <- query db $ table tbl
-       assertEqual "Bad result length" 1 (length rs)
-  where name = "distinct " ++ tableName tbl
+       assertEqual "Bad result length" 2 (length rs)
+  where name = "nonunique " ++ tableName tbl
 
 -- * Insert
 
