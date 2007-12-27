@@ -1,16 +1,21 @@
 Name: haskelldb-hsql
 Version: 0.10
+Cabal-version: >= 1.2
+Build-type: Simple
 Copyright: The authors
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-build-depends: haskell98, base, mtl, haskelldb, hsql
-Extensions: ExistentialQuantification,
-            OverlappingInstances,
-            UndecidableInstances,
-            MultiParamTypeClasses
 Synopsis: HaskellDB support for HSQL. You will also need one
           or more back-end specific packages.
-Exposed-Modules:
+
+Flag split-base
+
+Library
+  Build-depends: mtl, haskelldb, hsql
+  if flag(split-base)
+    Build-depends: base >= 3.0, old-time
+  else
+    Build-depends: base < 3.0
+  Exposed-Modules:
         Database.HaskellDB.HSQL
-ghc-options: -O2
