@@ -21,7 +21,7 @@ import Database.HaskellDB.PrimQuery
 
 
 generator :: SqlGenerator
-generator = mkSqlGenerator generator 
+generator = (mkSqlGenerator generator)
             {
              sqlSpecial = postgresqlSpecial,
              sqlType = postgresqlType

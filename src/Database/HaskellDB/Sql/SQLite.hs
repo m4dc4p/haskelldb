@@ -19,7 +19,7 @@ import Database.HaskellDB.Sql.Generate
 import Database.HaskellDB.PrimQuery
 
 generator :: SqlGenerator
-generator = mkSqlGenerator generator 
+generator = (mkSqlGenerator generator)
             {
              sqlLiteral = literal
             }

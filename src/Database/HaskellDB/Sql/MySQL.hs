@@ -19,9 +19,8 @@ import Database.HaskellDB.Sql.Generate
 import Database.HaskellDB.PrimQuery
 
 generator :: SqlGenerator
-generator = mySql $ mkSqlGenerator generator
-
-mySql generator = generator {
+generator = (mkSqlGenerator generator)
+                            {
                              sqlBinary = \relop -> case relop of
                                            Difference -> mySqlDifference
                                            _ -> sqlBinary generator relop
