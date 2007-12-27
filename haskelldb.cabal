@@ -31,6 +31,7 @@ Library
         Database.HaskellDB.BoundedList,
         Database.HaskellDB.BoundedString,
         Database.HaskellDB.DBLayout,
+        Database.HaskellDB.DBDirect,
         Database.HaskellDB.DBSpec,
         Database.HaskellDB.DBSpec.DBInfo,
         Database.HaskellDB.DBSpec.DBSpecToDBDirect,

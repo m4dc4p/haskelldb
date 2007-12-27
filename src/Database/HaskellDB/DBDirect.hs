@@ -1,6 +1,6 @@
 -----------------------------------------------------------
 -- |
--- Module      :  Main
+-- Module      :  Database.HaskellDB.DBDirect
 -- Copyright   :  Daan Leijen (c) 1999, daan@cs.uu.nl
 --                HWT Group (c) 2003,
 --                Bjorn Bringert (c) 2005-2006, bjorn@bringert.net
@@ -18,19 +18,20 @@
 --
 -----------------------------------------------------------
 
-module Main where
+module Database.HaskellDB.DBDirect (dbdirect) where
 
 import Data.List
-import System.Environment (getArgs)
+import System.Environment (getArgs, getProgName)
 import System.Exit (exitFailure)
 import System.IO
 
 import Database.HaskellDB
-import Database.HaskellDB.DynConnect
+import Database.HaskellDB.DriverAPI
 import Database.HaskellDB.DBSpec
 import Database.HaskellDB.DBSpec.PPHelpers
 import Database.HaskellDB.DBSpec.DBSpecToDBDirect
 
+createModules :: String -> Bool -> Database -> IO ()
 createModules m useBStrT db = 
     do
     putStrLn "Getting database info..."
@@ -38,20 +39,20 @@ createModules m useBStrT db =
     putStrLn "Writing modules..."
     dbInfoToModuleFiles "." m spec
 
--- | Command line driver
-main = do
-       putStrLn "DB/Direct: Daan Leijen (c) 1999, HWT (c) 2003-2004,"
-       putStrLn "           Bjorn Bringert (c) 2005-2006"
+dbdirect :: DriverInterface -> IO ()
+dbdirect driver = 
+    do putStrLn "DB/Direct: Daan Leijen (c) 1999, HWT (c) 2003-2004,"
+       putStrLn "           Bjorn Bringert (c) 2005-2007"
        putStrLn ""
        args <- getArgs
        let (flags,args') = partition ("-" `isPrefixOf`) args
            useBStrT = "-b" `elem` flags
        case args' of
-                  [m,d,o] -> 
+                  [m,o] -> 
                       do
                       let opts = splitOptions o
 		      putStrLn "Connecting to database..."
-                      dynConnect_ d opts (createModules m useBStrT)
+                      connect driver opts (createModules m useBStrT)
 		      putStrLn "Done!"
                   _ -> 
                       do
@@ -71,12 +72,14 @@ split2 g xs = (ys, drop 1 zs)
   where (ys,zs) = break (==g) xs
 
 -- | Shows usage information
-showHelp = mapM_ (hPutStrLn stderr) t
+showHelp :: IO ()
+showHelp = do p <- getProgName
+              mapM_ (hPutStrLn stderr) (t p)
     where
-    t = ["Usage: DBDirect [-b] <module> <driver> <options>",
+    t p = 
+        ["Usage: " ++ p ++ " [-b] <module> <options>",
          "",
          "-b         Use bounded string types",
-         "<driver>   One of: WX, HSQL.MySQL, HDBC.PostgreSQL, etc",
          "<options>  Driver dependent,e.g.",
          "           WX:              dsn=<dsn>,uid=<uid>,pwd=<pwd>",
          "           HSQL.MySQL:      server=<server>,db=<db>,uid=<uid>,pwd=<pwd>",

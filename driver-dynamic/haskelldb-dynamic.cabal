@@ -13,11 +13,3 @@ Synopsis: HaskellDB support for the dynamically loaded drivers.
 Exposed-Modules:
         Database.HaskellDB.DynConnect
 ghc-options: -O2
-
-executable: DBDirect
-main-is: DBDirect.hs
-Extensions: ExistentialQuantification,
-            OverlappingInstances,
-            UndecidableInstances,
-            MultiParamTypeClasses
-ghc-options: -O2
