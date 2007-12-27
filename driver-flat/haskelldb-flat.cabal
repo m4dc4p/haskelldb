@@ -22,6 +22,10 @@ Library
     Build-depends: base < 3.0
   Exposed-Modules: Database.HaskellDB.FlatDB
 
+Executable DBDirect-flat
+  Main-is: DBDirect.hs
+  Build-depends: haskelldb==0.10
+
 --Executable:  flatdb-create
 --Main-Is:     tools/flatdb-create.hs
 --ghc-options: -O2 -Wall
