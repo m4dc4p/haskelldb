@@ -19,14 +19,16 @@ import Database.HaskellDB.Sql.Generate
 import Database.HaskellDB.PrimQuery
 
 generator :: SqlGenerator
-generator = (mkSqlGenerator generator)
-                            {
-                             sqlBinary = \relop -> case relop of
-                                           Difference -> mySqlDifference
-                                           _ -> sqlBinary generator relop
-                            }
+generator = (mkSqlGenerator generator) {
+              sqlBinary = mySqlBinary
+            }
+
+mySqlBinary :: RelOp -> SqlSelect -> SqlSelect -> SqlSelect
+mySqlBinary Difference = mySqlDifference
+mySqlBinary op = defaultSqlBinary generator op
 
 {- Hack around the lack of "EXCEPT" in MySql -}
+mySqlDifference :: SqlSelect -> SqlSelect -> SqlSelect
 mySqlDifference sel1 sel2
  = (toSqlSelect sel1) { criteria = [PrefixSqlExpr "NOT" $ ExistsSqlExpr existsSql] }
      where existsSql = (toSqlSelect ((toSqlSelect sel2) { attrs = zipWith mkAttr names renames }))
