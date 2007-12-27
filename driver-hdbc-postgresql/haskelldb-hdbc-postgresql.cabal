@@ -8,7 +8,7 @@ Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blo
 License: BSD3
 Synopsis: HaskellDB support for the HDBC PostgreSQL driver.
 
-Library:
+Library
   Build-depends: 
     base, 
     mtl, 
