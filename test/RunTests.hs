@@ -22,8 +22,7 @@ dbOK db = catch (withDB (\_ -> return True) db) f
 
 dbTestMain :: Conn -> IO ()
 dbTestMain db =
-    do putStrLn $ "Testing " ++ dbLabel db ++ "..."
-       ok <- dbOK db
+    do ok <- dbOK db
        if ok then do c <- runTestTT (tests db)
                      if errors c > 0 || failures c > 0  
                        then exitFailure

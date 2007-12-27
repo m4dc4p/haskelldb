@@ -13,12 +13,10 @@ DRIVERS = \
 .PHONY: runtests tests dbmodules clean
 
 runtests: tests
-	@echo "Running tests..."
-	for d in $(DRIVERS); do ./test-$$d; done
+	@for d in $(DRIVERS); do echo "----------------------------------------------------------------"; echo "Testing $$d..."; if [ -x ./test-$$d ]; then ./test-$$d; else echo "test-$$d not found"; fi; done
 
 tests: dbmodules
-	@echo "Compiling tests..."
-	-for d in $(DRIVERS); do $(GHC) $(GHCFLAGS) --make -o test-$$d test-$$d.hs; done
+	-@for d in $(DRIVERS); do echo "Compiling test-$$d..."; $(GHC) $(GHCFLAGS) -package haskelldb-$$d -v0 --make -o test-$$d test-$$d.hs; done
 
 dbmodules: createmodules
 	./createmodules
