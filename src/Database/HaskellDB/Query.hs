@@ -116,9 +116,9 @@ attributeName (Attr name) = name
 class ExprC e where
     -- | Get the underlying untyped 'PrimExpr'.
     primExpr :: e a -> PrimExpr
-instance ExprC Expr where primExpr (Expr e) = e
-instance ExprC ExprAggr where primExpr (ExprAggr e) = e
-instance ExprC ExprDefault where primExpr (ExprDefault e) = e
+instance ExprC Expr where primExpr ~(Expr e) = e
+instance ExprC ExprAggr where primExpr ~(ExprAggr e) = e
+instance ExprC ExprDefault where primExpr ~(ExprDefault e) = e
 
 -- | Class of expressions that can be used with 'insert'.
 class ExprC e => InsertExpr e
@@ -493,7 +493,7 @@ instance ConstantRecord RecNil RecNil where
 
 instance (ShowConstant a, ConstantRecord r cr) 
     => ConstantRecord (RecCons f a r) (RecCons f (Expr a) cr) where
-    constantRecord (RecCons x rs) = RecCons (constant x) (constantRecord rs)
+    constantRecord ~(RecCons x rs) = RecCons (constant x) (constantRecord rs)
 
 -----------------------------------------------------------
 -- Aggregate operators
@@ -653,10 +653,10 @@ class ToPrimExprs r where
     toPrimExprs :: r -> [PrimExpr]
 
 instance ToPrimExprs RecNil where
-    toPrimExprs RecNil = []
+    toPrimExprs ~RecNil = []
 
 instance (ExprC e, ToPrimExprs r) => ToPrimExprs (RecCons l (e a) r) where
-    toPrimExprs (RecCons e r) = primExpr e : toPrimExprs r
+    toPrimExprs ~(RecCons e r) = primExpr e : toPrimExprs r
 
 {-
 

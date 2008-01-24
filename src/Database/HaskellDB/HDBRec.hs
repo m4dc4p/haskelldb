@@ -87,7 +87,7 @@ instance RecCat RecNil r r where
     cat RecNil r = r
 
 instance RecCat r1 r2 r3 => RecCat (RecCons f a r1) r2 (RecCons f a r3) where
-    cat (RecCons x r1) r2 = RecCons x (cat r1 r2)
+    cat ~(RecCons x r1) r2 = RecCons x (cat r1 r2)
 
 instance RecCat r1 r2 r3 => RecCat (Record r1) (Record r2) (Record r3) where
     cat r1 r2 = \n -> cat (r1 n) (r2 n)
@@ -119,10 +119,10 @@ class SelectField f r a where
 		-> a -- ^ Field value
 
 instance SelectField f (RecCons f a r) a where
-    selectField _ (RecCons x _) = x
+    selectField _ ~(RecCons x _) = x
 
 instance SelectField f r a => SelectField f (RecCons g b r) a where
-    selectField f (RecCons _ r) = selectField f r
+    selectField f ~(RecCons _ r) = selectField f r
 
 instance SelectField f r a => SelectField f (Record r) a where
     selectField f r = selectField f (r RecNil)
@@ -140,10 +140,10 @@ class SetField f r a where
 	     -> r -- ^ New record
 
 instance SetField f (RecCons f a r) a where
-    setField_  _ y (RecCons _ r) = RecCons y r
+    setField_  _ y ~(RecCons _ r) = RecCons y r
 
 instance SetField f r a => SetField f (RecCons g b r) a where
-    setField_ l y (RecCons f r) = RecCons f (setField_ l y r)
+    setField_ l y ~(RecCons f r) = RecCons f (setField_ l y r)
 
 instance SetField f r a => SetField f (Record r) a where
     setField_ f y r = \e -> setField_ f y (r e)
@@ -170,7 +170,7 @@ class ShowLabels r where
 instance ShowLabels RecNil where
     recordLabels _ = []
 instance (FieldTag f,ShowLabels r) => ShowLabels (RecCons f a r) where
-    recordLabels x@(RecCons _ r) = consFieldName x : recordLabels r
+    recordLabels ~x@(RecCons _ r) = consFieldName x : recordLabels r
 instance ShowLabels r => ShowLabels (Record r) where
     recordLabels r = recordLabels (r RecNil)
 
@@ -188,7 +188,7 @@ instance ShowRecRow RecNil where
 instance (FieldTag a, 
 	  Show b, 
 	  ShowRecRow c) => ShowRecRow (RecCons a b c) where
-    showRecRow r@(RecCons x fs) = (consFieldName r, shows x) : showRecRow fs
+    showRecRow ~r@(RecCons x fs) = (consFieldName r, shows x) : showRecRow fs
 
 instance ShowRecRow r => ShowRecRow (Record r) where
     showRecRow r = showRecRow (r RecNil)
