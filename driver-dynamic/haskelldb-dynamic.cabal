@@ -1,5 +1,5 @@
 Name: haskelldb-dynamic
-Version: 0.10
+Version: 0.11
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
@@ -19,4 +19,4 @@ Library
 
 Executable DBDirect-dynamic
   Main-is: DBDirect.hs
-  Build-depends: haskelldb==0.10
+  Build-depends: haskelldb==0.11

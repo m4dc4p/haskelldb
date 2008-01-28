@@ -1,5 +1,5 @@
 Name: haskelldb-hsql-sqlite3
-Version: 0.10
+Version: 0.11
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
@@ -9,7 +9,7 @@ License: BSD3
 Synopsis: HaskellDB support for the HSQL SQLite3 driver.
 
 Library
-  Build-depends: base, mtl, haskelldb, haskelldb-hsql, hsql, hsql-sqlite3
+  Build-depends: base, mtl, haskelldb==0.11, haskelldb-hsql==0.11, hsql, hsql-sqlite3
   Exposed-Modules:
         Database.HaskellDB.HSQL.SQLite3
 

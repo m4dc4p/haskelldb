@@ -1,5 +1,5 @@
 Name: haskelldb-hdbc-sqlite3
-Version: 0.10
+Version: 0.11
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
@@ -13,7 +13,7 @@ Flag split-base
 Library
   Build-depends: 
     mtl, 
-    haskelldb==0.10, haskelldb-hdbc==0.10, 
+    haskelldb==0.11, haskelldb-hdbc==0.11,
     HDBC>1.1.3, HDBC-sqlite3>1.1.3.0
   if flag(split-base)
     Build-depends: base >= 3.0

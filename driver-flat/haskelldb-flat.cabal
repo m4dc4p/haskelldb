@@ -1,5 +1,5 @@
 Name: haskelldb-flat
-Version: 0.10
+Version: 0.11
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: Bjorn Bringert
@@ -15,7 +15,7 @@ Description:
 Flag split-base
 
 Library
-  Build-depends: mtl, haskelldb==0.10
+  Build-depends: mtl, haskelldb==0.11
   if flag(split-base)
     Build-depends: base >= 3.0, containers, old-time, directory
   else
