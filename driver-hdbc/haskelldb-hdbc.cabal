@@ -12,7 +12,7 @@ Synopsis: HaskellDB support for HDBC. You will also need one
 Flag split-base
 
 Library
-  Build-depends: mtl, haskelldb==0.11, HDBC>1.1.3
+  Build-depends: mtl, haskelldb==0.11, HDBC>=1.1.4 && < 1.2
   if flag(split-base)
     Build-depends: base >= 3.0, containers, old-time
   else
