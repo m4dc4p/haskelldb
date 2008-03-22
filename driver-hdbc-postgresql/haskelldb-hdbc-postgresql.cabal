@@ -19,5 +19,5 @@ Library
   Exposed-Modules:
         Database.HaskellDB.HDBC.PostgreSQL
 
-Executable DBDirect-hdbc-odbc
+Executable DBDirect-hdbc-postgresql
   Main-is: DBDirect.hs
