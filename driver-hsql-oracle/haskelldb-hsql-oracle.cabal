@@ -1,0 +1,17 @@
+Name: haskelldb-hsql-oracle
+Version: 0.11
+Cabal-version: >= 1.2
+Build-type: Simple
+Copyright: The authors
+Maintainer: haskelldb-users@lists.sourceforge.net
+Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw, Henning Thielemann
+License: BSD3
+Synopsis: HaskellDB support for the HSQL Oracle driver.
+
+Library
+  Build-depends: base, mtl, haskelldb==0.11, haskelldb-hsql==0.11, hsql, hsql-oracle
+  Exposed-Modules:
+    Database.HaskellDB.HSQL.Oracle
+
+Executable DBDirect-hsql-oracle
+  Main-is: DBDirect.hs
