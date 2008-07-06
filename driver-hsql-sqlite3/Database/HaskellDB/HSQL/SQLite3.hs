@@ -34,10 +34,16 @@ sqliteConnect :: MonadIO m => SQLiteOptions -> (Database -> m a) -> m a
 sqliteConnect opts = 
     hsqlConnect SQLite.generator (SQLite3.connect (filepath opts) (mode opts))
 
+options :: [(String, String)]
+options =
+    ("filepath", "File path") :
+    ("mode", "r/w/a/rw for read/(over)write/append/random access") :
+    []
+
 sqliteConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 sqliteConnectOpts opts f = 
     do
-    [a,b] <- getOptions ["filepath","mode"] opts
+    [a,b] <- getAnnotatedOptions options opts
     m <- readIOMode b
     sqliteConnect (SQLiteOptions {filepath = a,
 				  mode = m}) f
@@ -57,4 +63,4 @@ readIOMode s =
 --   "filepath", "mode"
 -- The possible values of the "mode" option are "r", "w", "rw"
 driver :: DriverInterface
-driver = defaultdriver {connect = sqliteConnectOpts}
+driver = defaultdriver {connect = sqliteConnectOpts, requiredOptions = options}

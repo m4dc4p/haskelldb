@@ -15,7 +15,6 @@
 module Database.HaskellDB.HSQL.Oracle (
                                      OracleOptions(..),
                                      oracleConnect,
-                                     oracleDriverConnect,
                                      DriverInterface(..),
                                      driver
                                     ) where
@@ -62,20 +61,19 @@ retrieveTables c =
       HSQL.collectRows (flip HSQL.getFieldValue "TABLE_NAME")
 -}
 
--- | DSN-less connection.
-oracleDriverConnect ::
-   MonadIO m =>
-   SqlGenerator -> String -> (Database -> m a) -> m a
-oracleDriverConnect gen opts =
-    error "oracleDriverConnect not implemented"
---    hsqlConnect gen (Oracle.driverConnect opts)
+options :: [(String, String)]
+options =
+    ("dsn", "Data Source Name") :
+    ("uid", "User") :
+    ("pwd", "Password") :
+    []
 
 oracleConnectOpts ::
    MonadIO m =>
    [(String,String)] -> (Database -> m a) -> m a
 oracleConnectOpts opts f =
     do
-    [a,b,c] <- getOptions ["dsn","uid","pwd"] opts
+    [a,b,c] <- getAnnotatedOptions options opts
     g <- getGenerator opts
     oracleConnect g
        (OracleOptions
@@ -86,4 +84,4 @@ oracleConnectOpts opts f =
 -- | This driver requires the following options:
 --   "dsn", "uid", "pwd"
 driver :: DriverInterface
-driver = defaultdriver { connect = oracleConnectOpts }
+driver = defaultdriver { connect = oracleConnectOpts, requiredOptions = options }

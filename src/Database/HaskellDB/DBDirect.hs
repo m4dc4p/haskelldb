@@ -43,6 +43,7 @@ dbdirect :: DriverInterface -> IO ()
 dbdirect driver = 
     do putStrLn "DB/Direct: Daan Leijen (c) 1999, HWT (c) 2003-2004,"
        putStrLn "           Bjorn Bringert (c) 2005-2007"
+       putStrLn "           Henning Thielemann (c) 2008"
        putStrLn ""
        args <- getArgs
        let (flags,args') = partition ("-" `isPrefixOf`) args
@@ -56,7 +57,7 @@ dbdirect driver =
 		      putStrLn "Done!"
                   _ -> 
                       do
-                      showHelp
+                      showHelp driver
                       exitFailure
 
 splitOptions :: String -> [(String,String)]
@@ -72,15 +73,21 @@ split2 g xs = (ys, drop 1 zs)
   where (ys,zs) = break (==g) xs
 
 -- | Shows usage information
-showHelp :: IO ()
-showHelp = do p <- getProgName
-              mapM_ (hPutStrLn stderr) (t p)
+showHelp :: DriverInterface -> IO ()
+showHelp driver =
+   hPutStrLn stderr . unlines . generateText =<< getProgName
     where
-    t p = 
-        ["Usage: " ++ p ++ " [-b] <module> <options>",
-         "",
-         "-b         Use bounded string types",
-         "<options>  Driver dependent,e.g.",
-         "           WX:              dsn=<dsn>,uid=<uid>,pwd=<pwd>",
-         "           HSQL.MySQL:      server=<server>,db=<db>,uid=<uid>,pwd=<pwd>",
-         "           HDBC.PostgreSQL: host=<server>,dbname=<db>,user=<uid>,password=<pwd>"]
+    generateText p =
+         ("Usage: " ++ p ++ " [-b] <module> <options>") :
+         "" :
+         "-b         Use bounded string types" :
+         ("<options>  " ++
+             (concat . intersperse "," .
+              map (\(name,descr) -> name++"=<"++descr++">") .
+              requiredOptions) driver) :
+{-
+         "           WX:              dsn=<dsn>,uid=<uid>,pwd=<pwd>" :
+         "           HSQL.MySQL:      server=<server>,db=<db>,uid=<uid>,pwd=<pwd>" :
+         "           HDBC.PostgreSQL: host=<server>,dbname=<db>,user=<uid>,password=<pwd>" :
+-}
+         []

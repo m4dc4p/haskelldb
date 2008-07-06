@@ -30,14 +30,22 @@ mysqlConnect :: MonadIO m => MySQLOptions -> (Database -> m a) -> m a
 mysqlConnect opts = 
     hsqlConnect generator (MySQL.connect (server opts) (db opts) (uid opts) (pwd opts))
 
+options :: [(String, String)]
+options =
+    ("server", "Server") :
+    ("db", "Database") :
+    ("uid", "User") :
+    ("pwd", "Password") :
+    []
+
 mysqlConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 mysqlConnectOpts opts f = 
     do
-    [a,b,c,d] <- getOptions ["server","db","uid","pwd"] opts
+    [a,b,c,d] <- getAnnotatedOptions options opts
     mysqlConnect (MySQLOptions {server = a, db = b,
                                 uid = c, pwd = d}) f
 
 -- | This driver requires the following options: 
 --   "server", "db", "uid", "pwd"
 driver :: DriverInterface
-driver = defaultdriver { connect = mysqlConnectOpts }
+driver = defaultdriver { connect = mysqlConnectOpts, requiredOptions = options }

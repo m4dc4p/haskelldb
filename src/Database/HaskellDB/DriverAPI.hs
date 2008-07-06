@@ -18,6 +18,7 @@ module Database.HaskellDB.DriverAPI (
                                      MonadIO, 
 				     defaultdriver,
                                      getOptions,
+                                     getAnnotatedOptions,
                                      getGenerator
 				    ) where
 
@@ -36,12 +37,19 @@ import Control.Monad.Trans (MonadIO)
 -- | Interface which drivers should implement.
 --   The 'connect' function takes some driver specific name, value pairs
 --   use to setup the database connection, and a database action to run.
+--   'requiredOptions' lists all required options with a short description,
+--   that is printed as help in the DBDirect program.
 data DriverInterface = DriverInterface
-    { connect :: forall m a. MonadIO m => [(String,String)] -> (Database -> m a) -> m a }
+    { connect :: forall m a. MonadIO m => [(String,String)] -> (Database -> m a) -> m a,
+      requiredOptions :: [(String, String)]
+    }
 
 -- | Default dummy driver, real drivers should overload this
 defaultdriver :: DriverInterface 
-defaultdriver = DriverInterface {connect = undefined}
+defaultdriver =
+    DriverInterface {
+        connect = error "DriverAPI.connect: not implemented",
+        requiredOptions = error "DriverAPI.requiredOptions: not implemented"}
 
 -- | Can be used by drivers to get option values from the given
 --   list of name, value pairs.
@@ -55,6 +63,17 @@ getOptions (x:xs) ys =
     case lookup x ys of
                      Nothing -> fail $ "Missing field " ++ x
                      Just v -> liftM (v:) $ getOptions xs ys
+
+-- | Can be used by drivers to get option values from the given
+--   list of name, value pairs.
+--   It is intended for use with the 'requiredOptions' value of the driver.
+getAnnotatedOptions :: Monad m =>
+              [(String,String)] -- ^ names and descriptions of options to get
+           -> [(String,String)] -- ^ options given
+           -> m [String] -- ^ a list of the same length as the first argument
+                         --   with the values of each option. Fails in the given
+                         --   monad if any options is not found.
+getAnnotatedOptions opts = getOptions (map fst opts)
 
 -- | Gets an 'SqlGenerator' from the "generator" option in the given list.
 --   Currently available generators: "mysql", "postgresql", "sqlite", "default"

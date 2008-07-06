@@ -40,10 +40,17 @@ odbcDriverConnect :: MonadIO m => SqlGenerator -> String -> (Database -> m a) ->
 odbcDriverConnect gen opts =
     hsqlConnect gen (ODBC.driverConnect opts)
 
+options :: [(String, String)]
+options =
+    ("dsn", "Data Source Name") :
+    ("uid", "User") :
+    ("pwd", "Password") :
+    []
+
 odbcConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 odbcConnectOpts opts f = 
     do
-    [a,b,c] <- getOptions ["dsn","uid","pwd"] opts
+    [a,b,c] <- getAnnotatedOptions options opts
     g <- getGenerator opts
     odbcConnect g (ODBCOptions {dsn = a,
                                 uid = b,
@@ -52,4 +59,4 @@ odbcConnectOpts opts f =
 -- | This driver requires the following options: 
 --   "dsn", "uid", "pwd"
 driver :: DriverInterface
-driver = defaultdriver { connect = odbcConnectOpts }
+driver = defaultdriver { connect = odbcConnectOpts, requiredOptions = options }

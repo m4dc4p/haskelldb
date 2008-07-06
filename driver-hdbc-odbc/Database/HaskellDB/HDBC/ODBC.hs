@@ -25,6 +25,10 @@ odbcConnect :: MonadIO m => SqlGenerator -> [(String,String)] -> (Database -> m 
 odbcConnect gen opts = hdbcConnect gen (connectODBC conninfo)
     where conninfo = unwords [ k ++ "=" ++ v | (k,v) <- opts]
 
+options :: [(String, String)]
+options =
+    []
+
 odbcConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 odbcConnectOpts opts f = 
     do gen <- getGenerator opts
@@ -33,4 +37,4 @@ odbcConnectOpts opts f =
 
 -- | This driver passes its options through to HDBC.
 driver :: DriverInterface
-driver = defaultdriver { connect = odbcConnectOpts }
+driver = defaultdriver { connect = odbcConnectOpts, requiredOptions = options }

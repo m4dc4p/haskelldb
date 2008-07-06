@@ -32,13 +32,18 @@ data SQLiteOptions = SQLiteOptions {
 sqliteConnect :: MonadIO m => FilePath -> (Database -> m a) -> m a
 sqliteConnect path = hdbcConnect SQLite.generator (connectSqlite3 path)
 
+options :: [(String, String)]
+options =
+    ("filepath", "File path") :
+    []
+
 sqliteConnectOpts :: MonadIO m => [(String,String)] -> (Database -> m a) -> m a
 sqliteConnectOpts opts f = 
     do
-    [a] <- getOptions ["filepath"] opts
+    [a] <- getAnnotatedOptions options opts
     sqliteConnect a f
 
 -- | This driver requires the following options: 
 --   "filepath"
 driver :: DriverInterface
-driver = defaultdriver {connect = sqliteConnectOpts}
+driver = defaultdriver {connect = sqliteConnectOpts, requiredOptions = options}
