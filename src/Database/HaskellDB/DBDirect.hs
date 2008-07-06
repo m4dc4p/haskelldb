@@ -20,16 +20,19 @@
 
 module Database.HaskellDB.DBDirect (dbdirect) where
 
-import Data.List
-import System.Environment (getArgs, getProgName)
-import System.Exit (exitFailure)
-import System.IO
+import Database.HaskellDB (Database, )
+import Database.HaskellDB.DriverAPI (DriverInterface, connect, requiredOptions, )
+import Database.HaskellDB.DBSpec (dbToDBSpec, )
+import Database.HaskellDB.DBSpec.DBSpecToDBDirect (dbInfoToModuleFiles, )
 
-import Database.HaskellDB
-import Database.HaskellDB.DriverAPI
-import Database.HaskellDB.DBSpec
-import Database.HaskellDB.DBSpec.PPHelpers
-import Database.HaskellDB.DBSpec.DBSpecToDBDirect
+import System.Console.GetOpt (getOpt, ArgOrder(..), OptDescr(..), ArgDescr(..), usageInfo, )
+import System.Environment (getArgs, getProgName, )
+import System.Exit (exitFailure, )
+import System.IO (hPutStrLn, stderr, )
+
+import Control.Monad (when, )
+import Data.List (intersperse, )
+
 
 createModules :: String -> Bool -> Database -> IO ()
 createModules m useBStrT db = 
@@ -39,26 +42,53 @@ createModules m useBStrT db =
     putStrLn "Writing modules..."
     dbInfoToModuleFiles "." m spec
 
+
+data Flags =
+   Flags {
+      optHelp           :: Bool,
+      optBoundedStrings :: Bool
+     }
+
+options :: [OptDescr (Flags -> Flags)]
+options =
+   Option ['h'] ["help"]
+      (NoArg (\flags -> flags{optHelp = True}))
+       "show options" :
+   Option ['b'] ["bounded-strings"]
+      (NoArg (\flags -> flags{optBoundedStrings = True}))
+       "use bounded string types" :
+   []
+
 dbdirect :: DriverInterface -> IO ()
 dbdirect driver = 
     do putStrLn "DB/Direct: Daan Leijen (c) 1999, HWT (c) 2003-2004,"
        putStrLn "           Bjorn Bringert (c) 2005-2007"
        putStrLn "           Henning Thielemann (c) 2008"
        putStrLn ""
-       args <- getArgs
-       let (flags,args') = partition ("-" `isPrefixOf`) args
-           useBStrT = "-b" `elem` flags
-       case args' of
-                  [m,o] -> 
-                      do
-                      let opts = splitOptions o
-		      putStrLn "Connecting to database..."
-                      connect driver opts (createModules m useBStrT)
-		      putStrLn "Done!"
-                  _ -> 
-                      do
-                      showHelp driver
-                      exitFailure
+
+       argv <- getArgs
+       let (opts, modAndDrvOpts, errors) = getOpt RequireOrder options argv
+       when (not (null errors))
+          (ioError . userError . concat $ errors)
+       let flags = foldr ($)
+             (Flags {optHelp = False,
+                     optBoundedStrings = False}) opts
+       when (optHelp flags)
+          (showHelp driver >> exitFailure)
+
+       case modAndDrvOpts of
+          [] -> putStrLn "Missing module and driver options, cf. --help"
+          [_] -> putStrLn "Missing driver options, cf. --help"
+          [moduleName,drvOpts] ->
+              do putStrLn "Connecting to database..."
+                 connect driver
+                    (splitOptions drvOpts)
+                    (createModules moduleName (optBoundedStrings flags))
+                 putStrLn "Done!"
+          (_:_:restArgs) ->
+              putStrLn ("Unnecessary arguments: " ++ show restArgs ++ ", cf. --help")
+
+
 
 splitOptions :: String -> [(String,String)]
 splitOptions = map (split2 '=') . split ','
@@ -75,19 +105,11 @@ split2 g xs = (ys, drop 1 zs)
 -- | Shows usage information
 showHelp :: DriverInterface -> IO ()
 showHelp driver =
-   hPutStrLn stderr . unlines . generateText =<< getProgName
-    where
-    generateText p =
-         ("Usage: " ++ p ++ " [-b] <module> <options>") :
-         "" :
-         "-b         Use bounded string types" :
-         ("<options>  " ++
-             (concat . intersperse "," .
-              map (\(name,descr) -> name++"=<"++descr++">") .
-              requiredOptions) driver) :
-{-
-         "           WX:              dsn=<dsn>,uid=<uid>,pwd=<pwd>" :
-         "           HSQL.MySQL:      server=<server>,db=<db>,uid=<uid>,pwd=<pwd>" :
-         "           HDBC.PostgreSQL: host=<server>,dbname=<db>,user=<uid>,password=<pwd>" :
--}
-         []
+   do p <- getProgName
+      let header =
+             "Usage: " ++ p ++ " [dbdirect-options] <module> <driver-options>\n\n" ++
+             "driver-options: " ++
+                (concat . intersperse "," .
+                 map (\(name,descr) -> name++"=<"++descr++">") .
+                 requiredOptions) driver ++ "\n"
+      hPutStrLn stderr $ usageInfo header options
