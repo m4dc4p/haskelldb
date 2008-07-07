@@ -20,30 +20,39 @@ module Database.HaskellDB.DBSpec.DBInfo
      dbInfoToDoc,finalizeSpec,constructNonClashingDBInfo)
     where
 
-import Database.HaskellDB.FieldType
-import Data.Char
+import qualified Database.HaskellDB.DBSpec.PPHelpers as PP
+import Database.HaskellDB.FieldType (FieldDesc, FieldType(BStrT, StringT), )
+import Data.Char (toLower, )
 import Text.PrettyPrint.HughesPJ
 
 -- | Defines a database layout, top level
-data DBInfo = DBInfo {dbname :: String, -- ^ The name of the database
-		      opts :: DBOptions, -- ^ Any options (i.e whether to use
+data DBInfo = DBInfo {dbname :: String -- ^ The name of the database
+		     ,opts :: DBOptions  -- ^ Any options (i.e whether to use
 					 --   Bounded Strings)
-		      tbls :: [TInfo]    -- ^ Tables this database contains
+		     ,tbls :: [TInfo]    -- ^ Tables this database contains
 		     }
-	      deriving (Eq,Show)
+	      deriving (Show)
 
-data TInfo = TInfo {tname :: String, -- ^ The name of the table
-		    cols :: [CInfo]  -- ^ The columns in this table
+data TInfo = TInfo {tname :: String  -- ^ The name of the table
+		   ,cols :: [CInfo]  -- ^ The columns in this table
 		   }
 	      deriving (Eq,Show)
-data CInfo = CInfo {cname :: String, -- ^ The name of this column
-		    descr :: FieldDesc -- ^ The description of this column
+data CInfo = CInfo {cname :: String    -- ^ The name of this column
+		   ,descr :: FieldDesc -- ^ The description of this column
 		   }
 	     deriving (Eq,Show)
 
-data DBOptions = DBOptions {useBString :: Bool -- ^ Use Bounded Strings?
-			   }
-		 deriving (Eq,Show)
+data DBOptions = DBOptions
+		   {useBString :: Bool -- ^ Use Bounded Strings?
+		   ,makeIdent  :: PP.MakeIdentifiers -- ^ Conversion routines from Database identifiers to Haskell identifiers
+		   }
+
+instance Show DBOptions where
+   showsPrec p opts =
+      showString "DBOptions {useBString = " .
+      shows (useBString opts) .
+      showString "}"
+
 
 -- | Creates a valid declaration of a DBInfo. The variable name will be the
 --   same as the database name
@@ -130,9 +139,15 @@ makeCInfo name fdef
 -- | Constructs a DBInfo that doesn't cause nameclashes
 constructNonClashingDBInfo :: DBInfo -> DBInfo
 constructNonClashingDBInfo dbinfo = 
-    let db' = makeDBNameUnique dbinfo in 
-	if db' == makeDBNameUnique db' then db'
-	   else constructNonClashingDBInfo db'
+    let db' = makeDBNameUnique dbinfo
+    in  if equalObjectNames db' (makeDBNameUnique db')
+          then db'
+	  else constructNonClashingDBInfo db'
+
+equalObjectNames :: DBInfo -> DBInfo -> Bool
+equalObjectNames db1 db2 =
+   dbname db1 == dbname db2 &&
+   tbls db1 == tbls db2
 
 -- | Makes a table name unique among all other table names
 makeTblNamesUnique :: [TInfo] -> [TInfo]

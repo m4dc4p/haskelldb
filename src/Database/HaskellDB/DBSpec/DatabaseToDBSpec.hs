@@ -17,18 +17,23 @@ module Database.HaskellDB.DBSpec.DatabaseToDBSpec
     (dbToDBSpec)
     where
 
-import Database.HaskellDB
-import Database.HaskellDB.FieldType
+import Database.HaskellDB (Database, tables, describe, )
 import Database.HaskellDB.DBSpec.DBInfo
+   (DBInfo, makeCInfo, makeTInfo, makeDBSpec, 
+    DBOptions(DBOptions), useBString, makeIdent, )
+
+import qualified Database.HaskellDB.DBSpec.PPHelpers as PP
+
 
 -- | Connects to a database and generates a specification from it
 dbToDBSpec :: Bool -- ^ Use bounded strings?
+           -> PP.MakeIdentifiers -- ^ style of generated Haskell identifiers, cOLUMN_NAME vs. columnName
 	   -> String  -- ^ the name our database should have
 	   -> Database -- ^ the database connection
 	   -> IO DBInfo    -- ^ return a DBInfo
-dbToDBSpec useBStr name dbconn
+dbToDBSpec useBStr mkIdent name dbconn
     = do ts <- tables dbconn
 	 descs <- mapM (describe dbconn) ts
          let cinfos = map (map $ uncurry makeCInfo) descs
 	 let tinfos = map (uncurry makeTInfo) (zip ts cinfos)
-	 return $ makeDBSpec name (DBOptions {useBString = useBStr}) tinfos
+	 return $ makeDBSpec name (DBOptions {useBString = useBStr, makeIdent = mkIdent }) tinfos

@@ -5,7 +5,7 @@
 --                HWT Group (c) 2003,
 --                Bjorn Bringert (c) 2005-2006, bjorn@bringert.net
 -- License     :  BSD-style
--- 
+--
 -- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  portable
@@ -25,68 +25,99 @@ import Database.HaskellDB.DriverAPI (DriverInterface, connect, requiredOptions, 
 import Database.HaskellDB.DBSpec (dbToDBSpec, )
 import Database.HaskellDB.DBSpec.DBSpecToDBDirect (dbInfoToModuleFiles, )
 
+import qualified Database.HaskellDB.DBSpec.PPHelpers as PP
+
 import System.Console.GetOpt (getOpt, ArgOrder(..), OptDescr(..), ArgDescr(..), usageInfo, )
 import System.Environment (getArgs, getProgName, )
 import System.Exit (exitFailure, )
 import System.IO (hPutStrLn, stderr, )
 
+import Control.Monad.Error () -- Monad instance for Either
 import Control.Monad (when, )
 import Data.List (intersperse, )
 
 
-createModules :: String -> Bool -> Database -> IO ()
-createModules m useBStrT db = 
+createModules :: String -> Bool -> PP.MakeIdentifiers -> Database -> IO ()
+createModules m useBStrT mkIdent db =
     do
     putStrLn "Getting database info..."
-    spec <- dbToDBSpec useBStrT m db
+    spec <- dbToDBSpec useBStrT mkIdent m db
     putStrLn "Writing modules..."
     dbInfoToModuleFiles "." m spec
 
 
 data Flags =
    Flags {
-      optHelp           :: Bool,
-      optBoundedStrings :: Bool
-     }
+      optHelp            :: Bool,
+      optBoundedStrings  :: Bool,
+      optIdentifierStyle :: PP.MakeIdentifiers
+   }
 
-options :: [OptDescr (Flags -> Flags)]
+options :: [OptDescr (Flags -> Either String Flags)]
 options =
    Option ['h'] ["help"]
-      (NoArg (\flags -> flags{optHelp = True}))
+      (NoArg (\flags -> Right $ flags{optHelp = True}))
        "show options" :
    Option ['b'] ["bounded-strings"]
-      (NoArg (\flags -> flags{optBoundedStrings = True}))
+      (NoArg (\flags -> Right $ flags{optBoundedStrings = True}))
        "use bounded string types" :
+   Option []    ["identifier-style"]
+      (ReqArg (\str flags ->
+          case str of
+             "preserve"   -> Right $ flags{optIdentifierStyle = PP.mkIdentPreserving}
+             "camel-case" -> Right $ flags{optIdentifierStyle = PP.mkIdentCamelCase}
+             _ -> Left $ "unknown identifier style: " ++ str)
+        "type")
+       "<type> is one of [preserve, camel-case]" :
    []
 
+parseOptions ::
+   [Flags -> Either String Flags] -> Either String Flags
+parseOptions =
+   foldr (=<<)
+      (Right $
+       Flags {optHelp = False,
+              optBoundedStrings = False,
+              optIdentifierStyle = PP.mkIdentPreserving})
+
+exitWithError :: String -> IO a
+exitWithError msg =
+   hPutStrLn stderr msg >>
+   hPutStrLn stderr "Try --help option to get detailed info." >>
+   exitFailure
+
 dbdirect :: DriverInterface -> IO ()
-dbdirect driver = 
+dbdirect driver =
     do putStrLn "DB/Direct: Daan Leijen (c) 1999, HWT (c) 2003-2004,"
-       putStrLn "           Bjorn Bringert (c) 2005-2007"
-       putStrLn "           Henning Thielemann (c) 2008"
+       putStrLn "           Bjorn Bringert (c) 2005-2007, Henning Thielemann (c) 2008"
        putStrLn ""
 
        argv <- getArgs
        let (opts, modAndDrvOpts, errors) = getOpt RequireOrder options argv
        when (not (null errors))
           (ioError . userError . concat $ errors)
-       let flags = foldr ($)
-             (Flags {optHelp = False,
-                     optBoundedStrings = False}) opts
+
+       flags <-
+          case parseOptions opts of
+             Left errMsg -> exitWithError errMsg
+             Right flags -> return flags
+
        when (optHelp flags)
           (showHelp driver >> exitFailure)
 
        case modAndDrvOpts of
-          [] -> putStrLn "Missing module and driver options, cf. --help"
-          [_] -> putStrLn "Missing driver options, cf. --help"
+          []  -> exitWithError "Missing module and driver options"
+          [_] -> exitWithError "Missing driver options"
           [moduleName,drvOpts] ->
               do putStrLn "Connecting to database..."
                  connect driver
                     (splitOptions drvOpts)
-                    (createModules moduleName (optBoundedStrings flags))
+                    (createModules moduleName
+                        (optBoundedStrings flags)
+                        (optIdentifierStyle flags))
                  putStrLn "Done!"
           (_:_:restArgs) ->
-              putStrLn ("Unnecessary arguments: " ++ show restArgs ++ ", cf. --help")
+              exitWithError ("Unnecessary arguments: " ++ show restArgs)
 
 
 
@@ -107,9 +138,13 @@ showHelp :: DriverInterface -> IO ()
 showHelp driver =
    do p <- getProgName
       let header =
-             "Usage: " ++ p ++ " [dbdirect-options] <module> <driver-options>\n\n" ++
-             "driver-options: " ++
+             "Usage: " ++ p ++ " [dbdirect-options] <module> <driver-options>\n"
+          footer = unlines $
+             "" :
+             "module:          Module name without an extension" :
+             ("driver-options:  " ++
                 (concat . intersperse "," .
                  map (\(name,descr) -> name++"=<"++descr++">") .
-                 requiredOptions) driver ++ "\n"
-      hPutStrLn stderr $ usageInfo header options
+                 requiredOptions) driver) :
+             []
+      hPutStrLn stderr $ (usageInfo header options ++ footer)
