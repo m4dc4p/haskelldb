@@ -1,5 +1,5 @@
 Name: haskelldb-hdbc-postgresql
-Version: 0.11
+Version: 0.12
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
