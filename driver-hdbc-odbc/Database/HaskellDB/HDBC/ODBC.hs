@@ -23,7 +23,8 @@ import Database.HDBC.ODBC (connectODBC)
 
 odbcConnect :: MonadIO m => SqlGenerator -> [(String,String)] -> (Database -> m a) -> m a
 odbcConnect gen opts = hdbcConnect gen (connectODBC conninfo)
-    where conninfo = unwords [ k ++ "=" ++ v | (k,v) <- opts]
+    -- strangely enough, mysql+unixodbc want a semicolon terminating connstring
+    where conninfo = foldr (\(k,v) z -> k ++ "=" ++ v ++ ";" ++ z) [] opts
 
 options :: [(String, String)]
 options =

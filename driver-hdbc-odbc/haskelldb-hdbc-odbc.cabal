@@ -1,5 +1,5 @@
 Name: haskelldb-hdbc-odbc
-Version: 0.11
+Version: 0.12
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
@@ -12,10 +12,10 @@ Library
   Build-depends: 
     base, 
     mtl, 
-    haskelldb==0.11,
-    haskelldb-hdbc==0.11,
-    HDBC>=1.1.4 && < 1.2, 
-    HDBC-odbc>=1.1.4 && < 1.2
+    haskelldb>=0.12,
+    haskelldb-hdbc>=0.12,
+    HDBC>=2.0.0 && < 2.2.0,
+    HDBC-odbc>=2.0.0 && < 2.2.0
   Exposed-Modules:
         Database.HaskellDB.HDBC.ODBC
 

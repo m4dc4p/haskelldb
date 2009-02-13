@@ -1,3 +1,6 @@
+2009-02-13 jgbailey@gmail.com
+	* Updated HDBC support to v2.0 (thanks to Artyom Shalkhakov <artyom.shalkhakov@gmail.com>).
+	* Fixed HDBC-odbc connection string handling to use semi colons instead of spaces.
 2004-08-19 15:02  d00bring
 
 	* src/Query.hs: Changed Num constraint to Ord on _min and _max.

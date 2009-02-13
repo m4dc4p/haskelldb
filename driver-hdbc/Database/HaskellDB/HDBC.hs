@@ -197,7 +197,8 @@ hdbcGetInstances =
 		 , getCalendarTime = hdbcGetValue
 		 }
 
-hdbcGetValue :: SqlType a => HDBCRow -> String -> IO (Maybe a)
+-- hdbcGetValue :: Data.Convertible.Base.Convertible SqlValue a
+--             => HDBCRow -> String -> IO (Maybe a)
 hdbcGetValue m f = case Map.lookup (map toLower f) m of
                      Nothing -> fail $ "No such field " ++ f
                      Just x  -> return $ HDBC.fromSql x
