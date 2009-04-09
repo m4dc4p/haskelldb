@@ -44,6 +44,7 @@ Library
         Database.HaskellDB.HDBRec,
         Database.HaskellDB.Optimize,
         Database.HaskellDB.PrimQuery,
+        Database.HaskellDB.PrintQuery,
         Database.HaskellDB.Query,
         Database.HaskellDB.Sql,
         Database.HaskellDB.Sql.Generate,
