@@ -25,7 +25,7 @@ import Database.HaskellDB.PrimQuery
 optimize :: PrimQuery -> PrimQuery
 optimize = hacks
            . mergeProject
-	   . removeEmpty
+           . removeEmpty
            . removeDead
            . pushRestrict
            . optimizeExprs
@@ -123,7 +123,7 @@ removeD live (Special (Order xs) query)
 -- live columns are NOT just those that are in the select, but also those
 -- used in restrictions.
 removeD live (Group cols query)
-    = Group liveCols (removeD (live ++ (map fst liveCols)) query)
+    = Group cols (removeD live query)
   where
     liveCols = filter ((`elem` live) . fst) cols
   
@@ -133,7 +133,7 @@ removeD live query
 
 -- | Remove unused parts of the query
 removeEmpty :: PrimQuery -> PrimQuery
-removeEmpty
+removeEmpty 
         = foldPrimQuery (Empty, BaseTable, project, restrict, binary, group, special)
         where
           -- Messes up queries without a table, e.g. constant queries
@@ -158,11 +158,10 @@ removeEmpty
           group _ Empty = Empty
           group cols query = Group cols query
 
-
 -- | Collapse adjacent projections
 mergeProject :: PrimQuery -> PrimQuery
-mergeProject
-        = foldPrimQuery (Empty,BaseTable,project,Restrict,Binary,Group, Special)
+mergeProject q
+        = foldPrimQuery (Empty,BaseTable,project,Restrict,Binary,Group, Special) q
         where
           project assoc1 (Project assoc2 query)
              	| safe newAssoc	  = Project newAssoc query
@@ -194,7 +193,7 @@ mergeProject
 
           safe :: Assoc -> Bool
           safe assoc
-          	= not (any (isAggregate.snd) assoc)
+          	= not (any (isAggregate.snd) assoc) || all (isAggregate . snd) assoc
 
 -- | Push restrictions down through projections and binary ops.
 pushRestrict :: PrimQuery -> PrimQuery
@@ -278,7 +277,7 @@ optimizeExprs = foldPrimQuery (Empty, BaseTable, Project, restr, Binary, Group, 
           where e' = optimizeExpr e
 
 optimizeExpr :: PrimExpr -> PrimExpr
-optimizeExpr = foldPrimExpr (AttrExpr,ConstExpr,bin,un,AggrExpr,CaseExpr,ListExpr)
+optimizeExpr = foldPrimExpr (AttrExpr,ConstExpr,bin,un,AggrExpr,CaseExpr,ListExpr,ParamExpr,FunExpr, CastExpr)
     where
       bin OpAnd e1 e2
           | exprIsFalse e1 || exprIsFalse e2 = exprFalse

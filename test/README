@@ -1,0 +1,14 @@
+To run these tests, make sure haskelldb is installed with the database
+driver you want to use. Then, in the test/ directory:
+
+  ghc --make DescDB1.hs
+  ./DescDB1 
+  ghc --make RunTests.hs
+
+To test against postgres, using HDBC, first update 
+test-hdbc-postgresql.hs with appropriate login information. Then:
+
+  ghc --make test-hdbc-postgresql.hs
+  ./test-hdbc-postgresql
+  
+And similarly for the other database and driver combinations.

@@ -18,7 +18,7 @@ module Database.HaskellDB.PrimQuery (
 		  -- * Type Declarations
 
 		  -- ** Types
-		  TableName, Attribute, Scheme, Assoc
+		  TableName, Attribute, Scheme, Assoc, Name
 
 		  -- ** Data types
 		 , PrimQuery(..), RelOp(..), SpecialOp(..) 
@@ -30,7 +30,7 @@ module Database.HaskellDB.PrimQuery (
 		 , extend, times
 		 , attributes, attrInExpr, attrInOrder
 		 , substAttr
-		 , isAggregate
+		 , isAggregate, isConstant
 		 , foldPrimQuery, foldPrimExpr
 		 ) where
 
@@ -49,6 +49,7 @@ import Text.PrettyPrint.HughesPJ
 
 type TableName  = String
 type Attribute  = String
+type Name = String
 type Scheme     = [Attribute]
 type Assoc      = [(Attribute,PrimExpr)]
 
@@ -86,6 +87,9 @@ data PrimExpr   = AttrExpr  Attribute
                 | ConstExpr Literal
 		| CaseExpr [(PrimExpr,PrimExpr)] PrimExpr
                 | ListExpr [PrimExpr]
+                | ParamExpr (Maybe Name) PrimExpr
+                | FunExpr Name [PrimExpr]
+                | CastExpr Name PrimExpr-- ^ Cast an expression to a given type.
                 deriving (Read,Show)
 
 data Literal = NullLit
@@ -166,15 +170,18 @@ assocFromScheme scheme
 
 -- | Returns all attributes in an expression.
 attrInExpr :: PrimExpr -> Scheme
-attrInExpr      = foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list)
+attrInExpr      = concat . foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list,param,func, cast)
                 where
-                  attr name     = [name]
-                  scalar s      = []
+                  attr name     = [[name]]
+                  scalar s      = [[]]
                   binary op x y = x ++ y
                   unary op x    = x
                   aggr op x	= x
 		  _case cs el   = concat (uncurry (++) (unzip cs)) ++ el
                   list xs       = concat xs
+                  param _ _ = [[]]
+                  func _ es = concat es
+                  cast _ expr = expr
 
 -- | Returns all attributes in a list of ordering expressions.
 attrInOrder :: [OrderExpr] -> Scheme
@@ -183,24 +190,38 @@ attrInOrder os = concat [attrInExpr e | OrderExpr _ e <- os]
 -- | Substitute attribute names in an expression.
 substAttr :: Assoc -> PrimExpr -> PrimExpr
 substAttr assoc 
-    = foldPrimExpr (attr,ConstExpr,BinExpr,UnExpr,AggrExpr,CaseExpr,ListExpr)
+    = foldPrimExpr (attr,ConstExpr,BinExpr,UnExpr,AggrExpr,CaseExpr,ListExpr,ParamExpr,FunExpr,CastExpr)
         where 
           attr name     = case (lookup name assoc) of
                             Just x      -> x 
                             Nothing     -> AttrExpr name
+
+-- | Determines if a primitive expression represents a constant
+-- or is an expression only involving constants.
+isConstant :: PrimExpr -> Bool
+isConstant x = countConstant x > 0
+  where
+    countConstant = foldPrimExpr (const 0, const 1, binary, unary, aggr, const2 0, const 0,const2 0, const2 0, cast)
+      where
+        const2 a _ _ = a
+        binary op x y = if x == 0 || y == 0 then 0 else 1
+        unary op x    = x
+        aggr op x	= x
+        cast _ n = n
 
 isAggregate :: PrimExpr -> Bool
 isAggregate x = countAggregate x > 0
 
 countAggregate :: PrimExpr -> Int
 countAggregate
-	= foldPrimExpr (const 0, const 0, binary, unary, aggr, _case, list)
+	= foldPrimExpr (const 0, const 0, binary, unary, aggr, _case, list,(\_ _ -> 0), (\_ n -> sum n), cast)
 	where
           binary op x y	 	= x + y
           unary op x		= x
           aggr op x		= x + 1
 	  _case cs el           = sum (map (uncurry (+)) cs) + el
           list xs               = sum xs
+          cast _ e = e
 
 -- | Fold on 'PrimQuery'
 foldPrimQuery :: (t, TableName -> Scheme -> t, Assoc -> t -> t,
@@ -225,8 +246,8 @@ foldPrimQuery (empty,table,project,restrict,binary,group,special)
 -- | Fold on 'PrimExpr'
 foldPrimExpr :: (Attribute -> t, Literal -> t, BinOp -> t -> t -> t,
                  UnOp -> t -> t, AggrOp -> t -> t, 
-		 [(t,t)] -> t -> t, [t] -> t) -> PrimExpr -> t
-foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list) 
+		 [(t,t)] -> t -> t, [t] -> t, Maybe Name -> t -> t, Name -> [t] -> t, Name -> t -> t) -> PrimExpr -> t
+foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list,param,fun,cast) 
         = fold
         where
           fold (AttrExpr name) = attr name
@@ -236,5 +257,8 @@ foldPrimExpr (attr,scalar,binary,unary,aggr,_case,list)
           fold (AggrExpr op x) = aggr op (fold x)
 	  fold (CaseExpr cs el) = _case (map (both fold) cs) (fold el)
           fold (ListExpr xs) = list (map fold xs)
+          fold (ParamExpr n value) = param n (fold value)
+          fold (FunExpr n exprs) = fun n (map fold exprs)
+          fold (CastExpr n expr) = cast n (fold expr)
 
           both f (x,y) = (f x, f y)

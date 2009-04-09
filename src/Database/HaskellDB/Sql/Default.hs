@@ -37,6 +37,7 @@ module Database.HaskellDB.Sql.Default (
                                         defaultSqlExpr,
                                         defaultSqlLiteral,
                                         defaultSqlType,
+                                        defaultSqlQuote,
 
                                         -- * Utilities
                                         toSqlSelect
@@ -50,6 +51,8 @@ import Database.HaskellDB.Sql.Generate
 
 import System.Locale
 import System.Time
+import Data.Maybe (catMaybes)
+import Data.List (nubBy)
 
 mkSqlGenerator :: SqlGenerator -> SqlGenerator
 mkSqlGenerator gen = SqlGenerator 
@@ -74,7 +77,8 @@ mkSqlGenerator gen = SqlGenerator
 
      sqlExpr        = defaultSqlExpr        gen,
      sqlLiteral     = defaultSqlLiteral     gen,
-     sqlType        = defaultSqlType        gen
+     sqlType        = defaultSqlType        gen,
+     sqlQuote       = defaultSqlQuote       gen
     }
 
 defaultSqlGenerator :: SqlGenerator
@@ -102,13 +106,13 @@ defaultSqlType _ t =
 -- | Creates a 'SqlSelect' based on the 'PrimQuery' supplied.
 -- Corresponds to the SQL statement SELECT.
 defaultSqlQuery :: SqlGenerator -> PrimQuery -> SqlSelect
-defaultSqlQuery gen = foldPrimQuery (sqlEmpty gen, 
+defaultSqlQuery gen query = foldPrimQuery (sqlEmpty gen, 
                                      sqlTable gen,
                                      sqlProject gen,
                                      sqlRestrict gen,
                                      sqlBinary gen,
                                      sqlGroup gen,
-                                     sqlSpecial gen)
+                                     sqlSpecial gen) query
 
 defaultSqlEmpty :: SqlGenerator -> SqlSelect
 defaultSqlEmpty _ = SqlEmpty
@@ -118,20 +122,54 @@ defaultSqlTable _ name schema = SqlTable name
 
 defaultSqlProject :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
 defaultSqlProject gen assoc q
-          	| hasAggr    = select { groupby = toSqlAssoc gen nonAggrs }
+          	| hasAggr    = select { groupby = toSqlAssoc gen groupableProjections ++ groupableOrderCols }
           	| otherwise  = select 
                 where
                   select   = sql { attrs = toSqlAssoc gen assoc }
                   sql      = toSqlSelect q
                   hasAggr  = (not . null  . filter (isAggregate . snd)) assoc
-                  nonAggrs = filter (not . isAggregate . snd) assoc
-
+                  -- Find projected columns that are not constants or aggregates.
+                  groupableProjections = filter (not . (\x -> isAggregate x || isConstant x) . snd) assoc
+                  -- Get list of order by columns which do not appear in
+                  -- projected non-aggregate columns already, if any.
+                  groupableOrderCols =
+                    let eligible = filter (\x -> case x of
+                                              (ColumnSqlExpr attr) ->
+                                                  not (attr `elem` groupableAttrs)
+                                              _ -> False) .
+                              map fst $ orderby sql
+                        -- List of non-aggregated columns which are only attribute expressions, i.e.
+                        -- aliased columns. 
+                        groupableAttrs = [col | (AttrExpr col) <- map snd groupableProjections]
+                    in [(s, e) | e@(ColumnSqlExpr s) <- eligible]
 
 -- | Takes all non-aggregate expressions in the select and adds them to
 -- the 'group by' clause.
 defaultSqlGroup :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
-defaultSqlGroup gen cols select = select { groupby = toSqlAssoc gen cols }
-    
+defaultSqlGroup gen cols q =
+  let selectCols = concat (allCols q) -- List of all columns in order by, group by or 'select' clause in SqlSelect.
+      -- Nested search for all valid columns.
+      allCols :: SqlSelect -> [[(SqlColumn, SqlExpr)]]
+      allCols (SqlSelect { attrs = a, groupby = g, tables = t, orderby = o}) = a : g : toColExpr o : concatMap (allCols . snd) t
+      allCols (SqlBin _ l r) = allCols l ++ allCols r
+      allCols _ = []
+      -- Convert order by expressions to SqlColumn looking expressions.
+      -- Luckily, order by never has antyhig but ColumnSqlExpr in it for now.
+      toColExpr :: [(SqlExpr,SqlOrder)] -> [(SqlColumn,SqlExpr)]
+      toColExpr = 
+        let f (ColumnSqlExpr s) = Just (s, undefined)
+        in catMaybes . map (f . fst)
+      -- Ensure that each column in the groupby actually exists
+      -- in the projection. Also converts all expressions
+      -- to ColumnSqlExpr so they work correctly in group by.
+      mkValidCol (name, expr) =
+        case lookup name selectCols of
+          Just _ -> Just (name, sqlExpr gen expr)
+          Nothing -> Nothing
+      select = toSqlSelect q
+      groupbys = catMaybes . map mkValidCol $ cols
+  in select { groupby = groupbys }
+
 
 defaultSqlRestrict :: SqlGenerator -> PrimExpr -> SqlSelect -> SqlSelect
 defaultSqlRestrict gen expr q
@@ -173,13 +211,41 @@ toSqlOrder gen (OrderExpr o e) = (sqlExpr gen e, o')
                  OpAsc  -> SqlAsc
                  OpDesc -> SqlDesc
 
+-- | Make sure our SqlSelect statement is really a SqlSelect and not
+-- one other constructors.
 toSqlSelect :: SqlSelect -> SqlSelect
 toSqlSelect sql = case sql of
                     (SqlEmpty)          -> newSelect
                     (SqlTable name)     -> newSelect { tables = [("",sql)] }
                     (SqlBin op q1 q2)   -> newSelect { tables = [("",sql)] }
-                    s | null (attrs s) -> sql
-                      | otherwise  -> newSelect { tables = [("",sql)] }
+                    (SqlSelect { groupby = group, attrs = cols, tables = tbls})
+                      | null cols && null group -> sql 
+                      | null cols && not (null group) ->
+                          -- This situation arises when a columns used in a group by are
+                          -- not explicitly projected, or only aggregates are.
+                          --
+                          -- We make the groupby its own "subquery" below which projects
+                          -- only "group by" columns, without introducing any aliases. We then
+                          -- create a new select which projects the original columns projected by
+                          -- the group by (i.e. those in the "tables" slot of the groupby select).
+                          --
+                          -- This addresses a bug where GROUP BY statements would disappear
+                          -- if the query did not use the grouped columns, or the would
+                          -- float out of subqueries indirectly.
+                          --
+                          let removeDups = nubBy (\(c1, _) (c2, _) -> c1 == c2)
+                              -- Makes a list of columns pass-through - i.e. projected
+                              -- with no aliasing.
+                              passThrough = map ((\c -> (c, ColumnSqlExpr c)) . fst)
+                              -- List of columns projected by subquery found in tables field.
+                              currProj = passThrough $ concatMap (attrs . snd) tbls
+                              -- Columns projected due the group by
+                              groupProj =  passThrough group
+                              newSql = sql { attrs = removeDups $ groupProj ++ currProj }
+                          in newSelect { attrs = currProj
+                                        , tables = [("", newSql)]}
+                      | otherwise -> newSelect { tables = [("",sql)] }
+                      
 
 toSqlAssoc :: SqlGenerator -> Assoc -> [(SqlColumn,SqlExpr)]
 toSqlAssoc gen = map (\(attr,expr) -> (attr, sqlExpr gen expr))
@@ -287,7 +353,25 @@ defaultSqlExpr :: SqlGenerator -> PrimExpr -> SqlExpr
 defaultSqlExpr gen e = 
     case e of
       AttrExpr a       -> ColumnSqlExpr a
-      BinExpr op e1 e2 -> BinSqlExpr (showBinOp op) (sqlExpr gen e1) (sqlExpr gen e2)
+      BinExpr op e1 e2 ->
+        let leftE = sqlExpr gen e1
+            rightE = sqlExpr gen e2
+            paren = ParensSqlExpr
+            (expL, expR) = case (op, e1, e2) of
+              (OpAnd, e1@(BinExpr OpOr _ _), e2@(BinExpr OpOr _ _)) ->
+                (paren leftE, paren rightE)
+              (OpOr, e1@(BinExpr OpAnd _ _), e2@(BinExpr OpAnd _ _)) ->
+                (paren leftE, paren rightE)
+              (OpAnd, e1@(BinExpr OpOr _ _), e2) ->
+                (paren leftE, rightE)
+              (OpAnd, e1, e2@(BinExpr OpOr _ _)) ->
+                (leftE, paren rightE)
+              (OpOr, e1@(BinExpr OpAnd _ _), e2) ->
+                (paren leftE, rightE)
+              (OpOr, e1, e2@(BinExpr OpAnd _ _)) ->
+                (leftE, paren rightE)
+              _ -> (leftE, rightE)
+        in BinSqlExpr (showBinOp op) expL expR
       UnExpr op e      -> let (op',t) = sqlUnOp op
                               e' = sqlExpr gen e
                            in case t of
@@ -302,6 +386,9 @@ defaultSqlExpr gen e =
                               e'  = sqlExpr gen e
                            in CaseSqlExpr cs' e'
       ListExpr es      -> ListSqlExpr (map (sqlExpr gen) es)
+      ParamExpr n v    -> ParamSqlExpr n PlaceHolderSqlExpr
+      FunExpr n exprs  -> FunSqlExpr n (map (sqlExpr gen) exprs)
+      CastExpr typ e1 -> CastSqlExpr typ (sqlExpr gen e1)
 
 showBinOp :: BinOp -> String
 showBinOp  OpEq         = "=" 
@@ -365,6 +452,9 @@ defaultSqlLiteral gen l =
 	  where fmt = iso8601DateFormat (Just "%H:%M:%S")
       OtherLit l    -> l
 
+
+defaultSqlQuote :: SqlGenerator -> String -> String
+defaultSqlQuote gen s = quote s
 
 -- | Quote a string and escape characters that need escaping
 --   FIXME: this is backend dependent

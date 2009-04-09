@@ -1,3 +1,19 @@
+2009-04-09 jgbailey@gmail.com
+	* Added support for arbitrary sql functions in Database.HaskellDB.Query
+	* Added support for cast and coerce SQL functions in queries.
+	* Added support for anonymous and named parameters.
+	* Bug fixes around aggregate expressions.
+	* Updated Postgres SQL generation module so timestamp columns WITH timezone are created
+	  when the column type in the table is CalendarTimeT.
+	* Updated Postgres SQL generation so CalendarTime values include timezone information
+	when they are sent to the database.
+	* Removed picoseconds from CalendarTime values in TestCases.hs.
+	* Added sqlQuote and defaulSqlQuote to SQL generation so quoting and escaping can be
+	overridden on a per-database basis.
+	* Updated Tests/test-hdbc-postgres.hs to take arguments. 
+	* Associativity fixes between AND and OR operators in SQL queries.
+	* Got test/TestCases.hs working against postgres database.
+	* Rolled version to 0.13
 2009-02-13 jgbailey@gmail.com
 	* Updated HDBC support to v2.0 (thanks to Artyom Shalkhakov <artyom.shalkhakov@gmail.com>).
 	* Fixed HDBC-odbc connection string handling to use semi colons instead of spaces.

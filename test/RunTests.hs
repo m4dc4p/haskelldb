@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module RunTests (Conn(..), dbTestMain) where
 
 import DBTest
@@ -5,7 +6,11 @@ import TestCases
 
 import Test.HUnit
 
+#if __GLASGOW_HASKELL__ >= 610
+import Control.OldException
+#else
 import Control.Exception 
+#endif
 import Control.Monad
 import Prelude hiding (catch)
 import System.Environment

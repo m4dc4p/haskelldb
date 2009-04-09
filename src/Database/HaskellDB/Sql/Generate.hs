@@ -43,5 +43,8 @@ data SqlGenerator = SqlGenerator
 
      sqlExpr        :: PrimExpr -> SqlExpr,
      sqlLiteral     :: Literal -> String,
-     sqlType        :: FieldType -> SqlType
+     sqlType        :: FieldType -> SqlType,
+     -- | Turn a string into a quoted string. Quote characters
+     -- and any escaping are handled by this function.
+     sqlQuote       :: String -> String
     }

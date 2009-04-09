@@ -1,10 +1,10 @@
 Name: haskelldb
-Version: 0.12
+Version: 0.13
 Cabal-version: >= 1.2
 Build-type: Simple
 Homepage: http://haskelldb.sourceforge.net
 Copyright: The authors
-Maintainer: haskelldb-users@lists.sourceforge.net
+Maintainer: "Justin Bailey" <jgbailey@gmail.com>
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
 Synopsis: SQL unwrapper for Haskell.

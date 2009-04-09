@@ -15,6 +15,7 @@
 module Database.HaskellDB.Sql ( 
                                SqlTable,
                                SqlColumn,
+                               SqlName,
                                SqlOrder(..),
                                SqlType(..),
 
@@ -38,6 +39,9 @@ module Database.HaskellDB.Sql (
 type SqlTable = String
 
 type SqlColumn = String
+
+-- | A valid SQL name for a parameter.
+type SqlName = String
 
 data SqlOrder = SqlAsc | SqlDesc
   deriving Show
@@ -72,6 +76,10 @@ data SqlExpr = ColumnSqlExpr  SqlColumn
 	     | CaseSqlExpr    [(SqlExpr,SqlExpr)] SqlExpr
              | ListSqlExpr    [SqlExpr]
              | ExistsSqlExpr  SqlSelect
+             | ParamSqlExpr (Maybe SqlName) SqlExpr
+             | PlaceHolderSqlExpr
+             | ParensSqlExpr SqlExpr
+             | CastSqlExpr String SqlExpr 
   deriving Show
 
 -- | Data type for SQL UPDATE statements.

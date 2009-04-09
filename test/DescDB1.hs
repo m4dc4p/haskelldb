@@ -2,9 +2,10 @@ module Main where
 
 import Database.HaskellDB.DBLayout
 import Database.HaskellDB.DBSpec.DBSpecToDBDirect
+import Database.HaskellDB.DBSpec.PPHelpers (mkIdentPreserving)
 
 hdb_test_db = DBInfo {dbname = "hdb_test_db", 
-                      opts = DBOptions {useBString = False}, 
+                      opts = DBOptions {useBString = False, makeIdent = mkIdentPreserving}, 
                       tbls = tables}
 
 tables = [

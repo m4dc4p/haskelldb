@@ -167,7 +167,8 @@ ppSqlExpr :: SqlExpr -> Doc
 ppSqlExpr e =
     case e of
       ColumnSqlExpr c     -> text c
-      BinSqlExpr op e1 e2 -> ppSqlExpr e1 <+> text op <+> ppSqlExpr e2
+      ParensSqlExpr e -> parens (ppSqlExpr e)
+      BinSqlExpr op e1 e2 -> ppSqlExpr e1 <+> text op <+> ppSqlExpr e2 
       PrefixSqlExpr op e  -> text op <+> ppSqlExpr e
       PostfixSqlExpr op e -> ppSqlExpr e <+> text op
       FunSqlExpr f es     -> text f <> parens (commaH ppSqlExpr es)
@@ -178,6 +179,10 @@ ppSqlExpr e =
                                <+> text "THEN" <+> ppSqlExpr t
       ListSqlExpr es      -> parens (commaH ppSqlExpr es)
       ExistsSqlExpr s     -> text "EXISTS" <+> parens (ppSql s)
+      ParamSqlExpr n v -> ppSqlExpr v
+      PlaceHolderSqlExpr -> text "?"
+      CastSqlExpr typ expr -> text "CAST" <> parens (ppSqlExpr expr <+> text "AS" <+> text typ)
+    
 
 commaH :: (a -> Doc) -> [a] -> Doc
 commaH f = hcat . punctuate comma . map f

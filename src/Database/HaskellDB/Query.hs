@@ -17,7 +17,7 @@
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
 	      -- * Data and class declarations
-	      Rel(..), Attr(..), Table(..), Query, Expr(..), OrderExpr
+	      Rel(..), Attr(..), Table(..), Query, Expr(..), ExprAggr, OrderExpr
 	     , ToPrimExprs, ShowConstant
 	     , ExprC, ProjectExpr, ProjectRec, InsertRec
              , ConstantRecord(..)
@@ -26,6 +26,7 @@ module Database.HaskellDB.Query (
 	     , (.&&.) , (.||.)
 	     , (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
              , (<<), (<<-)
+       , recAttr
 	      -- * Function declarations
 	     , project, restrict, table, unique
 	     , union, intersect, divide, minus
@@ -33,7 +34,11 @@ module Database.HaskellDB.Query (
 	     , isNull, notNull
 	     , fromNull
 	     , constant, constJust
+       , param, namedParam, Args, func, constNull, cast
+       , toStr, coerce
+       , select
 	     , count, _sum, _max, _min, avg
+       , literal
 	     , stddev, stddevP, variance, varianceP
 	     , asc, desc, order
 	     , top --, topPercent
@@ -41,6 +46,7 @@ module Database.HaskellDB.Query (
 	     , _default
              -- * Internals
 	     , runQuery, runQueryRel
+       , subQuery
 	     , attribute, tableName, baseTable
 	     , attributeName, exprs, labels
 	     ) where
@@ -166,6 +172,15 @@ _ << x = RecCons x
 	-> Record (RecCons f (Expr a) RecNil)  -- ^ New record
 f <<- x = f << constant x
 
+-- | Creates a single-field record from an attribute and a table. Useful
+-- for building projections that will re-use the same attribute name. @recAttr attr tbl@ is
+-- equivalent to:
+--
+--   @attr << tbl ! attr@
+--
+recAttr :: (HasField f r) => Attr f a -> Rel r -> Record (RecCons f (Expr a) RecNil)
+recAttr attr tbl = attr << tbl ! attr
+
 -----------------------------------------------------------
 -- Basic relational operators
 -----------------------------------------------------------
@@ -200,28 +215,34 @@ restrict :: Expr Bool -> Query ()
 restrict (Expr primExpr) = updatePrimQuery_ (Restrict primExpr)
 
 -- | Restricts the relation given to only return unique records. Upshot
--- is all projected attributes will be 'grouped'
+-- is all projected attributes will be 'grouped'.
 unique :: Query ()
 unique = Query (\(i, primQ) ->
     -- Add all non-aggregate expressions in the query
     -- to a groupby association list. This list holds the name
     -- of the expression and the expression itself. Those expressions
     -- will later by added to the groupby list in the SqlSelect built.
-    case findNonAggr primQ of
+    case nonAggr primQ of
       [] -> ((), (i + 1, primQ)) -- No non-aggregate expressions - no-op.
       newCols -> ((), (i + 1, Group newCols primQ)))
   where
-    -- Find all non-aggregate expressions.
-    findNonAggr :: PrimQuery -> Assoc
-    findNonAggr (Project cols q) = filter (not . isAggregate . snd) cols
-    findNonAggr (Restrict _ q) = findNonAggr q
-    findNonAggr (Binary _ q1 q2) = findNonAggr q1 ++ findNonAggr q2
-    findNonAggr (BaseTable tblName cols) = zip cols (map AttrExpr cols)
-    findNonAggr (Special _ q) = findNonAggr q
+    -- Find all non-aggregate expressions and convert
+    -- them to attribute expressions for use in group by.
+    nonAggr :: PrimQuery -> Assoc
+    nonAggr p = map toAttrExpr . filter (not . isAggregate . snd) . projected $ p 
+    toAttrExpr (col, _) = (col, AttrExpr col)
+    -- Find all projected columns from subqueries.
+    projected :: PrimQuery -> Assoc
+    projected (Project cols q) = cols
+    projected (Restrict _ q) = projected q
+    projected (Binary _ q1 q2) = projected q1 ++ projected q2
+    projected (BaseTable tblName cols) = zip cols (map AttrExpr cols)
+    projected (Special _ q) = projected q
     -- Group and Empty are no-ops
-    findNonAggr (Group _ _) = []
-    findNonAggr Empty  = []
-  
+    projected (Group _ _) = []
+    projected Empty  = []
+
+
 -----------------------------------------------------------
 -- Binary operations
 -----------------------------------------------------------
@@ -230,9 +251,8 @@ binrel :: RelOp -> Query (Rel r) -> Query (Rel r) -> Query (Rel r)
 binrel op (Query q1) (Query q2)
   = Query (\(i,primQ) ->
       let (Rel a1 scheme1,(j,primQ1)) = q1 (i,primQ)
-          (Rel a2 scheme2,(k,primQ2)) = q2 (j,primQ)
-
-          alias	  = k
+          (Rel a2 scheme2,(alias,primQ2)) = q2 (j,primQ)
+          
           scheme  = scheme1
 
           assoc1  = zip (map (fresh alias) scheme1)
@@ -244,7 +264,7 @@ binrel op (Query q1) (Query q2)
           r2      = Project assoc2 primQ2
           r       = Binary op r1 r2
       in
-          (Rel alias scheme,(k+1,times r primQ)) )
+          (Rel alias scheme,(alias + 1, times r primQ)) )
 
 -- | Return all records which are present in at least
 --   one of the relations.
@@ -292,10 +312,19 @@ baseTable t r   = Table t (zip (labels r) (exprs r))
 attribute :: String -> Expr a
 attribute name  = Expr (AttrExpr name)
 
-
 -----------------------------------------------------------
 -- Expressions
 -----------------------------------------------------------
+-- | Create a named parameter with a default value.
+namedParam :: Name -- ^ Name of the parameter.
+  -> Expr a -- ^ Default value for the parameter.
+  -> Expr a 
+namedParam n (Expr def) = Expr (ParamExpr (Just n) def) 
+
+-- | Create an anonymous parameter with a default value.
+param :: Expr a -- ^ Default value.
+  -> Expr a
+param (Expr def) = Expr (ParamExpr Nothing def) 
 
 unop :: UnOp -> Expr a -> Expr b
 unop op (Expr primExpr)
@@ -391,7 +420,6 @@ _length = unop OpLength
 numop :: Num a => BinOp -> Expr a -> Expr a -> Expr a
 numop   = binop
 
-
 -- | Addition
 (.+.) :: Num a => Expr a -> Expr a -> Expr a
 (.+.) = numop OpPlus
@@ -434,6 +462,97 @@ fromNull :: Expr a         -- ^ Default value (to be returned for 'Nothing')
 	 -> Expr a
 fromNull d x@(Expr px) = _case [(isNull x, d)] (Expr px)
 
+-- | Class which can convert BoundedStrings to normal strings,
+-- even inside type constructors. Useful when a field
+-- is defined as a BoundedString (e.g. "Expr BStr10" or "Expr (Maybe BStr20)") but
+-- it needs to be used in an expression context. The example below illustrates a
+-- table with at least two fields, strField and bStrField. The first is defined as
+-- containing strings, the second as containing strings up to 10 characters long. The
+-- @toStr@ function must be used to convert the bStrField into the appropriate type for
+-- projecting as the strField:
+--
+-- > type SomeTable = (RecCons StrField (Expr String)
+-- >                    (RecCons BStrField (Expr BStr10) ... ))
+--
+-- > someTable :: Table SomeTable
+-- > someTable = ...
+--
+-- > strField :: Attr StrField String
+-- > strField = ...
+-- >
+-- > bstrField :: Attr BStrField (BStr10)
+-- > bstrField = ...
+-- > 
+-- > query = do
+-- >  t <- table someTable
+-- >  project $ strField << toStr $ t ! bstrField
+--
+class BStrToStr s d where
+  -- | Convert a bounded string to a real string.
+  toStr :: s -> d
+
+instance (Size n) => BStrToStr (Expr (BoundedString n)) (Expr String) where
+  toStr (Expr e) = Expr e
+
+instance (Size n) => BStrToStr (Expr (Maybe (BoundedString n))) (Expr (Maybe String)) where
+  toStr (Expr m) = Expr m
+
+
+-----------------------------------------------------------
+-- Using arbitrary SQL functions in a type-safe way.
+-----------------------------------------------------------
+
+-- | Used to implement variable length arguments to @func@, below.
+class Args a where
+  arg_ :: String -> [PrimExpr] -> a
+
+-- | Used to limit variable argument form of @func@ to only take @Expr@ types,
+-- and ignore @ExprAggr@ types.
+class IsExpr a
+
+instance (IsExpr tail) => IsExpr (Expr a -> tail)
+
+instance IsExpr (Expr a)
+
+instance (IsExpr tail, Args tail) => Args (Expr a -> tail) where
+  arg_ name exprs = \(Expr prim) -> arg_ name (prim : exprs)
+
+instance Args (Expr a) where
+  -- Reverse necessary because arguments are built in reverse order by instances
+  -- of Args above.
+  arg_ name exprs = Expr (FunExpr name (reverse exprs))
+
+instance Args (Expr a -> ExprAggr c) where
+  arg_ name exprs = \(Expr prim) -> ExprAggr (AggrExpr (AggrOther name) prim)
+
+{- | Can be used to define SQL functions which will
+appear in queries. Each argument for the function is specified by its own Expr value. 
+Examples include:
+
+>  lower :: Expr a -> Expr (Maybe String) 
+>  lower str = func "lower" str
+
+The arguments to the function do not have to be Expr if they can
+be converted to Expr:
+
+>  data DatePart = Day | Century deriving Show 
+
+>  datePart :: DatePart -> Expr (Maybe CalendarTime) -> Expr (Maybe Int) 
+>  datePart date col = func "date_part" (constant $ show date) col
+
+Aggregate functions can also be defined. For example:
+
+ >  every :: Expr Bool -> ExprAggr Bool 
+ >  every col = func "every" col
+
+Aggregates are implemented to always take one argument, so any attempt to
+define an aggregate with any more or less arguments will result in an error.
+
+Note that type signatures are usually required for each function defined,
+unless the arguments can be inferred.-}
+func :: (Args a) => String -> a 
+func name = arg_ name [] 
+
 -----------------------------------------------------------
 -- Default values
 -----------------------------------------------------------
@@ -472,15 +591,37 @@ instance ShowConstant a => ShowConstant (Maybe a) where
 
 instance Size n => ShowConstant (BoundedString n) where
     showConstant = showConstant . fromBounded
-
 -- | Creates a constant expression from a haskell value.
 constant :: ShowConstant a => a -> Expr a
 constant x  = Expr (ConstExpr (showConstant x))
+
+-- | Inserts the string literally - no escaping, no quoting.
+literal :: String -> Expr a
+literal x = Expr (ConstExpr (OtherLit x))
 
 -- | Turn constant data into a nullable expression. 
 --   Same as @constant . Just@
 constJust :: ShowConstant a => a -> Expr (Maybe a)
 constJust x = constant (Just x)
+
+-- | Represents a null value.
+constNull :: Expr (Maybe a)
+constNull = Expr (ConstExpr NullLit)
+
+-- | Generates a 'CAST' expression for the given
+-- expression, using the argument given as the destination
+-- type. 
+cast :: String -- ^ Destination type.
+  -> Expr a -- ^ Source expression.
+  -> Expr b
+cast typ (Expr expr) = Expr (CastExpr typ expr)
+
+-- | Coerce the type of an expression
+-- to another type. Does not affect the actual
+-- primitive value - only the `phantom' type.
+coerce :: Expr a -- ^ Source expression
+  -> Expr b -- ^ Destination type.
+coerce (Expr e) = Expr e
 
 class ConstantRecord r cr | r -> cr where
     constantRecord :: r -> cr
@@ -616,7 +757,24 @@ runQueryRel (Query f)
               assoc   = zip scheme (map (AttrExpr . fresh alias) scheme)
           in  (Project assoc primQuery, Rel 0 scheme)
 
-
+-- | Allows a subquery to be created between another query and
+-- this query. Normally query definition is associative and query definition
+-- is interleaved. This combinator ensures the given query is
+-- added as a whole piece.
+subQuery :: Query (Rel r) -> Query (Rel r)
+subQuery (Query qs) = Query make
+  where
+    make (currentAlias, currentQry) =
+        -- Take the query to add and run it first, using the current alias as
+        -- a seed.
+        let (Rel otherAlias otherScheme,(newestAlias, otherQuery)) = qs (currentAlias,Empty)
+            -- Effectively renames all columns in otherQuery to make them unique in this
+            -- query.
+            assoc = zip (map (fresh newestAlias) otherScheme)
+                        (map (AttrExpr . fresh otherAlias) otherScheme)
+            -- Produce a query which is a cross product of the other query and the current query.
+        in (Rel newestAlias otherScheme, (newestAlias + 1, times (Project assoc otherQuery) currentQry))
+            
 instance Functor Query where
   fmap f (Query g)      = Query (\q0 -> let (x,q1) = g q0  in (f x,q1))
 
