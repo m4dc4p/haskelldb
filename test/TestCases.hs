@@ -16,7 +16,7 @@ import DBTest
 
 import Database.HaskellDB
 import Database.HaskellDB.HDBRec ((.=.))
-import Database.HaskellDB.Query (attributeName,tableName, constantRecord, subQuery)
+import Database.HaskellDB.Query (attributeName,tableName, constantRecord, subQuery, func)
 
 import Control.OldException (catchDyn, throwDyn) -- for GHC > 6.10
 import Data.Typeable
@@ -54,7 +54,9 @@ queryTests = dbtests [testUnique1,
                      testAggrOrder,
                      testNoAggrOrder,
                      testCorrectGroupBy,
-                     testCorrectGroupByNoProjection]
+                     testCorrectGroupByNoProjection,
+                     testConcat,
+                     testSubstring]
 
 tableTests = 
     dbtests [ 
@@ -389,6 +391,28 @@ testAggr1 = noDBTest "Testing that group does use projected expressions when agg
                     \            FROM int_tbl as T1) as T1\n\
                     \      GROUP BY (CASE WHEN f021 = 100 THEN 0 ELSE 1 END)) as T1";
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
+
+testConcat = noDBTest "Testing SQL concat query" $ do
+  let qryTxt = showSql $ do
+        h <- table string_tbl
+        project $ TString.f02 << concatF (h ! TString.f02) (h ! TString.f04)
+      result = "SELECT concat(f02,f04) as f02\n\
+                \FROM string_tbl as T1"
+  assertQueryText "Concat not generated as expected: " qryTxt result
+
+concatF :: Expr String -> Expr String -> Expr String
+concatF str1 str2 = func "concat" str1 str2
+
+substringF :: Expr String -> Expr Int -> Expr Int -> Expr String
+substringF str idx len = func "substring" str idx len
+
+testSubstring = noDBTest "Testing SQL concat query" $ do
+  let qryTxt = showSql $ do
+        h <- table string_tbl
+        project $ TString.f02 << substringF (h ! TString.f02) (constant 0) (constant 5)
+      result = "SELECT substring(f02,0,5) as f02\n\
+                \FROM string_tbl as T1"
+  assertQueryText "Substring not generated as expected: " qryTxt result
 
 -- | Helper which asserts that two query strings are equal.
 assertQueryText msg query expect = assertBool (msg ++ "\nGot: \n\n" ++ query ++
