@@ -139,7 +139,7 @@ removeEmpty
           -- Messes up queries without a table, e.g. constant queries
 	  -- disabled by Bjorn Bringert 2004-04-08
           --project assoc Empty   = Empty
-          project assoc query   | null assoc    = Empty
+          project assoc query   | null assoc    = query
                                 | otherwise     = Project assoc query
 
           restrict x Empty      = Empty
