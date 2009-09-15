@@ -1,5 +1,5 @@
 Name: haskelldb-hdbc-postgresql
-Version: 0.12
+Version: 1.0
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
@@ -10,14 +10,18 @@ Synopsis: HaskellDB support for the HDBC PostgreSQL driver.
 
 Library
   Build-depends: 
-    base, 
-    mtl, 
-    haskelldb>=0.12,
-    haskelldb-hdbc>=0.12,
-    HDBC>=2.0.0 && < 2.2.0,
-    HDBC-postgresql>=2.0.0 && < 2.2.0
+    base >= 3 && < 5, 
+    mtl >= 1.1 && < 2, 
+    haskelldb >= 1 && < 2,
+    haskelldb-hdbc >= 1 && < 2,
+    HDBC>=2.0.0 && < 3,
+    HDBC-postgresql>=2.0.0 && < 3
   Exposed-Modules:
         Database.HaskellDB.HDBC.PostgreSQL
+  ghc-options: -fwarn-incomplete-patterns
 
 Executable DBDirect-hdbc-postgresql
   Main-is: DBDirect.hs
+  Include-dirs: c:\pgsql\include, c:\pgsql\include\server, .
+  Extra-Libraries: pq
+  Extra-lib-dirs: c:\pgsql\bin

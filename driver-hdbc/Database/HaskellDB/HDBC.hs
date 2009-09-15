@@ -65,7 +65,7 @@ hdbcQuery :: (GetRec er vr, IConnection conn) =>
 	     SqlGenerator
           -> conn
 	  -> PrimQuery 
-	  -> Rel er 
+	  -> Rel (Record er)
 	  -> IO [Record vr]
 hdbcQuery gen connection q rel = hdbcPrimQuery connection sql scheme rel
     where sql = show $ ppSql $ sqlQuery gen q
@@ -126,6 +126,8 @@ colDescToFieldDesc c = (t, nullable)
             SqlTimestampT     -> CalendarTimeT
             SqlUTCDateTimeT   -> CalendarTimeT
             SqlUTCTimeT       -> CalendarTimeT
+            SqlTimeWithZoneT  -> CalendarTimeT
+            SqlTimestampWithZoneT -> CalendarTimeT
             SqlIntervalT _    -> string
             SqlGUIDT          -> string
             SqlUnknownT _     -> string
@@ -163,7 +165,7 @@ hdbcPrimQuery :: (GetRec er vr, IConnection conn) =>
 		 conn -- ^ Database connection.
 	      -> String     -- ^ SQL query
 	      -> Scheme     -- ^ List of field names to retrieve
-	      -> Rel er     -- ^ Phantom argument to get the return type right.
+	      -> Rel (Record er)   -- ^ Phantom argument to get the return type right.
 	      -> IO [Record vr]    -- ^ Query results
 hdbcPrimQuery conn sql scheme rel = 
     do
