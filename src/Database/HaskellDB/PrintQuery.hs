@@ -25,19 +25,19 @@ import Database.HaskellDB.Sql.Generate (sqlQuery)
 import Database.HaskellDB.Sql.Default (defaultSqlGenerator)
 import Text.PrettyPrint.HughesPJ
 
--- | Take a query, turn it into a SqlS
+-- | Take a query, turn it into a SqlSelect and print it.
 ppSelect :: Query (Rel r) -> Doc
 ppSelect qry = ppPQ (sqlQuery defaultSqlGenerator) optimize (runQuery $ qry)
 
--- | Take a query, turn it into a SqlS
+-- | Take a query, turn it into a SqlSelect and print it, with optimizations.
 ppSelectUnOpt :: Query (Rel r) -> Doc
 ppSelectUnOpt qry = ppPQ (sqlQuery defaultSqlGenerator) id (runQuery $ qry)
 
--- | Optimize the query and pretty print it.
+-- | Optimize the query and pretty print the primitive representation.
 ppQuery :: Query (Rel r) -> Doc
 ppQuery qry = ppPrimF optimize (runQuery $ qry)
 
--- | Pretty print an unoptimized query.
+-- | Pretty print the primitive representation of an unoptimized query.
 ppQueryUnOpt :: Query (Rel r) -> Doc
 ppQueryUnOpt qry = ppPrimF id (runQuery $ qry)
 

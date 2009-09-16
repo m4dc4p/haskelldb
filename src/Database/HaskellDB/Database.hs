@@ -16,43 +16,35 @@
 -- 
 -----------------------------------------------------------
 module Database.HaskellDB.Database ( 
-		-- * Operators
-	      	(!.)
 		-- * Type declarations
-		, Database(..)
+		  Database(..)
 		, GetRec(..), GetInstances(..)
+                , GetNullable'(..)
 
 		-- * Function declarations
 		, query
-		, insert, delete, update, insertQuery
+		, insert, insertOpt, delete, update, insertQuery
 		, tables, describe, transaction
 		, createDB, createTable, dropDB, dropTable
+		, getNullable
 		) where
 
-import Database.HaskellDB.HDBRec
 import Database.HaskellDB.FieldType
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Optimize (optimize, optimizeCriteria)
 import Database.HaskellDB.Query	
 import Database.HaskellDB.BoundedString
 import Database.HaskellDB.BoundedList
+import Data.HList.FakePrelude
 
 import System.Time
 import Control.Monad
-
-infix 9 !. 
-
--- | The (!.) operator selects over returned records from
---   the database (= rows)
---   Non-overloaded version of '!'. For backwards compatibility.
-(!.) :: Select f r a => r -> f -> a
-row !. attr = row ! attr
 
 data Database
 	= Database  
 	  { dbQuery  :: forall er vr. GetRec er vr => 
 	     PrimQuery 
-	     -> Rel er
+	     -> Rel (Record er)
 	     -> IO [Record vr]
   	  , dbInsert :: TableName -> Assoc -> IO ()
 	  , dbInsertQuery :: TableName -> PrimQuery -> IO ()
@@ -103,29 +95,29 @@ data GetInstances s =
 
 class GetRec er vr | er -> vr, vr -> er where
     -- | Create a result record.
-    getRec :: GetInstances s -- ^ Driver functions for getting values
-			     --   of different types.
-	   -> Rel er       -- ^ Phantom argument to the the return type right
+    getRec :: GetInstances s  -- ^ Driver functions for getting values
+			      --   of different types.
+	   -> Rel (Record er) -- ^ Phantom argument to the the return type right
 	   -> Scheme       -- ^ Fields to get.
 	   -> s            -- ^ Driver-specific result data 
 	                   --   (for example a Statement object)
            -> IO (Record vr)        -- ^ Result record.
 
-instance GetRec RecNil RecNil where
-    -- NOTE: we accept extra fields, since the hacks in Optimzie could add fields that we don't want
+instance GetRec HNil HNil where
+    -- NOTE: we accept extra fields, since the hacks in Optimize could add fields that we don't want
     getRec _ _ _ _ = return emptyRecord
 
-instance (GetValue a, GetRec er vr) 
-    => GetRec (RecCons f (Expr a) er) (RecCons f a vr) where
+instance (GetValue a, GetRec er vr, HExtend (LVPair f a) (Record vr) (Record (HCons (LVPair f a) vr)))
+    => GetRec (HCons (LVPair f (Expr a)) er) (HCons (LVPair f a) vr) where
 
     getRec _ _ [] _ = fail $ "Wanted non-empty record, but scheme is empty"
     getRec vfs c (f:fs) stmt = 
 	do
 	x <- getValue vfs stmt f
 	r <- getRec vfs (recTailType c) fs stmt
-	return (RecCons x . r)
+	return (LVPair x .*. r)
 
-recTailType :: Rel (RecCons f (Expr a) er) -> Rel er
+recTailType :: Rel (Record (HCons (LVPair f (Expr a)) er)) -> Rel (Record er)
 recTailType _ = undefined
 
 class GetValue a where
@@ -166,25 +158,73 @@ getNonNull fs s f =
 -----------------------------------------------------------  	    	  
 
 -- | performs a query on a database
-query :: GetRec er vr => Database -> Query (Rel er) -> IO [Record vr]
+query :: GetRec er vr => Database -> Query (Rel (Record er)) -> IO [Record vr]
 query db q = dbQuery db (optimize primQuery) rel
     where (primQuery,rel) = runQueryRel q
 	
 -- | Inserts values from a query into a table
-insertQuery :: ShowRecRow r => Database -> Table r -> Query (Rel r) -> IO ()
+insertQuery :: Database -> Table r -> Query (Rel r) -> IO ()
 insertQuery db (Table name assoc) q
 	= dbInsertQuery db name (optimize (runQuery q))
 
+
+
 -- | Inserts a record into a table
-insert :: (ToPrimExprs r, ShowRecRow r, InsertRec r er) => Database -> Table er -> Record r -> IO ()
-insert db (Table name assoc) newrec	
-	= dbInsert db name (zip (attrs assoc) (exprs newrec))
-	where
-	  attrs   = map (\(attr,AttrExpr name) -> name)
-	  
+insert :: (RecordLabels er ls, HLabelSet ls, HRearrange ls r r', RecordValues r' vs',
+           HMapOut ToPrimExprsOp vs' PrimExpr, InsertRec r' er) =>
+    Database -> Table (Record er) -> Record r -> IO ()
+insert db t@(Table name assoc) newrec = dbInsert db name (zip (attrs assoc) (exprs newrec'))
+    where
+      attrs   = map (\(attr,AttrExpr name) -> name)
+      newrec' = hRearrange (recordLabels (tableRec t)) newrec
+
+
+-- getNullable strips any fields of a record which are non-Maybe types,
+-- and replaces all the Maybe values with Nothing.
+-- For example: getNullable (x .=. 3 .*. y .=. Just "a" .*. emptyRecord) returns
+--                          (y .=. Nothing .*. emptyRecord)
+-- Used in insertOpt
+getNullable :: (FromHJust b r', HMap GetNullableOp r b) => Record r -> Record r'
+getNullable (Record r) = Record . fromHJust . hMap GetNullableOp $ r
+
+class NullableExpr a b | a -> b
+instance TypeCast f HTrue => NullableExpr (LVPair l (Expr (Maybe a))) f
+instance TypeCast f HFalse => NullableExpr a f
+
+data GetNullableOp = GetNullableOp
+instance (NullableExpr a f, GetNullable' f a r) => Apply GetNullableOp a r where
+    apply _ a = getNullable' (undefined :: f) a
+
+class GetNullable' f a r | f a -> r where
+    getNullable' :: f -> a -> r
+instance GetNullable' HTrue
+                      (LVPair l (Expr (Maybe a)))
+                      (HJust (LVPair l (Maybe a))) where
+    getNullable' _ _ = HJust $ LVPair Nothing
+instance GetNullable' HFalse a HNothing where
+    getNullable' _ _ = HNothing
+
+
+
+-- | Inserts a record into a table. Values can be omitted for Maybe columns, they will
+--   default to Nothing.
+insertOpt :: (RecordLabels er ls,
+        HLabelSet ls,
+        HRearrange ls r' r'',
+        RecordValues r'' vs'',
+        HMapOut ToPrimExprsOp vs'' PrimExpr,
+        HLeftUnion (Record r) (Record nrc) (Record r'),
+        InsertRec r'' er,
+        FromHJust nrj nr,
+        HMap GetNullableOp er nrj,
+        HMap ConstantRecordOp nr nrc) =>
+    Database -> Table (Record er) -> Record r -> IO ()
+insertOpt db t newrec = insert db t (newrec `hLeftUnion` constantRecord defaultNulls)
+    where
+      defaultNulls = getNullable $ tableRec t
+
 -- | deletes a bunch of records	  
-delete :: ShowRecRow r => 
-	  Database -- ^ The database
+delete :: Database -- ^ The database
        -> Table r -- ^ The table to delete records from
        -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to delete
        -> IO ()
@@ -195,12 +235,12 @@ delete db (Table name assoc) criteria = dbDelete db name cs
 	  rel		   = Rel 0 (map fst assoc)
 	  
 -- | Updates records
-update :: (ShowLabels s, ToPrimExprs s) =>
-	  Database             -- ^ The database
-       -> Table r              -- ^ The table to update
-       -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to update
-       -> (Rel r -> Record s)  -- ^ Function used to modify selected records
-       -> IO ()
+update :: (HMapOut ShowLabelsOp ls String, RecordLabels s ls, HMapOut ToPrimExprsOp svs PrimExpr, RecordValues s svs) =>
+          Database                -- ^ The database
+          -> Table r              -- ^ The table to update
+          -> (Rel r -> Expr Bool) -- ^ Predicate used to select records to update
+          -> (Rel r -> Record s)  -- ^ Function used to modify selected records
+          -> IO ()
 update db (Table name assoc) criteria assignFun = dbUpdate db name cs newassoc
 	where
 	  (Expr primExpr)= criteria rel

@@ -1,5 +1,5 @@
 Name: haskelldb
-Version: 0.13
+Version: 1.0
 Cabal-version: >= 1.2
 Build-type: Simple
 Homepage: http://haskelldb.sourceforge.net
@@ -12,12 +12,15 @@ Synopsis: SQL unwrapper for Haskell.
 Flag split-base
 
 Library
-  Build-depends: mtl
+  Build-depends: mtl >= 1.1 && < 2, HList >= 0.2 && < 1
   if flag(split-base)
-    Build-depends: base >= 3.0, pretty, old-time, old-locale, directory
+    Build-depends: base >= 3 && < 5, pretty >= 1 && < 2, old-time >= 1 && < 2, old-locale >= 1 && < 2, directory >= 1 && < 2
   else
     Build-depends: base < 3.0
   Extensions:
+    ScopedTypeVariables,
+    EmptyDataDecls,
+    DeriveDataTypeable,
     ExistentialQuantification,
     OverlappingInstances,
     UndecidableInstances,
@@ -41,7 +44,6 @@ Library
         Database.HaskellDB.DBSpec.PPHelpers,
         Database.HaskellDB.Database,
         Database.HaskellDB.FieldType,
-        Database.HaskellDB.HDBRec,
         Database.HaskellDB.Optimize,
         Database.HaskellDB.PrimQuery,
         Database.HaskellDB.PrintQuery,

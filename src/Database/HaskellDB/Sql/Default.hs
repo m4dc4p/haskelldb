@@ -127,7 +127,7 @@ defaultSqlProject gen assoc q
                 where
                   select   = sql { attrs = toSqlAssoc gen assoc }
                   sql      = toSqlSelect q
-                  hasAggr  = (not . null  . filter (isAggregate . snd)) assoc
+                  hasAggr  = not . null  . filter (isAggregate . snd) $ assoc
                   -- Find projected columns that are not constants or aggregates.
                   groupableProjections = filter (not . (\x -> isAggregate x || isConstant x) . snd) assoc
                   -- Get list of order by columns which do not appear in

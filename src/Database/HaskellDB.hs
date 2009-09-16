@@ -39,30 +39,29 @@
 --
 -----------------------------------------------------------
 module Database.HaskellDB
-	( Rel, Attr, Expr, ExprAggr, Table, Query, OrderExpr
-
-        -- * Records
-	, HasField, Record, Select, ( # ), ( << ), (<<-), (!), (!.)
-	
+        ( module Data.HList
+	, Rel, Expr, Table, Query, OrderExpr
         -- * Relational operators
 	, restrict, table, project, unique
 	, union, intersect, divide, minus
+        , copy, copyAll, subQuery
 
 	-- * Query expressions
 	, (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	, (.&&.) , (.||.)
-	, (.*.) , (./.), (.%.), (.+.), (.-.), (.++.)
+	, mul , (./.), (.+.), (.-.), (.%.), (.++.)
 	, _not, like, _in, cat, _length
 	, isNull, notNull, fromNull
-	, constant, constJust
+	, constant, constJust, constNull
 	, param, namedParam, Args, func
-        , queryParams, Param
+        , queryParams, Param, cast, coerce
+        , literal, toStr
 	
 	, count, _sum, _max, _min, avg
 	, stddev, stddevP, variance, varianceP
 	
 	, asc, desc, order
-	, top --, topPercent
+	, top 
 
         , _case
 	, _default
@@ -70,14 +69,18 @@ module Database.HaskellDB
 	-- * Database operations
 	, Database				-- abstract
 	, query
-	, insert, delete, update, insertQuery
+	, insert, insertOpt, delete, update, insertQuery
 	, tables, describe, transaction
 
 	-- * Debugging
 	, showQuery, showQueryUnOpt, showSql, showSqlUnOpt
 	) where
 
-import Database.HaskellDB.HDBRec
+import Data.HList hiding (cast,(.<.),(.+.),(.-.), typeEq, TypeEq)
+import Data.HList.Label4
+import Data.HList.TypeEqGeneric1
+import Data.HList.TypeCastGeneric1
+
 -- PrimQuery type is imported so that haddock can find it.
 import Database.HaskellDB.PrimQuery (PrimQuery)
 import Database.HaskellDB.Sql (SqlSelect(SqlSelect, SqlBin), SqlExpr(..), SqlName)

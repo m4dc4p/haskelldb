@@ -17,7 +17,7 @@ module Database.HaskellDB.DBSpec.DatabaseToDBSpec
     (dbToDBSpec)
     where
 
-import Database.HaskellDB (Database, tables, describe, )
+import Database.HaskellDB.Database (Database, tables, describe, )
 import Database.HaskellDB.DBSpec.DBInfo
    (DBInfo, makeCInfo, makeTInfo, makeDBSpec, 
     DBOptions(DBOptions), useBString, makeIdent, )

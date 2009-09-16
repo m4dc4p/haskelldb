@@ -7,7 +7,7 @@
 -- Maintainer  :  haskelldb-users@lists.sourceforge.net
 -- Stability   :  experimental
 -- Portability :  non-portable
---
+
 -- Defines the types of database columns, and functions
 -- for converting these between HSQL and internal formats
 --
@@ -15,15 +15,16 @@
 -----------------------------------------------------------
 module Database.HaskellDB.FieldType 
     (FieldDesc, FieldType(..), toHaskellType, ExprType(..)
-      , ExprTypes(..), queryFields) where
+    , ExprTypes(..), queryFields
+    , FromHaskellTypesOp(..)) where
 
 import Data.Dynamic
 import System.Time
 
+import Data.HList
 import Database.HaskellDB.BoundedString
-import Database.HaskellDB.HDBRec (RecCons(..), Record, RecNil(..), ShowLabels)
 import Database.HaskellDB.BoundedList (listBound, Size)
-import Database.HaskellDB.Query (Expr, Rel, runQueryRel, Query, labels)
+import Database.HaskellDB.Query (Expr, Rel, runQueryRel, Query, labels, ShowLabelsOp(..))
 
 -- | The type and @nullable@ flag of a database column
 type FieldDesc = (FieldType, Bool)
@@ -67,7 +68,11 @@ toHaskellType (BStrT a) = "BStr" ++ show a
 -- | Given a query, returns a list of the field names and their
 -- types used by the query. Useful for recovering field information
 -- once a query has been built up. 
-queryFields :: (ShowLabels r, ExprTypes r) => Query (Rel r) -> [(String, FieldDesc)]
+queryFields :: (RecordValues r vs,
+                RecordLabels r ls,
+                HMapOut ShowLabelsOp ls String,
+                HMapOut FromHaskellTypesOp vs FieldDesc) =>
+               Query (Rel (Record r)) -> [(String, FieldDesc)]
 queryFields def = zip (labels query) types
   where
     query = unRel . snd . runQueryRel $ def
@@ -116,18 +121,13 @@ instance ExprType CalendarTime where
 
 instance (Size n) => ExprType (BoundedString n) where
   fromHaskellType b = (BStrT (listBound b), False)
-  
-instance ExprTypes RecNil where
-  fromHaskellTypes _ = []
 
-instance (ExprType e, ExprTypes r) => ExprTypes (RecCons f e r) where
-  fromHaskellTypes ~f@(RecCons e r) =
-    let getFieldType :: RecCons f a r -> a
-        getFieldType = undefined
-    in (fromHaskellType . getFieldType $ f) : fromHaskellTypes r
+data FromHaskellTypesOp = FromHaskellTypesOp
+instance ExprType e => Apply FromHaskellTypesOp e FieldDesc where
+    apply _ = fromHaskellType
 
-instance (ExprTypes r) => ExprTypes (Record r) where
-  fromHaskellTypes r = fromHaskellTypes (r RecNil)
+instance (HMapOut FromHaskellTypesOp vs FieldDesc, RecordValues r vs) => ExprTypes (Record r) where
+  fromHaskellTypes r = hMapOut FromHaskellTypesOp (recordValues r)
 
 instance (ExprTypes r) => ExprTypes (Rel r) where
   fromHaskellTypes r =
