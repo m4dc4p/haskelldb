@@ -156,7 +156,7 @@ replace with ?
 
   Module `Database.HaskellDB.DBLayout' does not export `hdbMakeEntry'
 
-replace with nothign - not needed. Previously used to create values in a record
+replace with nothing - not needed. Previously used to create values in a record
 for baseTable. Now baseTable does not create any values. Values are created 
 through projection if needed.
 
