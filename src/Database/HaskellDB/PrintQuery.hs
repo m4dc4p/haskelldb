@@ -12,8 +12,10 @@
 -- Useful for debugging the library.
 -- 
 -----------------------------------------------------------
-module Database.HaskellDB.PrintQuery (ppQuery, ppQueryUnOpt
-  , ppSelect, ppSelectUnOpt, ppSqlSelect, ppPrim)
+module Database.HaskellDB.PrintQuery 
+    (ppQuery, ppQueryUnOpt
+    , ppSelect, ppSelectUnOpt, ppSqlSelect, ppPrim
+    , Database.HaskellDB.PrintQuery.ppSql, Database.HaskellDB.PrintQuery.ppSqlUnOpt)
 
 where
 
@@ -23,7 +25,16 @@ import Database.HaskellDB.Query (Query, runQuery, Rel)
 import Database.HaskellDB.Optimize (optimize)
 import Database.HaskellDB.Sql.Generate (sqlQuery)
 import Database.HaskellDB.Sql.Default (defaultSqlGenerator)
+import Database.HaskellDB.Sql.Print as Sql (ppSql)
 import Text.PrettyPrint.HughesPJ
+
+-- | Take a query, turn it into a SqlSelect and print it.
+ppSql :: Query (Rel r) -> Doc
+ppSql qry = Sql.ppSql . sqlQuery defaultSqlGenerator . optimize $ runQuery qry
+
+-- | Take a query, turn it into a SqlSelect and print it.
+ppSqlUnOpt :: Query (Rel r) -> Doc
+ppSqlUnOpt qry = Sql.ppSql . sqlQuery defaultSqlGenerator $ runQuery qry
 
 -- | Take a query, turn it into a SqlSelect and print it.
 ppSelect :: Query (Rel r) -> Doc
