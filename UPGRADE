@@ -1,286 +1,228 @@
 Instructions for upgrading from haskelldb-0.12 to 1.0
 
-** HList changes **
+### GHC Only
 
-The changes below show what changed in a DBDirect generated module
-with the HList implementation
+HaskellDB can only be compiled by GHC, due to its use of
+HList-required extensions.
 
-*
-  import Database.HaskellDB.HDBRec (Record, (!))
-  import Database.HaskellDB.Query ((<<), Rel)
+### Breaking Changes
 
-No longer required at the top of DBDirect generated files.
+HaskellDB 1.0 breaks backward compatability with 0.13 in order to
+provided integration with the HList library. The following gives all
+the areas where compatability has been broken and how to fix it.
 
-*
-  RecCons Pts_dlvry_order_hdr_id (Expr (Maybe Int))
+## Operators
 
-becomes
+The following HaskellDB operators have been replaced:
 
-  HCons Pts_dlvry_order_hdr_id (Expr (Maybe Int))
+  * ''!'' becomes ''.!.''
+  * ''<<'' becomes ''.=.''
+  * ''#'' becomes ''.*.''
+  * Additionally, the construction ''field <<- value'' becomes ''field .=. constant value''
 
-*
-  type Pts_dlvry_carryover_v = (RecCons (...))
+## ''project'' changes
 
-becomes
+The ''project'' function takes a list of records as before, but that
+list must be terminated by ''emptyRecord''. For example,
 
-   type Pts_dlvry_carryover_v = Record ( ... )
-
-
-*
-   pts_dlvry_carryover_v :: Table Pts_dlvry_carryover_v
-
-   pts_dlvry_carryover_v = baseTable "pts_dlvry_carryover_v" $
-                           hdbMakeEntry Pts_dlvry_order_hdr_id #
-                           ...
-
-becomes
-
-   pts_dlvry_carryover_v :: Table Pts_dlvry_carryover_v
-   pts_dlvry_carryover_v = baseTable "pts_dlvry_carryover_v"
-
-*
-   data Pts_dlvry_order_hdr_id = Pts_dlvry_order_hdr_id
-
-   instance FieldTag Pts_dlvry_order_hdr_id where
-       fieldName _ = "pts_dlvry_order_hdr_id"
-
-   pts_dlvry_order_hdr_id :: Attr Pts_dlvry_order_hdr_id (Maybe Int)
-   pts_dlvry_order_hdr_id = mkAttr Pts_dlvry_order_hdr_id
-
-becomes
-
-   data Pts_dlvry_order_hdr_idTag
-   type Pts_dlvry_order_hdr_id = Proxy Pts_dlvry_order_hdr_idTag
-   instance ShowLabel Pts_dlvry_order_hdr_id where
-       showLabel _ = "pts_dlvry_order_hdr_id"
-
-   pts_dlvry_order_hdr_id :: Pts_dlvry_order_hdr_id
-   pts_dlvry_order_hdr_id = proxy
-
-Note also that "data" type has "Tag" suffix, while type synonym does not.
-   
-*
-   ---------------------------------------------------------------------------
-   -- All fields as a Record for projection
-   ---------------------------------------------------------------------------
-   record :: Rel Pts_dlvry_carryover_v -> Record Pts_dlvry_carryover_v
-   record tbl =  pts_dlvry_order_hdr_id << tbl ! pts_dlvry_order_hdr_id #
-
-
-is missing ...
-
-*
-
-   Module `Database.HaskellDB' does not export `Attr'
-   Module `Database.HaskellDB' does not export `(<<)'
-   Module `Database.HaskellDB' does not export `(!)'
-   Module `Database.HaskellDB.DBLayout' does not export `mkAttr'
-   Module `Database.HaskellDB.DBLayout' does not export `hdbMakeEntry'
-   Module `Database.HaskellDB.DBLayout' does not export `fieldName'
-
-* 
-
-Add these pragmas to generated files
-
-  {-# LANGUAGE EmptyDataDecls, TypeSynonymInstances #-}
-
-Or these GHC arguments
-
-  -XEmptyDataDecls -XTypeSynonymInstances
-
-* 
-
-Operators which have changed:
-
-  (!) becomes (.!.)
-  (<<) becomes (.=.)
-  (#) becomes (.*.)
-  (field <<- value) becomes (field .=. constant value)
-
-  project $ TInt.f02 << count(s ! TInt.f02)
+  project $ TInt.f02 << t ! TInt.f02
 
 becomes 
 
-  project $ TInt.f02 .=. count(s .!. TInt.f02) .*. emptyRecord
+  project $ TInt.f02 .=. s .!. TInt.f02 .*. emptyRecord
 
-* 
-
-Database.HaskellDB.HDBRec goes away. Equivalents:
-
-  HasField is imported from HList.
-
-  ShowRecRow can be removed.
-
-  ShowLabels becomes ShowLabel (from Database.HaskellDB)
-
-  recordLabels is imported from HList (as is recordValues).
-
-  RecCons(..) becomes HCons.
-
-  Record is imported from HList
-
-  RecNil becomes HNil.
-
-  (#) becomes (.*.)
-
-  FieldTag is removed.
-
-* 
-
-Instances of (Query (Rel r)) should become (Query (Rel (Record r))) - double check this.
-
-* 
-
-RecordValues and RecordLabels classes need to be added to contexts in what situation?
-
-* 
-  Module `Database.HaskellDB' does not export `Attr'
-
-replace with nothing - no longer needed. Use the type-level field name instead.
-
-  Module `Database.HaskellDB' does not export `(<<)'
-
-replace with (.=.)
-
-  Module `Database.HaskellDB' does not export `(!)'
-
-replace with (.!.)
-
-  Module `Database.HaskellDB.Query' does not export `attributeName'
-
-replace with ?
-
-  Module `Database.HaskellDB.DBLayout' does not export `mkAttr'
-
-replace with ?
-
-  Module `Database.HaskellDB.DBLayout' does not export `hdbMakeEntry'
-
-replace with nothing - not needed. Previously used to create values in a record
-for baseTable. Now baseTable does not create any values. Values are created 
-through projection if needed.
-
-  Module `Database.HaskellDB.DBLayout' does not export `fieldName'
-
-replace with ?
-
-* 
-
-Use of queryFields from Database.HaskellDB.FieldType requires you to
-have type signatures like
-
-     (ExprTypes r     
-     , ShowLabel r
-     , RecordLabels r ls
-     , RecordValues r vs
-     , HMapOut ShowLabelsOp ls String
-     , HMapOut FromHaskellTypesOp vs FieldDesc) => Query (Rel (Record r)) ... ?
-
-ShowLabelsOp must be imported from Database.HaskellDB.Query. FromHaskellTypesOp must
-be imported from Database.HaskellDB.FieldType.
-
-Can type aliases be created to make these easier on the eyes?
-
-*
+## ''baseTable''
 
 baseTable loses an argument - it only needs the table name and the inferred type. E.g.,
 
-  pts_dlvry_carrier :: Table Pts_dlvry_carrier
-  pts_dlvry_carrier = baseTable "pts_dlvry_carrier" $
-                      hdbMakeEntry Pts_dlvry_carrier_id #
-                      hdbMakeEntry Bus_unit_id #
-                      hdbMakeEntry Carrier_desc_txt #
-                      hdbMakeEntry Create_user_id #
-                      hdbMakeEntry Create_dt #
-                      hdbMakeEntry Mod_user_id #
-                      hdbMakeEntry Mod_dt
+  my_table :: Table My_table
+  my_table = baseTable "my_table" $
+             hdbMakeEntry My_table_id # ...
 
 becomes
 
-  pts_dlvry_carrier :: Table Pts_dlvry_carrier
-  pts_dlvry_carrier = baseTable "pts_dlvry_carrier"
+  my_table :: Table My_table
+  my_table = baseTable "my_table"
 
-* 
+## Module Exports
 
-Fixity of .!. does not match fixity of (!). What about (.*.) and (.=.)? This means most 
-queries which use .!. need parentheses, since .=. has higher fixity. Makes it worthwhile
-to maintain old ! operator?
+The following gives functions which are no longer exported, by module:
 
-*
+  * Database.HaskellDB
+    * ''Attr'' - no replacement necessary. Delete any types associated
+    with this declaration. That is:
 
-Below import *sometimes* required. Otherwise, get weird errors: HasField', column type past first
-element in Record will not be determined.
+      ''my_field :: Attr My_field Int''
+
+    becomes
+
+      ''my_field :: My_field''
+    * ''(<<)'' - replace with ''(.=.)''.
+    * ''(!)'' - replace with ''(.!.)''
+  * Database.HaskellDB.Query
+    * ''attributeName'' - replace with ''showLabel'', exported by
+    Database.HaskellDB.
+  * Database.HaskellDB.DBLayout
+    * ''mkAttr'' - replace with ''proxy'', exported by this
+    module. E.g.:
+
+      data Foo = Foo
+      foo :: Attr Foo (Maybe Int)
+      foo = mkAttr Foo
+
+    becomes
+
+      data Foo
+      foo :: Foo
+      foo = proxy
+    * ''hdbMakeEntry'' - no replacement necessary. E.g.:
+
+      my_table :: Table My_table
+      my_table = baseTable "my_table" $
+                 hdbMakeEntry Foo # ...
+
+    becomes
+
+      my_table :: Table My_table
+      my_table = baseTable "my_table"
+
+    However, ''hdbMakeEntry'' could also be used to construct default
+    values in a table. This construction is replaced by
+    projection. See below under ''row construction'' for more
+    information.
+    * fieldName - replace with ''showLabel''.
+  * Database.HaskellDB.HDBRec - this module has been
+  removed. Replacements for exports are given below.
+    * ''HasField'' - now imported from HList, and exported from
+    ''Database.HaskellDB''.
+    * ''ShowRecRow'' - ''Record'' is an instance of ''Show'', as long as each
+    value can be shown.
+    * ''ShowLabels'' - becomes ''RecordLabels'', from HList and exported
+    by ''Database.HaskellDB''.
+    * ''recordLabels'' - replace with ''recordLabels'', from HList and
+    exported by ''Database.HaskellDB''.
+    * ''RecCons'' - becomes ''HCons'' from HList and exported by
+    ''Database.HaskellDB''.
+    * ''RecNil'' - becomes ''HNil''  from HList and exported by
+    ''Database.HaskellDB''.
+    * ''Record'' - reuses ''Record'' from HList and exported by
+    ''Database.HaskellDB''.
+    * ''(#)'' -  becomes ''(.*.)'', from HList and exported  by
+    ''Database.HaskellDB''.
+    * FieldTag - replaced with ShowLabel, from HList and exported by
+    ''Database.HaskellDB''.
+
+## ''Query'' type changes
+
+Any occurence of ''Query (Rel r)'' in a signature should become ''Query
+(Rel (Record r))''.
+
+### DBDirect changes
+
+DBDirect has been updated to compatible code, so when possible the
+definitions should be regenerated. The list of changes below can be
+used when that is not feasible.
+
+Pragma additions:
+
+  {-# LANGUAGE EmptyDataDecls, TypeSynonymInstances #-}
+
+must be added to the top of each file, or the equivalent GHC arguments
+must be used.
+
+Import changes:
+
+  import Database.HaskellDB.HDBRec (Record, (!))
+  import Database.HaskellDB.Query ((<<), Rel)
+
+Is no longer required at the top of DBDirect generated files.
+
+Table types:
+
+  type My_table = (RecCons Foo (Expr (Maybe Int))
+                   (RecCons ... (Expr ...) (... RecNil)))
+
+becomes
+
+   type My_table = Record (HCons (LVPair Foo
+                                         (Expr (Maybe Int)))
+                          (HCons (..) (... HNil)))
+
+''RecCons'' and ''RecNil'' are no longer and are replaced with
+''HCons'' and ''HNil'', respectively. Each field is defined by an
+''LVPair'' declaration.
+
+Table declaration:
+
+   my_table :: Table My_table
+   my_table = baseTable "my_table" $
+              hdbMakeEntry Foo # ...
+
+becomes
+
+   my_table :: Table My_table
+   my_table = baseTable "my_table"
+
+''baseTable'' only takes one argument, the name of the underlying
+table. ''hdbMakeEntry'' is no longer required. 
+
+Field declarations:
+
+   data Foo = Foo
+
+   instance FieldTag Foo where
+       fieldName _ = "foo"
+
+   foo :: Attr Foo (Maybe Int)
+   foo = mkAttr Foo
+
+becomes
+
+   data FooTag
+   type Foo = Proxy fooTag
+   instance ShowLabel Foo where
+       showLabel _ = "foo"
+
+   foo :: Foo
+   foo = proxy
+
+Empty constructors are now used, ''FieldTag'' has been replaced with
+''ShowLabel'' and ''Attr'' is no longer needed. Note also that the
+data type has a ''Tag'' suffix, while the type synonym does not.
+
+### Import changes
+
+The below import is sometimes required. If you see error messages
+regarding "HRLabelSet'", "TypeEq" or other oddities, try adding it:
 
   import Data.HList.TypeCastGeneric1 ()
 
+### Constructing Rows
 
-Probably HList should export this, but HaskellDB ought to otherwise.
+Sometimes a query needs to manufacture rows. For example, you might
+want a query such as:
 
- *
-
-emptyRecord must be added at the end of any project which only has a single
-field. Otherwise, it can be omitted.
-
-* 
-
-Building a table with rows in code is impossible without a small fix
-to removeEmpty in Optimize.hs. 
-
-That is, queries like 
-
-  SELECT 0 as pts_dm_event_dtl_id,
-         0 as pts_dm_event_hdr_id,
-         0 as pts_dlvry_order_dtl_id,
-         0 as pts_dlvry_order_hdr_id,
-         '' as cora_dtl_item_id,
-         0 as event_nbr
+  SELECT 1 as foo,
+         'a' as bar,
+  FROM information_schema.information_schema_catalog_name as T1
+  UNION ALL
+  SELECT 3 as foo,
+         'b' as bar,
   FROM information_schema.information_schema_catalog_name as T1
 
-and
-
-  SELECT 'I' as src_doc_type_cd,
-          ? as src_doc_type_cd_txt
-   FROM information_schema.information_schema_catalog_name as T1
-
-are very hard.
-
-To build a table now, you have to define the table type in code, use the 'table'
+You first have to define the table type in code, use the 'table'
 operator (even if you don't use the result) and then define an individual row:
 
-  pts_dlvry_src_doc_type_cd = do
-    let tbl :: Table (Record (HCons (LVPair Src_doc_type_cd (Expr String))
-                               (HCons (LVPair Src_doc_type_cd_txt (Expr String)) HNil)))
+  fakeRows = do
+    let tbl :: Table (Record (HCons (LVPair Foo (Expr Int))
+                               (HCons (LVPair Bar (Expr String)) HNil)))
         tbl = baseTable "information_schema.information_schema_catalog_name" 
-        src_doc_type_cd_row code text_param = do
+        fakeRow int str = do
           _ <- table tbl
-          project $ src_doc_type_cd .=. constant code 
-                    .*. src_doc_type_cd_txt .=. namedParam text_param (constant "")
+          project $ foo .=. constant int
+                    .*. bar .=. constant str
                     .*. emptyRecord
-    src_doc_type_cd_row "I" "invoice_txt" `union`
-      src_doc_type_cd_row "RO" "ro_txt"
+    fakeRow 1 "a" `union`
+      fakeRow 3 "b" 
 
-Without the fix, the first works (defining the type) but the second does not (adding rows). You get 
-queries like:
 
-  SELECT pts_dm_event_hdr_id,
-         pts_dlvry_order_hdr_id,
-         bus_unit_id,
-         src_doc_type_cd,
-         src_doc_open_yr_mo,
-         src_doc_id,
-         src_doc_bus_unit_id,
-         event_nbr
-  FROM information_schema.information_schema_catalog_name as T1
-
-with no default values, and:
-
-  SELECT 'I' as src_doc_type_cd,
-          ? as src_doc_type_cd_txt
-
-where the table to select from has been lost. The removeEmpty
-optimization in Optimize.hs was too aggressive. When a projection had
-no columns, it was replaced with Empty. Constant queries against a
-table with all fake columns would be generated incorrectly in that
-case. Easy fix in removeEmpty.
-
-A unit test for this situation has been added (testFakeSelect).
