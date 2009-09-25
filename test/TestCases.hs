@@ -3,6 +3,13 @@
 
 module TestCases where
 
+import qualified Control.OldException as E (throwDyn, catch) -- for GHC > 6.10
+import System.Time
+import Test.HUnit
+import Text.Regex
+import Database.HaskellDB
+import Database.HaskellDB.Query (tableName, constantRecord, subQuery, func, count)
+
 import DB1
 import DB1.String_tbl as TString
 import DB1.Int_tbl as TInt
@@ -11,19 +18,7 @@ import DB1.Double_tbl as TDouble
 import DB1.Bool_tbl as TBool
 import DB1.Calendartime_tbl as TCalendartime
 import DB1.Hdb_t1
-
 import DBTest
-
-import Database.HaskellDB
-import Database.HaskellDB.Query (tableName, constantRecord, subQuery, func, count)
-
-import qualified Control.OldException as E (throwDyn, catch) -- for GHC > 6.10
-import Data.HList.TypeCastGeneric1
-import Data.Typeable
-import System.Time
-import Test.HUnit
-import Data.List (isInfixOf)
-import Text.Regex
 
 tests :: Conn -> Test
 tests = allTests hdb_test_db
@@ -44,7 +39,7 @@ allTests =
             ]
 
 -- | Tests which cover generated SQL and do not require a database.
-queryTests = dbtests [testUnique1,
+queryTests = dbtests [ testUnique1,
                      testUnique2,
                      testUnique3,
                      testUnique4,
@@ -60,7 +55,9 @@ queryTests = dbtests [testUnique1,
                      testCorrectGroupByNoProjection,
                      testConcat,
                      testSubstring,
-                     testFakeSelect]
+                     testFakeSelect,
+                     testCopyAll, 
+                     testCopyAllAppend]
 
 tableTests = 
     dbtests [ 
@@ -102,7 +99,7 @@ fieldTests = label "fieldTests" $
              testField calendartime_tbl calendartime_data_1 TCalendartime.f01,
              testField calendartime_tbl calendartime_data_1 TCalendartime.f02,
              testField calendartime_tbl calendartime_data_1 TCalendartime.f03,
-             testField calendartime_tbl calendartime_data_1 TCalendartime.f04
+             testField calendartime_tbl calendartime_data_1 TCalendartime.f04 
             ]
 
 strangeInputTests = label "strangeInputTests" $
@@ -130,7 +127,7 @@ strangeInputTests = label "strangeInputTests" $
              testField calendartime_tbl calendartime_data_strange TCalendartime.f01,
              testField calendartime_tbl calendartime_data_strange TCalendartime.f02,
              testField calendartime_tbl calendartime_data_strange TCalendartime.f03,
-             testField calendartime_tbl calendartime_data_strange TCalendartime.f04
+             testField calendartime_tbl calendartime_data_strange TCalendartime.f04 
             ]
 
 testTable tbl r = 
@@ -147,9 +144,9 @@ testField tbl r f =
 testInsertAndQuery tbl r f = dbtest name $ \db ->
     do insert db tbl (constantRecord r)
        rs <- query db $ do t <- table tbl
-                           project (f .=. t#f .*. emptyRecord)
+                           project (f .=. t .!. f .*. emptyRecord)
        assertEqual "Bad result length" 1 (length rs)
-       assertSame "Bad field value" (r#f) (head rs#f) 
+       assertSame "Bad field value" (r .!. f) (head rs .!. f) 
   where name = "insertAndQuery " ++ tableName tbl ++ "." ++ showLabel f
 
 testUnique tbl r = dbtest name $ \db ->
@@ -462,6 +459,36 @@ testSubstring = noDBTest "Testing SQL concat query" $ do
                 \FROM string_tbl as T1"
   assertQueryText "Substring not generated as expected: " qryTxt result
 
+{-| This query caused an exception due to a bug in defaultSqlBinary. Ensure that doesn't
+    happen again. Additionally, this test makes sure base tables aren't
+    dropped, even if they have no columns used. A cross-join may be desired for
+    some reason. Otherwise, why include the table?
+-}
+testCopyAll = noDBTest "Test copyAll operator" $ do 
+  let qryTxt = showSql $ do
+        t1 <- table int_tbl
+        t2 <- table string_tbl
+        project $ copyAll t2 
+      expected = "SELECT f012 as f01,\n\
+                 \       f022 as f02,\n\
+                 \       f032 as f03,\n\
+                 \       f042 as f04\n\
+                 \FROM (SELECT f01 as f012,\n\
+                 \             f02 as f022,\n\
+                 \             f03 as f032,\n\
+                 \             f04 as f042\n\
+                 \      FROM string_tbl as T1) as T1,\n\
+                 \     int_tbl as T2"
+  assertQueryText "Test that copyAll generates query correctly, even if not all columns are used." qryTxt expected
+
+{-| Column names get duplicated and they probably should not. -}
+testCopyAllAppend = noDBTest "Test copyAll operator with append" $ do 
+  let qryTxt = showSql $ do
+        t1 <- table int_tbl
+        t2 <- table string_tbl
+        project $ copyAll t2 `hAppend` copyAll t1
+  assertQueryText "" qryTxt ""
+
 -- | Helper which asserts that two query strings are equal.
 assertQueryText msg query expect = assertBool (msg ++ "\nGot: \n\n" ++ show query ++
                                                "\n\nand expected: \n\n" ++ show expect)
@@ -682,7 +709,7 @@ calendartime_data_1 =
 calendartime_data_strange = 
           TCalendartime.f01 .=. Just (epoch { ctYear = 1969 }) .*.
           TCalendartime.f02 .=. someTime { ctYear = 2040 } .*.
-          TCalendartime.f03 .=. Nothing .*.
+          TCalendartime.f03 .=. (Nothing :: Maybe CalendarTime) .*.
           TCalendartime.f04 .=. epoch { ctYear = 1000 } .*.
           emptyRecord
 

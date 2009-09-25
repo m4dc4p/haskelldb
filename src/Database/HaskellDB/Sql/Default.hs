@@ -178,12 +178,13 @@ defaultSqlRestrict gen expr q
                   sql   = toSqlSelect q
 
 defaultSqlBinary :: SqlGenerator -> RelOp -> SqlSelect -> SqlSelect -> SqlSelect
-defaultSqlBinary _ Times q1 q2  
+defaultSqlBinary _ Times q1@(SqlSelect { }) q2@(SqlSelect { }) 
           	| null (attrs q1) = addTable q1 q2
           	| null (attrs q2) = addTable q2 q1
           	| otherwise       = newSelect { tables = [("",q1),("",q2)] }
           	where
           	  addTable sql q  = sql{ tables = tables sql ++ [("",q)] }
+defaultSqlBinary _ Times q1 q2 = newSelect { tables = [("", q1), ("", q2)] }
 defaultSqlBinary _ op q1 q2         
           	= SqlBin (toSqlOp op) q1 q2
 
