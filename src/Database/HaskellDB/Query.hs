@@ -173,7 +173,7 @@ copy l tbl = l .=. (tbl .!. l)
 --
 -- >   query = do
 -- >     tbl <- table some_table
--- >     project $ columns tbl
+-- >     project $ copyAll tbl
 --
 -- will add all columns in "some_table" to the query.
 copyAll :: (HRLabelSet r
