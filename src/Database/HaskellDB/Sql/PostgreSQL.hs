@@ -41,11 +41,6 @@ postgresqlLiteral l = defaultSqlLiteral generator l
 postgresqlType :: FieldType -> SqlType
 postgresqlType BoolT = SqlType "boolean"
 
--- Postgres < 7.1 assumed timestamp meant with a time zone, afterwards,
--- 'timestamp with time zone' is now required.
-postgresqlType CalendarTimeT = SqlType "timestamp with time zone"
-postgresqlType t = defaultSqlType generator t
-
 postgresqlExpr :: PrimExpr -> SqlExpr
 postgresqlExpr (BinExpr OpMod e1 e2) = 
     let e1S = defaultSqlExpr generator e1

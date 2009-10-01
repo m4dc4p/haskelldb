@@ -96,7 +96,7 @@ defaultSqlType _ t =
       IntegerT      -> SqlType "bigint"
       DoubleT       -> SqlType "double precision"
       BoolT         -> SqlType "bit"
-      CalendarTimeT -> SqlType "timestamp"
+      CalendarTimeT -> SqlType "timestamp with time zone"
       BStrT a       -> SqlType1 "varchar" a
 
 -----------------------------------------------------------
