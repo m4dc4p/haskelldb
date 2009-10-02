@@ -1,3 +1,4 @@
+{-# LANGUAGE ExistentialQuantification, Rank2Types #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  DriverAPI

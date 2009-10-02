@@ -1,3 +1,5 @@
+{-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies, FlexibleInstances, FlexibleContexts, UndecidableInstances
+  , TypeSynonymInstances #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  Query

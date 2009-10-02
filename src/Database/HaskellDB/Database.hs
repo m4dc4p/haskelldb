@@ -1,3 +1,5 @@
+{-# LANGUAGE ExistentialQuantification, MultiParamTypeClasses, FunctionalDependencies, Rank2Types
+  , FlexibleInstances, UndecidableInstances, TypeSynonymInstances, FlexibleContexts, ScopedTypeVariables #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  Database
