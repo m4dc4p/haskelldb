@@ -1,5 +1,6 @@
 {-# LANGUAGE ExistentialQuantification, MultiParamTypeClasses, FunctionalDependencies, Rank2Types
-  , FlexibleInstances, UndecidableInstances, TypeSynonymInstances, FlexibleContexts, ScopedTypeVariables #-}
+  , FlexibleInstances, UndecidableInstances, TypeSynonymInstances, FlexibleContexts, ScopedTypeVariables
+  , OverlappingInstances #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  Database
@@ -205,8 +206,6 @@ instance GetNullable' HTrue
     getNullable' _ _ = HJust $ LVPair Nothing
 instance GetNullable' HFalse a HNothing where
     getNullable' _ _ = HNothing
-
-
 
 -- | Inserts a record into a table. Values can be omitted for Maybe columns, they will
 --   default to Nothing.
