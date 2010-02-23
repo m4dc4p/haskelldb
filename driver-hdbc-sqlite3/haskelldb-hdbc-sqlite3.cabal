@@ -1,5 +1,5 @@
 Name: haskelldb-hdbc-sqlite3
-Version: 1.0
+Version: 0.12
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
@@ -10,11 +10,13 @@ Synopsis: HaskellDB support for the HDBC SQLite driver.
 
 Library
   Build-depends: 
-    base >= 3 && < 5, 
-    mtl >= 1.1 && < 2, 
-    haskelldb >= 1 && < 2,
-    haskelldb-hdbc >= 1 && < 2,
-    HDBC>=2.0.0 && < 3, HDBC-sqlite3 >= 2.0.0 && < 3
+    mtl, 
+    haskelldb>=0.12, haskelldb-hdbc>=0.12,
+    HDBC>=2.0.0 && < 2.2.0, HDBC-sqlite3>=2.0.0 && < 2.2.0
+  if flag(split-base)
+    Build-depends: base >= 3.0
+  else
+    Build-depends: base < 3.0
   Extensions: ExistentialQuantification,
             OverlappingInstances,
             UndecidableInstances,

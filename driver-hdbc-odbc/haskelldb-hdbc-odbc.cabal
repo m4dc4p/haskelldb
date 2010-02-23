@@ -1,5 +1,5 @@
 Name: haskelldb-hdbc-odbc
-Version: 1.0
+Version: 0.12
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
@@ -8,14 +8,16 @@ Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blo
 License: BSD3
 Synopsis: HaskellDB support for the HDBC ODBC driver.
 
+Flag split-base
+
 Library
   Build-depends: 
-    base >= 3 && < 5, 
-    mtl >= 1.1 && < 2, 
-    haskelldb >= 1 && < 2,
-    haskelldb-hdbc >= 1 && < 2,
-    HDBC>=2.0.0 && < 3,
-    HDBC-odbc>=2.0.0 && < 3
+    base, 
+    mtl, 
+    haskelldb>=0.12,
+    haskelldb-hdbc>=0.12,
+    HDBC>=2.0.0 && < 2.2.0,
+    HDBC-odbc>=2.0.0 && < 2.2.0
   Exposed-Modules:
         Database.HaskellDB.HDBC.ODBC
 
