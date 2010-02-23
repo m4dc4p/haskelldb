@@ -1,5 +1,5 @@
 Name: haskelldb-hdbc
-Version: 0.12
+Version: 1.0
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
@@ -12,9 +12,10 @@ Synopsis: HaskellDB support for HDBC. You will also need one
 Flag split-base
 
 Library
-  Build-depends: mtl, haskelldb>=0.12, HDBC>=2.0.0 && < 2.2.0, convertible >= 1.0.1
+  Build-depends: mtl >= 1 && < 2, haskelldb >= 1 && < 2, HDBC >= 2 && < 3, convertible >= 1.0.1 && < 2
+
   if flag(split-base)
-    Build-depends: base >= 3.0, containers, old-time
+    Build-depends: base >= 3 && < 5, containers < 1, old-time >= 1 && < 2
   else
     Build-depends: base < 3
   Extensions: ExistentialQuantification,

@@ -12,11 +12,13 @@ Synopsis: SQL unwrapper for Haskell.
 Flag split-base
 
 Library
-  Build-depends: mtl
+  Build-depends: mtl >= 1 && < 2, HList >= 0.2 && < 1
+
   if flag(split-base)
     Build-depends: base >= 3 && < 5, pretty >= 1 && < 2, old-time >= 1 && < 2, old-locale >= 1 && < 2, directory >= 1 && < 2
   else
     Build-depends: base < 3
+
   Extensions:
     ScopedTypeVariables,
     EmptyDataDecls,
