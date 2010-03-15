@@ -21,6 +21,7 @@ module Database.HaskellDB.Database (
 		-- * Type declarations
 		, Database(..)
 		, GetRec(..), GetInstances(..)
+                , GetNullable'(..)
 
 		-- * Function declarations
 		, query
