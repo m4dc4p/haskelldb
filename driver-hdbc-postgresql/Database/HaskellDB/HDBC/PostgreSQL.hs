@@ -31,4 +31,5 @@ postgresqlConnect opts = hdbcConnect generator (connectPostgreSQL conninfo)
 -- <http://www.postgresql.org/docs/8.1/static/libpq.html#LIBPQ-CONNECT>
 -- for the meaning of the options.
 driver :: DriverInterface
-driver = defaultdriver {connect = postgresqlConnect}
+driver = defaultdriver { connect = postgresqlConnect
+                       , requiredOptions = [] }
