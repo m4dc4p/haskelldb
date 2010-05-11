@@ -22,7 +22,7 @@ module Database.HaskellDB.DBSpec.DBInfo
 
 import qualified Database.HaskellDB.DBSpec.PPHelpers as PP
 import Database.HaskellDB.FieldType (FieldDesc, FieldType(BStrT, StringT), )
-import Data.Char (toLower, )
+import Data.Char (toLower, isAlpha)
 import Text.PrettyPrint.HughesPJ
 
 -- | Defines a database layout, top level
@@ -60,7 +60,7 @@ dbInfoToDoc :: DBInfo -> Doc
 dbInfoToDoc dbi@(DBInfo {dbname=n}) 
     = fixedName <+> text ":: DBInfo"
       $$ fixedName <+> equals <+> ppDBInfo dbi
-      where fixedName = text ((toLower . head) n : tail n)
+      where fixedName = text $ filter isAlpha ((toLower . head) n : tail n)
 
 -- | Pretty prints a DBInfo
 ppDBInfo :: DBInfo -> Doc

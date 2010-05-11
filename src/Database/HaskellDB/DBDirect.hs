@@ -22,7 +22,7 @@ module Database.HaskellDB.DBDirect (dbdirect) where
 
 import Database.HaskellDB (Database, )
 import Database.HaskellDB.DriverAPI (DriverInterface, connect, requiredOptions, )
-import Database.HaskellDB.DBSpec (dbToDBSpec, )
+import Database.HaskellDB.DBSpec (dbToDBSpec, dbname)
 import Database.HaskellDB.DBSpec.DBSpecToDBDirect (dbInfoToModuleFiles, )
 
 import qualified Database.HaskellDB.DBSpec.PPHelpers as PP
@@ -37,13 +37,13 @@ import Control.Monad (when, )
 import Data.List (intersperse, )
 
 
-createModules :: String -> Bool -> PP.MakeIdentifiers -> Database -> IO ()
-createModules m useBStrT mkIdent db =
+createModules :: String -> String -> Bool -> PP.MakeIdentifiers -> Database -> IO ()
+createModules m dbName useBStrT mkIdent db =
     do
     putStrLn "Getting database info..."
     spec <- dbToDBSpec useBStrT mkIdent m db
     putStrLn "Writing modules..."
-    dbInfoToModuleFiles "." m spec
+    dbInfoToModuleFiles "." m (spec {dbname = dbName})
 
 
 data Flags =
@@ -108,11 +108,11 @@ dbdirect driver =
        case modAndDrvOpts of
           []  -> exitWithError "Missing module and driver options"
           [_] -> exitWithError "Missing driver options"
-          [moduleName,drvOpts] ->
+          [moduleName,dbname,drvOpts] ->
               do putStrLn "Connecting to database..."
                  connect driver
                     (splitOptions drvOpts)
-                    (createModules moduleName
+                    (createModules moduleName dbname
                         (optBoundedStrings flags)
                         (optIdentifierStyle flags))
                  putStrLn "Done!"
@@ -138,8 +138,10 @@ showHelp :: DriverInterface -> IO ()
 showHelp driver =
    do p <- getProgName
       let header =
-             "Usage: " ++ p ++ " [dbdirect-options] <module> <driver-options>\n"
+             "Usage: " ++ p ++ " [dbdirect-options] <module> <db-name> <driver-options>\n"
           footer = unlines $
+             "" :
+             "NOTE: You will probably have to specify the db name in both <driver-options> and <db-name>.  This is because the driver options are specific to each database." :
              "" :
              "module:          Module name without an extension" :
              ("driver-options:  " ++
