@@ -1,4 +1,3 @@
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, FlexibleContexts, UndecidableInstances #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  BoundedList

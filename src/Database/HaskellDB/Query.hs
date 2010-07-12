@@ -1,5 +1,3 @@
-{-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies, FlexibleInstances, FlexibleContexts, UndecidableInstances
-  , TypeSynonymInstances #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  Query
@@ -18,17 +16,17 @@
 -- 
 -----------------------------------------------------------
 module Database.HaskellDB.Query (
-	      module Data.HList
 	      -- * Data and class declarations
-	     , Rel(..), Table(..), Query, Expr(..), OrderExpr
-	     , ToPrimExprsOp(..), ShowLabelsOp(..), ConstantRecordOp(..)
+	     Rel(..), Attr(..), Table(..), Query, Expr(..), OrderExpr
+	     , ToPrimExprs, ConstantRecord
 	     , ShowConstant, ExprC, ProjectExpr, ProjectRec, InsertRec
 	     , ExprAggr(..), ExprDefault(..)
 	     , copy, copyAll
 	      -- * Operators
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
-	     , mul, (./.), (.+.), (.-.), (.%.), (.++.)
+	     , (.*.), (./.), (.+.), (.-.), (.%.), (.++.)
+             , (<<), (<<-)
 	      -- * Function declarations
 	     , project, restrict, table, unique
 	     , union, intersect, divide, minus
@@ -38,6 +36,7 @@ module Database.HaskellDB.Query (
 	     , constant, constJust
 	     , param, namedParam, Args, func, constNull, cast
 	     , toStr, coerce
+             , select
 	     , count, _sum, _max, _min, avg
 	     , literal
 	     , stddev, stddevP, variance, varianceP
@@ -48,12 +47,11 @@ module Database.HaskellDB.Query (
 	     -- * Internals
 	     , runQuery, runQueryRel
 	     , subQuery
-	     , attribute, tableName, baseTable, emptyTable
+	     , attribute, attributeName, tableName, baseTable, emptyTable
 	     , exprs, labels, tableRec 
 	     , constantRecord
 	     ) where
-
-import Data.HList hiding (cast,(.<.),(.-.),(.+.))
+import Database.HaskellDB.HDBRec
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.BoundedString
 import Database.HaskellDB.BoundedList
@@ -64,10 +62,10 @@ import System.Time (CalendarTime)
 -- Operators
 -----------------------------------------------------------
 
-
 infix   8 `like`, `_in`
-infixl  7 `mul`, ./., .%.
+infixl  7 .*., ./., .%.
 infixl  6 .+.,.-.
+infix   6 <<, <<-
 infixr  5 .++.
 infix   4 .==., .<>., .<., .<=., .>., .>=.
 infixr  3 .&&.
@@ -92,11 +90,13 @@ newtype ExprAggr a = ExprAggr PrimExpr deriving (Read, Show)
 -- | The type of default expressions.
 newtype ExprDefault a = ExprDefault PrimExpr deriving (Read, Show)
 
-
 -- | Basic tables, contains table name and an
 --   association from attributes to attribute
 --   names in the real table.
 data Table r    = Table TableName Assoc
+
+-- | Typed attributes
+data Attr f a   = Attr Attribute
 
 type Alias      = Int
 
@@ -109,6 +109,9 @@ data Query a    = Query (QState -> (a,QState))
 
 scheme :: Rel r -> Scheme
 scheme (Rel _ s) = s
+
+attributeName :: Attr f a -> Attribute
+attributeName (Attr name) = name
 
 -----------------------------------------------------------
 -- Expression and record classes.
@@ -131,10 +134,9 @@ instance InsertExpr ExprDefault
 --   All all the values must be instances of 'InsertExpr' for the
 --   record to be an instance of 'InsertRec'.
 class InsertRec r er | r -> er
-instance InsertRec HNil HNil
+instance InsertRec RecNil RecNil
 instance (InsertExpr e, InsertRec r er) => 
-    InsertRec (HCons (LVPair f (e a)) r)
-              (HCons (LVPair f (Expr a)) er)
+  InsertRec (RecCons f (e a) r) (RecCons f (Expr a) er)
 
 -- | Class of expressions that can be used with 'project'.
 class ExprC e => ProjectExpr e
@@ -145,25 +147,33 @@ instance ProjectExpr ExprAggr
 --   All all the values must be instances of 'ProjectExpr' for the
 --   record to be an instance of 'ProjectRec'.
 class ProjectRec r er | r -> er
-instance ProjectRec HNil HNil
+instance ProjectRec RecNil RecNil
 instance (ProjectExpr e, ProjectRec r er) => 
-    ProjectRec (HCons (LVPair f (e a)) r)
-               (HCons (LVPair f (Expr a)) r)
+  ProjectRec (RecCons f (e a) r) (RecCons f (Expr a) er)
 
 -----------------------------------------------------------
 -- Record operators
 -----------------------------------------------------------
 
--- | Extend HList's field selection operator .!. to work on relations in
---   a query.
-instance (ShowLabel l, HasField l (Record r) (Expr v))
-    => HasField l (Rel (Record r)) (Expr v) where
+-- | Creates a record field.
+--   Similar to '(.=.)', but gets the field label from an 'Attr'.
+( << ) :: Attr f a        -- ^ Label
+       -> e a                        -- ^ Expression
+       -> Record (RecCons f (e a) RecNil)  -- ^ New record
+_ << x = RecCons x
 
-    hLookupByLabel l (Rel alias _) = Expr (AttrExpr (fresh alias (showLabel l)))
+-- | Convenience operator for constructing records of constants.
+--   Useful primarily with 'insert'.
+--   @f <<- x@ is the same as @f << constant x@
+( <<- ) :: ShowConstant a =>
+         Attr f a        -- ^ Field label
+      -> a                        -- ^ Field value
+      -> Record (RecCons f (Expr a) RecNil)  -- ^ New record
+f <<- x = f << constant x
 
--- | Copies the field and value from the record given. Useful for
--- building projections that will re-use the same column
--- name. @copy attr tbl@ is equivalent to:
+-- | Creates a single-field record from an attribute and a table. Useful
+-- for building projections that will re-use the same attribute name. @copy attr tbl@ is
+-- equivalent to:
 --
 --   @attr .=. (tbl .!. attr)@
 --
@@ -175,7 +185,7 @@ copy l tbl = l .=. (tbl .!. l)
 --
 -- >   query = do
 -- >     tbl <- table some_table
--- >     project $ copyAll tbl
+-- >     project $ columns tbl
 --
 -- will add all columns in "some_table" to the query.
 copyAll :: (HRLabelSet r
@@ -186,14 +196,42 @@ copyAll tbl = mkRecord $ hMap (RecAttrOp tbl) (recordLabels (unRel tbl))
         unRel :: Rel r -> r
         unRel = undefined
 
+-- | Copies all columns in the relation given. Useful for appending
+-- the remaining columns in a table to a projection. For example:
+--
+-- >   query = do
+-- >     tbl <- table some_table
+-- >     project $ copyAll tbl
+--
+-- will add all columns in "some_table" to the query.
+copyAll = error "copyAll not defined yet."
+{-copyAll :: (HRLabelSet r
+            , HMap (RecAttrOp (Rel (Record r))) ls r
+            , RecordLabels r ls) => Rel (Record r) -> Record r
+copyAll tbl = mkRecord $ hMap (RecAttrOp tbl) (recordLabels (unRel tbl))
+      where
+        unRel :: Rel r -> r
+        unRel = undefined-}
+
+-- | Field selection operator. It is overloaded to work for both
+--   relations in a query and the result of a query.
+--   That is, it corresponds to both '!' and '!.' from the original
+--   HaskellDB. An overloaded operator was selected because users
+--   (and the developers) always forgot to use !. instead of !
+--   on query results.
+instance HasField f r => Select (Attr f a) (Rel r) (Expr a) where
+    (!) rel attr = select attr rel
+
+select :: HasField f r => Attr f a -> Rel r -> Expr a
+select (Attr attribute) (Rel alias scheme)
+        = Expr (AttrExpr (fresh alias attribute))
+
 -----------------------------------------------------------
 -- Basic relational operators
 -----------------------------------------------------------
 
 -- | Specifies a subset of the columns in the table.
-project :: (RecordLabels r ls, RecordValues r vs
-           , HMapOut ShowLabelsOp ls String, HMapOut ToPrimExprsOp vs PrimExpr
-           , ProjectRec r er) => Record r -> Query (Rel (Record er))
+project :: (ShowLabels r, ToPrimExprs r, ProjectRec r er) => Record r -> Query (Rel er)
 project r
         = do
 	  alias <- newAlias
@@ -201,7 +239,6 @@ project r
 	      assoc         = zip (map (fresh alias) scheme) (exprs r)
 	  updatePrimQuery (extend assoc)
           return (Rel alias scheme)
-
 
 -- | Restricts the records to only those who evaluates the 
 -- expression to True.
@@ -283,7 +320,7 @@ minus           = binrel Difference
 -----------------------------------------------------------
 
 -- | Return all records from a specific table.
-table :: Table r -> Query (Rel r)
+table :: (ShowRecRow r) => Table r -> Query (Rel r)
 table (Table name assoc)
         = do
 	  alias <- newAlias
@@ -301,19 +338,15 @@ tableName (Table n _) = n
 tableRec :: Table (Record r) -> Record r
 tableRec = error "tableRec should never be evaluated."
 
--- | used in table definitions
-baseTable :: (RecordLabels r ls, RecordValues r vs,
-              HMapOut ShowLabelsOp ls String, HMapOut ToPrimExprsOp vs PrimExpr) =>
-             TableName -> Table (Record r)
-baseTable t   = let tbl = Table t (zip columns (map AttrExpr columns))
-                    columns = labels $ tableRec tbl
-                in tbl
+-- used in table definitions
+baseTable :: (ShowLabels r, ToPrimExprs r) => TableName -> Record r -> Table r
+baseTable t r   = Table t (zip (labels r) (exprs r))
 
 -- | For queries against fake tables, such as
 -- 'information_schema.information_schema_catalog_name'. Useful for
 -- constructing queries that contain constant data (and do not select
 -- from columns) but need a table to select from.
-emptyTable :: TableName -> Table (Record HNil)
+emptyTable :: TableName -> Table (Record RecNil)
 emptyTable t = Table t []
 
 attribute :: String -> Expr a
@@ -420,8 +453,8 @@ numop   = binop
 (.-.) :: Num a => Expr a -> Expr a -> Expr a
 (.-.) = numop OpMinus
 -- | Multiplication
-mul :: Num a => Expr a -> Expr a -> Expr a
-mul = numop OpMul
+(.*.) :: Num a => Expr a -> Expr a -> Expr a
+(.*.) = numop OpMul
 -- | Division
 (./.) :: Num a => Expr a -> Expr a -> Expr a
 (./.) = numop OpDiv
@@ -495,7 +528,6 @@ instance BStrToStr (Expr (Maybe String)) (Expr (Maybe String)) where
 
 instance BStrToStr (Expr String) (Expr String) where
   toStr (Expr m) = (Expr m)
-
 
 -----------------------------------------------------------
 -- Using arbitrary SQL functions in a type-safe way.
@@ -622,12 +654,20 @@ coerce :: Expr a -- ^ Source expression
   -> Expr b -- ^ Destination type.
 coerce (Expr e) = Expr e
 
-data ConstantRecordOp = ConstantRecordOp
-instance ShowConstant v => Apply ConstantRecordOp (LVPair l v) (LVPair l (Expr v)) where
-    apply _ (LVPair a) = LVPair (constant a)
+-- | Converts records w/o Expr (usually from database
+-- queries) to records with Expr types. 
+class ConstantRecord r cr | r -> cr where
+    constantRecord :: r -> cr
 
-constantRecord :: (HMap ConstantRecordOp r r') => Record r -> Record r'
-constantRecord (Record r) = Record (hMap ConstantRecordOp r)
+instance ConstantRecord r cr => ConstantRecord (Record r) (Record cr) where
+    constantRecord r = \n -> constantRecord (r n)
+
+instance ConstantRecord RecNil RecNil where
+    constantRecord RecNil = RecNil
+
+instance (ShowConstant a, ConstantRecord r cr)
+    => ConstantRecord (RecCons f a r) (RecCons f (Expr a) cr) where
+    constantRecord ~(RecCons x rs) = RecCons (constant x) (constantRecord rs)
 
 -----------------------------------------------------------
 -- Aggregate operators
@@ -682,23 +722,23 @@ top n = updatePrimQuery_ (Special (Top n))
 -- Ordering results
 -----------------------------------------------------------
 
-orderOp :: (HasField f r (Expr e), ShowLabel f) => OrderOp -> Rel (Record r) -> f -> OrderExpr
-orderOp op rel f = OrderExpr op expr
-    where Expr expr = rel .!. f
+orderOp :: HasField f r => OrderOp -> Rel r -> Attr f a -> OrderExpr
+orderOp op rel attr = OrderExpr op expr
+    where Expr expr = select attr rel
 
 -- | Use this together with the function 'order' to 
 -- order the results of a query in ascending order.
 -- Takes a relation and an attribute of that relation, which
 -- is used for the ordering.
-asc :: (HasField f r (Expr e), ShowLabel f) => Rel (Record r) -> f -> OrderExpr
-asc rel f = orderOp OpAsc rel f
+asc :: HasField f r => Rel r -> Attr f a -> OrderExpr
+asc rel attr = orderOp OpAsc rel attr
 
 -- | Use this together with the function 'order' to 
 -- order the results of a query in descending order.
 -- Takes a relation and an attribute of that relation, which
 -- is used for the ordering.
-desc :: (HasField f r (Expr e), ShowLabel f) => Rel (Record r) -> f -> OrderExpr
-desc rel f = orderOp OpDesc rel f
+desc :: (HasField f r) => Rel r -> Attr f a -> OrderExpr
+desc rel attr = orderOp OpDesc rel attr
 
 -- | Order the results of a query.
 -- Use this with the 'asc' or 'desc' functions.
@@ -760,20 +800,20 @@ fresh :: Alias -> Attribute -> Attribute
 fresh 0     attribute   = attribute
 fresh alias attribute   = (attribute ++ show alias)
 
-data ShowLabelsOp = ShowLabelsOp
-instance ShowLabel x => Apply ShowLabelsOp x String where
-    apply _ = showLabel
+labels :: ShowLabels r => r -> [String]
+labels = recordLabels
 
-labels :: (HMapOut ShowLabelsOp ls String, RecordLabels r ls) => Record r -> [String]
-labels r = hMapOut ShowLabelsOp (recordLabels r)
+-- Type safe version of exprs below. If we use this, we must add
+--  ToPrimExprs r to a lot of functions
+exprs :: ToPrimExprs r => Record r -> [PrimExpr]
+exprs r = toPrimExprs (r RecNil)
 
-data ToPrimExprsOp = ToPrimExprsOp
-instance ExprC e => Apply ToPrimExprsOp (e a) PrimExpr where
-    apply _ = primExpr
+class ToPrimExprs r where
+    toPrimExprs :: r -> [PrimExpr]
 
-exprs :: (RecordValues r vs, HMapOut ToPrimExprsOp vs PrimExpr) => Record r -> [PrimExpr]
-exprs r = hMapOut ToPrimExprsOp (recordValues r)
+instance ToPrimExprs RecNil where
+    toPrimExprs ~RecNil = []
 
-data RecAttrOp a = RecAttrOp a
-instance (HasField l (Rel t) v) => Apply (RecAttrOp (Rel t)) l (LVPair l v) where
-    apply (RecAttrOp t) l = l .=. (t .!. l)
+instance (ExprC e, ToPrimExprs r) => ToPrimExprs (RecCons l (e a) r) where
+    toPrimExprs ~(RecCons e r) = primExpr e : toPrimExprs r
+

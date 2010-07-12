@@ -155,7 +155,7 @@ tInfoToModule mi dbname tinfo@TInfo{tname=name,cols=col}
        $$ ppComment ["Fields"]
        $$ if null col
              then empty -- no fields, don't do anything weird
-             else vcat (map (ppField mi) (columnNames tinfo)))
+             else vcat (map (ppField mi) (columnNamesTypes tinfo)))
     where modname = dbname ++ "." ++ moduleName mi name
 
 ppTableType :: MakeIdentifiers -> TInfo -> Doc
@@ -172,56 +172,51 @@ ppTable mi (TInfo tiName tiColumns) =
 	 (text (toType mi tiName))
     $$
     text (identifier mi tiName) <+> text "=" <+>
-    (text "baseTable" <+>
-      doubleQuotes (text (checkChars tiName))) <>  newline
+    hang (text "baseTable" <+>
+        doubleQuotes (text (checkChars tiName)) <+>
+        text "$") 0
+           (vcat $ punctuate (text " #") (map (ppColumnValue mi) tiColumns))
+           <>  newline
 
 -- | Pretty prints a list of ColumnInfo
-ppColumns :: MakeIdentifiers -> [CInfo] -> Doc
-ppColumns mi cs = text "Record" <+> iter mi cs
-    where iter :: MakeIdentifiers -> [CInfo] -> Doc
-          iter _  []      = text ""
-          iter mi [c]     = parens (ppColumnType mi c <+> text "HNil")
-          iter mi (c:cs)  = parens (ppColumnType mi c $$ iter mi cs)
+ppColumns _  []      = text ""
+ppColumns mi [c]     = parens (ppColumnType mi c <+> text "RecNil")
+ppColumns mi (c:cs)  = parens (ppColumnType mi c $$ ppColumns mi cs)
 
 -- | Pretty prints the type field in a ColumnInfo
 ppColumnType :: MakeIdentifiers -> CInfo -> Doc
 ppColumnType mi (CInfo ciName (ciType,ciAllowNull))
-	=   text "HCons" <+>
-	    parens (text "LVPair" <+> 
-  	      ((text $ toType mi ciName) <+> parens (text "Expr"
-	      <+> (if (ciAllowNull)
-	        then parens (text "Maybe" <+> text (toHaskellType ciType))
-	        else text (toHaskellType ciType)
-	      ))))
+	=   text "RecCons" <+>
+  	    ((text $ toType mi ciName) <+> 
+             parens (text "Expr" <+> 
+                     (if (ciAllowNull)
+	              then parens (text "Maybe" <+> text (toHaskellType ciType))
+	              else text (toHaskellType ciType)
+	             )))
 
 -- | Pretty prints the value field in a ColumnInfo
 ppColumnValue :: MakeIdentifiers -> CInfo -> Doc
 ppColumnValue mi (CInfo ciName _)
-	=   text "hdbMakeEntry" <+> text (identifier mi ciName)
+	=    text "hdbMakeEntry" <+> text (toType mi ciName)
 
--- TODO tag: need to make sure name doesn't collide somehow
 -- | Pretty prints Field definitions
-ppField :: MakeIdentifiers -> String -> Doc
-ppField mi name =
+ppField :: MakeIdentifiers -> (String, String) -> Doc
+ppField mi (name,typeof) =
     ppComment [toType mi name ++ " Field"]
     <> newline $$
-    text "data" <+> tagName
-    $$
-    text "type" <+> bname <+> equals <+> text "Proxy" <+> tagName $$
-    hang (text "instance ShowLabel" <+> bname <+> text "where") 4
-         (text "showLabel _" <+> equals <+> doubleQuotes
+    text "data" <+> bname <+> equals <+> bname -- <+> text "deriving Show"
+    <> newline $$
+    hang (text "instance FieldTag" <+> bname <+> text "where") 4
+         (text "fieldName _" <+> equals <+> doubleQuotes
 	         (text (checkChars name)))
     <> newline $$
-
-    iname <+> text "::" <+> bname
+    iname <+> text "::" <+> text "Attr" <+> bname <+> text typeof
     $$
-    iname <+> equals <+> text "proxy"
+    iname <+> equals <+> text "mkAttr" <+> bname
     <> newline
 	where
-	bnameStr = toType mi name
-	bname = text bnameStr
-	iname = text (identifier mi name)
-	tagName = text (bnameStr ++ "Tag")
+          bname = text (toType mi name)
+	  iname = text (identifier mi name)
 
 -- | Extracts all the column names from a TableInfo
 columnNames :: TInfo -> [String]
@@ -235,3 +230,8 @@ columnTypes table =
     zippedlist = zip typelist null_list
     typelist  = map (toHaskellType . fst . descr) (cols table)
     null_list = map (snd . descr) (cols table)
+
+-- | Combines the results of columnNames and columnTypes
+columnNamesTypes :: TInfo -> [(String,String)]
+columnNamesTypes table@(TInfo tname fields)
+    = zip (columnNames table) (columnTypes table)

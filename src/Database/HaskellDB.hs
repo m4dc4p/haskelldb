@@ -40,47 +40,41 @@
 --
 -----------------------------------------------------------
 module Database.HaskellDB
-        ( module Data.HList
-	, Rel, Expr, Table, Query, OrderExpr
-        -- * Relational operators
-	, restrict, table, project, unique
-	, union, intersect, divide, minus
-        , copy, copyAll, subQuery
+  ( Rel, Attr, Expr, ExprAggr, Table, Query, OrderExpr
+  -- * Records
+  , HasField, Record, Select, ( # ), ( << ), (<<-), (!), (!.)
 
-	-- * Query expressions
-	, (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
-	, (.&&.) , (.||.)
-	, mul , (./.), (.+.), (.-.), (.%.), (.++.)
-	, _not, like, _in, cat, _length
-	, isNull, notNull, fromNull
-	, constant, constJust, constNull
-	, param, namedParam, Args, func
-        , queryParams, Param, cast, coerce
-        , literal, toStr
-	
-	, count, _sum, _max, _min, avg
-	, stddev, stddevP, variance, varianceP
-	
-	, asc, desc, order
-	, top 
+  -- * Relational operators
+  , restrict, table, project, unique
+  , union, intersect, divide, minus
+  , copy, copyAll, subQuery
 
-        , _case
-	, _default
+  -- * Query expressions
+  , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
+  , (.&&.) , (.||.)
+  , (.*.) , (./.), (.+.), (.-.), (.%.), (.++.)
+  , _not, like, _in, cat, _length
+  , isNull, notNull, fromNull
+  , constant, constJust, constNull
+  , param, namedParam, Args, func
+  , queryParams, Param, cast, coerce
+  , literal, toStr
+  , count, _sum, _max, _min, avg
+  , stddev, stddevP, variance, varianceP
+  , asc, desc, order
+  , top , _case , _default
 
-	-- * Database operations
-	, Database				-- abstract
-	, query
-	, insert, insertOpt, delete, update, insertQuery
-	, tables, describe, transaction
+  -- * Database operations
+  , Database				-- abstract
+  , query
+  , insert, insertOpt, delete, update, insertQuery
+  , tables, describe, transaction
+          
+  -- * Debugging
+  , showQuery, showQueryUnOpt, showSql, showSqlUnOpt
+  ) where
 
-	-- * Debugging
-	, showQuery, showQueryUnOpt, showSql, showSqlUnOpt
-	) where
-
-import Data.HList hiding (cast,(.<.),(.+.),(.-.), typeEq, TypeEq)
-import Data.HList.Label4
-import Data.HList.TypeEqGeneric1
-import Data.HList.TypeCastGeneric1
+import Database.HaskellDB.HDBRec
 
 -- PrimQuery type is imported so that haddock can find it.
 import Database.HaskellDB.PrimQuery (PrimQuery)
