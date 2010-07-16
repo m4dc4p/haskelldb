@@ -30,7 +30,7 @@ main = do
   (args, _, err) <- getArgs >>= return . getOpt RequireOrder opts 
   when (not . null $ err) $ do { mapM_ putStrLn err;
                                  exitWith $ ExitFailure 1 }
-  when (Help `elem` args) $ do { putStrLn (usageInfo "" opts);
+  when (null args || Help `elem` args) $ do { putStrLn (usageInfo "" opts);
                                  exitWith ExitSuccess }
   dbTestMain $ Conn { dbLabel = "hdbc-postgresql"
                     , dbConn = connect driver (map toConn args) }
