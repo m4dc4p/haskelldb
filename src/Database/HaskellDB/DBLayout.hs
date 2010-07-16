@@ -20,7 +20,8 @@ module Database.HaskellDB.DBLayout
   , CalendarTime
   , Expr, Table, Attr, baseTable
   , RecCons, RecNil, FieldTag, fieldName
-  , hdbMakeEntry, mkAttr, ( # )) 
+  , hdbMakeEntry, mkAttr, ( # )
+  , emptyTable) 
 
 where
 
@@ -29,7 +30,7 @@ import Database.HaskellDB.HDBRec(Record, RecCons, RecNil, FieldTag
 import Database.HaskellDB.BoundedString
 import System.Time (CalendarTime)
 import Database.HaskellDB.Query (Expr, Table, Attr(..)
-                                , baseTable, attribute, (<<))
+                                , baseTable, attribute, (<<), emptyTable)
 import Database.HaskellDB.DBSpec
 import Database.HaskellDB.FieldType (FieldType(..))
 
