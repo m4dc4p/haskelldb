@@ -27,6 +27,7 @@ module Database.HaskellDB.Sql (
 	                       SqlDrop(..),
 
                                SqlExpr(..),
+                               Mark(..),
 
                                newSelect
 	                      ) where
@@ -51,13 +52,16 @@ data SqlType = SqlType String
              | SqlType2 String Int Int
   deriving Show
 
+data Mark = All | Columns [(SqlColumn, SqlExpr)]
+  deriving Show
+
 -- | Data type for SQL SELECT statements.
 data SqlSelect  = SqlSelect { 
                              options   :: [String],                -- ^ DISTINCT, ALL etc.
 			     attrs     :: [(SqlColumn,SqlExpr)],   -- ^ result
                              tables    :: [(SqlTable,SqlSelect)],  -- ^ FROM
                              criteria  :: [SqlExpr],               -- ^ WHERE
-                             groupby   :: [(SqlColumn,SqlExpr)],   -- ^ GROUP BY
+                             groupby   :: Maybe Mark,   -- ^ GROUP BY
                              orderby   :: [(SqlExpr,SqlOrder)],    -- ^ ORDER BY
 			     extra     :: [String]                 -- ^ TOP n, etc.
                             }
@@ -106,7 +110,7 @@ newSelect = SqlSelect {
                        attrs     = [],
                        tables    = [],
                        criteria  = [],
-                       groupby	 = [],
+                       groupby	 = Nothing,
                        orderby	 = [],
                        extra     = []
                       }

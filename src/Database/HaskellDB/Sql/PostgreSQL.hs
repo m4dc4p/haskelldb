@@ -40,7 +40,6 @@ postgresqlLiteral l = defaultSqlLiteral generator l
 
 postgresqlType :: FieldType -> SqlType
 postgresqlType BoolT = SqlType "boolean"
-postgresqlType t = defaultSqlType generator t
 
 postgresqlExpr :: PrimExpr -> SqlExpr
 postgresqlExpr (BinExpr OpMod e1 e2) = 

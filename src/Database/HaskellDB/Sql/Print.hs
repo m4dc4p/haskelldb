@@ -38,7 +38,7 @@ ppSql (SqlSelect options attrs tables criteria groupby orderby extra)
       <+> ppAttrs attrs
       $$ ppTables tables
       $$ ppWhere criteria
-      $$ ppGroupBy groupby
+      $$ maybe empty ppGroupBy groupby
       $$ ppOrderBy orderby
       $$ hsep (map text extra)
 ppSql (SqlBin op q1 q2) = parens (ppSql q1) $$ text op $$ parens (ppSql q2)
@@ -73,14 +73,14 @@ ppWhere [] = empty
 ppWhere es = text "WHERE" 
              <+> hsep (intersperse (text "AND") (map ppSqlExpr es))
 
-ppGroupBy :: [(SqlColumn, SqlExpr)] -> Doc
-ppGroupBy [] = empty
-ppGroupBy es = text "GROUP BY" <+> ppGroupAttrs es
+ppGroupBy :: Mark -> Doc
+ppGroupBy All = error "Should not ever print GroupBy all."
+ppGroupBy (Columns es) = text "GROUP BY" <+> ppGroupAttrs es
   where
     ppGroupAttrs :: [(SqlColumn, SqlExpr)] -> Doc
     ppGroupAttrs cs = commaV nameOrExpr cs
     nameOrExpr :: (SqlColumn, SqlExpr) -> Doc
-    nameOrExpr (name, ColumnSqlExpr _) = text name
+    nameOrExpr (_, ColumnSqlExpr col) = text col
     nameOrExpr (_, expr) = parens (ppSqlExpr expr)
     
 ppOrderBy :: [(SqlExpr,SqlOrder)] -> Doc

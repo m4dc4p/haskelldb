@@ -122,54 +122,37 @@ defaultSqlTable _ name schema = SqlTable name
 
 defaultSqlProject :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
 defaultSqlProject gen assoc q
-          	| hasAggr    = select { groupby = toSqlAssoc gen groupableProjections ++ groupableOrderCols }
-          	| otherwise  = select 
-                where
-                  select   = sql { attrs = toSqlAssoc gen assoc }
-                  sql      = toSqlSelect q
-                  hasAggr  = not . null  . filter (isAggregate . snd) $ assoc
-                  -- Find projected columns that are not constants or aggregates.
-                  groupableProjections = filter (not . (\x -> isAggregate x || isConstant x) . snd) assoc
-                  -- Get list of order by columns which do not appear in
-                  -- projected non-aggregate columns already, if any.
-                  groupableOrderCols =
-                    let eligible = filter (\x -> case x of
-                                              (ColumnSqlExpr attr) ->
-                                                  not (attr `elem` groupableAttrs)
-                                              _ -> False) .
-                              map fst $ orderby sql
-                        -- List of non-aggregated columns which are only attribute expressions, i.e.
-                        -- aliased columns. 
-                        groupableAttrs = [col | (AttrExpr col) <- map snd groupableProjections]
-                    in [(s, e) | e@(ColumnSqlExpr s) <- eligible]
+  | hasAggr assoc || hasGroupMark sql = if null groupByColumns
+                                        then select { groupby = Nothing }
+                                        else select { groupby = Just (Columns groupByColumns) }
+  | otherwise  = select 
+  where
+    select   = sql { attrs = toSqlAssoc gen assoc }
+    sql      = toSqlSelect q
+    hasAggr  = not . null  . filter (isAggregate . snd) 
+
+    hasGroupMark (SqlSelect { groupby = Just All }) = True
+    hasGroupMark _ = False
+
+    groupByColumns = toSqlAssoc gen groupableProjections ++ groupableOrderCols
+    -- Find projected columns that are not constants or aggregates.
+    groupableProjections = filter (not . (\x -> isAggregate x || isConstant x) . snd) assoc
+    -- Get list of order by columns which do not appear in
+    -- projected non-aggregate columns already, if any.
+    groupableOrderCols =
+      let eligible = filter (\x -> case x of
+                                     (ColumnSqlExpr attr) ->
+                                       not (attr `elem` groupableAttrs)
+                                     _ -> False) . map fst $ orderby sql
+          -- List of non-aggregated columns which are only attribute expressions, i.e.
+          -- aliased columns. 
+          groupableAttrs = [col | (AttrExpr col) <- map snd groupableProjections]
+      in [(s, e) | e@(ColumnSqlExpr s) <- eligible]
 
 -- | Takes all non-aggregate expressions in the select and adds them to
 -- the 'group by' clause.
 defaultSqlGroup :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
-defaultSqlGroup gen cols q =
-  let selectCols = concat (allCols q) -- List of all columns in order by, group by or 'select' clause in SqlSelect.
-      -- Nested search for all valid columns.
-      allCols :: SqlSelect -> [[(SqlColumn, SqlExpr)]]
-      allCols (SqlSelect { attrs = a, groupby = g, tables = t, orderby = o}) = a : g : toColExpr o : concatMap (allCols . snd) t
-      allCols (SqlBin _ l r) = allCols l ++ allCols r
-      allCols _ = []
-      -- Convert order by expressions to SqlColumn looking expressions.
-      -- Luckily, order by never has antyhig but ColumnSqlExpr in it for now.
-      toColExpr :: [(SqlExpr,SqlOrder)] -> [(SqlColumn,SqlExpr)]
-      toColExpr = 
-        let f (ColumnSqlExpr s) = Just (s, undefined)
-        in catMaybes . map (f . fst)
-      -- Ensure that each column in the groupby actually exists
-      -- in the projection. Also converts all expressions
-      -- to ColumnSqlExpr so they work correctly in group by.
-      mkValidCol (name, expr) =
-        case lookup name selectCols of
-          Just _ -> Just (name, sqlExpr gen expr)
-          Nothing -> Nothing
-      select = toSqlSelect q
-      groupbys = catMaybes . map mkValidCol $ cols
-  in select { groupby = groupbys }
-
+defaultSqlGroup _ _ q = q { groupby = Just All }
 
 defaultSqlRestrict :: SqlGenerator -> PrimExpr -> SqlSelect -> SqlSelect
 defaultSqlRestrict gen expr q
@@ -216,36 +199,36 @@ toSqlOrder gen (OrderExpr o e) = (sqlExpr gen e, o')
 -- one other constructors.
 toSqlSelect :: SqlSelect -> SqlSelect
 toSqlSelect sql = case sql of
-                    (SqlEmpty)          -> newSelect
-                    (SqlTable name)     -> newSelect { tables = [("",sql)] }
-                    (SqlBin op q1 q2)   -> newSelect { tables = [("",sql)] }
-                    (SqlSelect { groupby = group, attrs = cols, tables = tbls})
-                      | null cols && null group -> sql 
-                      | null cols && not (null group) ->
-                          -- This situation arises when a columns used in a group by are
-                          -- not explicitly projected, or only aggregates are.
-                          --
-                          -- We make the groupby its own "subquery" below which projects
-                          -- only "group by" columns, without introducing any aliases. We then
-                          -- create a new select which projects the original columns projected by
-                          -- the group by (i.e. those in the "tables" slot of the groupby select).
-                          --
-                          -- This addresses a bug where GROUP BY statements would disappear
-                          -- if the query did not use the grouped columns, or the would
-                          -- float out of subqueries indirectly.
-                          --
-                          let removeDups = nubBy (\(c1, _) (c2, _) -> c1 == c2)
-                              -- Makes a list of columns pass-through - i.e. projected
-                              -- with no aliasing.
-                              passThrough = map ((\c -> (c, ColumnSqlExpr c)) . fst)
-                              -- List of columns projected by subquery found in tables field.
-                              currProj = passThrough $ concatMap (attrs . snd) tbls
-                              -- Columns projected due the group by
-                              groupProj =  passThrough group
-                              newSql = sql { attrs = removeDups $ groupProj ++ currProj }
-                          in newSelect { attrs = currProj
-                                        , tables = [("", newSql)]}
-                      | otherwise -> newSelect { tables = [("",sql)] }
+                    (SqlEmpty) -> newSelect
+                    (SqlTable name) -> newSelect { tables = [("",sql)] }
+                    -- Below we make sure to bring groupby marks that have not 
+                    -- been processed up the tree. The mark moves up the tree
+                    -- for efficiency. A "Columns" mark does not move -- it indicates
+                    -- a select that will use a group by. An All mark does move, as it
+                    -- needs to find its containing projection. Marks that move are
+                    -- replaced by Nothing.
+                    (SqlBin _ _ _) -> 
+                      let (prevGroup, newSql) = findGroup sql
+                          findGroup (SqlBin op q1 q2) = 
+                            let (g1, q1') = findGroup q1
+                                (g2, q2') = findGroup q2
+                            in (g1 `or` g2, SqlBin op q1' q2')
+                          findGroup q@(SqlSelect { groupby = Just (Columns _) }) = (Nothing, q)
+                          findGroup q@(SqlSelect { groupby = Just All }) = (Just All, q { groupby = Nothing })
+                          findGroup s = (Nothing, s)
+                          or l r = maybe r Just l
+                      in newSelect { tables = [("", newSql)]
+                                   , groupby = prevGroup }
+                    (SqlSelect { attrs = [] }) -> sql
+                    -- Here we have a mark that should not move.
+                    (SqlSelect { groupby = Just (Columns _)}) ->
+                      newSelect { tables = [("", sql)] }
+                    -- Any mark here should be moved. Notice we set the
+                    -- previous mark with Nothing (though it may already be
+                    -- Nothing).
+                    (SqlSelect { groupby = group }) ->
+                      newSelect { tables = [("", sql { groupby = Nothing})]
+                                , groupby = group }
                       
 
 toSqlAssoc :: SqlGenerator -> Assoc -> [(SqlColumn,SqlExpr)]

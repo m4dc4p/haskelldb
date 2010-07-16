@@ -117,11 +117,14 @@ ppSqlSelect (SqlSelect options attrs tables criteria groupby orderby extra) =
     hang (text "attrs:") nesting (brackets . fsep . punctuate comma . map ppAttr $ attrs) $+$
       text "criteria:" <+> (brackets . fsep . punctuate comma . map ppSqlExpr $ criteria) $+$
       hang (text "tables:") nesting (brackets . fsep . punctuate comma . map ppTable $ tables) $+$
-      hang (text "groupby:") nesting (brackets . fsep . punctuate comma . map ppAttr $ groupby) $+$
+      maybe (text "groupby: empty") ppGroupBy groupby $+$
       hang (text "orderby:") nesting (brackets . fsep . punctuate comma . map ppOrder $ orderby) $+$
       text "extras:" <+> (brackets . fsep. punctuate comma . map text $ extra) $+$
       text "options:" <+> (brackets . fsep . punctuate comma . map text $ options)
-  
+
+ppGroupBy All = text "groupby: all"
+ppGroupBy (Columns cs) = hang (text "groupby:") nesting (brackets . fsep . punctuate comma . map ppAttr $ cs)
+
 ppTable :: (SqlTable, SqlSelect) -> Doc
 ppTable (tbl, select) =
   if null tbl

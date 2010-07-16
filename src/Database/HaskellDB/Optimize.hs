@@ -23,10 +23,10 @@ import Database.HaskellDB.PrimQuery
 
 -- | Optimize a PrimQuery
 optimize :: PrimQuery -> PrimQuery
-optimize = hacks
-           . mergeProject
-           . removeEmpty
-           . removeDead
+optimize = -- hacks
+           -- mergeProject
+           -- . removeEmpty
+           removeDead
            . pushRestrict
            . optimizeExprs
 
@@ -86,28 +86,17 @@ removeD live (Project assoc query)
           		| otherwise	= liveAssoc
           		where
           		  -- when an aggregate expression is in the
-          		  -- association we check
-          		  -- if an attribute is explicitly added by the user
-			  -- and not already live
-          		  -- (ie. "extend" is called), if so we should
-          		  -- keep it live to be added in a GROUP BY
-          		  -- clause.
-          		  groupAssoc	    = filter (not.isLive)
-          		  		    $ filter newAttr assoc
-			  -- Does the association define a new attribute?
-			  -- (i.e. not just pass on an existing one
-			  -- from the nested query)
-			  newAttr :: (Attribute,PrimExpr) -> Bool
-          		  newAttr (attr,AttrExpr name)  = (attr /= name)
-          		  newAttr _   		  	= True
+          		  -- association we make sure all non-aggregates
+                          -- are considered live.
+          		  groupAssoc	    = filter (isAggregate . snd) assoc
 
           -- Is any live attribute bound to an aggregate expression?
 	  hasAggregate :: Bool
-	  hasAggregate  = any (isAggregate.snd) liveAssoc
+	  hasAggregate  = any (isAggregate . snd) liveAssoc
 
 	  -- All associations that define live attributes.
 	  liveAssoc :: Assoc
-          liveAssoc          = filter isLive assoc
+          liveAssoc     = filter isLive assoc
 
 	  -- Is the attribute defined by the association live?
 	  isLive :: (Attribute,PrimExpr) -> Bool
@@ -119,16 +108,9 @@ removeD live (Restrict x query)
 removeD live (Special (Order xs) query)
 	= Special (Order xs) (removeD (live ++ attrInOrder xs) query)
 
--- Filter dead columns from group expression, as they are not used. Note
--- live columns are NOT just those that are in the select, but also those
--- used in restrictions.
-removeD live (Group cols query)
-    = Group cols (removeD live query)
-  where
-    liveCols = filter ((`elem` live) . fst) cols
+removeD live (Group cols query) = Group cols (removeD live query)
   
-removeD live query
-        = query
+removeD live query = query
 
 
 -- | Remove unused parts of the query
@@ -164,9 +146,13 @@ mergeProject q
         = foldPrimQuery (Empty,BaseTable,project,Restrict,Binary,Group, Special) q
         where
           project assoc1 (Project assoc2 query)
-             	| safe newAssoc	  = Project newAssoc query
+                | equal assoc1 assoc2 = Project assoc2 query
+             	| safe assoc2  = Project newAssoc query
              	where
              	  newAssoc = subst assoc1 assoc2
+                  -- Are two associations equal?
+                  equal assoc1 assoc2 = length assoc1 == length assoc2 &&
+                                        (all (\((a1, _),(a2, _)) -> a1 == a2) $ zip assoc1 assoc2)
 
 	  -- "hmm, is this always true ?" (Daan Leijen)
 	  -- "no, not true when assoc uses fields defined in only
@@ -193,7 +179,7 @@ mergeProject q
 
           safe :: Assoc -> Bool
           safe assoc
-          	= not (any (isAggregate.snd) assoc) || all (isAggregate . snd) assoc
+          	= not (any (isAggregate . snd) assoc) || all (isAggregate . snd) assoc
 
 -- | Push restrictions down through projections and binary ops.
 pushRestrict :: PrimQuery -> PrimQuery
@@ -204,6 +190,9 @@ pushRestrict (Binary op query1 query2)
 pushRestrict (Project assoc query)
         = Project assoc (pushRestrict query)
 
+pushRestrict (Group assoc query)
+        = Group assoc (pushRestrict query)
+
 -- restricts
 
 pushRestrict (Restrict x (Project assoc query))
@@ -213,7 +202,14 @@ pushRestrict (Restrict x (Project assoc query))
 	  -- with the expression they are bound to by the project
           expr  = substAttr assoc x
 	  -- aggregate expressions are not allowed in restricts
-	  safe = not (isAggregate expr)
+	  safe = not (isAggregate expr) && not (hasAggregates query)
+          hasAggregates (Project _ _) = False
+          hasAggregates (BaseTable  _ _)  = False
+          hasAggregates (Restrict _ qry) = hasAggregates qry
+          hasAggregates (Group _ _) = True
+          hasAggregates (Binary _ left right) = hasAggregates left || hasAggregates right
+          hasAggregates (Special   _ qry) = hasAggregates qry
+          hasAggregates Empty = False
 
 pushRestrict (Restrict x (Binary op query1 query2))
         | noneIn1   = Binary op query1 (pushRestrict (Restrict x query2))

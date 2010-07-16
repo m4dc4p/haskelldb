@@ -15,18 +15,18 @@
 -----------------------------------------------------------
 
 module Database.HaskellDB.DBLayout
-  (module Database.HaskellDB.BoundedString
-  , module Database.HaskellDB.DBSpec
-  , CalendarTime
-  , Expr, Table, Attr, baseTable
-  , RecCons, RecNil, FieldTag, fieldName
-  , hdbMakeEntry, mkAttr, ( # )
-  , emptyTable) 
+    (module Database.HaskellDB.BoundedString,
+     module Database.HaskellDB.DBSpec,
+     module Data.HList.TypeEqGeneric1,
+     CalendarTime,
+     Expr, Table, baseTable, emptyTable,
+     Record,HCons,HNil,LVPair,ShowLabel,showLabel,(.*.),emptyRecord,Proxy,proxy)
+    where
 
-where
-
-import Database.HaskellDB.HDBRec(Record, RecCons, RecNil, FieldTag
-                                , fieldName, ( # ))
+import Data.HList
+import Data.HList.Label4
+import Data.HList.TypeEqGeneric1
+import Data.HList.TypeCastGeneric1
 import Database.HaskellDB.BoundedString
 import System.Time (CalendarTime)
 import Database.HaskellDB.Query (Expr, Table, Attr(..)
