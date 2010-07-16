@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts, UndecidableInstances, TypeSynonymInstances, FlexibleInstances
+  , MultiParamTypeClasses #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  FieldType

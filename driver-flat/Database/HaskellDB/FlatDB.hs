@@ -20,6 +20,7 @@ import Database.HaskellDB.FieldType
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Query	hiding (isNull, union, intersect)
 import Database.HaskellDB.DriverAPI
+import Database.HaskellDB (Record)
 
 import Control.Exception (bracket)
 import Control.Monad
@@ -167,7 +168,7 @@ flatTrace :: String -> a -> a
 --flatTrace = trace -- ENABLE FOR TRACING
 flatTrace _ x = x
 
-flatQueryHDB :: GetRec er vr => PrimQuery -> Rel (Record er) -> FlatDB -> IO [Record vr]
+flatQueryHDB :: GetRec er vr => PrimQuery -> Rel er -> FlatDB -> IO [Record vr]
 flatQueryHDB q rel db = 
        flatTrace (show q) $
        mapM (getRec flatGetInstances rel scheme) rs
