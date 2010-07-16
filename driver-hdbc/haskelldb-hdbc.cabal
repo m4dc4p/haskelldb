@@ -15,9 +15,9 @@ Library
   Build-depends: mtl >= 1 && < 2, haskelldb >= 1 && < 2, HDBC >= 2 && < 3, convertible >= 1.0.1 && < 2
 
   if flag(split-base)
-    Build-depends: base >= 3 && < 5, containers < 1, old-time >= 1 && < 2
+    Build-depends: base >= 3.0, containers, old-time
   else
-    Build-depends: base < 3
+    Build-depends: base < 3.0
   Extensions: ExistentialQuantification,
             OverlappingInstances,
             UndecidableInstances,
