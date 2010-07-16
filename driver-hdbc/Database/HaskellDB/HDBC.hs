@@ -65,7 +65,7 @@ hdbcQuery :: (GetRec er vr, IConnection conn) =>
 	     SqlGenerator
           -> conn
 	  -> PrimQuery 
-	  -> Rel (Record er)
+	  -> Rel er
 	  -> IO [Record vr]
 hdbcQuery gen connection q rel = hdbcPrimQuery connection sql scheme rel
     where sql = show $ ppSql $ sqlQuery gen q
@@ -165,7 +165,7 @@ hdbcPrimQuery :: (GetRec er vr, IConnection conn) =>
 		 conn -- ^ Database connection.
 	      -> String     -- ^ SQL query
 	      -> Scheme     -- ^ List of field names to retrieve
-	      -> Rel (Record er)   -- ^ Phantom argument to get the return type right.
+	      -> Rel er   -- ^ Phantom argument to get the return type right.
 	      -> IO [Record vr]    -- ^ Query results
 hdbcPrimQuery conn sql scheme rel = 
     do
