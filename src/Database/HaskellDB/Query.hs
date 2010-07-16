@@ -21,7 +21,7 @@ module Database.HaskellDB.Query (
 	     , ToPrimExprs, ConstantRecord
 	     , ShowConstant, ExprC, ProjectExpr, ProjectRec, InsertRec
 	     , ExprAggr(..), ExprDefault(..)
-	     , copy, copyAll
+	     , copy, copyAll, RelToRec
 	      -- * Operators
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
 	     , (.&&.) , (.||.)
@@ -51,7 +51,7 @@ module Database.HaskellDB.Query (
 	     , exprs, labels, tableRec 
 	     , constantRecord
 	     ) where
-import Database.HaskellDB.HDBRec
+import Database.HaskellDB.HDBRec 
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.BoundedString
 import Database.HaskellDB.BoundedList
@@ -204,14 +204,32 @@ copyAll tbl = mkRecord $ hMap (RecAttrOp tbl) (recordLabels (unRel tbl))
 -- >     project $ copyAll tbl
 --
 -- will add all columns in "some_table" to the query.
-copyAll = error "copyAll not defined yet."
-{-copyAll :: (HRLabelSet r
-            , HMap (RecAttrOp (Rel (Record r))) ls r
-            , RecordLabels r ls) => Rel (Record r) -> Record r
-copyAll tbl = mkRecord $ hMap (RecAttrOp tbl) (recordLabels (unRel tbl))
-      where
-        unRel :: Rel r -> r
-        unRel = undefined-}
+copyAll :: (RelToRec r) => Rel r -> Record r
+copyAll = relToRec
+
+-- | Helper class which gives a polymorphic
+-- copy function that can turn a Rel into a Record.
+class RelToRec a where
+  relToRec :: Rel a -> Record a
+
+instance RelToRec RecNil where
+  relToRec v = \_ -> unRel v
+    where 
+      unRel :: Rel r -> r
+      unRel = error "unRel RelToRec RecNil"
+
+-- All this type magic takes the first field off the Rel (Record ...) type, 
+-- turns it into a (Record ...) type, and prepends it to the rest of the 
+-- converted record. 
+instance (RelToRec rest, FieldTag f) => RelToRec (RecCons f (Expr a) rest) where
+  relToRec t@(Rel v s) = copy (attr . fieldT $ t) t # relToRec (restT t) 
+    where
+      attr :: FieldTag f => f -> Attr f a
+      attr = Attr . fieldName
+      fieldT :: Rel (RecCons f a rest) -> f 
+      fieldT = error "fieldT"
+      restT :: Rel (RecCons f a rest) -> Rel rest
+      restT _ = Rel v s
 
 -- | Field selection operator. It is overloaded to work for both
 --   relations in a query and the result of a query.

@@ -20,7 +20,6 @@ Library
     Build-depends: base < 3
 
   Extensions:
-    ScopedTypeVariables,
     EmptyDataDecls,
     DeriveDataTypeable,
     ExistentialQuantification,
