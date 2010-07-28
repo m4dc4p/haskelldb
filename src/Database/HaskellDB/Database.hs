@@ -24,10 +24,9 @@ module Database.HaskellDB.Database (
                 , GetValue
 		-- * Function declarations
 		, query
-		, insert, insertOpt, delete, update, insertQuery
+		, insert, delete, update, insertQuery
 		, tables, describe, transaction
 		, createDB, createTable, dropDB, dropTable
-		, getNullable
 		) where
 
 import Database.HaskellDB.FieldType

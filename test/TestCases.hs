@@ -37,8 +37,7 @@ allTests =
              queryTests ,
              testOrder,
              testTransactionInsert,
-             testInsertOnly insert string_tbl string_data_4,
-             testInsertOnly insertOpt string_tbl string_data_5
+             testInsertOnly insert string_tbl string_data_4
             ]
 
 -- | Tests which cover generated SQL and do not require a database.

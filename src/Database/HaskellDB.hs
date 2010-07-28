@@ -70,7 +70,7 @@ module Database.HaskellDB
   -- * Database operations
   , Database				-- abstract
   , query, recCat
-  , insert, insertOpt, delete, update, insertQuery
+  , insert, delete, update, insertQuery
   , tables, describe, transaction
           
   -- * Debugging
