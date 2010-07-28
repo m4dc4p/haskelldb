@@ -6,11 +6,7 @@ import TestCases
 
 import Test.HUnit
 
-#if __GLASGOW_HASKELL__ >= 610
-import Control.OldException
-#else
 import Control.Exception 
-#endif
 import Control.Monad
 import Prelude hiding (catch)
 import System.Environment
@@ -20,7 +16,7 @@ import System.IO
 dbOK :: Conn -> IO Bool
 dbOK db = catch (withDB (\_ -> return True) db) f
     where 
-      f :: Exception -> IO Bool
+      f :: SomeException -> IO Bool
       f e = do hPutStrLn stderr $ "Problem with " ++ dbLabel db ++ ":"
                hPutStrLn stderr $ show e
                return False

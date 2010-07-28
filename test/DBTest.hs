@@ -28,7 +28,7 @@ label :: String -> DBTest -> DBTest
 label l f dbi c = TestLabel l (f dbi c)
 
 testWithDB :: (Database -> Assertion) -> DBInfo -> Conn -> Test
-testWithDB f dbi c = TestLabel (dbLabel c) $ TestCase $ withDB (withTables f dbi) c
+testWithDB f dbi c = TestCase $ withDB (withTables f dbi) c
 
 withDB :: (Database -> IO a) -> Conn -> IO a
 withDB f db = dbConn db f
@@ -37,7 +37,8 @@ withTables :: (Database -> IO a) -> DBInfo -> Database -> IO a
 withTables f dbi db = bracket_ create drop (f db)
   where create = do mapM_ (dropIfExists db . tname) ts
                     mapM_ (tInfoToTable db) ts
-        drop   = mapM_ (dropTable db . tname) ts
+                    
+        drop   = mapM_ (dropIfExists db . tname) ts
         ts     = tbls dbi
         
 

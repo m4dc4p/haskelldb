@@ -3,7 +3,7 @@
 
 module TestCases where
 
-import qualified Control.OldException as E (throwDyn, catch) -- for GHC > 6.10
+import qualified Control.Exception as E (Exception, throw, catch) -- for GHC > 6.10
 import System.Time
 import Test.HUnit
 import Text.Regex
@@ -34,7 +34,7 @@ allTests =
              testDeleteNone,
              testUpdateNone,
              testTop,
-             queryTests ,
+             queryTests,
              testOrder,
              testTransactionInsert,
              testInsertOnly insert string_tbl string_data_4
@@ -529,12 +529,14 @@ testOrder = dbtest "order" $ \db ->
        assertEqual "First record" string_data_2 (rs !! 0)
        assertEqual "Second record" string_data_1 (rs !! 1)
 
-testTransactionInsert dbi conn = TestCase $ E.catch (realTest >> assertFailure "Foo") (\_ -> withDB checkForTable conn)
+testTransactionInsert dbi conn = TestCase $ E.catch (realTest >> assertFailure "Foo") doTest
     where 
-      (TestCase realTest) = dbtest "transactionInsert" test dbi conn
+      doTest :: AbortTransaction -> IO ()
+      doTest _ = return () -- withDB checkForTable conn
+      (TestLabel _ (TestCase realTest)) = dbtest "transactionInsert" test dbi conn
       test db = transaction db $ do 
                   insertData db hdb_t1 hdb_t1_data
-                  E.throwDyn AbortTransaction
+                  E.throw AbortTransaction
                   return ()
       checkForTable db = do 
         ts <- tables db
@@ -543,7 +545,9 @@ testTransactionInsert dbi conn = TestCase $ E.catch (realTest >> assertFailure "
 
 
 data AbortTransaction = AbortTransaction
-                      deriving (Typeable)
+  deriving (Show, Typeable)
+
+instance E.Exception AbortTransaction
 
 -- * Utilities
 
