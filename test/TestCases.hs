@@ -248,7 +248,7 @@ testUnique2 = noDBTest "Testing that unique and subquery work together correctly
   let qryTxt = showSql $ do
         v <- subQuery $ do
               s <- table int_tbl
-              restrict ((s ! TInt.f01) .==. constJust 100)
+              restrict ((s ! TInt.f01) .==. constVal 100)
               unique
               project $ TInt.f02 << (s ! TInt.f02)
         project $ TInt.f02 << (v ! TInt.f02)
@@ -267,7 +267,7 @@ testUnique3 = noDBTest "Testing that unique and restriction work correctly when 
   let qryTxt = showSql $ do
         v <- subQuery $ do
               s <- table int_tbl
-              restrict ((s ! TInt.f01) .==. constJust 100)
+              restrict ((s ! TInt.f01) .==. constVal 100)
               unique;
               project $ TInt.f02 << (s ! TInt.f02)
         project $ TInt.f02 << count(v ! TInt.f02)
@@ -285,7 +285,7 @@ testUnique3 = noDBTest "Testing that unique and restriction work correctly when 
 testUnique4 = noDBTest "Testing that unique in top-level query works." $ do
   let qryTxt = showSql $ do
         s <- table int_tbl
-        restrict ((s ! TInt.f01) .==. constJust 100)
+        restrict ((s ! TInt.f01) .==. constVal 100)
         unique
         project $ TInt.f02 << (s ! TInt.f02)
       groupByTxt =  "SELECT f021 as f02\n\
@@ -303,7 +303,7 @@ testUnique5 = noDBTest "Testing that unique, restrict and count in subquery work
   let qryTxt = showSql $ do
         v <- subQuery $ do
           s <- table int_tbl
-          restrict ((s ! TInt.f01) .==. constJust 100)
+          restrict ((s ! TInt.f01) .==. constVal 100)
           unique
           project $ TInt.f02 << count(s ! TInt.f02)
         project $ TInt.f02 << (v ! TInt.f02) 
@@ -324,7 +324,7 @@ testUnique6 = noDBTest "Testing that unique in subquery and restriction at top-l
           s <- table int_tbl
           unique
           project $ TInt.f01 << (s ! TInt.f03)
-        restrict ((v ! TInt.f01) .==. constJust 100)
+        restrict ((v ! TInt.f01) .==. constVal 100)
         project $ TInt.f01 << (v ! TInt.f01)
       groupByTxt =  "SELECT f031 as f01\n\
                     \FROM (SELECT f031\n\

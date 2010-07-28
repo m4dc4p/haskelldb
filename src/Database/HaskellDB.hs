@@ -57,8 +57,8 @@ module Database.HaskellDB
   , (.&&.) , (.||.)
   , (.*.) , (./.), (.+.), (.-.), (.%.), (.++.)
   , _not, like, _in, cat, _length
-  , isNull, notNull, fromNull
-  , constant, constJust, constNull
+  , isNull, notNull, fromNull, fromVal
+  , constant, constVal, constNull, constExpr
   , param, namedParam, Args, func
   , queryParams, Param, cast, coerce
   , literal, toStr

@@ -35,18 +35,14 @@ module Database.HaskellDB.Query (
 	     , union, intersect, divide, minus
 	     , _not, like, _in, cat, _length
 	     , isNull, notNull
-	     , fromNull
-	     , constant, constJust
-	     , param, namedParam, Args, func, constNull, cast
-	     , toStr, coerce
-             , select
-	     , count, _sum, _max, _min, avg
-	     , literal
+	     , fromNull, fromVal
+	     , constant, constVal, constNull, constExpr
+	     , param, namedParam, Args, func, cast
+	     , toStr, coerce , select
+	     , count, _sum, _max, _min, avg , literal
 	     , stddev, stddevP, variance, varianceP
-	     , asc, desc, order
-	     , top
-	     , _case
-	     , _default
+	     , asc, desc, order , top
+	     , _case , _default
 	     -- * Internals
 	     , runQuery, runQueryRel
 	     , subQuery
@@ -501,14 +497,6 @@ _case :: [(Expr Bool, Expr a)] -- ^ A list of conditions and expressions.
       -> Expr a
 _case cs (Expr el) = Expr (CaseExpr [ (c,e) | (Expr c, Expr e) <- cs] el)
 
--- | Takes a default value a and a nullable value. If the value is NULL,
---   the default value is returned, otherwise the value itself is returned.
---   Simliar to 'fromMaybe'
-fromNull :: Expr a         -- ^ Default value (to be returned for 'Nothing')
-	 -> Expr (Maybe a) -- ^ A nullable expression
-	 -> Expr a
-fromNull d x@(Expr px) = _case [(isNull x, d)] (Expr px)
-
 -- | Class which can convert BoundedStrings to normal strings,
 -- even inside type constructors. Useful when a field
 -- is defined as a BoundedString (e.g. "Expr BStr10" or "Expr (Maybe BStr20)") but
@@ -643,6 +631,7 @@ instance ShowConstant a => ShowConstant (Maybe a) where
 
 instance Size n => ShowConstant (BoundedString n) where
     showConstant = showConstant . fromBounded
+
 -- | Creates a constant expression from a haskell value.
 constant :: ShowConstant a => a -> Expr a
 constant x  = Expr (ConstExpr (showConstant x))
@@ -651,10 +640,30 @@ constant x  = Expr (ConstExpr (showConstant x))
 literal :: String -> Expr a
 literal x = Expr (ConstExpr (OtherLit x))
 
+-- | Takes a default value a and a nullable value. If the value is NULL,
+--   the default value is returned, otherwise the value itself is returned.
+--   Simliar to 'fromMaybe'
+fromNull :: Expr a         -- ^ Default value (to be returned for 'Nothing')
+	 -> Expr (Maybe a) -- ^ A nullable expression
+	 -> Expr a
+fromNull d x@(Expr px) = _case [(isNull x, d)] (Expr px)
+
+-- | Similar to fromNull, but takes a 
+-- value argument rather than an Expr.
+fromVal :: ShowConstant a => a 
+        -> Expr (Maybe a)
+        -> Expr a
+fromVal = fromNull . constant 
+
 -- | Turn constant data into a nullable expression. 
 --   Same as @constant . Just@
-constJust :: ShowConstant a => a -> Expr (Maybe a)
-constJust x = constant (Just x)
+constExpr :: Expr a -> Expr (Maybe a)
+constExpr (Expr x) = (Expr x)
+
+-- | Turn constant data into a nullable expression. 
+--   Same as @constant . Just@
+constVal :: ShowConstant a => a -> Expr (Maybe a)
+constVal x = constant (Just x)
 
 -- | Represents a null value.
 constNull :: Expr (Maybe a)
