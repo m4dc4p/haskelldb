@@ -4,10 +4,6 @@ import Database.HaskellDB.DBLayout
 import Database.HaskellDB.DBSpec.DBSpecToDBDirect
 import Database.HaskellDB.DBSpec.PPHelpers (mkIdentPreserving)
 
-hdb_test_db = DBInfo {dbname = "hdb_test_db", 
-                      opts = DBOptions {useBString = False, makeIdent = mkIdentPreserving}, 
-                      tbls = tables}
-
 tables = [
           string_tbl,
           int_tbl,
@@ -138,6 +134,13 @@ t2 = TInfo {tname = "hdb_t2",
 
 createModules :: IO ()
 createModules = dbInfoToModuleFiles "." "DB1" hdb_test_db
+  where hdb_test_db = 
+          DBInfo {dbname = "hdb_test_db"
+                 , opts = DBOptions {useBString = False, makeIdent = mkIdentPreserving}
+                 , tbls = tables}
+
+
+    
 
 main :: IO ()
 main = createModules
