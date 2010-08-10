@@ -57,10 +57,11 @@ instance Show DBOptions where
 -- | Creates a valid declaration of a DBInfo. The variable name will be the
 --   same as the database name
 dbInfoToDoc :: DBInfo -> Doc
-dbInfoToDoc dbi@(DBInfo {dbname=n}) 
+dbInfoToDoc dbi@(DBInfo {dbname = n
+                        , opts = opt}) 
     = fixedName <+> text ":: DBInfo"
       $$ fixedName <+> equals <+> ppDBInfo dbi
-      where fixedName = text $ filter isAlpha ((toLower . head) n : tail n)
+      where fixedName = text . PP.identifier (makeIdent opt) $ n
 
 -- | Pretty prints a DBInfo
 ppDBInfo :: DBInfo -> Doc
