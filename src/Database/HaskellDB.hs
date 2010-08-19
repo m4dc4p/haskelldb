@@ -40,12 +40,9 @@
 --
 -----------------------------------------------------------
 module Database.HaskellDB
-        ( module Data.HList
-	, Rel, Expr, Table, Query, OrderExpr
-        -- * Relational operators
-	, restrict, table, project, unique
-	, union, intersect, divide, minus
-        , copy, copyAll, subQuery
+  ( Rel, Attr, Expr, ExprAggr, Table, Query, OrderExpr
+  -- * Records
+  , HasField, Record, Select, ( # ), ( << ), (<<-), (!), (!.)
 
   -- * Relational operators
   , restrict, table, project, unique
@@ -81,8 +78,8 @@ import Database.HaskellDB.HDBRec
 
 -- PrimQuery type is imported so that haddock can find it.
 import Database.HaskellDB.PrimQuery (PrimQuery)
-import Database.HaskellDB.Sql (SqlSelect(SqlSelect, SqlBin), SqlExpr(..), SqlName, Mark(..))
-import qualified Database.HaskellDB.Sql as S (SqlSelect(..))
+import Database.HaskellDB.Sql (SqlSelect(SqlSelect, SqlBin), SqlExpr(..), SqlName)
+import qualified Database.HaskellDB.Sql as S (SqlSelect(..), Mark(..))
 import Database.HaskellDB.Sql.Generate (sqlQuery)
 import Database.HaskellDB.Sql.Default (defaultSqlGenerator)
 import Database.HaskellDB.Sql.Print (ppSql)
@@ -135,8 +132,9 @@ queryParams q = snd . indexParams . selectParams . toSelect $ q
         attrParams = getParams (exprParams . snd) 
         tableParams = getParams (selectParams . snd) 
         criteriaParams = getParams exprParams
-        groupByParams (Just (Columns cs)) = getParams (exprParams . snd) cs
-        groupByParams _ = []
+        groupByParams Nothing = [] 
+        groupByParams (Just S.All) = []
+        groupByParams (Just (S.Columns cols)) = getParams (exprParams . snd) cols
         orderByParams = getParams (exprParams . fst) 
         getParams :: (a -> [Maybe SqlName]) -> [a] -> [Maybe SqlName]
         getParams f = concatMap f
