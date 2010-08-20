@@ -1,0 +1,42 @@
+:set -fprint-evld-with-show
+:set stop :list
+:set -i..\src -i..\driver-hdbc -i..\driver-hdbc-postgresql
+
+let sl _ = return ":steplocal"
+:def sl sl
+
+let s _ = return ":step"
+:def s s
+
+let sm _ = return ":stepmodule"
+:def sm sm
+
+-- Run  a list of tests. Note that a *list* must be passed, not a TestList value.
+:def runTests runTests
+
+-- Print SQL for a query
+let pSQL query = return $ "Database.HaskellDB.PrintQuery.ppSql " ++ query
+
+-- Print intermediate SqlSelect, after optimization, for a query.
+let pSelect query = return $ "Database.HaskellDB.PrintQuery.ppSelect " ++ query
+
+-- Print intermediate SqlSelect, unoptimized, for a query.
+let pSelectU query = return $ "Database.HaskellDB.PrintQuery.ppSelectUnOpt " ++ query
+
+-- Print the PrimQuery data structure for a query, after optimization.
+let pQuery query = return $ "Database.HaskellDB.PrintQuery.ppQuery " ++ query
+
+-- Print the PrimQuery data structure for a query, no optimization.
+let pQueryU query = return $ "Database.HaskellDB.PrintQuery.ppQueryUnOpt " ++ query
+
+:def pSQL pSQL
+:def pSelect pSelect
+:def pSelectU pSelectU
+:def pQuery pQuery
+:def pQueryU pQueryU
+
+:package Test.HUnit
+:add Database.HaskellDB.PrintQuery TestCases 
+:m + TestCases 
+
+
