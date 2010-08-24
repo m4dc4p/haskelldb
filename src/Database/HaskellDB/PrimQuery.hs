@@ -199,14 +199,17 @@ substAttr assoc
 -- | Determines if a primitive expression represents a constant
 -- or is an expression only involving constants.
 isConstant :: PrimExpr -> Bool
-isConstant x = countConstant x > 0
+isConstant x = countAttr x == 0
   where
-    countConstant = foldPrimExpr (const 0, const 1, binary, unary, aggr, const2 0, const 0,const2 0, const2 0, cast)
+    countAttr = foldPrimExpr (const 1, const 0, binary, unary, aggr, _case, list, 
+                                    const2 1, const2 1, cast)
       where
+        _case cs el = sum (map (uncurry (+)) cs) + el
+        list = sum 
         const2 a _ _ = a
-        binary op x y = if x == 0 || y == 0 then 0 else 1
-        unary op x    = x
-        aggr op x	= x
+        binary _ x y = x + y
+        unary _ x = x
+        aggr _ x = x
         cast _ n = n
 
 isAggregate :: PrimExpr -> Bool
