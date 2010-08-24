@@ -11,32 +11,54 @@ let s _ = return ":step"
 let sm _ = return ":stepmodule"
 :def sm sm
 
--- Run  a list of tests. Note that a *list* must be passed, not a TestList value.
-:def runTests runTests
+-- Run one of the query tests in TestCases. Just give
+-- the name of the function.
+let xqt test = return $ "Test.HUnit.Text.runTestTT (" ++ test ++ " undefined undefined)"
+:def xqt xqt
 
 -- Print SQL for a query
 let pSQL query = return $ "Database.HaskellDB.PrintQuery.ppSql " ++ query
+:def pSQL pSQL
+
+-- Print SQL for a query
+let pSQLU query = return $ "Database.HaskellDB.PrintQuery.ppSqlUnOpt " ++ query
+:def pSQLU pSQLU
 
 -- Print intermediate SqlSelect, after optimization, for a query.
 let pSelect query = return $ "Database.HaskellDB.PrintQuery.ppSelect " ++ query
+:def pSelect pSelect
 
 -- Print intermediate SqlSelect, unoptimized, for a query.
 let pSelectU query = return $ "Database.HaskellDB.PrintQuery.ppSelectUnOpt " ++ query
+:def pSelectU pSelectU
 
 -- Print the PrimQuery data structure for a query, after optimization.
 let pQuery query = return $ "Database.HaskellDB.PrintQuery.ppQuery " ++ query
+:def pQuery pQuery
 
 -- Print the PrimQuery data structure for a query, no optimization.
 let pQueryU query = return $ "Database.HaskellDB.PrintQuery.ppQueryUnOpt " ++ query
-
-:def pSQL pSQL
-:def pSelect pSelect
-:def pSelectU pSelectU
-:def pQuery pQuery
 :def pQueryU pQueryU
 
-:package Test.HUnit
-:add Database.HaskellDB.PrintQuery TestCases 
-:m + TestCases 
+:add Database.HaskellDB.PrintQuery
+:add *TestCases
+:m *TestCases 
 
+:{
+let goodOpt = do {
+        v <- subQuery $ do {
+          h <- table int_tbl;
+          project $ TInt.f02 << _case [((h ! TInt.f02) .==. constant 100, constant 0)] (constant (1::Int)) 
+                      # TInt.f04 << count (h ! TInt.f01); };
+        unique;
+        project $ copyAll v; }
+:}
 
+:{
+let badOpt = do {
+        v <- subQuery $ do {
+              t1 <- table int_tbl;
+              unique;
+              project $ TInt.f02 << (t1 ! TInt.f02); };
+        project $ TInt.f02 << count(v ! TInt.f02); }
+:}
