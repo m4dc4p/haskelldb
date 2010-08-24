@@ -152,7 +152,8 @@ defaultSqlProject gen assoc q
 -- | Takes all non-aggregate expressions in the select and adds them to
 -- the 'group by' clause.
 defaultSqlGroup :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
-defaultSqlGroup _ _ q = q { groupby = Just All }
+defaultSqlGroup _ _ q@(SqlSelect { groupby = Nothing }) = q { groupby = Just All }
+defaultSqlGroup _ _ q = q 
 
 defaultSqlRestrict :: SqlGenerator -> PrimExpr -> SqlSelect -> SqlSelect
 defaultSqlRestrict gen expr q
@@ -199,15 +200,15 @@ toSqlOrder gen (OrderExpr o e) = (sqlExpr gen e, o')
 -- one other constructors.
 toSqlSelect :: SqlSelect -> SqlSelect
 toSqlSelect sql = case sql of
-                    (SqlEmpty) -> newSelect
-                    (SqlTable name) -> newSelect { tables = [("",sql)] }
+                    SqlEmpty -> newSelect
+                    SqlTable name -> newSelect { tables = [("",sql)] }
                     -- Below we make sure to bring groupby marks that have not 
                     -- been processed up the tree. The mark moves up the tree
                     -- for efficiency. A "Columns" mark does not move -- it indicates
                     -- a select that will use a group by. An All mark does move, as it
                     -- needs to find its containing projection. Marks that move are
                     -- replaced by Nothing.
-                    (SqlBin _ _ _) -> 
+                    SqlBin _ _ _ -> 
                       let (prevGroup, newSql) = findGroup sql
                           findGroup (SqlBin op q1 q2) = 
                             let (g1, q1') = findGroup q1
@@ -219,14 +220,14 @@ toSqlSelect sql = case sql of
                           or l r = maybe r Just l
                       in newSelect { tables = [("", newSql)]
                                    , groupby = prevGroup }
-                    (SqlSelect { attrs = [] }) -> sql
+                    SqlSelect { attrs = [] } -> sql
                     -- Here we have a mark that should not move.
-                    (SqlSelect { groupby = Just (Columns _)}) ->
+                    SqlSelect { groupby = Just (Columns _)} ->
                       newSelect { tables = [("", sql)] }
                     -- Any mark here should be moved. Notice we set the
                     -- previous mark with Nothing (though it may already be
                     -- Nothing).
-                    (SqlSelect { groupby = group }) ->
+                    SqlSelect { groupby = group } ->
                       newSelect { tables = [("", sql { groupby = Nothing})]
                                 , groupby = group }
                       

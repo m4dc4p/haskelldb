@@ -18,17 +18,17 @@
 module Database.HaskellDB.Optimize (optimize, optimizeCriteria) where
 
 import Control.Exception (assert)
-import Data.List (intersect,(\\),union)
+import Data.List (intersect, (\\), union, nub)
 import Database.HaskellDB.PrimQuery
 
 -- | Optimize a PrimQuery
 optimize :: PrimQuery -> PrimQuery
-optimize = -- hacks
-           -- mergeProject
-           -- . removeEmpty
-           removeDead
+optimize = hacks
+           . mergeProject
+           . removeEmpty 
+           . removeDead
            . pushRestrict
-           . optimizeExprs
+           . optimizeExprs 
 
 -- | Optimize a set of criteria.
 optimizeCriteria :: [PrimExpr] -> [PrimExpr]
@@ -82,25 +82,7 @@ removeD live (Project assoc query)
 	  -- or that will be put in a GROUP BY clause.
 	  -- These are the associations that will be kept.
 	  newAssoc :: Assoc
-          newAssoc      | hasAggregate  = groupAssoc ++ liveAssoc
-          		| otherwise	= liveAssoc
-          		where
-          		  -- when an aggregate expression is in the
-          		  -- association we make sure all non-aggregates
-                          -- are considered live.
-          		  groupAssoc	    = filter (isAggregate . snd) assoc
-
-          -- Is any live attribute bound to an aggregate expression?
-	  hasAggregate :: Bool
-	  hasAggregate  = any (isAggregate . snd) liveAssoc
-
-	  -- All associations that define live attributes.
-	  liveAssoc :: Assoc
-          liveAssoc     = filter isLive assoc
-
-	  -- Is the attribute defined by the association live?
-	  isLive :: (Attribute,PrimExpr) -> Bool
-          isLive (attr,expr) = attr `elem` live
+          newAssoc = filter (isLive live) assoc
 
 removeD live (Restrict x query)
         = Restrict x (removeD (live ++ attrInExpr x) query)
@@ -108,10 +90,22 @@ removeD live (Restrict x query)
 removeD live (Special (Order xs) query)
 	= Special (Order xs) (removeD (live ++ attrInOrder xs) query)
 
-removeD live (Group cols query) = Group cols (removeD live query)
-  
+removeD live (Group cols query) = Group newAssoc (removeD newLive query)
+  where
+    newLive :: Scheme
+    newLive = concat (map (attrInExpr . snd) newAssoc)
+    newAssoc :: Assoc
+    newAssoc = filter (isLive live) cols
+
 removeD live query = query
 
+-- | Determines if the given column (attribute/expression pair)
+-- exists in the scheme given.
+isLive :: Scheme -> (Attribute,PrimExpr) -> Bool
+isLive live (attr,expr) = attr `elem` live
+
+schemeOf :: (PrimExpr -> Bool) -> Assoc -> Scheme
+schemeOf f = map fst . filter (f . snd)
 
 -- | Remove unused parts of the query
 removeEmpty :: PrimQuery -> PrimQuery
@@ -147,21 +141,16 @@ mergeProject q
         where
           project assoc1 (Project assoc2 query)
                 | equal assoc1 assoc2 = Project assoc2 query
-             	| safe assoc2  = Project newAssoc query
+             	| safe assoc1 assoc2 query = Project (subst assoc1 assoc2) query
              	where
-             	  newAssoc = subst assoc1 assoc2
                   -- Are two associations equal?
                   equal assoc1 assoc2 = length assoc1 == length assoc2 &&
                                         (all (\((a1, _),(a2, _)) -> a1 == a2) $ zip assoc1 assoc2)
 
-	  -- "hmm, is this always true ?" (Daan Leijen)
-	  -- "no, not true when assoc uses fields defined in only
-	  -- one of assoc1 or assoc2, which happens
-	  -- when op == Times" (Bjorn Bringert)
 	  project assoc query@(Binary Times _ _) = Project assoc query
 	  project assoc (Binary op (Project assoc1 query1)
           		           (Project assoc2 query2))
-          	| safe newAssoc1 && safe newAssoc2
+          	| safe assoc1 newAssoc1 query1 && safe assoc2 newAssoc2 query2
           		= Binary op (Project newAssoc1 query1)
           		            (Project newAssoc2 query2)
           		where
@@ -171,15 +160,40 @@ mergeProject q
           project assoc query
                 = Project assoc query
 	 
+          -- Replace columns in a1 with
+          -- expressions from a2. 
 	  subst :: Assoc -- ^ Association that we want to change
 		-> Assoc -- ^ Association containing the substitutions
 		-> Assoc
           subst a1 a2
                 = map (\(attr,expr) -> (attr, substAttr a2 expr)) a1
 
-          safe :: Assoc -> Bool
-          safe assoc
-          	= not (any (isAggregate . snd) assoc) || all (isAggregate . snd) assoc
+          -- It is safe to merge two projections in two cases. We are checking
+          -- the columns in the "inner" projection here. 
+          --   1. The inner projection has no aggregrates and none of the columns
+          --      are grouped. Grouping on a column is like adding an aggregate DISTINCT clause 
+          --      that column, make it implicitly an aggregate expression.
+          --   2. All the columns are aggregates.
+          --   3. All non-aggregate columns appear in a group.
+          safe :: Assoc -> Assoc -> PrimQuery -> Bool
+          safe assoc1 assoc2 query
+          	= (null $ schemeOf isAggregate assoc2) && (null $ groups query) || 
+                  (null $ schemeOf isAggregate assoc1) && (null $ schemeOf isAggregate assoc2) || 
+                  (intersect (schemeOf (not . isAggregate) assoc2) (groups query) == groups query) ||
+                  length (schemeOf isAggregate assoc2) == length assoc2 
+                  -- not (any (isAggregate . snd) assoc) || all (isAggregate . snd) assoc 
+          -- Determines if a projection query is Grouped. That is, does
+          -- the Group operator appear before another projection, basetable
+          -- or query operator.
+          groups :: PrimQuery -> Scheme
+          groups = foldPrimQuery ([], \ _ _ -> [],
+                                  \ _ _ -> [], restrict, 
+                                  \ _ _ _ -> [], group, special)
+            where
+              restrict _ rest = rest
+              group cols _ = map fst cols
+              special _ rest = rest
+
 
 -- | Push restrictions down through projections and binary ops.
 pushRestrict :: PrimQuery -> PrimQuery
