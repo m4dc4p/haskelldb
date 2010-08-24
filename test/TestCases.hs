@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveDataTypeable, TemplateHaskell #-}
 {-# OPTIONS_GHC -fcontext-stack100 #-}
 
 module TestCases where
@@ -34,31 +34,33 @@ allTests =
              testDeleteNone,
              testUpdateNone,
              testTop,
-             queryTests,
+             queryTests ,
              testOrder,
              testTransactionInsert,
              testInsertOnly insert string_tbl string_data_4
             ]
 
 -- | Tests which cover generated SQL and do not require a database.
-queryTests = dbtests [ testUnique1,
-                     testUnique2,
-                     testUnique3,
-                     testUnique4,
-                     testUnique5,
-                     testUnique6,
-                     testUnique7,
-                     testUnique8,
-                     testUnique9,
-                     testAggr1,
-                     testAggrOrder,
-                     testNoAggrOrder,
-                     testCorrectGroupBy,
-                     testCorrectGroupByNoProjection,
-                     testConcat,
-                     testSubstring,
-                     testFakeSelect,
-                     testCopyAll]
+queryTests _ _ = TestList . map (\f -> f undefined undefined) $ [ testUnique1,
+                       testUnique2,
+                       testUnique3,
+                       testUnique4,
+                       testUnique5,
+                       testUnique6,
+                       testUnique7,
+                       testUnique8,
+                       testUnique9,
+                       testUnique10,
+                       testUnique11,
+                       testAggr1,
+                       testAggrOrder,
+                       testCorrectGroupBy,
+                       testCorrectGroupByNoProjection,
+                       testConcat,
+                       testSubstring,
+                       testFakeSelect,
+                       testCopyAll
+                      ]
 
 tableTests = 
     dbtests [ 
@@ -174,12 +176,7 @@ testNotDistinct tbl r = dbtest name $ \db ->
 
 -- For running tests that don't really need a database connection, but
 -- we want to include in the lists above
-noDBTest name test = dbtest name (const test)
-
-mkNoDBTest test = test (error "dbinfo")  mockConn
-  where
-    mockConn = Conn "foo" (\_ -> return (error "mockConn"))
-           
+noDBTest name test = \_ _ -> TestLabel name (TestCase test)
 
 -- Tests queries with aggregates and ORDER BY columns which do not appear
 -- in SELECT still show up in GROUP BY. Note this
@@ -197,19 +194,6 @@ testAggrOrder = noDBTest "aggregate order by" $ do
         hasMatch = maybe (False) (const True) (matchRegex groupByTxt qryTxt)
     assertBool ("Expected columns did not appear in group by: " ++ qryTxt) hasMatch
   
--- Tests that queries with aggregates and where all ORDER BY columns
--- already appear in SELECT do not put those columns in GROUP BY too.
-testNoAggrOrder = dbtest "no order by columns in group by" $ \_ -> do
-    let qryTxt = showSql $ do
-          t1 <- table int_tbl
-          t2 <- table int_tbl
-          order [asc t2 TInt.f01]
-          project $ TInt.f02 << count(t1 ! TInt.f02) 
-                      # TInt.f01 << (t2 ! TInt.f01) 
-        groupByTxt = mkRegex "GROUP BY f013\n.*ORDER BY f012"
-        hasMatch = maybe (False) (const True) (matchRegex groupByTxt qryTxt)
-    assertBool ("Unexpected columns in group by: " ++ qryTxt) hasMatch
-
 -- Test that groupby clause is correctly tracked with projections
 testCorrectGroupBy = noDBTest "Testing that groupby is correct with projections" $ do
   let qryTxt = showSql $ do
@@ -238,10 +222,8 @@ testUnique1 = noDBTest "Testing that unique and count work together in a subquer
               project $ TInt.f02 << count(t1 ! TInt.f02)
         project $ TInt.f02 << (v ! TInt.f02)
       groupByTxt =  "SELECT COUNT(f021) as f02\n\
-                    \FROM (SELECT f021\n\
-                    \      FROM (SELECT f02 as f021\n\
-                    \            FROM int_tbl as T1) as T1\n\
-                    \      GROUP BY f021) as T1"
+                    \FROM (SELECT f02 as f021\n\
+                    \      FROM int_tbl as T1) as T1"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique2 = noDBTest "Testing that unique and subquery work together correctly." $ do
@@ -253,14 +235,10 @@ testUnique2 = noDBTest "Testing that unique and subquery work together correctly
               project $ TInt.f02 << (s ! TInt.f02)
         project $ TInt.f02 << (v ! TInt.f02)
       groupByTxt =  "SELECT f021 as f02\n\
-                    \FROM (SELECT f011,\n\
-                    \             f021\n\
-                    \      FROM (SELECT f01 as f011,\n\
-                    \                   f02 as f021\n\
-                    \            FROM int_tbl as T1) as T1\n\
-                    \      WHERE f011 = 100\n\
-                    \      GROUP BY f011,\n\
-                    \               f021) as T1";
+                    \FROM (SELECT f02 as f021\n\
+                    \      FROM int_tbl as T1\n\
+                    \      WHERE f01 = 100) as T1\n\
+                    \GROUP BY f021"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique3 = noDBTest "Testing that unique and restriction work correctly when an aggregate function is used at top level." $ do
@@ -268,18 +246,15 @@ testUnique3 = noDBTest "Testing that unique and restriction work correctly when 
         v <- subQuery $ do
               s <- table int_tbl
               restrict ((s ! TInt.f01) .==. constVal 100)
-              unique;
+              unique
               project $ TInt.f02 << (s ! TInt.f02)
         project $ TInt.f02 << count(v ! TInt.f02)
-      groupByTxt =  "SELECT COUNT(f021) as f02\n\
-                    \FROM (SELECT f011,\n\
-                    \             f021\n\
-                    \      FROM (SELECT f01 as f011,\n\
-                    \                   f02 as f021\n\
-                    \            FROM int_tbl as T1) as T1\n\
-                    \      WHERE f011 = 100\n\
-                    \      GROUP BY f011,\n\
-                    \               f021) as T1"
+      groupByTxt =  "SELECT COUNT(f024) as f02\n\
+                    \FROM (SELECT f021 as f024\n\
+                    \      FROM (SELECT f02 as f021\n\
+                    \            FROM int_tbl as T1\n\
+                    \            WHERE f01 = 100) as T1\n\
+                    \      GROUP BY f021) as T1"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique4 = noDBTest "Testing that unique in top-level query works." $ do
@@ -288,15 +263,11 @@ testUnique4 = noDBTest "Testing that unique in top-level query works." $ do
         restrict ((s ! TInt.f01) .==. constVal 100)
         unique
         project $ TInt.f02 << (s ! TInt.f02)
-      groupByTxt =  "SELECT f021 as f02\n\
-                    \FROM (SELECT f011,\n\
-                    \             f021\n\
-                    \      FROM (SELECT f01 as f011,\n\
-                    \                   f02 as f021\n\
-                    \            FROM int_tbl as T1) as T1\n\
-                    \      WHERE f011 = 100\n\
-                    \      GROUP BY f011,\n\
-                    \               f021) as T1"
+      groupByTxt = "SELECT f021 as f02\n\
+                   \FROM (SELECT f02 as f021\n\
+                   \      FROM int_tbl as T1\n\
+                   \      WHERE f01 = 100) as T1\n\
+                   \GROUP BY f021"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique5 = noDBTest "Testing that unique, restrict and count in subquery works." $ do
@@ -308,14 +279,9 @@ testUnique5 = noDBTest "Testing that unique, restrict and count in subquery work
           project $ TInt.f02 << count(s ! TInt.f02)
         project $ TInt.f02 << (v ! TInt.f02) 
       groupByTxt =  "SELECT COUNT(f021) as f02\n\
-                    \FROM (SELECT f011,\n\
-                    \             f021\n\
-                    \      FROM (SELECT f01 as f011,\n\
-                    \                   f02 as f021\n\
-                    \            FROM int_tbl as T1) as T1\n\
-                    \      WHERE f011 = 100\n\
-                    \      GROUP BY f011,\n\
-                    \               f021) as T1"
+                    \FROM (SELECT f02 as f021\n\
+                    \      FROM int_tbl as T1\n\
+                    \      WHERE f01 = 100) as T1"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique6 = noDBTest "Testing that unique in subquery and restriction at top-level works." $ do
@@ -326,13 +292,12 @@ testUnique6 = noDBTest "Testing that unique in subquery and restriction at top-l
           project $ TInt.f01 << (s ! TInt.f03)
         restrict ((v ! TInt.f01) .==. constVal 100)
         project $ TInt.f01 << (v ! TInt.f01)
-      groupByTxt =  "SELECT f031 as f01\n\
-                    \FROM (SELECT f031\n\
-                    \      FROM (SELECT f031\n\
-                    \            FROM (SELECT f03 as f031\n\
-                    \                  FROM int_tbl as T1) as T1\n\
-                    \            GROUP BY f031) as T1\n\
-                    \      WHERE f031 = 100) as T1"
+      groupByTxt =  "SELECT f013 as f01\n\
+                    \FROM (SELECT f031 as f013\n\
+                    \      FROM (SELECT f03 as f031\n\
+                    \            FROM int_tbl as T1) as T1\n\
+                    \      GROUP BY f031) as T1\n\
+                    \WHERE f013 = 100"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique7 = noDBTest "Testing that unique in subquery and restriction plus count at top-level works." $ do
@@ -343,13 +308,12 @@ testUnique7 = noDBTest "Testing that unique in subquery and restriction plus cou
           project $ TInt.f02 << (s ! TInt.f04)
         restrict $ (v ! TInt.f02) .==. constant 100
         project $ TInt.f02 << count(v ! TInt.f02)
-      groupByTxt =  "SELECT COUNT(f041) as f02\n\
-                    \FROM (SELECT f041\n\
-                    \      FROM (SELECT f041\n\
-                    \            FROM (SELECT f04 as f041\n\
-                    \                  FROM int_tbl as T1) as T1\n\
-                    \            GROUP BY f041) as T1\n\
-                    \      WHERE f041 = 100) as T1"
+      groupByTxt =  "SELECT COUNT(f023) as f02\n\
+                    \FROM (SELECT f041 as f023\n\
+                    \      FROM (SELECT f04 as f041\n\
+                    \            FROM int_tbl as T1) as T1\n\
+                    \      GROUP BY f041) as T1\n\
+                    \WHERE f023 = 100"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique8 = noDBTest "Testing that group by works correctly with projected expressions (instead of just columns)" $ do
@@ -359,11 +323,10 @@ testUnique8 = noDBTest "Testing that group by works correctly with projected exp
           project $ TInt.f02 << _case [((h ! TInt.f02) .==. constant 100, constant 0)] (constant (1::Int)) 
         unique
         return v
-      groupByTxt =  "SELECT f023 as f02\n\
-                    \FROM (SELECT f023\n\
-                    \      FROM (SELECT CASE WHEN f02 = 100 THEN 0 ELSE 1 END as f023\n\
-                    \            FROM int_tbl as T1) as T1\n\
-                    \      GROUP BY f023) as T1"
+      groupByTxt = "SELECT f023 as f02\n\
+                   \FROM (SELECT CASE WHEN f02 = 100 THEN 0 ELSE 1 END as f023\n\
+                   \      FROM int_tbl as T1) as T1\n\
+                   \GROUP BY f023"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique9 = noDBTest "Testing that group by works correctly with projected expressions and aggregates" $ do
@@ -373,21 +336,43 @@ testUnique9 = noDBTest "Testing that group by works correctly with projected exp
           project $ TInt.f02 << _case [((h ! TInt.f02) .==. constant 100, constant 0)] (constant (1::Int)) 
                       # TInt.f04 << count (h ! TInt.f01)
         unique
-        return v
-      groupByTxt =  "SELECT f023 as f02,\n\
-                    \       f043 as f04\n\
-                    \FROM (SELECT f023,\n\
-                    \             f043\n\
-                    \      FROM (SELECT f022 as f023,\n\
-                    \                   f042 as f043\n\
-                    \            FROM (SELECT CASE WHEN f021 = 100 THEN 0 ELSE 1 END as f022,\n\
-                    \                         COUNT(f011) as f042\n\
-                    \                  FROM (SELECT f01 as f011,\n\
-                    \                               f02 as f021\n\
-                    \                        FROM int_tbl as T1) as T1\n\
-                    \                  GROUP BY (CASE WHEN f021 = 100 THEN 0 ELSE 1 END)) as T1) as T1\n\
-                    \      GROUP BY f023,\n\
-                    \               f043) as T1";
+        project $ copyAll v
+      groupByTxt = "SELECT f023 as f02,\n\
+                   \       f043 as f04\n\
+                   \FROM (SELECT CASE WHEN f02 = 100 THEN 0 ELSE 1 END as f023,\n\
+                   \             COUNT(f01) as f043\n\
+                   \      FROM int_tbl as T1\n\
+                   \      GROUP BY (CASE WHEN f02 = 100 THEN 0 ELSE 1 END)) as T1"
+  assertQueryText "Did not generate expected query. " qryTxt groupByTxt
+
+testUnique10 = noDBTest "Testing that count works when  unique is in a subquery." $ do
+  let qryTxt = showSql $ do
+        v <- subQuery $ do
+              t1 <- table int_tbl
+              unique
+              project $ TInt.f02 << (t1 ! TInt.f02)
+        project $ TInt.f02 << count(v ! TInt.f02)
+      groupByTxt =  "SELECT COUNT(f024) as f02\n\
+                    \FROM (SELECT f021 as f024\n\
+                    \      FROM (SELECT f02 as f021\n\
+                    \            FROM int_tbl as T1) as T1\n\
+                    \      GROUP BY f021) as T1"
+  assertQueryText "Did not generate expected query. " qryTxt groupByTxt
+
+testUnique11 = noDBTest "Testing that count works when unique and restrict in a subquery." $ do
+  let qryTxt = showSql $ do
+        v <- subQuery $ do
+          s <- table int_tbl
+          restrict ((s ! TInt.f01) .==. constVal 100)
+          unique
+          project $ TInt.f02 << (s ! TInt.f02) 
+        project $ TInt.f02 << count(v ! TInt.f02)
+      groupByTxt = "SELECT COUNT(f024) as f02\n\
+                   \FROM (SELECT f021 as f024\n\
+                   \      FROM (SELECT f02 as f021\n\
+                   \            FROM int_tbl as T1\n\
+                   \            WHERE f01 = 100) as T1\n\
+                   \      GROUP BY f021) as T1"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 -- This query will fail to compile if instances from Data.HList.TypeCastGeneric1 are
@@ -404,9 +389,9 @@ testHasField = noDBTest "Ensuring HasField works with restrict." $ do
 -- incorrect optimization was removing projections w/ no columns, which
 -- resulted in the table associated with a query being lost.
 testFakeSelect = noDBTest "Testing that fake tables can be built in code." $ do
-  let qryTxt = showSql $ do
-        h <- table int_tbl
-        project $ TInt.f02 << constant (1 :: Int)
+  let qryTxt = showSql $ do {
+        h <- table int_tbl;
+        project $ TInt.f02 << constant (1 :: Int); }
       expected =  "SELECT 1 as f02\n\
                    \FROM int_tbl as T1"
   assertQueryText "Did not generate expected query. " qryTxt expected
@@ -416,14 +401,10 @@ testAggr1 = noDBTest "Testing that group does use projected expressions when agg
         h <- table int_tbl
         project $ TInt.f02 << _case [((h ! TInt.f02) .==. constant 100, constant 0)] (constant (1::Int)) 
                     # TInt.f04 << count (h ! TInt.f01)
-      groupByTxt =  "SELECT f022 as f02,\n\
-                    \       f042 as f04\n\
-                    \FROM (SELECT CASE WHEN f021 = 100 THEN 0 ELSE 1 END as f022,\n\
-                    \             COUNT(f011) as f042\n\
-                    \      FROM (SELECT f01 as f011,\n\
-                    \                   f02 as f021\n\
-                    \            FROM int_tbl as T1) as T1\n\
-                    \      GROUP BY (CASE WHEN f021 = 100 THEN 0 ELSE 1 END)) as T1";
+      groupByTxt = "SELECT CASE WHEN f02 = 100 THEN 0 ELSE 1 END as f02,\n\
+                   \       COUNT(f01) as f04\n\
+                   \FROM int_tbl as T1\n\
+                   \GROUP BY (CASE WHEN f02 = 100 THEN 0 ELSE 1 END)"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testConcat = noDBTest "Testing SQL concat query" $ do
@@ -471,8 +452,8 @@ testCopyAll = noDBTest "Test copyAll operator" $ do
   assertQueryText "Test that copyAll generates query correctly, even if not all columns are used." qryTxt expected
 
 -- | Helper which asserts that two query strings are equal.
-assertQueryText msg query expect = assertBool (msg ++ "\nGot: \n\n" ++ show query ++
-                                               "\n\nand expected: \n\n" ++ show expect)
+assertQueryText msg query expect = assertBool (msg ++ "\nGot: \n\n" ++ query ++
+                                               "\n\nand expected: \n\n" ++ expect)
                                               (query == expect)
 
 -- * Insert

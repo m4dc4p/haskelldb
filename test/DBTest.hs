@@ -34,7 +34,7 @@ withDB :: (Database -> IO a) -> Conn -> IO a
 withDB f db = dbConn db f
 
 withTables :: (Database -> IO a) -> DBInfo -> Database -> IO a
-withTables f dbi db = bracket_ create drop (f db)
+withTables f dbi db = bracket_ create (return ()) (f db)
   where create = do mapM_ (dropIfExists db . tname) ts
                     mapM_ (tInfoToTable db) ts
                     
