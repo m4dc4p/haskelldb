@@ -89,7 +89,7 @@ data PrimExpr   = AttrExpr  Attribute
                 | ListExpr [PrimExpr]
                 | ParamExpr (Maybe Name) PrimExpr
                 | FunExpr Name [PrimExpr]
-                | CastExpr Name PrimExpr-- ^ Cast an expression to a given type.
+                | CastExpr Name PrimExpr -- ^ Cast an expression to a given type.
                 deriving (Read,Show)
 
 data Literal = NullLit

@@ -148,6 +148,7 @@ queryParams q = snd . indexParams . selectParams . toSelect $ q
         exprParams (PrefixSqlExpr _ e) = exprParams e
         exprParams (PostfixSqlExpr _ e) = exprParams e
         exprParams (FunSqlExpr _ es) = (concatMap exprParams es)
+        exprParams (AggrFunSqlExpr _ es) = (concatMap exprParams es)
         exprParams (CaseSqlExpr es e) =
           let caseExprs = concatMap (\(l, r) -> exprParams l ++ exprParams r) es
           in caseExprs ++ exprParams e
