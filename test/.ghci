@@ -20,7 +20,7 @@ let xqt test = return $ "Test.HUnit.Text.runTestTT (" ++ test ++ " undefined und
 let pSQL query = return $ "Database.HaskellDB.PrintQuery.ppSql " ++ query
 :def pSQL pSQL
 
--- Print SQL for a query
+-- Print unoptimized SQL for a query
 let pSQLU query = return $ "Database.HaskellDB.PrintQuery.ppSqlUnOpt " ++ query
 :def pSQLU pSQLU
 
@@ -44,21 +44,3 @@ let pQueryU query = return $ "Database.HaskellDB.PrintQuery.ppQueryUnOpt " ++ qu
 :add *TestCases
 :m *TestCases 
 
-:{
-let goodOpt = do {
-        v <- subQuery $ do {
-          h <- table int_tbl;
-          project $ TInt.f02 << _case [((h ! TInt.f02) .==. constant 100, constant 0)] (constant (1::Int)) 
-                      # TInt.f04 << count (h ! TInt.f01); };
-        unique;
-        project $ copyAll v; }
-:}
-
-:{
-let badOpt = do {
-        v <- subQuery $ do {
-              t1 <- table int_tbl;
-              unique;
-              project $ TInt.f02 << (t1 ! TInt.f02); };
-        project $ TInt.f02 << count(v ! TInt.f02); }
-:}
