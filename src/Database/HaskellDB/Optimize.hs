@@ -25,10 +25,10 @@ import Database.HaskellDB.PrimQuery
 optimize :: PrimQuery -> PrimQuery
 optimize = hacks
            . mergeProject
-           . removeEmpty 
+           . removeEmpty
            . removeDead
            . pushRestrict
-           . optimizeExprs 
+           . optimizeExprs
 
 -- | Optimize a set of criteria.
 optimizeCriteria :: [PrimExpr] -> [PrimExpr]
@@ -137,26 +137,23 @@ removeEmpty
 -- | Collapse adjacent projections
 mergeProject :: PrimQuery -> PrimQuery
 mergeProject q
-        = foldPrimQuery (Empty,BaseTable,project,Restrict,Binary,Group, Special) q
+        = foldPrimQuery (Empty, BaseTable, project, Restrict, Binary, Group, Special) q
         where
           project assoc1 (Project assoc2 query)
                 | equal assoc1 assoc2 = Project assoc2 query
-             	| safe assoc1 assoc2 query = Project (subst assoc1 assoc2) query
+             	| safe assoc1 query = Project (subst assoc1 assoc2) query
              	where
-                  -- Are two associations equal?
-                  equal assoc1 assoc2 = length assoc1 == length assoc2 &&
-                                        (all (\((a1, _),(a2, _)) -> a1 == a2) $ zip assoc1 assoc2)
 
 	  project assoc query@(Binary Times _ _) = Project assoc query
 	  project assoc (Binary op (Project assoc1 query1)
           		           (Project assoc2 query2))
-          	| safe assoc1 newAssoc1 query1 && safe assoc2 newAssoc2 query2
+          	| safe assoc1 query1 && safe assoc2 query2
           		= Binary op (Project newAssoc1 query1)
           		            (Project newAssoc2 query2)
           		where
           		  newAssoc1  = subst assoc assoc1
           		  newAssoc2  = subst assoc assoc2
-
+          
           project assoc query
                 = Project assoc query
 	 
@@ -168,23 +165,24 @@ mergeProject q
           subst a1 a2
                 = map (\(attr,expr) -> (attr, substAttr a2 expr)) a1
 
-          -- It is safe to merge two projections in two cases. We are checking
-          -- the columns in the "inner" projection here. 
-          --   1. The inner projection has no aggregrates and none of the columns
-          --      are grouped. Grouping on a column is like adding an aggregate DISTINCT clause 
-          --      that column, make it implicitly an aggregate expression.
-          --   2. All the columns are aggregates.
-          --   3. All non-aggregate columns appear in a group.
-          safe :: Assoc -> Assoc -> PrimQuery -> Bool
-          safe assoc1 assoc2 query
-          	= (null $ schemeOf isAggregate assoc2) && (null $ groups query) || 
-                  (null $ schemeOf isAggregate assoc1) && (null $ schemeOf isAggregate assoc2) || 
-                  (intersect (schemeOf (not . isAggregate) assoc2) (groups query) == groups query) ||
-                  length (schemeOf isAggregate assoc2) == length assoc2 
-                  -- not (any (isAggregate . snd) assoc) || all (isAggregate . snd) assoc 
-          -- Determines if a projection query is Grouped. That is, does
-          -- the Group operator appear before another projection, basetable
-          -- or query operator.
+          -- It is safe to merge two projections in two cases. 
+          --  1. All columns in the outer projections are attributes, with no
+          --     computation. This means they merely copy values from the inner
+          --     projection to the outer and can be eliminated.
+          --  2. The inner projection does not group on any columns.
+          safe :: Assoc -- ^ Outer projection's columns.
+               -> PrimQuery -- ^ Inner projection's query.
+               -> Bool
+          safe outer innerQuery = all isAttr outer || null (groups innerQuery)
+            where
+              isAttr (_, AttrExpr _) = True
+              isAttr _ = False
+          
+          -- Are two associations equal?
+          equal :: Assoc -> Assoc -> Bool
+          equal assoc1 assoc2 = length assoc1 == length assoc2 &&
+                                (all (\((a1, _),(a2, _)) -> a1 == a2) $ zip assoc1 assoc2)
+          -- Returns grouped columns for a projection. 
           groups :: PrimQuery -> Scheme
           groups = foldPrimQuery ([], \ _ _ -> [],
                                   \ _ _ -> [], restrict, 
