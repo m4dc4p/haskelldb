@@ -53,6 +53,7 @@ import System.Locale
 import System.Time
 import Data.Maybe (catMaybes)
 import Data.List (nubBy)
+import qualified Data.Map as Map (fromList, lookup)
 
 mkSqlGenerator :: SqlGenerator -> SqlGenerator
 mkSqlGenerator gen = SqlGenerator 
@@ -122,32 +123,102 @@ defaultSqlTable _ name schema = SqlTable name
 
 defaultSqlProject :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
 defaultSqlProject gen assoc q
-  | hasAggr assoc || hasGroupMark sql = if null groupByColumns
-                                        then select { groupby = Nothing }
-                                        else select { groupby = Just (Columns groupByColumns) }
+  | all isAttr assoc && validSelect q = 
+    -- This mess ensures we do not create another layer of SELECt
+    -- when dealing with GROUP BY phrases. If the select being built
+    -- is valid and all columns to be projected are just attributes (i.e.,
+    -- they copy column names but do no computation), then we do not
+    -- need to create another layer of SELECT.
+    let groupables = case groupableSqlColumns . attrs $ q of
+                       [] -> Nothing
+                       gs -> Just (Columns gs)
+        -- Looks at SqlSelect columns and tries to determine if they need to
+        -- be grouped. Not the sames as groupableProjects because this operates
+        -- on values from a SqlSelect, not PrimQuery.
+        groupableSqlColumns :: [(SqlColumn,SqlExpr)] -> [(SqlColumn,SqlExpr)]
+        groupableSqlColumns = filter groupable
+          where
+            id2 _ t = t
+            const2 t _ _ = t
+            -- determine if a sql expression should be 
+            -- placed in a group by clause. Only constants,
+            -- columns and expressions involving either are
+            -- groupable. Functions are NOT groupable.
+            groupable (col, expr) = foldSqlExpr (const True -- column
+                                                , (\ _ left right -> left || right) -- binary
+                                                , const2 False  -- PrefixSqlExpr 
+                                                , const2 False -- PostfixSqlExpr
+                                                , const2 True -- FunSqlExpr
+                                                , const2 False -- AggrFunSqlExpr
+                                                , const False -- ConstSqlExpr
+                                                , (\cs e -> and (map (uncurry (||)) cs) || e) --  CaseSqlExpr
+                                                , and -- ListSqlExpr
+                                                , const False -- ExistsSqlExpr
+                                                , const2 False -- ParamSqlExpr
+                                                , False -- PlaceHolderSqlExpr
+                                                , id -- ParensSqlExpr
+                                                , id2 {- CastSqlExpr -}) expr
+        -- Rename projected columns in 
+        -- a select. Since we did not create another
+        -- layer of SELECT, we have to propogate the association list
+        -- provided into the current query, or it will not create columns
+        -- with the right names. We only go one level - no need to recursively
+        -- descend into all queries luckily.
+        subst :: Assoc -> SqlSelect -> SqlSelect
+        subst assoc q@(SqlSelect { attrs = cols
+                                 , criteria = crits
+                                 , groupby = gru
+                                 , orderby = order  }) =
+              -- map attributes to their aliased columns.
+          let colToAliases = Map.fromList [(column, alias) | (alias, AttrExpr column) <- assoc] 
+              getAlias column = case Map.lookup column colToAliases of
+                                  Just alias -> alias
+                                  _ -> column
+              substExpr = foldSqlExpr (ColumnSqlExpr . getAlias, BinSqlExpr, PrefixSqlExpr, PostfixSqlExpr
+                                      , FunSqlExpr, AggrFunSqlExpr, ConstSqlExpr, CaseSqlExpr
+                                      , ListSqlExpr, ExistsSqlExpr, ParamSqlExpr, PlaceHolderSqlExpr
+                                      , ParensSqlExpr,CastSqlExpr)
+              substGroup (Just (Columns cols)) = Just . Columns . map (\(col, expr) -> (getAlias col, expr)) $ cols
+              substGroup g = g
+              -- replace attributes with alias from outer query 
+          in q { attrs = map (\(currCol, expr) -> (getAlias currCol, expr)) cols
+               , criteria = map substExpr crits 
+               , groupby = substGroup gru
+               , orderby = map (\(expr, ord) -> (substExpr expr, ord)) order } 
+    in subst assoc (if hasGroupMark q 
+                    then q { groupby = groupables }
+                    else q)
+  | hasAggr assoc || hasGroupMark select = 
+    let g = groupByColumns assoc select
+    in if null g
+       then select { groupby = Nothing }
+       else select { groupby = Just (Columns g) }
   | otherwise  = select 
   where
     select   = sql { attrs = toSqlAssoc gen assoc }
     sql      = toSqlSelect q
     hasAggr  = not . null  . filter (isAggregate . snd) 
 
+    isAttr (_, AttrExpr _) = True
+    isAttr _ = False
+
+    validSelect SqlSelect { attrs = (_:_) } = True
+    validSelect _ = False
+
     hasGroupMark (SqlSelect { groupby = Just All }) = True
     hasGroupMark _ = False
 
-    groupByColumns = toSqlAssoc gen groupableProjections ++ groupableOrderCols
+    groupByColumns assoc sql = toSqlAssoc gen (groupableProjections assoc) ++ groupableOrderCols sql 
     -- Find projected columns that are not constants or aggregates.
-    groupableProjections = filter (not . (\x -> isAggregate x || isConstant x) . snd) assoc
+    groupableProjections assoc = filter (not . (\x -> isAggregate x || isConstant x) . snd) assoc
     -- Get list of order by columns which do not appear in
     -- projected non-aggregate columns already, if any.
-    groupableOrderCols =
+    groupableOrderCols sql =
       let eligible = filter (\x -> case x of
-                                     (ColumnSqlExpr attr) ->
-                                       not (attr `elem` groupableAttrs)
-                                     _ -> False) . map fst $ orderby sql
-          -- List of non-aggregated columns which are only attribute expressions, i.e.
-          -- aliased columns. 
-          groupableAttrs = [col | (AttrExpr col) <- map snd groupableProjections]
-      in [(s, e) | e@(ColumnSqlExpr s) <- eligible]
+                                     (ColumnSqlExpr attr) -> True
+                                     _ -> False) 
+      in [(s, e) | e@(ColumnSqlExpr s) <- eligible . map fst $ orderby sql]
+
 
 -- | Takes all non-aggregate expressions in the select and adds them to
 -- the 'group by' clause.
@@ -365,7 +436,7 @@ defaultSqlExpr gen e =
                                 UnOpPostfix -> PostfixSqlExpr op' e'
       AggrExpr op e    -> let op' = showAggrOp op
                               e' = sqlExpr gen e
-                           in FunSqlExpr op' [e']
+                           in AggrFunSqlExpr op' [e']
       ConstExpr l      -> ConstSqlExpr (sqlLiteral gen l)
       CaseExpr cs e    -> let cs' = [(sqlExpr gen c, sqlExpr gen x)| (c,x) <- cs] 
                               e'  = sqlExpr gen e
