@@ -12,16 +12,20 @@ import Database.HaskellDB.DBLayout
 ---------------------------------------------------------------------------
 
 type String_tbl =
-    Record (HCons (LVPair F01 (Expr (Maybe String)))
-            (HCons (LVPair F02 (Expr String))
-             (HCons (LVPair F03 (Expr (Maybe String)))
-              (HCons (LVPair F04 (Expr String)) HNil))))
+    (RecCons F01 (Expr (Maybe String))
+     (RecCons F02 (Expr String)
+      (RecCons F03 (Expr (Maybe String))
+       (RecCons F04 (Expr String) RecNil))))
 
 ---------------------------------------------------------------------------
 -- Table
 ---------------------------------------------------------------------------
 string_tbl :: Table String_tbl
-string_tbl = baseTable "string_tbl"
+string_tbl = baseTable "string_tbl" $
+             hdbMakeEntry F01 #
+             hdbMakeEntry F02 #
+             hdbMakeEntry F03 #
+             hdbMakeEntry F04
 
 ---------------------------------------------------------------------------
 -- Fields
@@ -30,42 +34,42 @@ string_tbl = baseTable "string_tbl"
 -- F01 Field
 ---------------------------------------------------------------------------
 
-data F01Tag
-type F01 = Proxy F01Tag
-instance ShowLabel F01 where showLabel _ = "f01"
+data F01 = F01
 
-f01 :: F01
-f01 = proxy
+instance FieldTag F01 where fieldName _ = "f01"
+
+f01 :: Attr F01 (Maybe String)
+f01 = mkAttr F01
 
 ---------------------------------------------------------------------------
 -- F02 Field
 ---------------------------------------------------------------------------
 
-data F02Tag
-type F02 = Proxy F02Tag
-instance ShowLabel F02 where showLabel _ = "f02"
+data F02 = F02
 
-f02 :: F02
-f02 = proxy
+instance FieldTag F02 where fieldName _ = "f02"
+
+f02 :: Attr F02 String
+f02 = mkAttr F02
 
 ---------------------------------------------------------------------------
 -- F03 Field
 ---------------------------------------------------------------------------
 
-data F03Tag
-type F03 = Proxy F03Tag
-instance ShowLabel F03 where showLabel _ = "f03"
+data F03 = F03
 
-f03 :: F03
-f03 = proxy
+instance FieldTag F03 where fieldName _ = "f03"
+
+f03 :: Attr F03 (Maybe String)
+f03 = mkAttr F03
 
 ---------------------------------------------------------------------------
 -- F04 Field
 ---------------------------------------------------------------------------
 
-data F04Tag
-type F04 = Proxy F04Tag
-instance ShowLabel F04 where showLabel _ = "f04"
+data F04 = F04
 
-f04 :: F04
-f04 = proxy
+instance FieldTag F04 where fieldName _ = "f04"
+
+f04 :: Attr F04 String
+f04 = mkAttr F04

@@ -12,32 +12,52 @@ import Database.HaskellDB.DBLayout
 ---------------------------------------------------------------------------
 
 type Hdb_t2 =
-    Record (HCons (LVPair T2f01 (Expr (Maybe String)))
-            (HCons (LVPair T2f02 (Expr String))
-             (HCons (LVPair T2f03 (Expr (Maybe String)))
-              (HCons (LVPair T2f04 (Expr String))
-               (HCons (LVPair T2f05 (Expr (Maybe Int)))
-                (HCons (LVPair T2f06 (Expr Int))
-                 (HCons (LVPair T2f07 (Expr (Maybe Int)))
-                  (HCons (LVPair T2f08 (Expr Int))
-                   (HCons (LVPair T2f09 (Expr (Maybe Integer)))
-                    (HCons (LVPair T2f10 (Expr Integer))
-                     (HCons (LVPair T2f11 (Expr (Maybe Integer)))
-                      (HCons (LVPair T2f12 (Expr Integer))
-                       (HCons (LVPair T2f13 (Expr (Maybe Double)))
-                        (HCons (LVPair T2f14 (Expr Double))
-                         (HCons (LVPair T2f15 (Expr (Maybe Double)))
-                          (HCons (LVPair T2f16 (Expr Double))
-                           (HCons (LVPair T2f21 (Expr (Maybe CalendarTime)))
-                            (HCons (LVPair T2f22 (Expr CalendarTime))
-                             (HCons (LVPair T2f23 (Expr (Maybe CalendarTime)))
-                              (HCons (LVPair T2f24 (Expr CalendarTime)) HNil))))))))))))))))))))
+    (RecCons T2f01 (Expr (Maybe String))
+     (RecCons T2f02 (Expr String)
+      (RecCons T2f03 (Expr (Maybe String))
+       (RecCons T2f04 (Expr String)
+        (RecCons T2f05 (Expr (Maybe Int))
+         (RecCons T2f06 (Expr Int)
+          (RecCons T2f07 (Expr (Maybe Int))
+           (RecCons T2f08 (Expr Int)
+            (RecCons T2f09 (Expr (Maybe Integer))
+             (RecCons T2f10 (Expr Integer)
+              (RecCons T2f11 (Expr (Maybe Integer))
+               (RecCons T2f12 (Expr Integer)
+                (RecCons T2f13 (Expr (Maybe Double))
+                 (RecCons T2f14 (Expr Double)
+                  (RecCons T2f15 (Expr (Maybe Double))
+                   (RecCons T2f16 (Expr Double)
+                    (RecCons T2f21 (Expr (Maybe CalendarTime))
+                     (RecCons T2f22 (Expr CalendarTime)
+                      (RecCons T2f23 (Expr (Maybe CalendarTime))
+                       (RecCons T2f24 (Expr CalendarTime) RecNil))))))))))))))))))))
 
 ---------------------------------------------------------------------------
 -- Table
 ---------------------------------------------------------------------------
 hdb_t2 :: Table Hdb_t2
-hdb_t2 = baseTable "hdb_t2"
+hdb_t2 = baseTable "hdb_t2" $
+         hdbMakeEntry T2f01 #
+         hdbMakeEntry T2f02 #
+         hdbMakeEntry T2f03 #
+         hdbMakeEntry T2f04 #
+         hdbMakeEntry T2f05 #
+         hdbMakeEntry T2f06 #
+         hdbMakeEntry T2f07 #
+         hdbMakeEntry T2f08 #
+         hdbMakeEntry T2f09 #
+         hdbMakeEntry T2f10 #
+         hdbMakeEntry T2f11 #
+         hdbMakeEntry T2f12 #
+         hdbMakeEntry T2f13 #
+         hdbMakeEntry T2f14 #
+         hdbMakeEntry T2f15 #
+         hdbMakeEntry T2f16 #
+         hdbMakeEntry T2f21 #
+         hdbMakeEntry T2f22 #
+         hdbMakeEntry T2f23 #
+         hdbMakeEntry T2f24
 
 ---------------------------------------------------------------------------
 -- Fields
@@ -46,218 +66,218 @@ hdb_t2 = baseTable "hdb_t2"
 -- T2f01 Field
 ---------------------------------------------------------------------------
 
-data T2f01Tag
-type T2f01 = Proxy T2f01Tag
-instance ShowLabel T2f01 where showLabel _ = "t2f01"
+data T2f01 = T2f01
 
-t2f01 :: T2f01
-t2f01 = proxy
+instance FieldTag T2f01 where fieldName _ = "t2f01"
+
+t2f01 :: Attr T2f01 (Maybe String)
+t2f01 = mkAttr T2f01
 
 ---------------------------------------------------------------------------
 -- T2f02 Field
 ---------------------------------------------------------------------------
 
-data T2f02Tag
-type T2f02 = Proxy T2f02Tag
-instance ShowLabel T2f02 where showLabel _ = "t2f02"
+data T2f02 = T2f02
 
-t2f02 :: T2f02
-t2f02 = proxy
+instance FieldTag T2f02 where fieldName _ = "t2f02"
+
+t2f02 :: Attr T2f02 String
+t2f02 = mkAttr T2f02
 
 ---------------------------------------------------------------------------
 -- T2f03 Field
 ---------------------------------------------------------------------------
 
-data T2f03Tag
-type T2f03 = Proxy T2f03Tag
-instance ShowLabel T2f03 where showLabel _ = "t2f03"
+data T2f03 = T2f03
 
-t2f03 :: T2f03
-t2f03 = proxy
+instance FieldTag T2f03 where fieldName _ = "t2f03"
+
+t2f03 :: Attr T2f03 (Maybe String)
+t2f03 = mkAttr T2f03
 
 ---------------------------------------------------------------------------
 -- T2f04 Field
 ---------------------------------------------------------------------------
 
-data T2f04Tag
-type T2f04 = Proxy T2f04Tag
-instance ShowLabel T2f04 where showLabel _ = "t2f04"
+data T2f04 = T2f04
 
-t2f04 :: T2f04
-t2f04 = proxy
+instance FieldTag T2f04 where fieldName _ = "t2f04"
+
+t2f04 :: Attr T2f04 String
+t2f04 = mkAttr T2f04
 
 ---------------------------------------------------------------------------
 -- T2f05 Field
 ---------------------------------------------------------------------------
 
-data T2f05Tag
-type T2f05 = Proxy T2f05Tag
-instance ShowLabel T2f05 where showLabel _ = "t2f05"
+data T2f05 = T2f05
 
-t2f05 :: T2f05
-t2f05 = proxy
+instance FieldTag T2f05 where fieldName _ = "t2f05"
+
+t2f05 :: Attr T2f05 (Maybe Int)
+t2f05 = mkAttr T2f05
 
 ---------------------------------------------------------------------------
 -- T2f06 Field
 ---------------------------------------------------------------------------
 
-data T2f06Tag
-type T2f06 = Proxy T2f06Tag
-instance ShowLabel T2f06 where showLabel _ = "t2f06"
+data T2f06 = T2f06
 
-t2f06 :: T2f06
-t2f06 = proxy
+instance FieldTag T2f06 where fieldName _ = "t2f06"
+
+t2f06 :: Attr T2f06 Int
+t2f06 = mkAttr T2f06
 
 ---------------------------------------------------------------------------
 -- T2f07 Field
 ---------------------------------------------------------------------------
 
-data T2f07Tag
-type T2f07 = Proxy T2f07Tag
-instance ShowLabel T2f07 where showLabel _ = "t2f07"
+data T2f07 = T2f07
 
-t2f07 :: T2f07
-t2f07 = proxy
+instance FieldTag T2f07 where fieldName _ = "t2f07"
+
+t2f07 :: Attr T2f07 (Maybe Int)
+t2f07 = mkAttr T2f07
 
 ---------------------------------------------------------------------------
 -- T2f08 Field
 ---------------------------------------------------------------------------
 
-data T2f08Tag
-type T2f08 = Proxy T2f08Tag
-instance ShowLabel T2f08 where showLabel _ = "t2f08"
+data T2f08 = T2f08
 
-t2f08 :: T2f08
-t2f08 = proxy
+instance FieldTag T2f08 where fieldName _ = "t2f08"
+
+t2f08 :: Attr T2f08 Int
+t2f08 = mkAttr T2f08
 
 ---------------------------------------------------------------------------
 -- T2f09 Field
 ---------------------------------------------------------------------------
 
-data T2f09Tag
-type T2f09 = Proxy T2f09Tag
-instance ShowLabel T2f09 where showLabel _ = "t2f09"
+data T2f09 = T2f09
 
-t2f09 :: T2f09
-t2f09 = proxy
+instance FieldTag T2f09 where fieldName _ = "t2f09"
+
+t2f09 :: Attr T2f09 (Maybe Integer)
+t2f09 = mkAttr T2f09
 
 ---------------------------------------------------------------------------
 -- T2f10 Field
 ---------------------------------------------------------------------------
 
-data T2f10Tag
-type T2f10 = Proxy T2f10Tag
-instance ShowLabel T2f10 where showLabel _ = "t2f10"
+data T2f10 = T2f10
 
-t2f10 :: T2f10
-t2f10 = proxy
+instance FieldTag T2f10 where fieldName _ = "t2f10"
+
+t2f10 :: Attr T2f10 Integer
+t2f10 = mkAttr T2f10
 
 ---------------------------------------------------------------------------
 -- T2f11 Field
 ---------------------------------------------------------------------------
 
-data T2f11Tag
-type T2f11 = Proxy T2f11Tag
-instance ShowLabel T2f11 where showLabel _ = "t2f11"
+data T2f11 = T2f11
 
-t2f11 :: T2f11
-t2f11 = proxy
+instance FieldTag T2f11 where fieldName _ = "t2f11"
+
+t2f11 :: Attr T2f11 (Maybe Integer)
+t2f11 = mkAttr T2f11
 
 ---------------------------------------------------------------------------
 -- T2f12 Field
 ---------------------------------------------------------------------------
 
-data T2f12Tag
-type T2f12 = Proxy T2f12Tag
-instance ShowLabel T2f12 where showLabel _ = "t2f12"
+data T2f12 = T2f12
 
-t2f12 :: T2f12
-t2f12 = proxy
+instance FieldTag T2f12 where fieldName _ = "t2f12"
+
+t2f12 :: Attr T2f12 Integer
+t2f12 = mkAttr T2f12
 
 ---------------------------------------------------------------------------
 -- T2f13 Field
 ---------------------------------------------------------------------------
 
-data T2f13Tag
-type T2f13 = Proxy T2f13Tag
-instance ShowLabel T2f13 where showLabel _ = "t2f13"
+data T2f13 = T2f13
 
-t2f13 :: T2f13
-t2f13 = proxy
+instance FieldTag T2f13 where fieldName _ = "t2f13"
+
+t2f13 :: Attr T2f13 (Maybe Double)
+t2f13 = mkAttr T2f13
 
 ---------------------------------------------------------------------------
 -- T2f14 Field
 ---------------------------------------------------------------------------
 
-data T2f14Tag
-type T2f14 = Proxy T2f14Tag
-instance ShowLabel T2f14 where showLabel _ = "t2f14"
+data T2f14 = T2f14
 
-t2f14 :: T2f14
-t2f14 = proxy
+instance FieldTag T2f14 where fieldName _ = "t2f14"
+
+t2f14 :: Attr T2f14 Double
+t2f14 = mkAttr T2f14
 
 ---------------------------------------------------------------------------
 -- T2f15 Field
 ---------------------------------------------------------------------------
 
-data T2f15Tag
-type T2f15 = Proxy T2f15Tag
-instance ShowLabel T2f15 where showLabel _ = "t2f15"
+data T2f15 = T2f15
 
-t2f15 :: T2f15
-t2f15 = proxy
+instance FieldTag T2f15 where fieldName _ = "t2f15"
+
+t2f15 :: Attr T2f15 (Maybe Double)
+t2f15 = mkAttr T2f15
 
 ---------------------------------------------------------------------------
 -- T2f16 Field
 ---------------------------------------------------------------------------
 
-data T2f16Tag
-type T2f16 = Proxy T2f16Tag
-instance ShowLabel T2f16 where showLabel _ = "t2f16"
+data T2f16 = T2f16
 
-t2f16 :: T2f16
-t2f16 = proxy
+instance FieldTag T2f16 where fieldName _ = "t2f16"
+
+t2f16 :: Attr T2f16 Double
+t2f16 = mkAttr T2f16
 
 ---------------------------------------------------------------------------
 -- T2f21 Field
 ---------------------------------------------------------------------------
 
-data T2f21Tag
-type T2f21 = Proxy T2f21Tag
-instance ShowLabel T2f21 where showLabel _ = "t2f21"
+data T2f21 = T2f21
 
-t2f21 :: T2f21
-t2f21 = proxy
+instance FieldTag T2f21 where fieldName _ = "t2f21"
+
+t2f21 :: Attr T2f21 (Maybe CalendarTime)
+t2f21 = mkAttr T2f21
 
 ---------------------------------------------------------------------------
 -- T2f22 Field
 ---------------------------------------------------------------------------
 
-data T2f22Tag
-type T2f22 = Proxy T2f22Tag
-instance ShowLabel T2f22 where showLabel _ = "t2f22"
+data T2f22 = T2f22
 
-t2f22 :: T2f22
-t2f22 = proxy
+instance FieldTag T2f22 where fieldName _ = "t2f22"
+
+t2f22 :: Attr T2f22 CalendarTime
+t2f22 = mkAttr T2f22
 
 ---------------------------------------------------------------------------
 -- T2f23 Field
 ---------------------------------------------------------------------------
 
-data T2f23Tag
-type T2f23 = Proxy T2f23Tag
-instance ShowLabel T2f23 where showLabel _ = "t2f23"
+data T2f23 = T2f23
 
-t2f23 :: T2f23
-t2f23 = proxy
+instance FieldTag T2f23 where fieldName _ = "t2f23"
+
+t2f23 :: Attr T2f23 (Maybe CalendarTime)
+t2f23 = mkAttr T2f23
 
 ---------------------------------------------------------------------------
 -- T2f24 Field
 ---------------------------------------------------------------------------
 
-data T2f24Tag
-type T2f24 = Proxy T2f24Tag
-instance ShowLabel T2f24 where showLabel _ = "t2f24"
+data T2f24 = T2f24
 
-t2f24 :: T2f24
-t2f24 = proxy
+instance FieldTag T2f24 where fieldName _ = "t2f24"
+
+t2f24 :: Attr T2f24 CalendarTime
+t2f24 = mkAttr T2f24
