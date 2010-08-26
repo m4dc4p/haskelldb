@@ -62,7 +62,6 @@ _ .=. x = RecCons x
       -> (b -> RecCons f a c)        -- ^ New record
 f # r = let RecCons x _ = f RecNil in RecCons x . r
 
-
 -- | The empty record
 emptyRecord :: Record RecNil
 emptyRecord = id
@@ -88,7 +87,7 @@ class RecCat r1 r2 r3 | r1 r2 -> r3 where
     recCat :: r1 -> r2 -> r3
 
 instance RecCat RecNil r r where
-    recCat RecNil r = r
+    recCat ~RecNil r = r
 
 instance RecCat r1 r2 r3 => RecCat (RecCons f a r1) r2 (RecCons f a r3) where
     recCat ~(RecCons x r1) r2 = RecCons x (recCat r1 r2)
