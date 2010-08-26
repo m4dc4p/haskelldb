@@ -123,27 +123,29 @@ defaultSqlTable _ name schema = SqlTable name
 
 defaultSqlProject :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
 defaultSqlProject gen assoc q
+  -- This mess ensures we do not create another layer of SELECT when
+  -- dealing with GROUP BY phrases. If the select being built is a
+  -- real select (not a table or binary operation) and all columns to
+  -- be projected are just attributes (i.e., they copy column names
+  -- but do no computation), then we do not need to create another
+  -- layer of SELECT. We will re-use the existing select.
   | all isAttr assoc && validSelect q = 
-    -- This mess ensures we do not create another layer of SELECt
-    -- when dealing with GROUP BY phrases. If the select being built
-    -- is valid and all columns to be projected are just attributes (i.e.,
-    -- they copy column names but do no computation), then we do not
-    -- need to create another layer of SELECT.
     let groupables = case groupableSqlColumns . attrs $ q of
                        [] -> Nothing
                        gs -> Just (Columns gs)
-        -- Looks at SqlSelect columns and tries to determine if they need to
-        -- be grouped. Not the sames as groupableProjects because this operates
-        -- on values from a SqlSelect, not PrimQuery.
+        -- Looks at SqlSelect columns and determines if they need to
+        -- be grouped. Not the sames as groupableProjects because this
+        -- operates on values from a SqlSelect, not PrimQuery.
         groupableSqlColumns :: [(SqlColumn,SqlExpr)] -> [(SqlColumn,SqlExpr)]
         groupableSqlColumns = filter groupable
           where
             id2 _ t = t
             const2 t _ _ = t
             -- determine if a sql expression should be 
-            -- placed in a group by clause. Only constants,
-            -- columns and expressions involving either are
-            -- groupable. Functions are NOT groupable.
+            -- placed in a group by clause. Only columns, non-aggregate
+            -- functions and expressions involving either are
+            -- groupable. Constants are not groupable. If an expression
+            -- contains any groupable values, then whole expression is groupable.
             groupable (col, expr) = foldSqlExpr (const True -- column
                                                 , (\ _ left right -> left || right) -- binary
                                                 , const2 False  -- PrefixSqlExpr 
@@ -165,12 +167,12 @@ defaultSqlProject gen assoc q
         -- with the right names. We only go one level - no need to recursively
         -- descend into all queries luckily.
         subst :: Assoc -> SqlSelect -> SqlSelect
-        subst assoc q@(SqlSelect { attrs = cols
-                                 , criteria = crits
-                                 , groupby = gru
-                                 , orderby = order  }) =
+        subst outer query@(SqlSelect { attrs = cols
+                                     , criteria = crits
+                                     , groupby = gru
+                                     , orderby = order  }) =
               -- map attributes to their aliased columns.
-          let colToAliases = Map.fromList [(column, alias) | (alias, AttrExpr column) <- assoc] 
+          let colToAliases = Map.fromList [(column, alias) | (alias, AttrExpr column) <- outer] 
               getAlias column = case Map.lookup column colToAliases of
                                   Just alias -> alias
                                   _ -> column
@@ -181,22 +183,26 @@ defaultSqlProject gen assoc q
               substGroup (Just (Columns cols)) = Just . Columns . map (\(col, expr) -> (getAlias col, expr)) $ cols
               substGroup g = g
               -- replace attributes with alias from outer query 
-          in q { attrs = map (\(currCol, expr) -> (getAlias currCol, expr)) cols
-               , criteria = map substExpr crits 
-               , groupby = substGroup gru
-               , orderby = map (\(expr, ord) -> (substExpr expr, ord)) order } 
+          in query { attrs = map (\(currCol, expr) -> (getAlias currCol, expr)) cols
+                   , criteria = map substExpr crits 
+                   , groupby = substGroup gru
+                   , orderby = map (\(expr, ord) -> (substExpr expr, ord)) order } 
     in subst assoc (if hasGroupMark q 
+                    -- A groupMark indicates the select wants to group
+                    -- on "all" columns. We replace the mark with the
+                    -- list of groupable columns. 
                     then q { groupby = groupables }
+                    -- Otherwise, we just re-use the query without
+                    -- changing it (modulo substitutions).
                     else q)
-  | hasAggr assoc || hasGroupMark select = 
-    let g = groupByColumns assoc select
+  | hasAggr assoc || hasGroupMark newSelect = 
+    let g = groupByColumns assoc newSelect
     in if null g
-       then select { groupby = Nothing }
-       else select { groupby = Just (Columns g) }
-  | otherwise  = select 
+       then newSelect { groupby = Nothing }
+       else newSelect { groupby = Just (Columns g) }
+  | otherwise  = newSelect 
   where
-    select   = sql { attrs = toSqlAssoc gen assoc }
-    sql      = toSqlSelect q
+    newSelect   = (toSqlSelect q) { attrs = toSqlAssoc gen assoc }
     hasAggr  = not . null  . filter (isAggregate . snd) 
 
     isAttr (_, AttrExpr _) = True
@@ -220,8 +226,8 @@ defaultSqlProject gen assoc q
       in [(s, e) | e@(ColumnSqlExpr s) <- eligible . map fst $ orderby sql]
 
 
--- | Takes all non-aggregate expressions in the select and adds them to
--- the 'group by' clause.
+-- | Ensures the groupby value on the SqlSelect either preserves existing 
+-- grouping or that it will group on all columns (i.e, Mark == All).
 defaultSqlGroup :: SqlGenerator -> Assoc -> SqlSelect -> SqlSelect
 defaultSqlGroup _ _ q@(SqlSelect { groupby = Nothing }) = q { groupby = Just All }
 defaultSqlGroup _ _ q = q 
@@ -268,7 +274,7 @@ toSqlOrder gen (OrderExpr o e) = (sqlExpr gen e, o')
                  OpDesc -> SqlDesc
 
 -- | Make sure our SqlSelect statement is really a SqlSelect and not
--- one other constructors.
+-- another constructor.
 toSqlSelect :: SqlSelect -> SqlSelect
 toSqlSelect sql = case sql of
                     SqlEmpty -> newSelect
@@ -292,7 +298,7 @@ toSqlSelect sql = case sql of
                       in newSelect { tables = [("", newSql)]
                                    , groupby = prevGroup }
                     SqlSelect { attrs = [] } -> sql
-                    -- Here we have a mark that should not move.
+                    -- Here we have a mark that should not move. 
                     SqlSelect { groupby = Just (Columns _)} ->
                       newSelect { tables = [("", sql)] }
                     -- Any mark here should be moved. Notice we set the
