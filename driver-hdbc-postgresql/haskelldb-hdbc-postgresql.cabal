@@ -1,5 +1,5 @@
 Name: haskelldb-hdbc-postgresql
-Version: 1.0
+Version: 2.0
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
@@ -13,8 +13,8 @@ Flag split-base
 Library
   Build-depends: 
     mtl >= 1 && < 2, 
-    haskelldb >= 1 && < 2,
-    haskelldb-hdbc >= 1 && < 2,
+    haskelldb >= 2 && < 3,
+    haskelldb-hdbc >= 2 && < 3,
     HDBC >= 2 && < 3,
     HDBC-postgresql >= 2 && < 3
 

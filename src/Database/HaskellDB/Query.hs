@@ -176,24 +176,8 @@ f <<- x = f << constant x
 --
 --   @attr .=. (tbl .!. attr)@
 --
-copy :: (HasField l (Rel r) (Expr a)) => l -> Rel r -> LVPair l (Expr a)
-copy l tbl = l .=. (tbl .!. l)
-
--- | Copies all columns in the relation given. Useful for appending
--- the remaining columns in a table to a projection. For example:
---
--- >   query = do
--- >     tbl <- table some_table
--- >     project $ columns tbl
---
--- will add all columns in "some_table" to the query.
-copyAll :: (HRLabelSet r
-            , HMap (RecAttrOp (Rel (Record r))) ls r
-            , RecordLabels r ls) => Rel (Record r) -> Record r
-copyAll tbl = mkRecord $ hMap (RecAttrOp tbl) (recordLabels (unRel tbl))
-      where
-        unRel :: Rel r -> r
-        unRel = undefined
+copy :: (HasField f r) => Attr f a -> Rel r -> Record (RecCons f (Expr a) RecNil)
+copy attr tbl = attr << tbl ! attr
 
 -- | Copies all columns in the relation given. Useful for appending
 -- the remaining columns in a table to a projection. For example:

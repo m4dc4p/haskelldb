@@ -1,3 +1,7 @@
+{-# LANGUAGE ExistentialQuantification, MultiParamTypeClasses
+  , FunctionalDependencies, Rank2Types
+  , FlexibleInstances, UndecidableInstances
+  , TypeSynonymInstances, FlexibleContexts, ScopedTypeVariables #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  Database
@@ -180,51 +184,6 @@ insert db (Table name assoc) newrec
       = dbInsert db name (zip (attrs assoc) (exprs newrec))
       where
         attrs   = map (\(attr,AttrExpr name) -> name)
-
--- | getNullable strips any fields of a record which are non-Maybe types,
--- and replaces all the Maybe values with Nothing.
--- For example: getNullable (x .=. 3 .*. y .=. Just "a" .*. emptyRecord) returns
---                          (y .=. Nothing .*. emptyRecord)
--- Used in insertOpt
-getNullable = error "getNullable not yet defined."
-
-{-getNullable :: (FromHJust b r', HMap GetNullableOp r b) => Record r -> Record r'
-getNullable (Record r) = Record . fromHJust . hMap GetNullableOp $ r
-
-class NullableExpr a b | a -> b
-instance TypeCast f HTrue => NullableExpr (LVPair l (Expr (Maybe a))) f
-instance TypeCast f HFalse => NullableExpr a f
-
-data GetNullableOp = GetNullableOp
-instance (NullableExpr a f, GetNullable' f a r) => Apply GetNullableOp a r where
-    apply _ a = getNullable' (undefined :: f) a
-
-class GetNullable' f a r | f a -> r where
-    getNullable' :: f -> a -> r
-instance GetNullable' HTrue
-                      (LVPair l (Expr (Maybe a)))
-                      (HJust (LVPair l (Maybe a))) where
-    getNullable' _ _ = HJust $ LVPair Nothing
-instance GetNullable' HFalse a HNothing where
-    getNullable' _ _ = HNothing -}
-
--- | Inserts a record into a table. Values can be omitted for Maybe columns, they will
---   default to Nothing.
-insertOpt = error "insertOpt not defined yet."
-{-insertOpt :: (RecordLabels er ls,
-        HLabelSet ls,
-        HRearrange ls r' r'',
-        RecordValues r'' vs'',
-        HMapOut ToPrimExprsOp vs'' PrimExpr,
-        HLeftUnion (Record r) (Record nrc) (Record r'),
-        InsertRec r'' er,
-        FromHJust nrj nr,
-        HMap GetNullableOp er nrj,
-        HMap ConstantRecordOp nr nrc) =>
-    Database -> Table (Record er) -> Record r -> IO ()
-insertOpt db t newrec = insert db t (newrec `hLeftUnion` constantRecord defaultNulls)
-    where
-      defaultNulls = getNullable $ tableRec t-}
 
 -- | deletes a bunch of records	  
 delete :: ShowRecRow r =>
