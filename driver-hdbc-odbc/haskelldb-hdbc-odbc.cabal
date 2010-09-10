@@ -13,8 +13,8 @@ Flag split-base
 Library
   Build-depends: 
     mtl >= 1 && < 2, 
-    haskelldb >= 2 && < ,
-    haskelldb-hdbc >= 1 && < 2,
+    haskelldb >= 2 && < 3,
+    haskelldb-hdbc >= 2 && < 3,
     HDBC >= 2 && < 3,
     HDBC-odbc >= 2 && < 3
 
