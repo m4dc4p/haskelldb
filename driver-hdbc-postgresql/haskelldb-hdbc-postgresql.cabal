@@ -1,6 +1,6 @@
 Name: haskelldb-hdbc-postgresql
 Version: 2.0
-Cabal-version: >= 1.2
+Cabal-version: >= 1.6
 Build-type: Simple
 Copyright: The authors
 Homepage: http://trac.haskell.org/haskelldb
@@ -9,20 +9,14 @@ Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blo
 License: BSD3
 Synopsis: HaskellDB support for the HDBC PostgreSQL driver.
 
-Flag split-base
-
 Library
   Build-depends: 
     mtl >= 1 && < 2, 
     haskelldb >= 2 && < 3,
     haskelldb-hdbc >= 2 && < 3,
     HDBC >= 2 && < 3,
-    HDBC-postgresql >= 2 && < 3
-
-  if flag(split-base)
-    Build-depends: base >= 3 && < 5
-  else
-    Build-depends: base < 3
+    HDBC-postgresql >= 2 && < 3,
+    base >= 3 && < 5
 
   Exposed-Modules:
         Database.HaskellDB.HDBC.PostgreSQL
@@ -35,3 +29,6 @@ Executable DBDirect-hdbc-postgresql
   Include-dirs: .
   Extra-Libraries: pq
 
+Source-repository head
+  Type:       darcs
+  Location:   http://code.haskell.org/haskelldb

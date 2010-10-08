@@ -1,6 +1,6 @@
 Name: haskelldb-hdbc-sqlite3
 Version: 2.0
-Cabal-version: >= 1.2
+Cabal-version: >= 1.6
 Build-type: Simple
 Copyright: The authors
 Homepage: http://trac.haskell.org/haskelldb
@@ -13,13 +13,9 @@ Library
   Build-depends: 
     mtl >= 1 && < 2, 
     haskelldb >= 2 && < 3,
-    haskelldb-hdbc >= 1 && < 2,
-    HDBC >= 2 && < 3, HDBC-sqlite3 >= 2 && < 3
-
-  if flag(split-base)
-    Build-depends: base >= 3 && < 5
-  else
-    Build-depends: base < 3
+    haskelldb-hdbc >= 2 && < 3,
+    HDBC >= 2 && < 3, HDBC-sqlite3 >= 2 && < 3,
+    base >= 3 && < 5
 
   Extensions: ExistentialQuantification,
             OverlappingInstances,
@@ -30,3 +26,7 @@ Library
 
 Executable DBDirect-hdbc-sqlite3
   Main-is: DBDirect.hs
+
+Source-repository head
+  Type:       darcs
+  Location:   http://code.haskell.org/haskelldb
