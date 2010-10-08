@@ -2,12 +2,12 @@ Name: haskelldb
 Version: 2.0
 Cabal-version: >= 1.2
 Build-type: Simple
-Homepage: http://trac.haskell.org/haskelldb/wiki
+Homepage: http://trac.haskell.org/haskelldb
 Copyright: The authors
 Maintainer: "Justin Bailey" <jgbailey@gmail.com>
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw, Justin Bailey
 License: BSD3
-Synopsis: Create SQL queries using operators and expressions from the relational algebra.
+Synopsis: A library of combinators for generating and executing SQL statements.
 
 Flag split-base
 
@@ -28,33 +28,33 @@ Library
     FlexibleContexts,
     PolymorphicComponents
   Exposed-Modules:
-        Database.HaskellDB,
-        Database.HaskellDB.BoundedList,
-        Database.HaskellDB.BoundedString,
-        Database.HaskellDB.DBLayout,
-        Database.HaskellDB.DBDirect,
-        Database.HaskellDB.DBSpec,
-        Database.HaskellDB.DBSpec.DBInfo,
-        Database.HaskellDB.DBSpec.DBSpecToDBDirect,
-        Database.HaskellDB.DBSpec.DBSpecToDatabase,
-        Database.HaskellDB.DBSpec.DatabaseToDBSpec,
-        Database.HaskellDB.DBSpec.PPHelpers,
-        Database.HaskellDB.Database,
-        Database.HaskellDB.FieldType,
-        Database.HaskellDB.Optimize,
-        Database.HaskellDB.PrimQuery,
-        Database.HaskellDB.PrintQuery,
-        Database.HaskellDB.Query,
-        Database.HaskellDB.HDBRec,
-        Database.HaskellDB.Sql,
-        Database.HaskellDB.Sql.Generate,
-        Database.HaskellDB.Sql.Default,
-        Database.HaskellDB.Sql.Print,
-        Database.HaskellDB.Sql.MySQL,
-        Database.HaskellDB.Sql.PostgreSQL,
-        Database.HaskellDB.Sql.SQLite,
-        Database.HaskellDB.Version,
-        Database.HaskellDB.DriverAPI
+    Database.HaskellDB,
+    Database.HaskellDB.BoundedList,
+    Database.HaskellDB.BoundedString,
+    Database.HaskellDB.DBLayout,
+    Database.HaskellDB.DBDirect,
+    Database.HaskellDB.DBSpec,
+    Database.HaskellDB.DBSpec.DBInfo,
+    Database.HaskellDB.DBSpec.DBSpecToDBDirect,
+    Database.HaskellDB.DBSpec.DBSpecToDatabase,
+    Database.HaskellDB.DBSpec.DatabaseToDBSpec,
+    Database.HaskellDB.DBSpec.PPHelpers,
+    Database.HaskellDB.Database,
+    Database.HaskellDB.FieldType,
+    Database.HaskellDB.Optimize,
+    Database.HaskellDB.PrimQuery,
+    Database.HaskellDB.PrintQuery,
+    Database.HaskellDB.Query,
+    Database.HaskellDB.HDBRec,
+    Database.HaskellDB.Sql,
+    Database.HaskellDB.Sql.Generate,
+    Database.HaskellDB.Sql.Default,
+    Database.HaskellDB.Sql.Print,
+    Database.HaskellDB.Sql.MySQL,
+    Database.HaskellDB.Sql.PostgreSQL,
+    Database.HaskellDB.Sql.SQLite,
+    Database.HaskellDB.Version,
+    Database.HaskellDB.DriverAPI
   Hs-source-dirs: src
   ghc-options: -O2
 

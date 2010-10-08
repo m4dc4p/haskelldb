@@ -3,11 +3,11 @@ Version: 2.0
 Cabal-version: >= 1.2
 Build-type: Simple
 Copyright: The authors
+Homepage: http://trac.haskell.org/haskelldb
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-Synopsis: HaskellDB support for HDBC. You will also need one
-          or more back-end specific packages.
+Synopsis: HaskellDB support for HDBC.
 
 Flag split-base
 
