@@ -98,7 +98,7 @@ testStr db i s = do
 
 test :: Database -> IO ()
 test db = do
-	  testStr db 0 "εδφρ"
+	  testStr db 0 "Γ¥Γ¤Γ¶Γ±"
 	  testStr db 1 "'\"\\"
 
 --

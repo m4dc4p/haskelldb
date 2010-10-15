@@ -32,8 +32,8 @@
 -- project was to make HaskellDB a practically useful database library.
 -- That work is described in 
 -- Student Paper: HaskellDB Improved, 
--- Björn Bringert, Anders Höckersten, Conny Andersson, Martin Andersson, 
--- Mary Bergman, Victor Blomqvist and Torbjörn Martin. 
+-- BjÃ¶rn Bringert, Anders HÃ¶ckersten, Conny Andersson, Martin Andersson, 
+-- Mary Bergman, Victor Blomqvist and TorbjÃ¶rn Martin. 
 -- In Proceedings of the ACM SIGPLAN 2004 Haskell Workshop, Snowbird, Utah, 
 -- USA, September 22, 2004.
 -- (<http://haskelldb.sourceforge.net/haskelldb.pdf>)
