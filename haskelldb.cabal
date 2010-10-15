@@ -1,5 +1,5 @@
 Name: haskelldb
-Version: 2.0
+Version: 2.0.1
 Cabal-version: >= 1.6
 Build-type: Simple
 Homepage: http://trac.haskell.org/haskelldb
