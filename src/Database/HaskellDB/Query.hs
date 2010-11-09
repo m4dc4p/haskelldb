@@ -44,7 +44,7 @@ module Database.HaskellDB.Query (
 	     , asc, desc, order , top
 	     , _case , _default
 	     -- * Internals
-	     , runQuery, runQueryRel
+	     , runQuery, runQueryRel, unQuery
 	     , subQuery
 	     , attribute, attributeName, tableName, baseTable, emptyTable
 	     , exprs, labels, tableRec 
@@ -763,6 +763,9 @@ order xs = updatePrimQuery_ (Special (Order xs))
 -- Query Monad
 -----------------------------------------------------------
 
+unQuery :: Query a -> a
+unQuery (Query g) = fst $ g (1, Empty)
+
 runQuery :: Query (Rel r) -> PrimQuery
 runQuery = fst . runQueryRel
 
@@ -807,7 +810,6 @@ updatePrimQuery_ f = updatePrimQuery f >> return ()
 
 newAlias :: Query Alias
 newAlias                = Query (\(i,qt) -> (i,(i+1,qt)))
-
 
 -- fresh 0 is used in the 'Database' module
 fresh :: Alias -> Attribute -> Attribute
