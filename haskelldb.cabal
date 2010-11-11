@@ -1,5 +1,5 @@
 Name: haskelldb
-Version: 2.0.1.1
+Version: 2.0.2
 Cabal-version: >= 1.6
 Build-type: Simple
 Homepage: http://trac.haskell.org/haskelldb
@@ -7,13 +7,19 @@ Copyright: The authors
 Maintainer: "Justin Bailey" <jgbailey@gmail.com>
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw, Justin Bailey
 License: BSD3
+License-file: LICENSE
 Synopsis: A library of combinators for generating and executing SQL statements.
-
-Flag split-base
+Description: This library allows you to build SQL SELECT, INSERT, UPDATE, and DELETE 
+             statements using operations based on the relational algebra. 
+Category: Database
 
 Library
-  Build-depends: mtl >= 1.1 && < 2
-  Build-depends: base >= 3 && < 5, pretty >= 1 && < 2, old-time >= 1 && < 2, old-locale >= 1 && < 2, directory >= 1 && < 2,
+  Build-depends: mtl >= 1.1 && < 2.1, 
+                 base >= 3 && < 5, 
+                 pretty >= 1 && < 2, 
+                 old-time >= 1 && < 2, 
+                 old-locale >= 1 && < 2, 
+                 directory >= 1 && < 2,
                  containers >= 0.3 && < 1
   Extensions:
     EmptyDataDecls,
