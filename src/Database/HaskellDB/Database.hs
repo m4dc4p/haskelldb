@@ -29,7 +29,7 @@ module Database.HaskellDB.Database (
 		-- * Function declarations
 		, query
 		, insert, delete, update, insertQuery
-		, tables, describe, transaction
+		, tables, describe, transaction, commit
 		, createDB, createTable, dropDB, dropTable
 		) where
 
@@ -76,6 +76,7 @@ data Database
 	  , dbCreateTable :: TableName -> [(Attribute,FieldDesc)] -> IO ()
 	  , dbDropDB :: String -> IO ()
 	  , dbDropTable :: TableName -> IO ()
+          , dbCommit :: IO ()
   	  }
 
 
@@ -238,6 +239,11 @@ transaction :: Database -- ^ Database
 	    -> IO a -- ^ Action to run
 	    -> IO a 
 transaction = dbTransaction
+
+-- | Commit any pending data to the database.
+commit :: Database -- ^ Database
+       -> IO ()
+commit = dbCommit
 
 -----------------------------------------------------------
 -- Functions that edit the database layout

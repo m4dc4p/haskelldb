@@ -55,6 +55,7 @@ mkDatabase gen connection
 		 dbTables       = hdbcTables          connection,
 		 dbDescribe     = hdbcDescribe        connection,
 		 dbTransaction  = hdbcTransaction     connection,
+                 dbCommit       = HDBC.commit         connection,
 		 dbCreateDB     = hdbcCreateDB    gen connection,
 		 dbCreateTable  = hdbcCreateTable gen connection,
 		 dbDropDB       = hdbcDropDB      gen connection,
