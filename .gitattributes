@@ -1,0 +1,5 @@
+# Auto detect text files and perform LF normalization
+* eol=lf
+
+*.pdf -text diff=astextplain
+*.PDF -text diff=astextplain
