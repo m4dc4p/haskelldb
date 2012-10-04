@@ -98,6 +98,7 @@ defaultSqlType _ t =
       DoubleT       -> SqlType "double precision"
       BoolT         -> SqlType "bit"
       CalendarTimeT -> SqlType "timestamp with time zone"
+      LocalTimeT    -> SqlType "timestamp without time zone"
       BStrT a       -> SqlType1 "varchar" a
 
 -----------------------------------------------------------

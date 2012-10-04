@@ -124,7 +124,7 @@ colDescToFieldDesc c = (t, nullable)
             SqlLongVarBinaryT -> string
             SqlDateT          -> CalendarTimeT
             SqlTimeT          -> CalendarTimeT
-            SqlTimestampT     -> CalendarTimeT
+            SqlTimestampT     -> LocalTimeT
             SqlUTCDateTimeT   -> CalendarTimeT
             SqlUTCTimeT       -> CalendarTimeT
             SqlTimeWithZoneT  -> CalendarTimeT
@@ -198,6 +198,7 @@ hdbcGetInstances =
 		 , getDouble       = hdbcGetValue
 		 , getBool         = hdbcGetValue
 		 , getCalendarTime = hdbcGetValue
+		 , getLocalTime    = hdbcGetValue
 		 }
 
 -- hdbcGetValue :: Data.Convertible.Base.Convertible SqlValue a
