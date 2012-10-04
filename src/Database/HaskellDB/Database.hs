@@ -42,6 +42,7 @@ import Database.HaskellDB.BoundedList
 import Database.HaskellDB.HDBRec
 
 import System.Time
+import Data.Time.LocalTime
 import Control.Monad
 
 infix 9 !.
@@ -103,6 +104,8 @@ data GetInstances s =
 	       , getBool :: s -> String -> IO (Maybe Bool)
 		 -- | Get a 'CalendarTime' value.
 	       , getCalendarTime :: s -> String -> IO (Maybe CalendarTime)
+		 -- | Get a 'LocalTime' value.
+	       , getLocalTime :: s -> String -> IO (Maybe LocalTime)
 	       }
 
 
@@ -144,6 +147,7 @@ instance GetValue Integer where getValue = getNonNull
 instance GetValue Double where getValue = getNonNull
 instance GetValue Bool where getValue = getNonNull
 instance GetValue CalendarTime where getValue = getNonNull
+instance GetValue LocalTime where getValue = getNonNull
 instance Size n => GetValue (BoundedString n) where getValue = getNonNull
 
 instance GetValue (Maybe String) where getValue = getString
@@ -152,6 +156,7 @@ instance GetValue (Maybe Integer) where getValue = getInteger
 instance GetValue (Maybe Double) where getValue = getDouble
 instance GetValue (Maybe Bool) where getValue = getBool
 instance GetValue (Maybe CalendarTime) where getValue = getCalendarTime
+instance GetValue (Maybe LocalTime) where getValue = getLocalTime
 instance Size n => GetValue (Maybe (BoundedString n)) where 
     getValue fs s f = liftM (liftM trunc) (getValue fs s f)
 
