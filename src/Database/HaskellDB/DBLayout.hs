@@ -17,7 +17,7 @@
 module Database.HaskellDB.DBLayout
   (module Database.HaskellDB.BoundedString
   , module Database.HaskellDB.DBSpec
-  , CalendarTime
+  , CalendarTime, LocalTime
   , Expr, Table, Attr, baseTable
   , RecCons, RecNil, FieldTag, fieldName
   , hdbMakeEntry, mkAttr, ( # )
@@ -30,6 +30,7 @@ import Database.HaskellDB.HDBRec(Record, RecCons, RecNil, FieldTag
 
 import Database.HaskellDB.BoundedString
 import System.Time (CalendarTime)
+import Data.Time.LocalTime (LocalTime)
 import Database.HaskellDB.Query (Expr, Table, Attr(..)
                                 , baseTable, attribute, (<<), emptyTable)
 import Database.HaskellDB.DBSpec

@@ -21,6 +21,7 @@ module Database.HaskellDB.FieldType
 
 import Data.Dynamic
 import System.Time
+import Data.Time.LocalTime
 
 import Database.HaskellDB.HDBRec (RecCons(..), Record, RecNil(..), ShowLabels)
 import Database.HaskellDB.BoundedString
@@ -38,6 +39,7 @@ data FieldType =
     | DoubleT
     | BoolT
     | CalendarTimeT
+    | LocalTimeT
     | BStrT Int
     deriving (Eq,Ord,Show,Read)
 
@@ -64,6 +66,7 @@ toHaskellType IntegerT = "Integer"
 toHaskellType DoubleT = "Double"
 toHaskellType BoolT = "Bool"
 toHaskellType CalendarTimeT = "CalendarTime"
+toHaskellType LocalTimeT = "LocalTime"
 toHaskellType (BStrT a) = "BStr" ++ show a
 
 -- | Given a query, returns a list of the field names and their
@@ -115,6 +118,9 @@ instance ExprType Double where
 
 instance ExprType CalendarTime where
   fromHaskellType _ = (CalendarTimeT, False)
+
+instance ExprType LocalTime where
+  fromHaskellType _ = (LocalTimeT, False)
 
 instance (Size n) => ExprType (BoundedString n) where
   fromHaskellType b = (BStrT (listBound b), False)
