@@ -1,5 +1,5 @@
 Name: haskelldb-hdbc
-Version: 2.1.0
+Version: 2.2.0
 Cabal-version: >= 1.6
 Build-type: Simple
 Copyright: The authors
@@ -13,7 +13,7 @@ Description: HaskellDB requires this driver to work with any of HDBC's drivers.
 Category: Database
 
 Library
-  Build-depends: mtl >= 1 && < 2.1, haskelldb >= 2 && < 3, HDBC >= 2 && < 3, convertible >= 1.0.1 && < 2
+  Build-depends: mtl >= 1 && < 2.1, haskelldb >= 2.2 && < 3, HDBC >= 2 && < 3, convertible >= 1.0.1 && < 2
   Build-depends: base >= 3 && < 5, containers >= 0.2 && < 1, old-time >= 1 && < 2
   Extensions: ExistentialQuantification,
             OverlappingInstances,
