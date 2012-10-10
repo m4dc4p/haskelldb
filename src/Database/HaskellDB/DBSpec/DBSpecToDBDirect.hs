@@ -148,7 +148,9 @@ tInfoToModule mi dbname tinfo@TInfo{tname=name,cols=col}
        <> newline
        $$ ppComment ["Table type"]
        <> newline
-       $$ ppTableType mi tinfo
+       $$ ppTableType mi tinfo False
+       <> newline
+       $$ ppTableType mi tinfo True
        <> newline
        $$ ppComment ["Table"]
        $$ ppTable mi tinfo
@@ -158,12 +160,14 @@ tInfoToModule mi dbname tinfo@TInfo{tname=name,cols=col}
              else vcat (map (ppField mi) (columnNamesTypes tinfo)))
     where modname = dbname ++ "." ++ moduleName mi name
 
-ppTableType :: MakeIdentifiers -> TInfo -> Doc
-ppTableType mi (TInfo { tname = tiName, cols = tiColumns }) =
+ppTableType :: MakeIdentifiers -> TInfo -> Bool -> Doc
+ppTableType mi (TInfo { tname = tiName, cols = tiColumns }) result =
     hang decl 4 types
   where
-    decl = text "type" <+> text (toType mi tiName) <+> text "="
-    types = ppColumns mi tiColumns
+    decl = text "type" <+>
+           text (toType mi tiName ++ (if result then "_result" else "")) <+>
+           text "="
+    types = ppColumns mi tiColumns result
 
 -- | Pretty prints a TableInfo
 ppTable :: MakeIdentifiers -> TInfo -> Doc
@@ -179,20 +183,22 @@ ppTable mi (TInfo tiName tiColumns) =
            <>  newline
 
 -- | Pretty prints a list of ColumnInfo
-ppColumns _  []      = text ""
-ppColumns mi [c]     = parens (ppColumnType mi c <+> text "RecNil")
-ppColumns mi (c:cs)  = parens (ppColumnType mi c $$ ppColumns mi cs)
+ppColumns _  []     result = text ""
+ppColumns mi [c]    result = parens (ppColumnType mi c result <+> text "RecNil")
+ppColumns mi (c:cs) result =
+                     parens (ppColumnType mi c result $$ ppColumns mi cs result)
 
 -- | Pretty prints the type field in a ColumnInfo
-ppColumnType :: MakeIdentifiers -> CInfo -> Doc
-ppColumnType mi (CInfo ciName (ciType,ciAllowNull))
+ppColumnType :: MakeIdentifiers -> CInfo -> Bool -> Doc
+ppColumnType mi (CInfo ciName (ciType,ciAllowNull)) result
 	=   text "RecCons" <+>
   	    ((text $ toType mi ciName) <+> 
-             parens (text "Expr" <+> 
-                     (if (ciAllowNull)
-	              then parens (text "Maybe" <+> text (toHaskellType ciType))
-	              else text (toHaskellType ciType)
-	             )))
+             (if result then id else parens)
+                 ((if result then empty else text "Expr") <+> 
+                       (if (ciAllowNull)
+	                then parens (text "Maybe" <+> text (toHaskellType ciType))
+	                else text (toHaskellType ciType)
+	               )))
 
 -- | Pretty prints the value field in a ColumnInfo
 ppColumnValue :: MakeIdentifiers -> CInfo -> Doc
