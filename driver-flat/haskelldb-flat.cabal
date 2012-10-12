@@ -4,7 +4,7 @@ Cabal-version: >= 1.6
 Build-type: Simple
 Homepage: https://github.com/m4dc4p/haskelldb
 Maintainer: Maintainer: haskelldb-users@lists.sourceforge.net
-License-file: ../LICENSE
+License-file: LICENSE
 Copyright: Bjorn Bringert
 Author: Bjorn Bringert
 License: BSD3

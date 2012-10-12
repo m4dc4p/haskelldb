@@ -7,7 +7,7 @@ Homepage: https://github.com/m4dc4p/haskelldb
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-License-file: ../LICENSE
+License-file: LICENSE
 Synopsis: HaskellDB support for the HDBC SQLite driver.
 Description: HaskellDB requires this driver if HDBC will be used to connect to a SQLlite3 database.
 Category: Database
