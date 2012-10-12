@@ -1,9 +1,11 @@
 Name: haskelldb-flat
-Version: 1.0
-Cabal-version: >= 1.2
+Version: 1.0.1
+Cabal-version: >= 1.6
 Build-type: Simple
+Homepage: https://github.com/m4dc4p/haskelldb
+Maintainer: Maintainer: haskelldb-users@lists.sourceforge.net
+License-file: ../LICENSE
 Copyright: Bjorn Bringert
-Maintainer: bjorn@bringert.net
 Author: Bjorn Bringert
 License: BSD3
 Synopsis: An experimental HaskellDB back-end in pure Haskell (no SQL)
@@ -11,6 +13,7 @@ Description:
   This is a very experimental HaskellDB back-end which is written in pure Haskell
   and doesn't use SQL. It stores the database in a file. Using this with
   concurrent writes leads to data loss. This back-end does not support transactions.
+Category: Database
 
 Flag split-base
 
@@ -25,6 +28,6 @@ Library
 Executable DBDirect-flat
   Main-is: DBDirect.hs
 
---Executable:  flatdb-create
---Main-Is:     tools/flatdb-create.hs
---ghc-options: -O2 -Wall
+Source-repository head
+  Type:       git
+  Location:   https://github.com/m4dc4p/haskelldb

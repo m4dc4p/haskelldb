@@ -1,16 +1,27 @@
 Name: haskelldb-wx
-Version: 0.11
+Version: 1.0.0
+Cabal-version: >= 1.6
+Build-type: Simple
 Copyright: The authors
+Homepage: https://github.com/m4dc4p/haskelldb
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-build-depends: haskell98, base, mtl, haskelldb==0.11, wxcore
-Extensions: CPP,
-            ExistentialQuantification,
-            OverlappingInstances,
-            UndecidableInstances,
-            MultiParamTypeClasses
+License-file: ../LICENSE
+Category: Database
 Synopsis: HaskellDB support for WXHaskell.
-Exposed-Modules:
-        Database.HaskellDB.WX
-ghc-options: -O2
+
+build-depends: haskell98, base, mtl, haskelldb==0.11, wxcore
+
+Library
+  Extensions: CPP,
+    ExistentialQuantification,
+    OverlappingInstances,
+    UndecidableInstances,
+    MultiParamTypeClasses
+  Exposed-Modules:
+    Database.HaskellDB.WX
+
+Source-repository head
+  Type:       git
+  Location:   https://github.com/m4dc4p/haskelldb

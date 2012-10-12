@@ -1,13 +1,15 @@
 Name: haskelldb-hsql
-Version: 0.11
-Cabal-version: >= 1.2
+Version: 1.0.0
+Cabal-version: >= 1.6
 Build-type: Simple
+Homepage: https://github.com/m4dc4p/haskelldb
 Copyright: The authors
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-Synopsis: HaskellDB support for HSQL. You will also need one
-          or more back-end specific packages.
+License-file: ../LICENSE
+Synopsis: HaskellDB support for HSQL. 
+Category: Database
 
 Flag split-base
 
@@ -19,3 +21,7 @@ Library
     Build-depends: base < 3.0
   Exposed-Modules:
         Database.HaskellDB.HSQL
+
+Source-repository head
+  Type:       git
+  Location:   https://github.com/m4dc4p/haskelldb

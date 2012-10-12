@@ -3,11 +3,11 @@ Version: 2.2.1
 Cabal-version: >= 1.6
 Build-type: Simple
 Copyright: The authors
-Homepage: http://trac.haskell.org/haskelldb
+Homepage: https://github.com/m4dc4p/haskelldb
 Maintainer: haskelldb-users@lists.sourceforge.net
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw
 License: BSD3
-License-file: LICENSE
+License-file: ../LICENSE
 Synopsis: HaskellDB support for HDBC.
 Description: HaskellDB requires this driver to work with any of HDBC's drivers.
 Category: Database
@@ -24,5 +24,5 @@ Library
   ghc-options: -fwarn-incomplete-patterns
 
 Source-repository head
-  Type:       darcs
-  Location:   http://code.haskell.org/haskelldb
+  Type:       git
+  Location:   https://github.com/m4dc4p/haskelldb

@@ -2,7 +2,7 @@ Name: haskelldb
 Version: 2.2.1
 Cabal-version: >= 1.6
 Build-type: Simple
-Homepage: http://trac.haskell.org/haskelldb
+Homepage: https://github.com/m4dc4p/haskelldb
 Copyright: The authors
 Maintainer: "Justin Bailey" <jgbailey@gmail.com>
 Author: Daan Leijen, Conny Andersson, Martin Andersson, Mary Bergman, Victor Blomqvist, Bjorn Bringert, Anders Hockersten, Torbjorn Martin, Jeremy Shaw, Justin Bailey
@@ -63,8 +63,7 @@ Library
     Database.HaskellDB.Version,
     Database.HaskellDB.DriverAPI
   Hs-source-dirs: src
-  ghc-options: -O2
 
 Source-repository head
-  Type:       darcs
-  Location:   http://code.haskell.org/haskelldb
+  Type:       git
+  Location:   https://github.com/m4dc4p/haskelldb
