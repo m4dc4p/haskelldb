@@ -161,6 +161,9 @@ hdbcTransaction conn action =
 
 type HDBCRow = Map String HDBC.SqlValue
 
+normalizeField :: String -> String
+normalizeField =  map toLower
+
 -- | Primitive query
 hdbcPrimQuery :: (GetRec er vr, IConnection conn) => 
 		 conn -- ^ Database connection.
@@ -172,8 +175,13 @@ hdbcPrimQuery conn sql scheme rel =
     do
     stmt <- handleSqlError $ HDBC.prepare conn sql
     handleSqlError $ HDBC.execute stmt []
-    rows <- HDBC.fetchAllRowsMap stmt
-    mapM (getRec hdbcGetInstances rel scheme) rows
+    rows <- fetchNormalizedAllRowsAL stmt
+    mapM (getRec hdbcGetInstances rel scheme) $ map Map.fromList rows
+  where fetchNormalizedAllRowsAL sth =
+          do
+          names <- map normalizeField `fmap` getColumnNames sth
+          rows <- fetchAllRows sth
+          return $ map (zip names) rows
 
 -- | Primitive execute
 hdbcPrimExecute :: (IConnection conn) => conn -- ^ Database connection.
@@ -203,6 +211,6 @@ hdbcGetInstances =
 
 -- hdbcGetValue :: Data.Convertible.Base.Convertible SqlValue a
 --             => HDBCRow -> String -> IO (Maybe a)
-hdbcGetValue m f = case Map.lookup (map toLower f) m of
+hdbcGetValue m f = case Map.lookup (normalizeField f) m of
                      Nothing -> fail $ "No such field " ++ f
                      Just x  -> return $ HDBC.fromSql x
