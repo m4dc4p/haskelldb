@@ -267,6 +267,10 @@ defaultSqlSpecial _ (Top n) q
           	= sql { extra = ("LIMIT " ++ show n) : extra sql }
           	where sql = toSqlSelect q
 
+defaultSqlSpecial _ ForUpdate q
+          	= sql { extra = ("FOR UPDATE") : extra sql }
+          	where sql = toSqlSelect q
+
 
 toSqlOrder :: SqlGenerator -> OrderExpr -> (SqlExpr,SqlOrder)
 toSqlOrder gen (OrderExpr o e) = (sqlExpr gen e, o')
