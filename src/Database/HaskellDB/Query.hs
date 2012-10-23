@@ -27,7 +27,7 @@ module Database.HaskellDB.Query (
 	     , copy, copyAll, RelToRec
 	      -- * Operators
 	     , (.==.) , (.<>.), (.<.), (.<=.), (.>.), (.>=.)
-	     , (.&&.) , (.||.)
+	     , (.&&.) , (.||.), (.&&&&.), (.++++.)
 	     , (.*.), (./.), (.+.), (.-.), (.%.), (.++.)
              , (<<), (<<-)
 	      -- * Function declarations
@@ -407,6 +407,15 @@ _not   = unop OpNot
 (.||.) :: Expr Bool -> Expr Bool -> Expr Bool
 (.||.) = binop OpOr
 
+-- | Check if arrays overlap
+(.&&&&.) :: Ord a => Expr a -> Expr a -> Expr Bool
+(.&&&&.) = binop OpOverlaps
+
+-- | Concatenate arrays
+(.++++.) :: Expr [Int] -> Expr [Int] -> Expr [Int]
+(.++++.) = binop OpConcatLists
+
+
 -- | The HaskellDB counterpart to the SQL LIKE keyword.
 -- In the expresions, % is a wildcard representing any characters
 -- in the same position relavtive to the given characters and
@@ -598,6 +607,8 @@ instance ShowConstant String where
     showConstant = StringLit
 instance ShowConstant Int where
     showConstant = IntegerLit . fromIntegral
+instance ShowConstant [Int] where
+    showConstant = IntListLit
 instance ShowConstant Integer where
     showConstant = IntegerLit
 instance ShowConstant Double where

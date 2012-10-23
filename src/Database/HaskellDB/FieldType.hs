@@ -35,6 +35,7 @@ type FieldDesc = (FieldType, Bool)
 data FieldType = 
     StringT
     | IntT 
+    | IntListT
     | IntegerT
     | DoubleT
     | BoolT
@@ -68,6 +69,7 @@ toHaskellType BoolT = "Bool"
 toHaskellType CalendarTimeT = "CalendarTime"
 toHaskellType LocalTimeT = "LocalTime"
 toHaskellType (BStrT a) = "BStr" ++ show a
+toHaskellType IntListT = "[Int]"
 
 -- | Given a query, returns a list of the field names and their
 -- types used by the query. Useful for recovering field information
@@ -109,6 +111,9 @@ instance ExprType String where
   
 instance ExprType Int where
   fromHaskellType _ = (IntT, False)
+
+instance ExprType [Int] where
+  fromHaskellType _ = (IntListT, False)
 
 instance ExprType Integer where
   fromHaskellType _ = (IntegerT, False)
