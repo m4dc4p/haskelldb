@@ -96,6 +96,8 @@ data GetInstances s =
 		 getString       :: s -> String -> IO (Maybe String)
 		 -- | Get an 'Int' value.
 	       , getInt          :: s -> String -> IO (Maybe Int)
+         -- | Get and'[Int]' value.
+           , getIntList      :: s -> String -> IO (Maybe [Int])
 		 -- | Get an 'Integer' value.
 	       , getInteger      :: s -> String -> IO (Maybe Integer)
 		 -- | Get a 'Double' value. 
@@ -143,6 +145,7 @@ class GetValue a where
 -- Maybe we could do it the other way around.
 instance GetValue String where getValue = getNonNull
 instance GetValue Int where getValue = getNonNull
+instance GetValue [Int] where getValue = getNonNull
 instance GetValue Integer where getValue = getNonNull
 instance GetValue Double where getValue = getNonNull
 instance GetValue Bool where getValue = getNonNull
@@ -152,6 +155,7 @@ instance Size n => GetValue (BoundedString n) where getValue = getNonNull
 
 instance GetValue (Maybe String) where getValue = getString
 instance GetValue (Maybe Int) where getValue = getInt
+instance GetValue (Maybe [Int]) where getValue = getIntList
 instance GetValue (Maybe Integer) where getValue = getInteger
 instance GetValue (Maybe Double) where getValue = getDouble
 instance GetValue (Maybe Bool) where getValue = getBool

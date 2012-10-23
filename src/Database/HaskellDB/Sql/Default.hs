@@ -94,6 +94,7 @@ defaultSqlType _ t =
     case t of
       StringT       -> SqlType "text"
       IntT          -> SqlType "int"
+      IntListT      -> SqlType "int4[]"
       IntegerT      -> SqlType "bigint"
       DoubleT       -> SqlType "double precision"
       BoolT         -> SqlType "bit"
@@ -476,7 +477,8 @@ showBinOp  OpBitAnd     = "&"
 showBinOp  OpBitOr      = "|" 
 showBinOp  OpBitXor     = "^"
 showBinOp  OpAsg        = "="
-
+showBinOp  OpOverlaps   = "&&"
+showBinOp  OpConcatLists = "||"
 
 data UnOpType = UnOpFun | UnOpPrefix | UnOpPostfix
 
@@ -509,6 +511,7 @@ defaultSqlLiteral gen l =
       BoolLit True  -> "TRUE"
       BoolLit False -> "FALSE"
       StringLit s   -> quote s
+      IntListLit il -> "ARRAY" ++ show il ++ "::int4[]"
       IntegerLit i  -> show i
       DoubleLit d   -> show d
       DateLit t     -> quote (formatCalendarTime defaultTimeLocale fmt t)

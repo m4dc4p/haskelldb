@@ -30,6 +30,8 @@ import Data.Char (toLower)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
+import Data.Convertible
+import qualified Data.ByteString.Char8 as B8
 
 -- | Run an action on a HDBC IConnection and close the connection.
 hdbcConnect :: (MonadIO m, IConnection conn) => 
@@ -197,11 +199,20 @@ hdbcPrimExecute conn sql =
 -- Getting data from a statement
 -----------------------------------------------------------
 
+strToIntList = tail . init . B8.unpack
+
+instance Convertible SqlValue [Int] where
+    safeConvert (SqlByteString y)  = Right ( (read $ "[" ++ strToIntList y ++ "]")::[Int] )
+    safeConvert a = Left (ConvertError { convSourceValue = show a, convSourceType = "???",  convDestType = "[Int]", convErrorMessage = "Bad Cast" })
+
+
+
 hdbcGetInstances :: GetInstances HDBCRow
 hdbcGetInstances = 
     GetInstances {
 		  getString        = hdbcGetValue
 		 , getInt          = hdbcGetValue
+         , getIntList      = hdbcGetValue
 		 , getInteger      = hdbcGetValue
 		 , getDouble       = hdbcGetValue
 		 , getBool         = hdbcGetValue

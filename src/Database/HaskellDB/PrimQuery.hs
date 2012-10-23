@@ -97,6 +97,7 @@ data Literal = NullLit
 	     | BoolLit Bool
 	     | StringLit String
 	     | IntegerLit Integer
+         | IntListLit [Int]
 	     | DoubleLit Double
 	     | DateLit CalendarTime
 	     | OtherLit String       -- ^ used for hacking in custom SQL
@@ -105,6 +106,8 @@ data Literal = NullLit
 data BinOp      = OpEq | OpLt | OpLtEq | OpGt | OpGtEq | OpNotEq 
                 | OpAnd | OpOr
                 | OpLike | OpIn 
+                | OpOverlaps 
+                | OpConcatLists 
                 | OpOther String
 
                 | OpCat
