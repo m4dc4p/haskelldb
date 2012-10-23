@@ -111,3 +111,5 @@ dist/
 (^|/)\.lock-wscript$
 # mac os finder
 (^|/)\.DS_Store$
+/.dist-buildwrapper
+/.project
