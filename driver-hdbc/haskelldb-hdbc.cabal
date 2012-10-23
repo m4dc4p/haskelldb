@@ -18,7 +18,8 @@ Library
   Extensions: ExistentialQuantification,
             OverlappingInstances,
             UndecidableInstances,
-            MultiParamTypeClasses
+            MultiParamTypeClasses,
+            FlexibleInstances
   Exposed-Modules:
         Database.HaskellDB.HDBC
   ghc-options: -fwarn-incomplete-patterns
