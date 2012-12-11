@@ -176,6 +176,8 @@ instance (FieldTag f,ShowLabels r) => ShowLabels (RecCons f a r) where
     recordLabels ~x@(RecCons _ r) = consFieldName x : recordLabels r
 instance ShowLabels r => ShowLabels (Record r) where
     recordLabels r = recordLabels (r RecNil)
+instance (ShowLabels r0, ShowLabels r1) => ShowLabels (r0, r1) where
+    recordLabels (r0, r1) = recordLabels r0 ++ recordLabels r1
 
 -- * Showing rows 
 

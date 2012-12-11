@@ -44,6 +44,7 @@ import Database.HaskellDB.HDBRec
 import System.Time
 import Data.Time.LocalTime
 import Control.Monad
+import Control.Applicative ((<$>), (<*>))
 
 infix 9 !.
 
@@ -134,6 +135,27 @@ instance (GetValue a, GetRec er vr)
 
 recTailType :: Rel (RecCons f (Expr a) er) -> Rel er
 recTailType _ = undefined
+
+instance GetRec er vr => GetRec (RecNil, er) (RecNil, vr) where
+  getRec vfs c fs stmt = do
+    rr <- getRec vfs (relSndType c) fs stmt
+    -- Record is Applicative
+    return $ (,) <$> emptyRecord <*> rr
+
+instance (GetValue a, GetRec (er, er1) (vr, vr1))
+         => GetRec (RecCons f (Expr a) er, er1) (RecCons f a vr, vr1) where
+  getRec _   _ []      _   = error $ "Wanted non-empty record, but scheme is empty"
+  getRec vfs c (f:fs) stmt = do
+    x  <- getValue vfs stmt f
+    tl <- getRec vfs (recPairTailType c) fs stmt
+    -- Record is Applicative
+    return $ (,) <$> (RecCons x . (fst <$> tl)) <*> (snd <$> tl)
+
+relSndType :: Rel (a, b) -> Rel b
+relSndType _ = undefined
+
+recPairTailType :: Rel (RecCons f (Expr a) er, er1) -> Rel (er, er1)
+recPairTailType _ = undefined
 
 class GetValue a where
     getValue :: GetInstances s -> s -> String -> IO a
