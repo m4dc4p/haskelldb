@@ -72,7 +72,7 @@ ppWhere :: [SqlExpr] -> Doc
 ppWhere [] = empty
 ppWhere es = text "WHERE" 
              <+> hsep (intersperse (text "AND")
-                       (map ((text "(" <>) . (<> text ")") . ppSqlExpr) es))
+                       (map (parens . ppSqlExpr) es))
 
 ppGroupBy :: Mark -> Doc
 ppGroupBy All = error "Should not ever print GroupBy all."
