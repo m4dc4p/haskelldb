@@ -303,6 +303,10 @@ binrel op (Query q1) (Query q2)
 union :: Query (Rel r) -> Query (Rel r) -> Query (Rel r)
 union           = binrel Union
 
+-- | UNION ALL
+unionAll :: Query (Rel r) -> Query (Rel r) -> Query (Rel r)
+unionAll        = binrel UnionAll
+
 -- | Return all records which are present in both relations.
 intersect :: Query (Rel r) -> Query (Rel r) -> Query (Rel r) 
 intersect       = binrel Intersect

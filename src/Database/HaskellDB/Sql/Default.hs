@@ -315,6 +315,7 @@ toSqlAssoc gen = map (\(attr,expr) -> (attr, sqlExpr gen expr))
 
 toSqlOp :: RelOp -> String
 toSqlOp Union        = "UNION"
+toSqlOp UnionAll     = "UNION ALL"
 toSqlOp Intersect    = "INTERSECT"
 toSqlOp Divide       = "DIVIDE"
 toSqlOp Difference   = "EXCEPT"
