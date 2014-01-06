@@ -32,7 +32,7 @@ module Database.HaskellDB.Query (
              , (<<), (<<-)
 	      -- * Function declarations
 	     , project, restrict, table, unique
-	     , union, intersect, divide, minus
+	     , union, unionAll, intersect, divide, minus
 	     , _not, like, _in, cat, _length
 	     , isNull, notNull
 	     , fromNull, fromVal
@@ -302,6 +302,10 @@ binrel op (Query q1) (Query q2)
 --   one of the relations.
 union :: Query (Rel r) -> Query (Rel r) -> Query (Rel r)
 union           = binrel Union
+
+-- | UNION ALL
+unionAll :: Query (Rel r) -> Query (Rel r) -> Query (Rel r)
+unionAll        = binrel UnionAll
 
 -- | Return all records which are present in both relations.
 intersect :: Query (Rel r) -> Query (Rel r) -> Query (Rel r) 

@@ -65,6 +65,7 @@ data PrimQuery  = BaseTable TableName Scheme
 
 data RelOp      = Times 
                 | Union
+                | UnionAll
                 | Intersect 
                 | Divide 
                 | Difference
@@ -152,6 +153,7 @@ attributes (Special op q)	= attributes q
 attributes (Binary op q1 q2)    = case op of
                                     Times       -> attr1 `union` attr2
                                     Union       -> attr1
+                                    UnionAll    -> attr1
                                     Intersect   -> attr1
                                     Divide      -> attr1 
                                     Difference  -> attr1

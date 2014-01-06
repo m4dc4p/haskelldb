@@ -315,6 +315,7 @@ toSqlAssoc gen = map (\(attr,expr) -> (attr, sqlExpr gen expr))
 
 toSqlOp :: RelOp -> String
 toSqlOp Union        = "UNION"
+toSqlOp UnionAll     = "UNION ALL"
 toSqlOp Intersect    = "INTERSECT"
 toSqlOp Divide       = "DIVIDE"
 toSqlOp Difference   = "EXCEPT"
@@ -433,13 +434,19 @@ defaultSqlExpr gen e =
                 (paren leftE, rightE)
               (OpOr, e1, e2@(BinExpr OpAnd _ _)) ->
                 (leftE, paren rightE)
-              _ -> (leftE, rightE)
+              (_, ConstExpr _, ConstExpr _) ->
+                (leftE, rightE)
+              (_, _, ConstExpr _) ->
+                (paren leftE, rightE)
+              (_, ConstExpr _, _) ->
+                (leftE, paren rightE)
+              _ -> (paren leftE, paren rightE)
         in BinSqlExpr (showBinOp op) expL expR
       UnExpr op e      -> let (op',t) = sqlUnOp op
                               e' = sqlExpr gen e
                            in case t of
                                 UnOpFun     -> FunSqlExpr op' [e']
-                                UnOpPrefix  -> PrefixSqlExpr op' e'
+                                UnOpPrefix  -> PrefixSqlExpr op' (ParensSqlExpr e')
                                 UnOpPostfix -> PostfixSqlExpr op' e'
       AggrExpr op e    -> let op' = showAggrOp op
                               e' = sqlExpr gen e

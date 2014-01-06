@@ -71,7 +71,8 @@ ppTables ts = text "FROM" <+> commaV ppTable (zipWith tableAlias [1..] ts)
 ppWhere :: [SqlExpr] -> Doc
 ppWhere [] = empty
 ppWhere es = text "WHERE" 
-             <+> hsep (intersperse (text "AND") (map ppSqlExpr es))
+             <+> hsep (intersperse (text "AND")
+                       (map (parens . ppSqlExpr) es))
 
 ppGroupBy :: Mark -> Doc
 ppGroupBy All = error "Should not ever print GroupBy all."
