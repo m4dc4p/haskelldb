@@ -32,7 +32,7 @@ module Database.HaskellDB.Query (
              , (<<), (<<-)
 	      -- * Function declarations
 	     , project, restrict, table, unique
-	     , union, intersect, divide, minus
+	     , union, unionAll, intersect, divide, minus
 	     , _not, like, _in, cat, _length
 	     , isNull, notNull
 	     , fromNull, fromVal
