@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts, UndecidableInstances, TypeSynonymInstances, FlexibleInstances
-  , MultiParamTypeClasses #-}
+  , MultiParamTypeClasses, StandaloneDeriving #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  FieldType
@@ -80,11 +80,7 @@ queryFields def = zip (labels query) types
     unRel :: (Rel r) -> r
     unRel r = undefined -- Only used to get to type-level information.
 
-instance Typeable CalendarTime where -- not available in standard libraries
-    typeOf _ = mkTyConApp (mkTyCon "System.Time.CalendarTime") []
-
-instance Typeable (BoundedString n) where
-    typeOf _ = mkTyConApp (mkTyCon "Database.HaskellDB.BoundedString") []
+deriving instance Typeable CalendarTime -- not available in standard libraries
 
 instance (ExprType a) => ExprType (Maybe a) where
   fromHaskellType ~(Just e) = ((fst . fromHaskellType $ e), True)

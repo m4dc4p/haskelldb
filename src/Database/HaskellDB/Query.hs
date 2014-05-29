@@ -55,6 +55,8 @@ import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.BoundedString
 import Database.HaskellDB.BoundedList
 
+import Control.Applicative
+import Control.Monad
 import System.Time (CalendarTime)
 
 -----------------------------------------------------------
@@ -805,6 +807,10 @@ instance Monad Query where
   (Query g) >>= f       = Query (\q0 -> let (x,q1)    = g q0
                                             (Query h) = f x
                                         in  (h q1))
+
+instance Applicative Query where
+  pure  = return
+  (<*>) = ap
 
 updatePrimQuery :: (PrimQuery -> PrimQuery) -> Query PrimQuery
 updatePrimQuery f  = Query (\(i,qt) -> (qt,(i,f qt)))

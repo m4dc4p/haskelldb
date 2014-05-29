@@ -79,7 +79,9 @@ module Database.HaskellDB.BoundedList (shrink,
 		    N240, N241, N242, N243, N244, N245, N246, N247, N248, N249,
 		    N250, N251, N252, N253, N254, N255, N65535)
 where
-		    
+
+import Data.Typeable
+
 class Size n where
     size :: n -> Int
 
@@ -1372,6 +1374,7 @@ instance Less N255 N65535
 instance Less a N255 => Less a N65535
 
 newtype BoundedList a n = L [a]
+    deriving (Typeable)
 
 instance (Show a, Size n) => Show (BoundedList a n) where
     show l@(L xs) = show xs
