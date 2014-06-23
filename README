@@ -20,7 +20,7 @@ HaskellDB is intended to be platform independent. It should be
 possible to use HaskellDB on any platform that has a supported Haskell
 implementation and that is supported by the database backend.
 
-HaskellDB was originally written by Daan Leijen and it's design is
+HaskellDB was originally written by Daan Leijen and its design is
 described in the paper Domain Specific Embedded Compilers, Daan Leijen
 and Erik Meijer. 2nd USENIX Conference on Domain-Specific Languages
 (DSL), Austin, USA, October 1999. That version of HaskellDB was
