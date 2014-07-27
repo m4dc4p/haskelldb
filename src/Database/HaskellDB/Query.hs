@@ -41,7 +41,7 @@ module Database.HaskellDB.Query (
 	     , toStr, coerce , select
 	     , count, _sum, _max, _min, avg , literal
 	     , stddev, stddevP, variance, varianceP
-	     , asc, desc, order , top
+	     , asc, desc, order , top, forUpdate
 	     , _case , _default
 	     -- * Internals
 	     , runQuery, runQueryRel, unQuery
@@ -764,6 +764,10 @@ desc rel attr = orderOp OpDesc rel attr
 -- Use this with the 'asc' or 'desc' functions.
 order :: [OrderExpr] -> Query ()
 order xs = updatePrimQuery_ (Special (Order xs))
+
+-- | Lock rows for exclusive usage.
+forUpdate :: Query ()
+forUpdate = updatePrimQuery_ (Special (ForUpdate))
 
 -----------------------------------------------------------
 -- Query Monad
