@@ -62,7 +62,7 @@ module Database.HaskellDB
   , count, _sum, _max, _min, avg
   , stddev, stddevP, variance, varianceP
   , asc, desc, order
-  , top , _case , _default
+  , top, offset, _case , _default
 
   -- * Database operations
   , Database				-- abstract

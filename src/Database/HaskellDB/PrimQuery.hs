@@ -73,6 +73,7 @@ data RelOp      = Times
 
 data SpecialOp  = Order [OrderExpr]
 		| Top Int
+		| Offset Int
 		deriving (Show)
 
 data OrderExpr = OrderExpr OrderOp PrimExpr 

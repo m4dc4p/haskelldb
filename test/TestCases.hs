@@ -8,7 +8,7 @@ import System.Time
 import Test.HUnit
 import Text.Regex
 import Database.HaskellDB
-import Database.HaskellDB.Query (tableName, constantRecord, subQuery, func, count, attributeName)
+import Database.HaskellDB.Query (tableName, constantRecord, subQuery, func, count, attributeName, offset)
 import Database.HaskellDB.HDBRec ((.=.))
 import Control.Monad (when)
 import Data.Typeable(Typeable)
@@ -34,6 +34,7 @@ allTests =
              testDeleteNone,
              testUpdateNone,
              testTop,
+             testOffset,
              queryTests ,
              testOrder,
              testTransactionInsert,
@@ -547,6 +548,16 @@ testTop = dbtest "top" $ \db ->
                            top 1
                            return t
        assertEqual "Result count" 1 (length rs)
+
+testOffset = dbtest "offset" $ \db ->
+    do insert db string_tbl (constantRecord string_data_1)
+       insert db string_tbl (constantRecord string_data_2)
+       rs <- query db $ do t <- table string_tbl
+                           order [asc t TString.f01]
+                           offset 1
+                           return t
+       assertEqual "Result count" 1 (length rs)
+       assertEqual "First record" string_data_1 (rs !! 0)
 
 testOrder = dbtest "order" $ \db ->
     do insert db string_tbl (constantRecord string_data_1)

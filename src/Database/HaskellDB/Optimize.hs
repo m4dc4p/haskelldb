@@ -256,11 +256,16 @@ pushRestrict (Special (Order xs) (Project assoc query))
 	  xs' = [OrderExpr o (substAttr assoc e) | OrderExpr o e <- xs]
 	  safe = and [not (isAggregate e) | OrderExpr _ e <- xs']
 
--- Top is pushed through Project if there are no aggregates in the project
--- Aggregates can change the number of results.
-pushRestrict (Special top@(Top _) (Project assoc query))
-    | not (any isAggregate (map snd assoc)) 
-        = Project assoc (pushRestrict (Special top query))
+-- Top and Offset are pushed through Project if there are no
+-- aggregates in the project Aggregates can change the number of
+-- results.
+pushRestrict (Special op (Project assoc query))
+    | topOrOffset op && not (any isAggregate (map snd assoc))
+        = Project assoc (pushRestrict (Special op query))
+  where
+    topOrOffset Top{}    = True
+    topOrOffset Offset{} = True
+    topOrOffset _        = False
 
 pushRestrict (Special op (query@(Special _ _)))
 	= case (pushed) of

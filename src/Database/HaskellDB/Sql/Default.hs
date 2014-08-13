@@ -266,6 +266,9 @@ defaultSqlSpecial _ (Top n) q
                   -- maybe we should use ROW_NUMBER() here
           	= sql { extra = ("LIMIT " ++ show n) : extra sql }
           	where sql = toSqlSelect q
+defaultSqlSpecial _ (Offset n) q =
+  sql { extra = ("OFFSET " ++ show n) : extra sql }
+  where sql = toSqlSelect q
 
 
 toSqlOrder :: SqlGenerator -> OrderExpr -> (SqlExpr,SqlOrder)

@@ -41,7 +41,7 @@ module Database.HaskellDB.Query (
 	     , toStr, coerce , select
 	     , count, _sum, _max, _min, avg , literal
 	     , stddev, stddevP, variance, varianceP
-	     , asc, desc, order , top
+	     , asc, desc, order , top, offset
 	     , _case , _default
 	     -- * Internals
 	     , runQuery, runQueryRel, unQuery
@@ -737,6 +737,10 @@ varianceP x  = aggregate AggrVarP x
 -- | Return the n topmost records.
 top :: Int -> Query ()
 top n = updatePrimQuery_ (Special (Top n))
+
+-- | Skip the n topmost records.
+offset :: Int -> Query ()
+offset n = updatePrimQuery_ (Special (Offset n))
 
 -----------------------------------------------------------
 -- Ordering results
