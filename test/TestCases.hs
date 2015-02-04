@@ -64,7 +64,10 @@ queryTests _ _ = TestList . map (\f -> f undefined undefined) $ [ testUnique1,
                        testCopyAll,
                        testConcatAggr1,
                        testConcatAggr2,
-                       testConcatAggr3
+                       testConcatAggr3,
+                       testBracketing1,
+                       testBracketing2,
+                       testBracketing3
                       ]
 
 tableTests = 
@@ -241,7 +244,7 @@ testUnique2 = noDBTest "Testing that unique and subquery work together correctly
         project $ TInt.f02 << (v ! TInt.f02)
       groupByTxt =  "SELECT f02\n\
                     \FROM int_tbl as T1\n\
-                    \WHERE f01 = 100\n\
+                    \WHERE (f01 = 100)\n\
                     \GROUP BY f02"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
@@ -256,7 +259,7 @@ testUnique3 = noDBTest "Testing that unique and restriction work correctly when 
       groupByTxt =  "SELECT COUNT(f024) as f02\n\
                     \FROM (SELECT f02 as f024\n\
                     \      FROM int_tbl as T1\n\
-                    \      WHERE f01 = 100\n\
+                    \      WHERE (f01 = 100)\n\
                     \      GROUP BY f02) as T1"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
@@ -268,7 +271,7 @@ testUnique4 = noDBTest "Testing that unique in top-level query works." $ do
         project $ TInt.f02 << (s ! TInt.f02)
       groupByTxt = "SELECT f02\n\
                    \FROM int_tbl as T1\n\
-                   \WHERE f01 = 100\n\
+                   \WHERE (f01 = 100)\n\
                    \GROUP BY f02"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
@@ -283,7 +286,7 @@ testUnique5 = noDBTest "Testing that unique, restrict and count in subquery work
       groupByTxt =  "SELECT COUNT(f021) as f02\n\
                     \FROM (SELECT f02 as f021\n\
                     \      FROM int_tbl as T1\n\
-                    \      WHERE f01 = 100) as T1"
+                    \      WHERE (f01 = 100)) as T1"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique6 = noDBTest "Testing that unique in subquery and restriction at top-level works." $ do
@@ -298,7 +301,7 @@ testUnique6 = noDBTest "Testing that unique in subquery and restriction at top-l
                     \FROM (SELECT f03 as f013\n\
                     \      FROM int_tbl as T1\n\
                     \      GROUP BY f03) as T1\n\
-                    \WHERE f013 = 100"
+                    \WHERE (f013 = 100)"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique7 = noDBTest "Testing that unique in subquery and restriction plus count at top-level works." $ do
@@ -313,7 +316,7 @@ testUnique7 = noDBTest "Testing that unique in subquery and restriction plus cou
                     \FROM (SELECT f04 as f023\n\
                     \      FROM int_tbl as T1\n\
                     \      GROUP BY f04) as T1\n\
-                    \WHERE f023 = 100"
+                    \WHERE (f023 = 100)"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
 testUnique8 = noDBTest "Testing that group by works correctly with projected expressions (instead of just columns)" $ do
@@ -366,7 +369,7 @@ testUnique11 = noDBTest "Testing that count works when unique and restrict in a 
       groupByTxt = "SELECT COUNT(f024) as f02\n\
                    \FROM (SELECT f02 as f024\n\
                    \      FROM int_tbl as T1\n\
-                   \      WHERE f01 = 100\n\
+                   \      WHERE (f01 = 100)\n\
                    \      GROUP BY f02) as T1"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
@@ -499,6 +502,40 @@ testConcatAggr3 = noDBTest "Testing SQL concat query with a count and unique." $
                \FROM string_tbl as T1"
   assertQueryText "Concat not generated as expected: " qryTxt result
 
+
+testBracketing1 = noDBTest "Testing that properly bracketed SQL is generated (1)." $ do
+  let qryTxt = showSql $ do
+                 s <- table int_tbl
+                 restrict (((s ! TInt.f02 .==. s ! TInt.f02) .&&. (s ! TInt.f02 .==. s ! TInt.f02)) .||.
+                          ((s ! TInt.f02 .==. s ! TInt.f02) .&&. (s ! TInt.f02 .==. s ! TInt.f02)))
+                 project $ TInt.f03 << (s ! TInt.f03)
+      result = "SELECT f03\n\
+                \FROM int_tbl as T1\n\
+                \WHERE (((f02 = f02) AND (f02 = f02)) OR ((f02 = f02) AND (f02 = f02)))"
+  assertQueryText "Concat not generated as expected: " qryTxt result
+
+testBracketing2 = noDBTest "Testing that properly bracketed SQL is generated (2)." $ do
+  let qryTxt = showSql $ do
+                 s <- table int_tbl
+                 restrict (((s ! TInt.f02 .==. s ! TInt.f02) .||. (s ! TInt.f02 .==. s ! TInt.f02)) .&&.
+                          ((s ! TInt.f02 .==. s ! TInt.f02) .||. (s ! TInt.f02 .==. s ! TInt.f02)))
+                 project $ TInt.f03 << (s ! TInt.f03)
+      result = "SELECT f03\n\
+               \FROM int_tbl as T1\n\
+               \WHERE (((f02 = f02) OR (f02 = f02)) AND ((f02 = f02) OR (f02 = f02)))"
+  assertQueryText "Concat not generated as expected: " qryTxt result
+
+testBracketing3 = noDBTest "Testing that properly bracketed SQL is generated (3)." $ do
+  let qryTxt = showSql $ do
+                 s <- table int_tbl
+                 restrict ((s ! TInt.f02 .==. s ! TInt.f02) .||. (s ! TInt.f02 .==. s ! TInt.f02))
+                 restrict ((s ! TInt.f02 .==. s ! TInt.f02) .||. (s ! TInt.f02 .==. s ! TInt.f02))
+                 restrict ((s ! TInt.f02 .==. s ! TInt.f02) .||. (s ! TInt.f02 .==. s ! TInt.f02))
+                 project $ TInt.f03 << (s ! TInt.f03)
+      result = "SELECT f03\n\
+               \FROM int_tbl as T1\n\
+               \WHERE ((f02 = f02) OR (f02 = f02)) AND ((f02 = f02) OR (f02 = f02)) AND ((f02 = f02) OR (f02 = f02))"
+  assertQueryText "Concat not generated as expected: " qryTxt result
 
 -- | Helper which asserts that two query strings are equal.
 assertQueryText msg query expect = assertBool (msg ++ "\nGot: \n\n" ++ query ++

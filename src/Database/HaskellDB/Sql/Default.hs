@@ -437,13 +437,11 @@ defaultSqlExpr gen e =
                 (paren leftE, rightE)
               (OpOr, e1, e2@(BinExpr OpAnd _ _)) ->
                 (leftE, paren rightE)
-              (_, ConstExpr _, ConstExpr _) ->
-                (leftE, rightE)
-              (_, _, ConstExpr _) ->
-                (paren leftE, rightE)
-              (_, ConstExpr _, _) ->
-                (leftE, paren rightE)
-              _ -> (paren leftE, paren rightE)
+              (_, e1, e2)
+                | isConstAttr e1 && isConstAttr e2 -> (leftE, rightE)
+                | isConstAttr e1 -> (leftE, paren rightE)
+                | isConstAttr e2 -> (paren leftE, rightE)
+                | otherwise -> (paren  leftE, paren rightE)
         in BinSqlExpr (showBinOp op) expL expR
       UnExpr op e      -> let (op',t) = sqlUnOp op
                               e' = sqlExpr gen e
@@ -462,6 +460,11 @@ defaultSqlExpr gen e =
       ParamExpr n v    -> ParamSqlExpr n PlaceHolderSqlExpr
       FunExpr n exprs  -> FunSqlExpr n (map (sqlExpr gen) exprs)
       CastExpr typ e1 -> CastSqlExpr typ (sqlExpr gen e1)
+  where
+    isConstAttr :: PrimExpr -> Bool
+    isConstAttr (ConstExpr _) = True
+    isConstAttr (AttrExpr _) = True
+    isConstAttr _ = False
 
 showBinOp :: BinOp -> String
 showBinOp  OpEq         = "=" 

@@ -3,12 +3,15 @@ driver you want to use. Then, in the test/ directory:
 
   ghc --make DescDB1.hs
   ./DescDB1 
-  ghc --make RunTests.hs
 
-To test against postgres, using HDBC, first update 
-test-hdbc-postgresql.hs with appropriate login information. Then:
+Install Test.Hunit and Text.Regex:
+
+  cabal install HUnit
+  cabal install regex-compat
+
+To test against postgres, using HDBC:
 
   ghc --make test-hdbc-postgresql.hs
-  ./test-hdbc-postgresql
+  ./test-hdbc-postgresql -h <host> -d <database> -u <user> -p <password>
   
 And similarly for the other database and driver combinations.

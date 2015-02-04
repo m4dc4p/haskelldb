@@ -71,7 +71,7 @@ ppTables ts = text "FROM" <+> commaV ppTable (zipWith tableAlias [1..] ts)
 ppWhere :: [SqlExpr] -> Doc
 ppWhere [] = empty
 ppWhere es = text "WHERE" 
-             <+> hsep (intersperse (text "AND")
+             <+> hsep (intersperse (text "AND") 
                        (map (parens . ppSqlExpr) es))
 
 ppGroupBy :: Mark -> Doc
