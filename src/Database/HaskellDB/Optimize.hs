@@ -20,7 +20,8 @@ module Database.HaskellDB.Optimize (optimize, optimizeCriteria) where
 import Control.Exception (assert)
 import Data.List (intersect, (\\), union, nub)
 import Database.HaskellDB.PrimQuery
-
+import Debug.Trace
+    
 -- | Optimize a PrimQuery
 optimize :: PrimQuery -> PrimQuery
 optimize = hacks
@@ -57,7 +58,7 @@ includeOrderFieldsInSelect =
 -- | Remove unused attributes from projections.
 removeDead :: PrimQuery -> PrimQuery
 removeDead query
-        = removeD (attributes query) query
+        = {-trace ("removeDead query is " ++ show query) $-} removeD (attributes query) query
 
 removeD :: Scheme -- ^ All live attributes (i.e. all attributes 
 		  -- that are in the result of the query)
@@ -71,7 +72,12 @@ removeD live (Binary op query1 query2)
 	  live2 = live `intersect` attributes query2
 
 removeD live (Project assoc query)
-        = assert (all (`elem` (map fst newAssoc)) live)
+        = {-trace ("live: " ++ show live ++
+                 "\nquery: " ++ show query ++
+                 "\nassoc: " ++ show assoc ++
+                 "\nnewLive: " ++ show newLive ++
+                 "\nnewAssoc: " ++ show newAssoc) $-}
+          assert (all (`elem` (map fst newAssoc)) live)
           Project newAssoc (removeD newLive query)
         where
 	  -- The live attributes in the nested query.

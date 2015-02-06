@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts, UndecidableInstances, TypeSynonymInstances, FlexibleInstances
-  , MultiParamTypeClasses, StandaloneDeriving #-}
+  , MultiParamTypeClasses, StandaloneDeriving, DeriveDataTypeable #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  FieldType

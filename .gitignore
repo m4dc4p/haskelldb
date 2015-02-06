@@ -111,3 +111,11 @@ dist/
 (^|/)\.lock-wscript$
 # mac os finder
 (^|/)\.DS_Store$
+
+*.hi
+*.o
+*.dyn_*
+*~
+*cabal.sandbox.config
+packages/
+*.cabal-sandbox/

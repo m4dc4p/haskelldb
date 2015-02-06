@@ -58,7 +58,10 @@ import Database.HaskellDB.BoundedList
 import Control.Applicative
 import Control.Monad
 import System.Time (CalendarTime)
-
+import Data.List (elemIndex)
+    
+import Debug.Trace
+    
 -----------------------------------------------------------
 -- Operators
 -----------------------------------------------------------
@@ -79,7 +82,9 @@ infixr  2 .||.
 -- | Type of relations, contains the attributes
 --   of the relation and an 'Alias' to which the
 --   attributes are renamed in the 'PrimQuery'.
-data Rel r      = Rel Alias Scheme
+data Rel r      = Rel Alias {--^ Most recently used unique number --}
+                      Scheme {--^ User-requested column names --}
+                      Scheme {--^ Actual column names --}
 
 -- | Type of normal expressions, contains the untyped PrimExpr.
 newtype Expr a     = Expr PrimExpr
@@ -109,7 +114,10 @@ data Query a    = Query (QState -> (a,QState))
 
 
 scheme :: Rel r -> Scheme
-scheme (Rel _ s) = s
+scheme (Rel _ s _) = s
+
+actuals :: Rel r -> Scheme
+actuals (Rel _ _ s) = s
 
 attributeName :: Attr f a -> Attribute
 attributeName (Attr name) = name
@@ -207,14 +215,14 @@ instance RelToRec RecNil where
 -- turns it into a (Record ...) type, and prepends it to the rest of the 
 -- converted record. 
 instance (RelToRec rest, FieldTag f) => RelToRec (RecCons f (Expr a) rest) where
-  relToRec t@(Rel v s) = copy (attr . fieldT $ t) t # relToRec (restT t) 
+  relToRec t@(Rel v s c) = copy (attr . fieldT $ t) t # relToRec (restT t) 
     where
       attr :: FieldTag f => f -> Attr f a
       attr = Attr . fieldName
       fieldT :: Rel (RecCons f a rest) -> f 
       fieldT = error "fieldT"
       restT :: Rel (RecCons f a rest) -> Rel rest
-      restT _ = Rel v s
+      restT _ = Rel v s c
 
 -- | Field selection operator. It is overloaded to work for both
 --   relations in a query and the result of a query.
@@ -226,8 +234,13 @@ instance HasField f r => Select (Attr f a) (Rel r) (Expr a) where
     (!) rel attr = select attr rel
 
 select :: HasField f r => Attr f a -> Rel r -> Expr a
-select (Attr attribute) (Rel alias scheme)
-        = Expr (AttrExpr (fresh alias attribute))
+select (Attr attribute) (Rel _ scheme cols)
+        = let col = case elemIndex attribute scheme of
+                      Just n 
+                       | n < length cols -> cols !! n
+                       | otherwise -> error "Found  " ++ attribute ++ " in " ++ show scheme ++ ", but " ++ show cols ++ " was too short."
+                      Nothing -> error $ "Expected to find " ++ col ++ " in " ++ show scheme ++ ", but did not."
+          in Expr (AttrExpr col) -- wrong
 
 -----------------------------------------------------------
 -- Basic relational operators
@@ -237,11 +250,12 @@ select (Attr attribute) (Rel alias scheme)
 project :: (ShowLabels r, ToPrimExprs r, ProjectRec r er) => Record r -> Query (Rel er)
 project r
         = do
-	  alias <- newAlias
           let scheme        = labels r
-	      assoc         = zip (map (fresh alias) scheme) (exprs r)
+          assoc <- zipWithM (\col expr -> newAlias >>= \a -> return (col ++ show a, expr)) scheme (exprs r)
+          -- traceM $ "assoc is now " ++ show assoc
 	  updatePrimQuery (extend assoc)
-          return (Rel alias scheme)
+	  alias <- newAlias
+          return (Rel alias scheme (map fst assoc))
 
 -- | Restricts the records to only those who evaluates the 
 -- expression to True.
@@ -284,21 +298,22 @@ unique = Query (\(i, primQ) ->
 binrel :: RelOp -> Query (Rel r) -> Query (Rel r) -> Query (Rel r)
 binrel op (Query q1) (Query q2)
   = Query (\(i,primQ) ->
-      let (Rel a1 scheme1,(j,primQ1)) = q1 (i,primQ)
-          (Rel a2 scheme2,(alias,primQ2)) = q2 (j,primQ)
+      let (Rel a1 scheme1 cols1,(j,primQ1)) = q1 (i,primQ)
+          (Rel a2 scheme2 cols2,(alias,primQ2)) = q2 (j,primQ)
           
           scheme  = scheme1
 
           assoc1  = zip (map (fresh alias) scheme1)
-          		(map (AttrExpr . fresh a1) scheme1)
+          		(map AttrExpr cols1)
           assoc2  = zip (map (fresh alias) scheme2)
-          		(map (AttrExpr . fresh a2) scheme2)
+          		(map AttrExpr cols2)
 
           r1      = Project assoc1 primQ1
           r2      = Project assoc2 primQ2
           r       = Binary op r1 r2
+          newQuery = times r primQ
       in
-          (Rel alias scheme,(alias + 1, times r primQ)) )
+          (Rel alias scheme (attributes newQuery),(alias + 1, newQuery)) )
 
 -- | Return all records which are present in at least
 --   one of the relations.
@@ -335,7 +350,7 @@ table (Table name assoc)
 	      scheme   = map fst assoc
 	      q        = Project newAssoc (BaseTable name scheme)
 	  updatePrimQuery (times q)
-          return (Rel alias scheme)
+          return (Rel alias scheme (map fst newAssoc))
 
 -- | Get the name of a table.
 tableName :: Table t -> TableName
@@ -781,9 +796,9 @@ runQuery = fst . runQueryRel
 
 runQueryRel :: Query (Rel r) -> (PrimQuery,Rel r)
 runQueryRel (Query f)
-        = let (Rel alias scheme,(i,primQuery)) = f (1,Empty)
-              assoc   = zip scheme (map (AttrExpr . fresh alias) scheme)
-          in  (Project assoc primQuery, Rel 0 scheme)
+        = let (Rel alias scheme cols,(i,primQuery)) = f (1,Empty)
+              assoc   = zip scheme (map AttrExpr cols)
+          in  (Project assoc primQuery, Rel 0 scheme cols)
 
 -- | Allows a subquery to be created between another query and
 -- this query. Normally query definition is associative and query definition
@@ -795,13 +810,13 @@ subQuery (Query qs) = Query make
     make (currentAlias, currentQry) =
         -- Take the query to add and run it first, using the current alias as
         -- a seed.
-        let (Rel otherAlias otherScheme,(newestAlias, otherQuery)) = qs (currentAlias,Empty)
+        let (Rel otherAlias otherScheme otherCols,(newestAlias, otherQuery)) = qs (currentAlias,Empty)
             -- Effectively renames all columns in otherQuery to make them unique in this
             -- query.
             assoc = zip (map (fresh newestAlias) otherScheme)
-                        (map (AttrExpr . fresh otherAlias) otherScheme)
+                        (map AttrExpr otherCols)
             -- Produce a query which is a cross product of the other query and the current query.
-        in (Rel newestAlias otherScheme, (newestAlias + 1, times (Project assoc otherQuery) currentQry))
+        in (Rel newestAlias otherScheme (map fst assoc), (newestAlias + 1, times (Project assoc otherQuery) currentQry))
             
 instance Functor Query where
   fmap f (Query g)      = Query (\q0 -> let (x,q1) = g q0  in (f x,q1))

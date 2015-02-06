@@ -9,9 +9,10 @@ import Test.HUnit
 import Text.Regex
 import Database.HaskellDB
 import Database.HaskellDB.Query (tableName, constantRecord, subQuery, func, count, attributeName, offset)
-import Database.HaskellDB.HDBRec ((.=.))
+import Database.HaskellDB.HDBRec ((.=.), emptyRecord)
 import Control.Monad (when)
 import Data.Typeable(Typeable)
+import Database.HaskellDB.DBLayout
 
 import DB1
 import DB1.String_tbl as TString
@@ -21,6 +22,7 @@ import DB1.Double_tbl as TDouble
 import DB1.Bool_tbl as TBool
 import DB1.Calendartime_tbl as TCalendartime
 import DB1.Hdb_t1
+import DB1.Hdb_t2
 import DBTest
 
 tests :: Conn -> Test
@@ -67,7 +69,10 @@ queryTests _ _ = TestList . map (\f -> f undefined undefined) $ [ testUnique1,
                        testConcatAggr3,
                        testBracketing1,
                        testBracketing2,
-                       testBracketing3
+                       testBracketing3,
+                       testDupCol1,
+                       testDupCol2 -- ,
+                       -- testDeadTable
                       ]
 
 tableTests = 
@@ -256,8 +261,8 @@ testUnique3 = noDBTest "Testing that unique and restriction work correctly when 
               unique
               project $ TInt.f02 << (s ! TInt.f02)
         project $ TInt.f02 << count(v ! TInt.f02)
-      groupByTxt =  "SELECT COUNT(f024) as f02\n\
-                    \FROM (SELECT f02 as f024\n\
+      groupByTxt =  "SELECT COUNT(f025) as f02\n\
+                    \FROM (SELECT f02 as f025\n\
                     \      FROM int_tbl as T1\n\
                     \      WHERE (f01 = 100)\n\
                     \      GROUP BY f02) as T1"
@@ -345,15 +350,15 @@ testUnique9 = noDBTest "Testing that group by works correctly with projected exp
                    \GROUP BY (CASE WHEN f02 = 100 THEN 0 ELSE 1 END)"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
 
-testUnique10 = noDBTest "Testing that count works when  unique is in a subquery." $ do
+testUnique10 = noDBTest "Testing that count works when unique is in a subquery." $ do
   let qryTxt = showSql $ do
         v <- subQuery $ do
               t1 <- table int_tbl
               unique
               project $ TInt.f02 << (t1 ! TInt.f02)
         project $ TInt.f02 << count(v ! TInt.f02)
-      groupByTxt =  "SELECT COUNT(f024) as f02\n\
-                    \FROM (SELECT f02 as f024\n\
+      groupByTxt =  "SELECT COUNT(f025) as f02\n\
+                    \FROM (SELECT f02 as f025\n\
                     \      FROM int_tbl as T1\n\
                     \      GROUP BY f02) as T1"
   assertQueryText "Did not generate expected query. " qryTxt groupByTxt
@@ -366,8 +371,8 @@ testUnique11 = noDBTest "Testing that count works when unique and restrict in a 
           unique
           project $ TInt.f02 << (s ! TInt.f02) 
         project $ TInt.f02 << count(v ! TInt.f02)
-      groupByTxt = "SELECT COUNT(f024) as f02\n\
-                   \FROM (SELECT f02 as f024\n\
+      groupByTxt = "SELECT COUNT(f025) as f02\n\
+                   \FROM (SELECT f02 as f025\n\
                    \      FROM int_tbl as T1\n\
                    \      WHERE (f01 = 100)\n\
                    \      GROUP BY f02) as T1"
@@ -484,8 +489,8 @@ testConcatAggr2 = noDBTest "Testing SQL concat query with a count" $ do
                            unique
                            project $ TString.f02 << concatF (h ! TString.f02) (h ! TString.f04)
                  project $ TInt.f02 << count (v ! TString.f02)
-      result = "SELECT COUNT(f024) as f02\n\
-               \FROM (SELECT concat(f021,f041) as f024\n\
+      result = "SELECT COUNT(f025) as f02\n\
+               \FROM (SELECT concat(f021,f041) as f025\n\
                \      FROM (SELECT f02 as f021,\n\
                \                   f04 as f041\n\
                \            FROM string_tbl as T1) as T1\n\
@@ -537,6 +542,41 @@ testBracketing3 = noDBTest "Testing that properly bracketed SQL is generated (3)
                \WHERE ((f02 = f02) OR (f02 = f02)) AND ((f02 = f02) OR (f02 = f02)) AND ((f02 = f02) OR (f02 = f02))"
   assertQueryText "Concat not generated as expected: " qryTxt result
 
+testDupCol1 = noDBTest "Ensure that duplicate column names in final select still come from the correct inner table (2)." $ do
+  let qryTxt = showSql $ do
+        t1 <- table int_tbl
+        t2 <- table integer_tbl
+        project $ TInt.f02 << (t1 ! TInt.f02 .+. constant 1)
+                # TInteger.f02 << (t2 ! TInteger.f02 .+. constant 2)
+      result = "SELECT f021 + 1 as f02,\n\
+               \       f022 + 2 as f02\n\
+               \FROM (SELECT f02 as f022\n\
+               \      FROM integer_tbl as T1) as T1,\n\
+               \     (SELECT f02 as f021\n\
+               \      FROM int_tbl as T1) as T2"
+  assertQueryText "Did not handle duplicate columns: " qryTxt result
+
+testDupCol2 = noDBTest "Ensure that duplicate column names in final select still come from the correct inner table (2)." $ do
+  let qryTxt = showSql $ do
+        t1 <- table int_tbl
+        project $ TInt.f02 << (t1 ! TInt.f02 .+. constant 1)
+          # TInt.f02 << (t1 ! TInt.f02 .+. constant 2)
+      result = "SELECT f02 + 1 as f02,\n\
+               \       f02 + 2 as f02\n\
+               \FROM int_tbl as T1"
+  assertQueryText "Did not handle duplicate columns: " qryTxt result
+
+testDeadTable = noDBTest "Ensure that duplicate column names won't colide." $ do
+  let qryTxt = showSql $ do
+        t1 <- table int_tbl
+        t2 <- table int_tbl -- This table isn't referenced, so
+                            -- we should drop it from the final result.
+        project $ TInt.f02 << t1 ! TInt.f02
+          # emptyRecord
+      result = "SELECT f02 as f02\n\
+               \FROM dup_table1 as T1"
+  assertQueryText "Did not handle duplicate columns: " qryTxt result
+  
 -- | Helper which asserts that two query strings are equal.
 assertQueryText msg query expect = assertBool (msg ++ "\nGot: \n\n" ++ query ++
                                                "\n\nand expected: \n\n" ++ expect)

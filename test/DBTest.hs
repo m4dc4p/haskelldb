@@ -1,5 +1,4 @@
 {-# LANGUAGE RankNTypes #-}
-{-# OPTIONS_GHC -fglasgow-exts #-}
 module DBTest where
 
 import Database.HaskellDB

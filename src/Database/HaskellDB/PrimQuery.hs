@@ -39,7 +39,8 @@ import Control.Exception (assert)
 import System.Time (CalendarTime, formatCalendarTime)
 import System.Locale (defaultTimeLocale, iso8601DateFormat)
 import Text.PrettyPrint.HughesPJ
-
+import Debug.Trace
+    
 -----------------------------------------------------------
 -- data definitions
 -- PrimQuery is the data type of relational expressions.
@@ -131,7 +132,12 @@ data AggrOp     = AggrCount | AggrSum | AggrAvg | AggrMin | AggrMax
 --   keeping all other attributes in the relation visible too. 
 extend :: Assoc -> PrimQuery -> PrimQuery
 extend assoc query	
-	= Project (assoc ++ assoc') query
+	= -- trace ("assoc is " ++ show assoc ++
+          --       ";\n query is " ++ show query ++
+          --        ";\n assoc' is " ++ show assoc' ++
+          --       "\n attributes query is " ++ show (attributes query)) $
+          let result = Project (assoc ++ assoc') query
+          in {-trace ("final project: " ++ show result) $-} result
         where
           assoc'  = assocFromScheme (attributes query)
 

@@ -201,7 +201,7 @@ delete db (Table name assoc) criteria = dbDelete db name cs
 	where
 	  (Expr primExpr)  = criteria rel
           cs               = optimizeCriteria [substAttr assoc primExpr]
-	  rel		   = Rel 0 (map fst assoc)
+	  rel		   = Rel 0 (map fst assoc) (map fst assoc)
 	  
 -- | Updates records
 update :: (ShowLabels s, ToPrimExprs s) =>
@@ -224,7 +224,7 @@ update db (Table name assoc) criteria assignFun = dbUpdate db name cs newassoc
 	  		    				     ++ label ++ "' is not in database '" ++ name ++ "'")
 	  	
 	  assigns	= assignFun rel
-	  rel		= Rel 0 (map fst assoc)
+	  rel		= Rel 0 (map fst assoc) (map fst assoc)
 	
 -- | List all tables in the database
 tables :: Database  -- ^ Database

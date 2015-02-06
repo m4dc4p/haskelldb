@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiParamTypeClasses, FlexibleInstances
-, FlexibleContexts, UndecidableInstances #-}
+, FlexibleContexts, UndecidableInstances, DeriveDataTypeable #-}
 
 -----------------------------------------------------------
 -- |
