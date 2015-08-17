@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 -----------------------------------------------------------
 -- |
 -- Module      :  Database.HaskellDB.HDBC
