@@ -152,6 +152,10 @@ instance ProjectRec RecNil RecNil
 instance (ProjectExpr e, ProjectRec r er) => 
   ProjectRec (RecCons f (e a) r) (RecCons f (Expr a) er)
 
+instance ProjectRec r1 er1 => ProjectRec (RecNil, r1) (RecNil, er1)
+instance ProjectRec (r, r1) (er, er1)
+         => ProjectRec (RecCons f (e a) r, r1) (RecCons f (Expr a) er, er1)
+
 -----------------------------------------------------------
 -- Record operators
 -----------------------------------------------------------
@@ -847,3 +851,5 @@ instance ToPrimExprs RecNil where
 instance (ExprC e, ToPrimExprs r) => ToPrimExprs (RecCons l (e a) r) where
     toPrimExprs ~(RecCons e r) = primExpr e : toPrimExprs r
 
+instance (ToPrimExprs r0, ToPrimExprs r1) => ToPrimExprs (r0, r1) where
+  toPrimExprs (r0, r1) = toPrimExprs r0 ++ toPrimExprs r1
