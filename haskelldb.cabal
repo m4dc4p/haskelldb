@@ -35,33 +35,9 @@ Library
     FlexibleContexts,
     PolymorphicComponents
   Exposed-Modules:
-    Database.HaskellDB,
-    Database.HaskellDB.BoundedList,
-    Database.HaskellDB.BoundedString,
-    Database.HaskellDB.DBLayout,
-    Database.HaskellDB.DBDirect,
-    Database.HaskellDB.DBSpec,
-    Database.HaskellDB.DBSpec.DBInfo,
-    Database.HaskellDB.DBSpec.DBSpecToDBDirect,
-    Database.HaskellDB.DBSpec.DBSpecToDatabase,
-    Database.HaskellDB.DBSpec.DatabaseToDBSpec,
-    Database.HaskellDB.DBSpec.PPHelpers,
-    Database.HaskellDB.Database,
-    Database.HaskellDB.FieldType,
-    Database.HaskellDB.Optimize,
     Database.HaskellDB.PrimQuery,
-    Database.HaskellDB.PrintQuery,
-    Database.HaskellDB.Query,
     Database.HaskellDB.HDBRec,
-    Database.HaskellDB.Sql,
-    Database.HaskellDB.Sql.Generate,
-    Database.HaskellDB.Sql.Default,
-    Database.HaskellDB.Sql.Print,
-    Database.HaskellDB.Sql.MySQL,
-    Database.HaskellDB.Sql.PostgreSQL,
-    Database.HaskellDB.Sql.SQLite,
-    Database.HaskellDB.Version,
-    Database.HaskellDB.DriverAPI
+    Database.HaskellDB.Version
   Hs-source-dirs: src
 
 Source-repository head
