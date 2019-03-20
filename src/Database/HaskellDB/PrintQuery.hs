@@ -19,6 +19,7 @@ module Database.HaskellDB.PrintQuery
 
 where
 
+import Prelude hiding ((<>))
 import Database.HaskellDB.PrimQuery
 import Database.HaskellDB.Sql
 import Database.HaskellDB.Query (Query, runQuery, Rel)
