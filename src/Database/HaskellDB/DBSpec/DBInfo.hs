@@ -20,6 +20,7 @@ module Database.HaskellDB.DBSpec.DBInfo
      dbInfoToDoc,finalizeSpec,constructNonClashingDBInfo)
     where
 
+import Prelude hiding ((<>))
 import qualified Database.HaskellDB.DBSpec.PPHelpers as PP
 import Database.HaskellDB.FieldType (FieldDesc, FieldType(BStrT, StringT), )
 import Data.Char (toLower, isAlpha)

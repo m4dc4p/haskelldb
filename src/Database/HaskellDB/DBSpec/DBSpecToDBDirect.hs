@@ -19,6 +19,7 @@ module Database.HaskellDB.DBSpec.DBSpecToDBDirect
     (specToHDB, dbInfoToModuleFiles)
     where
 
+import Prelude hiding ((<>))
 import Database.HaskellDB.FieldType (toHaskellType, )
 
 import Database.HaskellDB.DBSpec.DBInfo

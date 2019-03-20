@@ -22,6 +22,7 @@ module Database.HaskellDB.Sql.Print (
                                      ppSqlExpr
 	                            ) where
 
+import Prelude hiding ((<>))
 import Database.HaskellDB.Sql
 
 import Data.List (intersperse)
