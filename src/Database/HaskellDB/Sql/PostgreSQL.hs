@@ -53,6 +53,7 @@ postgresqlSpecial op q = defaultSqlSpecial generator op q
 postgresqlLiteral :: Literal -> String
 postgresqlLiteral (DateLit d) = defaultSqlQuote generator (formatCalendarTime defaultTimeLocale fmt d)
     where fmt = iso8601DateFormat (Just "%H:%M:%S %Z")
+postgresqlLiteral (StringLit l) = "E" ++ (defaultSqlLiteral generator (StringLit l))
 postgresqlLiteral l = defaultSqlLiteral generator l
 
 postgresqlType :: FieldType -> SqlType
