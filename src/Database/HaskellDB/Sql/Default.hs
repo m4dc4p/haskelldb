@@ -462,6 +462,7 @@ defaultSqlExpr gen e =
       CastExpr typ e1 -> CastSqlExpr typ (sqlExpr gen e1)
   where
     isConstAttr :: PrimExpr -> Bool
+    isConstAttr (ListExpr _) = True
     isConstAttr (ConstExpr _) = True
     isConstAttr (AttrExpr _) = True
     isConstAttr _ = False
