@@ -1,6 +1,6 @@
 Name: haskelldb
-Version: 2.2.4
-Cabal-version: >= 1.6
+Version: 2.2.4.1
+Cabal-version: >= 1.8
 Build-type: Simple
 Homepage: https://github.com/m4dc4p/haskelldb
 Copyright: The authors

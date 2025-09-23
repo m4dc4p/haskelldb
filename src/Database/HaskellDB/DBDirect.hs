@@ -32,7 +32,6 @@ import System.Environment (getArgs, getProgName, )
 import System.Exit (exitFailure, )
 import System.IO (hPutStrLn, stderr, )
 
-import Control.Monad.Error () -- Monad instance for Either
 import Control.Monad (when, )
 import Data.List (intersperse, )
 
