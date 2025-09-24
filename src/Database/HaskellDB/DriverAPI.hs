@@ -1,4 +1,11 @@
-{-# LANGUAGE ExistentialQuantification, Rank2Types #-}
+{-# LANGUAGE ExistentialQuantification, Rank2Types, CPP #-}
+
+-- Control.Monad.Fail import is redundant since GHC 8.8.1 and base 4.13
+#if !MIN_VERSION_base(4,13,0)
+import Control.Monad.Fail (MonadFail)
+fail = MonadFail
+#endif
+
 -----------------------------------------------------------
 -- |
 -- Module      :  DriverAPI
