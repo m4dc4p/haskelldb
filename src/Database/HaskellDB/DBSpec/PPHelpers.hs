@@ -76,7 +76,7 @@ Generalization of 'words' and 'lines' to any separating character set.
 -}
 split :: Eq a => (a -> Bool) -> [a] -> [[a]]
 split p =
-   foldr (\ x yt@ ~(y:ys) -> (if p x then ([]:yt) else ((x:y):ys)) ) [[]]
+   foldr (\ x yt@(~(y:ys)) -> (if p x then ([]:yt) else ((x:y):ys)) ) [[]]
 
 checkChars s	= map replace s
 		where
