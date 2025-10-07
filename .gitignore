@@ -40,6 +40,7 @@
 \.setup-config
 # standard cabal build dir, might not be boring for everybody
 dist/
+dist-newstyle/
 # autotools
 (^|/)autom4te\.cache($|/)
 (^|/)config\.(log|status)$
@@ -79,6 +80,7 @@ dist/
 (^|/)(\+|,)
 (^|/)vssver\.scc$
 \.swp$
+\.swo$
 (^|/)MT($|/)
 (^|/)\{arch\}($|/)
 (^|/).arch-ids($|/)

@@ -1,4 +1,11 @@
-{-# LANGUAGE ExistentialQuantification, Rank2Types #-}
+{-# LANGUAGE ExistentialQuantification, Rank2Types, CPP #-}
+
+-- Control.Monad.Fail import is redundant since GHC 8.8.1 and base 4.13
+#if !MIN_VERSION_base(4,13,0)
+import Control.Monad.Fail (MonadFail)
+fail = MonadFail
+#endif
+
 -----------------------------------------------------------
 -- |
 -- Module      :  DriverAPI
@@ -54,7 +61,7 @@ defaultdriver =
 
 -- | Can be used by drivers to get option values from the given
 --   list of name, value pairs.
-getOptions ::Monad m => [String] -- ^ names of options to get
+getOptions ::MonadFail m => [String] -- ^ names of options to get
            -> [(String,String)] -- ^ options given
            -> m [String] -- ^ a list of the same length as the first argument
                          --   with the values of each option. Fails in the given
@@ -68,7 +75,7 @@ getOptions (x:xs) ys =
 -- | Can be used by drivers to get option values from the given
 --   list of name, value pairs.
 --   It is intended for use with the 'requiredOptions' value of the driver.
-getAnnotatedOptions :: Monad m =>
+getAnnotatedOptions :: MonadFail m =>
               [(String,String)] -- ^ names and descriptions of options to get
            -> [(String,String)] -- ^ options given
            -> m [String] -- ^ a list of the same length as the first argument
@@ -78,7 +85,7 @@ getAnnotatedOptions opts = getOptions (map fst opts)
 
 -- | Gets an 'SqlGenerator' from the "generator" option in the given list.
 --   Currently available generators: "mysql", "postgresql", "sqlite", "default"
-getGenerator :: Monad m => 
+getGenerator :: MonadFail m => 
                 [(String,String)] -- ^ options given
            -> m SqlGenerator -- ^ An SQL generator. If there was no
                              --   "generator" option, the default is used.

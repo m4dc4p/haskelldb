@@ -243,7 +243,7 @@ describe = dbDescribe
 transaction :: Database -- ^ Database
 	    -> IO a -- ^ Action to run
 	    -> IO a 
-transaction = dbTransaction
+transaction db x = dbTransaction db x
 
 -- | Commit any pending data to the database.
 commit :: Database -- ^ Database
